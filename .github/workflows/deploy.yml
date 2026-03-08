@@ -20,9 +20,11 @@ jobs:
           chmod 600 ~/.ssh/key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy new release
+      - name: Deploy with zero downtime and rollback
         run: |
           RELEASE=$(date +%Y%m%d%H%M%S)
+
+          echo "New release: $RELEASE"
 
           ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             mkdir -p /var/www/releases/$RELEASE
@@ -34,8 +36,33 @@ jobs:
             -e 'ssh -i ~/.ssh/key.pem' \
             ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/
 
+          OLD_TARGET=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
+          echo "Old release: $OLD_TARGET"
+
           ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             rm -f /var/www/current
             ln -s /var/www/releases/$RELEASE /var/www/current
             sudo systemctl restart apache2
+          "
+
+          sleep 5
+
+          if curl -f http://${{ secrets.EC2_HOST }}/ > /dev/null; then
+            echo 'Deployment successful.'
+          else
+            echo 'Health check failed. Rolling back...'
+
+            ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+              rm -f /var/www/current
+              ln -s $OLD_TARGET /var/www/current
+              sudo systemctl restart apache2
+            "
+
+            exit 1
+          fi
+
+      - name: Keep only last 5 releases
+        run: |
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r rm -rf
           "
