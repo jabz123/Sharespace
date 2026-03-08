@@ -1,3 +1,4 @@
+cat > /var/www/current/includes/layout.php << 'ENDOFFILE'
 <?php
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/controllers/AuthController.php';
@@ -25,10 +26,10 @@ function page_foot(): void { ?>
 function sidebar(User $user): void {
     $path  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $links = [
-        ['href' => BASE_PATH . '/dashboard.php',         'icon' => '🏠', 'label' => 'Home'],
-        ['href' => BASE_PATH . '/pages/browse.php',      'icon' => '👁', 'label' => 'Browse Articles'],
-        ['href' => BASE_PATH . '/pages/my-articles.php', 'icon' => '📄', 'label' => 'My Articles'],
-        ['href' => BASE_PATH . '/pages/write.php',       'icon' => '📝', 'label' => 'Write Article'],
+        ['href' => BASE_PATH . '/dashboard.php',         'icon' => BASE_PATH . '/icons/searchicon.png',      'label' => 'Home'],
+        ['href' => BASE_PATH . '/pages/browse.php',      'icon' => BASE_PATH . '/icons/searchicon.png',      'label' => 'Browse Articles'],
+        ['href' => BASE_PATH . '/pages/my-articles.php', 'icon' => BASE_PATH . '/icons/clearicon.png',       'label' => 'My Articles'],
+        ['href' => BASE_PATH . '/pages/write.php',       'icon' => BASE_PATH . '/icons/premiumlockicon.png', 'label' => 'Write Article'],
     ];
     ?>
 <aside class="sidebar">
@@ -38,7 +39,6 @@ function sidebar(User $user): void {
             <span class="logo-text">Shared Space</span>
         </a>
     </div>
-
     <div class="sidebar-user">
         <div class="user-avatar"><?= htmlspecialchars($user->initial()) ?></div>
         <div class="user-info">
@@ -50,20 +50,18 @@ function sidebar(User $user): void {
             <?php endif; ?>
         </div>
     </div>
-
     <nav class="sidebar-nav">
         <ul>
         <?php foreach ($links as $link): ?>
             <li>
                 <a href="<?= $link['href'] ?>" class="nav-link <?= $path === $link['href'] ? 'active' : '' ?>">
-                    <span><?= $link['icon'] ?></span>
+                    <img src="<?= $link['icon'] ?>" alt="<?= htmlspecialchars($link['label']) ?>" style="width:18px;height:18px;vertical-align:middle;margin-right:8px;">
                     <?= htmlspecialchars($link['label']) ?>
                 </a>
             </li>
         <?php endforeach; ?>
         </ul>
     </nav>
-
     <div class="sidebar-footer">
         <a href="<?= BASE_PATH ?>/logout.php" class="nav-link logout">🚪 Sign Out</a>
     </div>
@@ -96,14 +94,8 @@ function trust_badge(int $score): string {
 function relative_time(string $dateStr): string {
     $diff  = time() - strtotime($dateStr);
     $hours = (int)($diff / 3600);
-
-    if ($hours < 1) {
-        return 'Just now';
-    }
-    if ($hours < 24) {
-        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
-    }
-
+    if ($hours < 1)  return 'Just now';
+    if ($hours < 24) return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
     $days = (int)($hours / 24);
     return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
 }
@@ -116,13 +108,10 @@ function article_card(Article $article): void {
         <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
         <?= trust_badge($article->trustScore) ?>
     </div>
-
     <h3 class="card-title">
         <a href="<?= $url ?>"><?= htmlspecialchars($article->title) ?></a>
     </h3>
-
     <p class="card-excerpt"><?= htmlspecialchars(mb_substr($article->excerpt, 0, 120)) ?>…</p>
-
     <div class="card-footer">
         <div class="card-author">
             <div class="author-avatar"><?= htmlspecialchars($article->authorInitial()) ?></div>
@@ -132,3 +121,4 @@ function article_card(Article $article): void {
     </div>
 </div>
 <?php }
+ENDOFFILE
