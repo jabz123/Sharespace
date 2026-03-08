@@ -21,7 +21,7 @@ $trendingCount = count(array_unique(array_map(fn($a) => $a->categoryName, $recen
 page_head('Dashboard');
 ?>
 <div class="dashboard-layout">
-<?php // sidebar($user); ?>
+<?php sidebar($user); ?>
 <main>
 <?php dash_header('Welcome back, ' . htmlspecialchars($user->fullName), "Here's what's happening today"); ?>
 <?php flash_messages(); ?>
