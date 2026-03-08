@@ -87,7 +87,7 @@ page_head($article->title);
                 <?php if (!empty($article->imagePath)): ?>
 
                 <div class="article-banner">
-                    <img src="/<?= htmlspecialchars($article->imagePath) ?>" alt="Article Image">
+                    <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="Article Image">
                 </div>
 
                 <?php endif; ?>
