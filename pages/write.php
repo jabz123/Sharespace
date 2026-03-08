@@ -37,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['publish'])) {
 
             // $uploadDir = __DIR__ . '/../uploads/articles/';
             $uploadDir = __DIR__ . '/../public/uploads/articles/';
+            if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+            }
 
             //create unique filename
             $fileName = time() . '_' . basename($_FILES['article_image']['name']);
