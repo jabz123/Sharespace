@@ -1,6 +1,6 @@
 <?php
 //landing page
-
+<!-- CI/CD TEST SUCCESS -->
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 require_once __DIR__ . '/includes/controllers/ArticleController.php';
