@@ -145,7 +145,7 @@ function article_card(Article $article, User $user): void {
 
     <div class="card-image">
 
-        <img src="/<?= htmlspecialchars($article->imagePath) ?>">
+        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>">
        
 
         <?php if (!$isPremiumUser): ?>

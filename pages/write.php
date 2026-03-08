@@ -35,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['publish'])) {
      //handle image upload for premium users
         if ($isPremium && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
 
-            $uploadDir = __DIR__ . '/../uploads/articles/';
+            // $uploadDir = __DIR__ . '/../uploads/articles/';
+            $uploadDir = __DIR__ . '/../public/uploads/articles/';
 
             //create unique filename
             $fileName = time() . '_' . basename($_FILES['article_image']['name']);
