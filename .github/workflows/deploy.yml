@@ -13,10 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fix base path for AWS
-        run: |
-          find . -type f -name "*.php" -exec sed -i 's|/sharedspace||g' {} +
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -24,16 +20,22 @@ jobs:
           chmod 600 ~/.ssh/key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy files to EC2
+      - name: Deploy new release
         run: |
-          rsync -avz --delete \
-            --exclude ".git" \
-            --exclude ".github" \
-            -e "ssh -i ~/.ssh/key.pem" \
-            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/
+          RELEASE=$(date +%Y%m%d%H%M%S)
 
-      - name: Restart Apache
-        run: |
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            mkdir -p /var/www/releases/$RELEASE
+          "
+
+          rsync -avz \
+            --exclude '.git' \
+            --exclude '.github' \
+            -e 'ssh -i ~/.ssh/key.pem' \
+            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/
+
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            rm -f /var/www/current
+            ln -s /var/www/releases/$RELEASE /var/www/current
             sudo systemctl restart apache2
-          EOF
+          "
