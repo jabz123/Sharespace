@@ -66,14 +66,14 @@ page_head('Browse Articles');
                 value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
             >
 
-            <button type="button" id="clearSearch" class="clear-btn"><img src="/icons/clearicon.png" alt="Clear"></button>
+            <button type="button" id="clearSearch" class="clear-btn"><img src="/public/icons/clearicon.png" alt="Clear"></button>
 
         </div>
 
         <input type="hidden" name="category" value="<?= $category ?>">
         <input type="hidden" name="sort" value="<?= $sort ?>">
 
-         <button type="submit" class="search-btn"> <img src="/icons/searchicon.png" alt="Search"></button>
+         <button type="submit" class="search-btn"> <img src="/public/icons/searchicon.png" alt="Search"></button>
 
     </form>
 
