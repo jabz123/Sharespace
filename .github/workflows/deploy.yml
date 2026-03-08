@@ -18,51 +18,53 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
           chmod 600 ~/.ssh/key.pem
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy with zero downtime and rollback
         run: |
-          RELEASE=$(date +%Y%m%d%H%M%S)
+          set -e
 
+          RELEASE=$(date +%Y%m%d%H%M%S)
           echo "New release: $RELEASE"
 
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
             mkdir -p /var/www/releases/$RELEASE
           "
 
-          rsync -avz \
+          rsync -avz --delete \
             --exclude '.git' \
             --exclude '.github' \
-            -e 'ssh -i ~/.ssh/key.pem' \
-            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/
+            -e "ssh -i ~/.ssh/key.pem" \
+            "$GITHUB_WORKSPACE/" \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/"
 
-          OLD_TARGET=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
+          OLD_TARGET=$(ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "readlink -f /var/www/current || true")
           echo "Old release: $OLD_TARGET"
 
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            rm -f /var/www/current
-            ln -s /var/www/releases/$RELEASE /var/www/current
+          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+            sudo ln -sfn /var/www/releases/$RELEASE /var/www/current
             sudo systemctl restart apache2
           "
 
           sleep 5
 
-          if curl -f http://${{ secrets.EC2_HOST }}/ > /dev/null; then
-            echo 'Deployment successful.'
+          if curl -f "http://${{ secrets.EC2_HOST }}/" > /dev/null; then
+            echo "Deployment successful."
           else
-            echo 'Health check failed. Rolling back...'
+            echo "Health check failed. Rolling back..."
 
-            ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-              rm -f /var/www/current
-              ln -s $OLD_TARGET /var/www/current
-              sudo systemctl restart apache2
-            "
+            if [ -n \"$OLD_TARGET\" ]; then
+              ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+                sudo ln -sfn $OLD_TARGET /var/www/current
+                sudo systemctl restart apache2
+              "
+            fi
 
             exit 1
           fi
 
       - name: Keep only last 5 releases
         run: |
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
             cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r rm -rf
           "
