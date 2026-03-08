@@ -138,25 +138,34 @@ class ArticleController {
         return ['ok' => true, 'id' => DB::lastId()];
     }
 
-    public function getByCategory($category = null, $sort = 'recent'): array {
+    public function getByCategory($category = null, $sort = 'recent', $search = null): array {
 
         $sql = 'SELECT a.*, u.full_name AS author_name, c.name AS category_name
                 FROM articles a
                 JOIN users u ON u.id = a.author_id
                 JOIN categories c ON c.id = a.category_id';
 
+        $conditions = [];
         $params = [];
 
         if ($category) {
-            $sql .= ' WHERE LOWER(c.name) = ?';
+            $conditions[] = 'LOWER(c.name) = ?';
             $params[] = strtolower($category);
         }
 
-        // sorting logic
+        if ($search) {
+            $conditions[] = 'a.title LIKE ?';
+            $params[] = "%$search%";
+        }
+
+        if ($conditions) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
         if ($sort === 'recent') {
             $sql .= ' ORDER BY a.published_at DESC';
         } else {
-            $sql .= ' ORDER BY a.trust_score DESC';
+            $sql .= ' ORDER BY a.trust_score DESC, a.published_at DESC';
         }
 
         $rows = DB::query($sql, $params);

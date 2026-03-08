@@ -7,6 +7,7 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/ArticleController.php';
 require_once __DIR__ . '/controllers/CommentController.php';
+require_once __DIR__ . '/textlimit.php';
 
 function page_head(string $title): void { ?>
 <!DOCTYPE html>
@@ -121,24 +122,108 @@ function relative_time(string $dateStr): string {
 
 // article card logic
 //receives entity from articlecontroller
-function article_card(Article $article): void {
+function article_card(Article $article, User $user): void {
+
     $url = '/pages/article.php?id=' . $article->id;
-    ?>
+
+    $isPremiumUser = $user->role === 'premium';
+
+    $hasImage = !empty($article->imagePath);
+    $isPremiumArticle = $hasImage;
+    $commentCtrl = new CommentController();
+    $commentCount = $commentCtrl->countByArticle($article->id);
+
+?>
+<a href="<?= $url ?>" class="article-card-link">
 <div class="article-card">
     <div class="card-top">
         <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
         <?= trust_badge($article->trustScore) ?>
     </div>
-    <h3 class="card-title">
-        <a href="<?= $url ?>"><?= htmlspecialchars($article->title) ?></a>
-    </h3>
-    <p class="card-excerpt"><?= htmlspecialchars(mb_substr($article->excerpt, 0, 120)) ?>…</p>
-    <div class="card-footer">
-        <div class="card-author">
-            <div class="author-avatar"><?= htmlspecialchars($article->authorInitial()) ?></div>
-            <span><?= htmlspecialchars($article->authorName) ?></span>
-        </div>
-        <span class="card-time"><?= relative_time($article->publishedAt) ?></span>
+
+    <?php if ($hasImage): ?>
+
+    <div class="card-image">
+
+        <img src="/<?= htmlspecialchars($article->imagePath) ?>">
+       
+
+        <?php if (!$isPremiumUser): ?>
+            <span class="premium-badge">Premium</span>
+
+            <div class="premium-overlay">
+                <img src="/icons/premiumlockicon.png" class="premium-lock-icon">
+                <p>Premium Content</p>
+            </div>
+        <?php endif; ?>
+
     </div>
+
+    <?php endif; ?>
+
+    
+
+    <h3 class="card-title">
+        <?= htmlspecialchars(limit_words($article->title, 8)) ?>
+    </h3>
+
+<?php if ($isPremiumArticle && !$isPremiumUser): ?>
+
+    <p class="card-excerpt">Upgrade to Premium to access this article...</p>
+
+<?php else: ?>
+
+    <p class="card-excerpt">
+    <?php
+    $excerpt = $article->excerpt;
+
+    if (mb_strlen($excerpt, 'UTF-8') > 120) {
+        echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
+    } else {
+        echo htmlspecialchars($excerpt);
+    }
+    ?>
+    </p>
+
+<?php endif; ?>
+
+    <div class="card-footer">
+
+    <div class="footer-left">
+
+        <div class="author-avatar">
+            <?= htmlspecialchars($article->authorInitial()) ?>
+        </div>
+
+        <div class="author-info">
+            <div class="author-name">
+                <?= htmlspecialchars($article->authorName) ?>
+            </div>
+
+            <div class="card-time">
+                <?= relative_time($article->publishedAt) ?>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-actions">
+
+        <div class="meta-item">
+            <span class="meta-icon">💬</span>
+            <span class="meta-count"><?= $commentCount ?></span>
+        </div>
+
+        <div class="meta-item">
+            <span class="meta-icon">🚩</span>
+            <span class="meta-count">0</span>
+        </div>
+
+    </div>
+
 </div>
-<?php }
+
+</div>
+</a>
+<?php
+}

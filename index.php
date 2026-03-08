@@ -1,6 +1,5 @@
 <?php
 //landing page
-<!-- CI/CD TEST SUCCESS -->
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 require_once __DIR__ . '/includes/controllers/ArticleController.php';
@@ -33,7 +32,7 @@ function score_class(int $score): string {
     <title>SharedSpace – Truth in Every Headline</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/landing.css" />
+    <link rel="stylesheet" href="/public/css/landing.css" />
 </head>
 <body>
 

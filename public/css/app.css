@@ -190,8 +190,8 @@ a:hover {
     padding: 10px 12px;
     border-radius: 8px;
     color: var(--muted);
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: bold;
     transition: all .15s;
 }
 
@@ -466,21 +466,22 @@ textarea {
 .article-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 28px;
 }
 
 .article-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 10px;
     display: flex;
+    /* gap: 5px; */
     flex-direction: column;
-    gap: 12px;
     position: relative;
     overflow: hidden;
     transition: border-color .15s, box-shadow .15s, transform .15s;
     box-shadow: var(--shadow-card);
+    height: 430px;
 }
 
 .article-card:hover {
@@ -500,23 +501,21 @@ textarea {
 }
 
 .category-tag {
-    font-size: 11px;
+    font-size: 15px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .06em;
+    /* letter-spacing: .06em; */
     color: var(--primary);
 }
 
 .card-title {
     font-family: Georgia, serif;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
     line-height: 1.4;
+    padding-top: 12px;
 }
 
-.card-title a {
-    color: var(--fg);
-}
 
 .card-title a:hover {
     color: var(--primary);
@@ -524,17 +523,20 @@ textarea {
 }
 
 .card-excerpt {
-    font-size: 13px;
+    font-size: 15px;
     color: var(--muted);
     line-height: 1.6;
     flex: 1;
+    margin-top: 2px;
+    overflow: hidden;
+
 }
 
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 12px;
+    font-size: 15px;
     color: var(--muted);
 }
 
@@ -733,7 +735,8 @@ textarea {
 
 /*article detils*/
 .article-detail {
-    max-width: 760px;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .article-meta {
@@ -1075,7 +1078,7 @@ textarea {
 
 .image-preview{
     width:100%;
-    height:240px;        /* controls banner height */
+    height:240px;        
     background:#e5e5e5;
     border-radius:10px;
     overflow:hidden;
@@ -1088,7 +1091,7 @@ textarea {
 .image-preview img{
     width:100%;
     height:100%;
-    object-fit:cover;   /* crops image nicely */
+    object-fit:cover;   
 }
 
 .image-buttons{
@@ -1121,10 +1124,19 @@ textarea {
     border-radius:10px;
 }
 
+ .filter-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:20px;
+}
+
 .category-filters{
     display:flex;
-    gap:10px;
-    margin-bottom:16px;
+    gap:8px;
+    flex-wrap:nowrap;
+    flex:1;
 }
 
 .category-filters a{
@@ -1133,12 +1145,57 @@ textarea {
     background:#f3f3f3;
     font-size:14px;
     text-decoration:none;
-    color:#333;
 }
 
 .category-filters a:hover{
-    background:#e5e5e5;
+    background:#333;
+    color: white;
 }
+
+.search-bar{
+    display:flex;
+    align-items:center;
+
+}
+
+.search-input-wrapper{
+    position:relative;
+}
+
+.search-input-wrapper input{
+    padding:8px 28px 8px 12px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    width:200px;
+}
+
+.clear-btn{
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
+    border:none;
+    background:none;
+    cursor:pointer;
+    display:none;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.clear-btn img{
+    width:20px;
+    height:20px;
+}
+
+.search-btn{
+    border:1px solid #ddd;
+    background: grey;
+    padding:4px 10px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
 .sort-filters{
     display:flex;
     align-items:center;
@@ -1149,12 +1206,175 @@ textarea {
 .sort-btn{
     padding:6px 14px;
     border-radius:8px;
-    border:1px solid #ddd;
-    text-decoration:none;
+    background:#f3f3f3;
     font-size:14px;
+    text-decoration:none;
     color:#333;
 }
 
 .sort-btn:hover{
-    background:#f5f5f5;
+    background:#333;
+    color: white;
+    text-decoration:none;
+}
+.active-filter{
+    background:#333;
+    color:white !important;
+    border-radius:8px;
+}
+.category-filters a.active-filter{
+    background:#333;
+    color:white !important;
+}
+
+
+ /* card display css*/
+.card-image{
+    position:relative;
+    width:100%;
+    height:150px;
+    overflow:hidden;
+    border-radius:10px 10px 0 0;
+    flex-shrink: 0;
+    padding-top: 12px;
+}
+
+.card-image img{
+    width:100%;
+    height: 100%;
+    object-fit:cover;
+    display:block;
+}
+
+.premium-locked{
+    background:#e6e6e6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.premium-overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#777;
+    font-size:14px;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(2px);
+    z-index:1;
+    
+}
+
+.premium-overlay p{
+    margin-top:10px;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    
+}
+
+.premium-badge{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#ff6b6b;
+    color:white;
+    padding:4px 10px;
+    font-size:12px;
+    border-radius:6px;
+    z-index: 2;
+}
+
+.premium-overlay .premium-lock-icon{
+    width:50px;
+    height:50px;
+    margin-top:15px;
+}
+.article-card-link{
+    text-decoration:none;
+    color:inherit;
+    display:block;
+}
+.article-card-link:hover{
+    text-decoration:none;
+}
+.card-footer{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:15px;
+}
+
+.footer-left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.author-info{
+display:flex;
+flex-direction:column;
+font-size:14px;
+}
+
+.card-time{
+font-size:12px;
+color:#777;
+}
+
+.footer-actions{
+display:flex;
+gap:18px;
+align-items:center;
+}
+
+.action-btn{
+cursor:pointer;
+font-size:16px;
+}
+.article-summary{
+margin-top:20px;
+padding:16px 18px;
+background:#f7f9fc;
+border-left:4px solid #4a6cf7;
+border-radius:8px;
+}
+
+.summary-title{
+font-size:16px;
+font-weight:600;
+margin-bottom:6px;
+color:#333;
+}
+
+.summary-text{
+font-size:15px;
+line-height:1.6;
+color:#555;
+}
+.article-content-title{
+margin-top:30px;
+margin-bottom:18px;
+font-size:18px;
+font-weight:bold;
+color:#333;
+border-bottom: 1px solid #333;
+padding-bottom:6px;
+
+}
+
+.article-content{
+line-height:1.8;
+font-size:16px;
+color:black;
+}
+.comments-container{
+max-width:1000px;
+margin:0 auto;
 }

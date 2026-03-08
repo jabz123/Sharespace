@@ -77,6 +77,13 @@ page_head($article->title);
                 <h1 style="font-size:32px;font-weight:800;font-family:Georgia,serif;line-height:1.2;margin-bottom:16px">
                     <?= htmlspecialchars($article->title) ?>
                 </h1>
+                 <div class="article-meta">
+                    <div class="author-avatar" style="width:42px;height:42px;font-size:16px"><?= htmlspecialchars($article->authorInitial()) ?></div>
+                    <div>
+                        <p style="font-weight:600;font-size:14px"><?= htmlspecialchars($article->authorName) ?></p>
+                        <p class="text-sm text-muted">🕐 <?= date('F j, Y g:i A', strtotime($article->publishedAt)) ?></p>
+                    </div>
+                </div>
                 <?php if (!empty($article->imagePath)): ?>
 
                 <div class="article-banner">
@@ -84,14 +91,17 @@ page_head($article->title);
                 </div>
 
                 <?php endif; ?>
+                <?php if (!empty($article->excerpt)): ?>
 
-                <div class="article-meta">
-                    <div class="author-avatar" style="width:42px;height:42px;font-size:16px"><?= htmlspecialchars($article->authorInitial()) ?></div>
-                    <div>
-                        <p style="font-weight:600;font-size:14px"><?= htmlspecialchars($article->authorName) ?></p>
-                        <p class="text-sm text-muted">🕐 <?= date('F j, Y g:i A', strtotime($article->publishedAt)) ?></p>
-                    </div>
+                <div class="article-summary">
+                    <h3 class="summary-title">Brief Summary</h3>
+                    <p class="summary-text">
+                        <?= htmlspecialchars($article->excerpt) ?>
+                    </p>
                 </div>
+                <?php endif; ?>
+
+                <h3 class="article-content-title">Article</h3>
 
                 <div class="article-body">
                     <?= $article->renderContent() ?>
@@ -101,6 +111,7 @@ page_head($article->title);
 
 
             <div id="comments" style="margin-top:48px;padding-top:32px;border-top:2px solid var(--border)">
+            <div class="comments-container">
 
                 <h2 style="font-size:20px;font-weight:700;font-family:Georgia,serif;margin-bottom:24px">
                     💬 Comments <span style="font-size:14px;font-weight:400;color:var(--muted)">(<?= count($comments) ?>)</span>
@@ -155,7 +166,7 @@ page_head($article->title);
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
-
+                </div>
             </div>
 
         </div>

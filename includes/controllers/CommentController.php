@@ -19,6 +19,15 @@ class CommentController {
         );
         return array_map(fn($r) => new Comment($r), $rows);
     }
+    //return number of comments for an article
+    public function countByArticle(int $articleId): int {
+        return (int) DB::query(
+            'SELECT COUNT(*) AS count 
+            FROM comments 
+            WHERE article_id = ?',
+            [$articleId]
+        )[0]['count'];
+    }
 
     //post comment on article, validate and insert into db
     public function post(int $articleId, int $userId, string $body): array {

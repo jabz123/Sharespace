@@ -13,7 +13,7 @@ $user = $auth->currentUser();
 //fetch recent articles for dashboard stats and listing
 $recentArticles = $articleCtrl->getRecent(6);
 
-$avgTrust      = count($recentArticles)
+$avgTrust = count($recentArticles)
     ? round(array_sum(array_map(fn($a) => $a->trustScore, $recentArticles)) / count($recentArticles))
     : 0;
 $trendingCount = count(array_unique(array_map(fn($a) => $a->categoryName, $recentArticles)));
@@ -29,18 +29,17 @@ page_head('Dashboard');
 <div class="page-content">
 
     <div class="flex gap-2 mb-6">
-        <a href="<?= BASE_PATH ?>/pages/write.php" class="btn btn-primary">✏️ Write Article</a>
+        <a href="/pages/write.php" class="btn btn-primary">✏️ Write Article</a>
     </div>
 
     <div class="mb-8">
         <h2 style="font-size:18px;font-weight:700;font-family:Georgia,serif;margin-bottom:16px">Recent Articles</h2>
         <?php if (empty($recentArticles)): ?>
-            <p class="text-muted">No articles yet. 
-            <a href="<?= BASE_PATH ?>/pages/write.php">Write the first one!</a></p>
+            <p class="text-muted">No articles yet. <a href="/pages/write.php">Write the first one!</a></p>
         <?php else: ?>
         <div class="article-grid">
             <?php foreach ($recentArticles as $article):
-                article_card($article);
+                article_card($article, $user);
             endforeach; ?>
         </div>
         <?php endif; ?>
