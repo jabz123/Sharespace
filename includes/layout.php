@@ -152,7 +152,7 @@ function article_card(Article $article, User $user): void {
             <span class="premium-badge">Premium</span>
 
             <div class="premium-overlay">
-                <img src="/icons/premiumlockicon.png" class="premium-lock-icon">
+                <img src="/public/icons/premiumlockicon.png" class="premium-lock-icon">
                 <p>Premium Content</p>
             </div>
         <?php endif; ?>
