@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Fix base path for AWS
+        run: |
+          find . -type f -name "*.php" -exec sed -i 's|/sharedspace||g' {} +
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -31,5 +35,5 @@ jobs:
       - name: Restart Apache
         run: |
           ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          sudo systemctl restart apache2
+            sudo systemctl restart apache2
           EOF
