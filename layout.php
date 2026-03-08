@@ -25,10 +25,26 @@ function page_foot(): void { ?>
 function sidebar(User $user): void {
     $path  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $links = [
-        ['href' => BASE_PATH . '/dashboard.php',         'icon' => '🏠', 'label' => 'Home'],
-        ['href' => BASE_PATH . '/pages/browse.php',      'icon' => '👁', 'label' => 'Browse Articles'],
-        ['href' => BASE_PATH . '/pages/my-articles.php', 'icon' => '📄', 'label' => 'My Articles'],
-        ['href' => BASE_PATH . '/pages/write.php',       'icon' => '📝', 'label' => 'Write Article'],
+        [
+            'href'  => BASE_PATH . '/dashboard.php',
+            'icon'  => BASE_PATH . '/icons/searchicon.png',
+            'label' => 'Home'
+        ],
+        [
+            'href'  => BASE_PATH . '/pages/browse.php',
+            'icon'  => BASE_PATH . '/icons/searchicon.png',
+            'label' => 'Browse Articles'
+        ],
+        [
+            'href'  => BASE_PATH . '/pages/my-articles.php',
+            'icon'  => BASE_PATH . '/icons/clearicon.png',
+            'label' => 'My Articles'
+        ],
+        [
+            'href'  => BASE_PATH . '/pages/write.php',
+            'icon'  => BASE_PATH . '/icons/premiumlockicon.png',
+            'label' => 'Write Article'
+        ],
     ];
     ?>
 <aside class="sidebar">
@@ -56,7 +72,7 @@ function sidebar(User $user): void {
         <?php foreach ($links as $link): ?>
             <li>
                 <a href="<?= $link['href'] ?>" class="nav-link <?= $path === $link['href'] ? 'active' : '' ?>">
-                    <span><?= $link['icon'] ?></span>
+                    <img src="<?= $link['icon'] ?>" alt="<?= htmlspecialchars($link['label']) ?>" style="width:18px;height:18px;vertical-align:middle;margin-right:8px;">
                     <?= htmlspecialchars($link['label']) ?>
                 </a>
             </li>
