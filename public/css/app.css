@@ -672,6 +672,7 @@ textarea {
 .auth-wrap {
     display: flex;
     min-height: 100vh;
+    background: #ffffff;
 }
 
 .auth-form-side {
