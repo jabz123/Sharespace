@@ -1,7 +1,6 @@
 .env
 *.log
 *.pem
-vendor/
 node_modules/
 uploads/
 .DS_Store
