@@ -702,22 +702,18 @@ textarea {
 .auth-box {
     width: 100%;
     max-width: 420px;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
 }
 
 .auth-box h1 {
     font-size: 28px;
     font-weight: 700;
     font-family: Georgia, serif;
-    color: #111827;
+    color: var(--fg);
     margin-bottom: 8px;
 }
 
 .auth-box p.sub {
-    color: #6b7280;
+    color: var(--muted);
     margin-bottom: 32px;
     font-size: 14px;
 }
