@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if (isset($result['ok'])) {
-        redirect('/login.php', null, 'Account created! You can now sign in.');
+        // redirect to verify notice page and pass user email so we can resend verification easily
+        redirect('/verify_notice.php?email=' . urlencode($_POST['email']));
     }
 
     $error = $result['error'];

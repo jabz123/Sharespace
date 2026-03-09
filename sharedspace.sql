@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 08, 2026 at 09:23 PM
+-- Generation Time: Mar 09, 2026 at 08:19 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -130,7 +130,8 @@ INSERT INTO `comments` (`id`, `article_id`, `user_id`, `content`, `created_at`) 
 (5, 9, 4, 'Ireland have been extraordinary to watch this tournament. Crowley stepping into Sexton\'s boots seamlessly is remarkable.', '2025-03-17 09:00:00'),
 (6, 11, 2, 'The cardiovascular outcomes data from SELECT is genuinely impressive. Good to see approvals based on endpoints beyond weight loss.', '2025-01-26 10:00:00'),
 (8, 17, 6, 'aa', '2026-03-08 23:10:29'),
-(9, 17, 5, 'adsasdadsdsa', '2026-03-09 01:07:06');
+(9, 17, 5, 'adsasdadsdsa', '2026-03-09 01:07:06'),
+(10, 9, 6, 'aa', '2026-03-09 06:11:08');
 
 -- --------------------------------------------------------
 
@@ -179,20 +180,25 @@ CREATE TABLE `users` (
   `is_premium` tinyint(1) NOT NULL DEFAULT 0,
   `is_suspended` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `email_verified` tinyint(1) DEFAULT 0,
+  `verification_token` varchar(255) DEFAULT NULL,
+  `last_verification_email` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password`, `full_name`, `bio`, `avatar_url`, `role`, `is_premium`, `is_suspended`, `created_at`, `updated_at`) VALUES
-(1, 'alex.morgan@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Alex Morgan', 'Technology and business journalist covering emerging markets.', NULL, 'free', 0, 0, '2024-03-01 08:00:00', '2026-03-07 19:48:14'),
-(2, 'priya.sharma@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Priya Sharma', 'Freelance writer covering health, wellness, and nutrition.', NULL, 'free', 0, 0, '2024-03-03 09:00:00', '2026-03-07 19:48:14'),
-(3, 'lucas.ford@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Lucas Ford', 'Independent journalist covering science and the environment.', NULL, 'free', 0, 0, '2024-03-05 10:00:00', '2026-03-07 19:48:14'),
-(4, 'reader@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHej3sEpCV4rMb5TbKhxjjXAOn99Pjvg8e', 'Jamie Lee', 'Avid reader interested in science and technology news.', NULL, 'free', 0, 0, '2024-04-01 08:00:00', '2026-03-07 19:48:14'),
-(5, 'jamestan@example.com', '$2y$10$WThGM0YqN16DvgYvmx897uJCSFTz4XU6EPE46toW08.OsPVccgAGS', 'James Tan', NULL, NULL, 'premium', 0, 0, '2026-03-07 20:12:01', '2026-03-07 20:31:26'),
-(6, 'freeuser@example.com', '$2y$10$QfvDlA1hZSAzQOB.I2//h./zJKzz/6kiYkyiqFs6LZtZX0V8w6LFi', 'freeuser', NULL, NULL, 'free', 0, 0, '2026-03-08 22:44:25', '2026-03-08 22:44:25');
+INSERT INTO `users` (`id`, `email`, `password`, `full_name`, `bio`, `avatar_url`, `role`, `is_premium`, `is_suspended`, `created_at`, `updated_at`, `email_verified`, `verification_token`, `last_verification_email`) VALUES
+(1, 'alex.morgan@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Alex Morgan', 'Technology and business journalist covering emerging markets.', NULL, 'free', 0, 0, '2024-03-01 08:00:00', '2026-03-09 23:48:04', 1, NULL, NULL),
+(2, 'priya.sharma@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Priya Sharma', 'Freelance writer covering health, wellness, and nutrition.', NULL, 'free', 0, 0, '2024-03-03 09:00:00', '2026-03-09 23:48:04', 1, NULL, NULL),
+(3, 'lucas.ford@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Lucas Ford', 'Independent journalist covering science and the environment.', NULL, 'free', 0, 0, '2024-03-05 10:00:00', '2026-03-09 23:48:04', 1, NULL, NULL),
+(4, 'reader@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHej3sEpCV4rMb5TbKhxjjXAOn99Pjvg8e', 'Jamie Lee', 'Avid reader interested in science and technology news.', NULL, 'free', 0, 0, '2024-04-01 08:00:00', '2026-03-09 23:48:04', 1, NULL, NULL),
+(5, 'jamestan@example.com', '$2y$10$WThGM0YqN16DvgYvmx897uJCSFTz4XU6EPE46toW08.OsPVccgAGS', 'James Tan', NULL, NULL, 'premium', 0, 0, '2026-03-07 20:12:01', '2026-03-09 23:48:04', 1, NULL, NULL),
+(6, 'freeuser@example.com', '$2y$10$QfvDlA1hZSAzQOB.I2//h./zJKzz/6kiYkyiqFs6LZtZX0V8w6LFi', 'freeuser', NULL, NULL, 'free', 0, 0, '2026-03-08 22:44:25', '2026-03-09 23:48:04', 1, NULL, NULL),
+(7, 'premiumuser@example.com', '$2y$10$cv7e7jTftoojcy1U6ezfheZOgzqFHCq6Fca3MlUzArE7SwmjiGaKS', 'premuser', NULL, NULL, 'premium', 0, 0, '2026-03-09 19:42:32', '2026-03-09 23:48:04', 1, NULL, NULL),
+(29, 'freeuser2@example.com', '$2y$10$gCjrUogZQEp.KcVZsy5n8eNbWXAkj4J/394.o1m1ok.zt5Qyv.k8e', 'freeuser2', NULL, NULL, 'free', 0, 0, '2026-03-09 23:55:52', '2026-03-09 23:56:58', 1, NULL, '2026-03-09 23:56:55');
 
 --
 -- Indexes for dumped tables
@@ -280,7 +286,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `saved_articles`
@@ -298,7 +304,7 @@ ALTER TABLE `site_feedback`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- Constraints for dumped tables

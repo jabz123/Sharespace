@@ -4,24 +4,30 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 
 $auth = new AuthController();
+//redirect to dashboard if user is log in
 if ($auth->currentUser()) {
     header('Location: /dashboard.php');
     exit;
 }
 
 $error = null;
+//post login form
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $auth->login(
         $_POST['email']    ?? '',
         $_POST['password'] ?? ''
     );
+
     if (isset($result['ok'])) {
         header('Location: /dashboard.php');
         exit;
     }
+
     $error = $result['error'];
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
