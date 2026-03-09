@@ -68,7 +68,6 @@ a:hover {
 }
 
 /* FIXED SECTION */
-
 .auth-brand-side {
     flex: 1;
     display: flex;
@@ -76,16 +75,13 @@ a:hover {
     justify-content: center;
     padding: 48px;
 
-    background-image:
-        url("../images/network-pattern.svg"),
-        var(--gradient-hero);
+    background-image: url("/images/network-pattern.svg"), var(--gradient-hero);
 
     background-size: 600px, cover;
     background-repeat: repeat, no-repeat;
     background-position: center;
 
     position: relative;
-    overflow: hidden;
 }
 
 /* faded overlay */
