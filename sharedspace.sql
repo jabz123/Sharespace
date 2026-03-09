@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 08, 2026 at 12:02 AM
+-- Generation Time: Mar 08, 2026 at 09:23 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -57,11 +57,12 @@ INSERT INTO `articles` (`id`, `title`, `excerpt`, `content`, `author_id`, `categ
 (7, 'Federal Reserve Holds Rates Steady as Inflation Proves Stubborn', 'The FOMC voted unanimously to maintain the federal funds rate at 4.25-4.5%, citing persistent services inflation and a resilient labour market.', 'The Federal Open Market Committee voted unanimously to hold the federal funds rate in the target range of 4.25% to 4.5%, pausing what had been an extended easing cycle.\n\nIn the statement accompanying the decision, the Committee noted that inflation remains somewhat elevated, with core services inflation running at approximately 3.6%.\n\nChair Jerome Powell indicated that the Committee would need to see \"several more months of good data\" before resuming rate cuts.\n\nEconomists at JPMorgan and Goldman Sachs both revised their Fed rate forecasts, now projecting only one 25-basis-point cut in 2025.', 1, 4, 80, 0, NULL, 0, '2025-01-30 08:30:00', '2026-03-07 19:48:14', '2026-03-07 19:48:14'),
 (8, 'The Housing Crisis Is Getting Worse in Every Major City', 'A structural shortage of homes, restrictive planning laws, and rising construction costs are keeping housing unaffordable across the developed world.', 'Housing affordability has deteriorated to historically extreme levels across major cities, with the median house price now representing more than 10 times the median household income in cities including London, Sydney, Vancouver, and San Francisco.\n\nRestrictive zoning laws in most major cities prohibit high-density housing in large swaths of land close to employment centres, limiting supply precisely where demand is greatest.\n\nConstruction cost inflation has made new development increasingly marginal for housebuilders, rising approximately 40% in real terms since 2020.\n\nNew Zealand\'s experience following zoning reform in 2021 is frequently cited as evidence that supply-side reform can work, with building consents increasing 40% and rent growth decelerating.', 1, 4, 80, 0, NULL, 0, '2025-02-25 09:30:00', '2026-03-07 19:48:14', '2026-03-07 19:48:14'),
 (9, 'Six Nations 2025: Ireland\'s Dominance Continues With Grand Slam', 'Ireland secured a third Grand Slam in eight years with a comprehensive 31-18 victory over England at Twickenham.', 'Ireland completed a third Six Nations Grand Slam since 2018 with a dominant 31-18 victory over England at Twickenham, confirming their status as the world\'s top-ranked rugby union team under head coach Andy Farrell.\n\nIreland\'s victory was built on a clinical first half in which they scored three tries through Hugo Keenan, James Lowe, and Caelan Doris, taking a 24-6 lead into the break.\n\nFly-half Jack Crowley delivered a composed performance, landing five conversions and a penalty.\n\nFrance, despite finishing third, ended the tournament with the most tries scored and will be regarded as Ireland\'s most credible challenger heading into the 2027 World Cup cycle.', 2, 5, 80, 0, NULL, 0, '2025-03-16 18:00:00', '2026-03-07 19:48:14', '2026-03-07 19:48:14'),
-(10, 'The Science of Sports Nutrition: What the Evidence Actually Says', 'From protein timing to creatine and cold plunges, we separate well-supported sports science from marketing hype.', 'Sports nutrition is a field where rigorous science, commercial interests, and social media trends collide in ways that make it difficult for athletes to know what works.\n\nProtein consumption is the area with the strongest evidence base. A 2022 meta-analysis found that protein supplementation significantly increases muscle mass and strength gains from resistance training, with a plateau effect around 1.6g per kilogram of body weight daily.\n\nCreatine monohydrate has one of the strongest evidence profiles of any legal performance supplement, with hundreds of studies supporting its effectiveness for short-duration, high-intensity exercise.\n\nCold water immersion is effective at reducing delayed onset muscle soreness but may blunt long-term hypertrophy adaptations by suppressing the inflammatory signalling that drives muscle growth.', 2, 5, 80, 0, NULL, 0, '2025-04-03 09:30:00', '2026-03-07 19:48:14', '2026-03-07 19:48:14'),
+(10, 'The Science of Sports Nutrition: What the Evidence Actually Says', 'From protein timing to creatine and cold plunges, we separate well-supported sports science from marketing hype.', 'Sports nutrition is a field where rigorous science, commercial interests, and social media trends collide in ways that make it difficult for athletes to know what works.\n\nProtein consumption is the area with the strongest evidence base. A 2022 meta-analysis found that protein supplementation significantly increases muscle mass and strength gains from resistance training, with a plateau effect around 1.6g per kilogram of body weight daily.\n\nCreatine monohydrate has one of the strongest evidence profiles of any legal performance supplement, with hundreds of studies supporting its effectiveness for short-duration, high-intensity exercise.\n\nCold water immersion is effective at reducing delayed onset muscle soreness but may blunt long-term hypertrophy adaptations by suppressing the inflammatory signalling that drives muscle growth.', 2, 5, 80, 0, NULL, 0, '2025-04-03 09:30:00', '2026-03-07 19:48:14', '2026-03-09 00:20:59'),
 (11, 'NHS Approves Ozempic for Cardiovascular Risk Reduction', 'NICE has approved semaglutide for patients with established cardiovascular disease and BMI over 27, regardless of whether they have type 2 diabetes.', 'NICE has approved semaglutide for use in NHS patients with established cardiovascular disease and a BMI of 27 or above, regardless of whether they have a diabetes diagnosis.\n\nThe decision follows publication of the SELECT trial, which found that semaglutide reduced the risk of major adverse cardiovascular events by 20% compared to placebo over an average follow-up of 33 months.\n\nThe approval represents the first time any weight management medication has been approved on the basis of cardiovascular outcomes rather than weight loss alone.\n\nNHS England estimates approximately 340,000 patients would initially qualify, though supply constraints will require a phased rollout over at least two years.', 2, 6, 80, 0, NULL, 0, '2025-01-25 08:30:00', '2026-03-07 19:48:14', '2026-03-07 19:48:14'),
 (12, 'Sleep Science Update: Trackers, Chronotypes, and Caffeine', 'Wearable sleep trackers are less accurate than manufacturers claim, and caffeine timing matters more than quantity.', 'Sleep trackers manufactured by Garmin, Apple, Fitbit, and Oura have made consumer-grade sleep staging a mainstream feature. However, a 2024 validation study found that commercial wearables misclassify sleep stages in 30-40% of epochs.\n\nChronotype research has moved beyond the simple morning/evening dichotomy. Genome-wide association studies have identified over 350 genetic variants associated with chronotype, suggesting it is a complex continuous trait.\n\nCaffeine\'s half-life of 5-6 hours means a 200mg dose at 2pm leaves 50mg active at midnight. A 2024 randomised trial found that morning-only caffeine consumption improved sleep quality scores by an average of 14% compared to afternoon consumption of the same total dose.', 2, 6, 80, 0, NULL, 0, '2025-03-03 10:00:00', '2026-03-07 19:48:14', '2026-03-07 19:48:14'),
 (15, 'Sports test', 'Testing55', 'Sports insights and test', 5, 5, 85, 0, 'uploads/articles/1772912066_sports-tools_53876-138077.avif', 0, '2026-03-08 03:34:26', '2026-03-08 03:34:26', '2026-03-08 06:50:54'),
-(16, 'asdasadssdas', 'asdadskdmsakaskdm', 'dasdsadsaadsdsadsa', 5, 5, 80, 0, 'uploads/articles/1772919112_Youth-soccer-indiana.jpg', 0, '2026-03-08 05:31:52', '2026-03-08 05:31:52', '2026-03-08 06:50:41');
+(16, 'How to manage your time between sports and studies or work', 'Sports are essential for holistic development, offering profound physical, mental, and social benefits, including improved fitness, discipline, and teamwork. Beyond personal health, they foster resilience and bridge cultural divides. A strong essay highlights these advantages while emphasizing how sports shape character, teach leadership, and promote a balanced, healthy life. ', '1', 5, 5, 80, 0, 'uploads/articles/1772919112_Youth-soccer-indiana.jpg', 0, '2026-03-08 05:31:52', '2026-03-08 05:31:52', '2026-03-08 23:56:58'),
+(17, 'Health Sports', 'Maintain healthy through sports', 'Sports are very essential for every human life which keeps them fit and fine and physical strength. It has great importance in each stage of life. It also improves the personality of people. Sports keep our all organs alert and our hearts become stronger by regularly playing some kind of sports. sports has always given priority from old ages and nowadays it has become more fascinating. Due to the physical activity blood pressure also remains healthy, and blood vessels remain clean. Sugar level also reduces and cholesterol comes down by daily activity. Different people have different interests in sports but the action is the same in all sports. Sports are becoming big channels to make more capital/money day by day and the number of people is also increasing. By playing sports even at a young age you can also be better and free from some diseases. By playing sports lung function also improves and becomes healthy because more oxygen is supplied. Sports also improves bone strength even in old age.', 1, 6, 80, 0, NULL, 0, '2026-03-08 21:15:25', '2026-03-08 21:15:25', '2026-03-08 21:15:25');
 
 -- --------------------------------------------------------
 
@@ -127,7 +128,9 @@ INSERT INTO `comments` (`id`, `article_id`, `user_id`, `content`, `created_at`) 
 (3, 4, 4, 'As someone who lost a family member to melanoma this gives me real hope. When might this reach the NHS?', '2025-01-09 12:00:00'),
 (4, 4, 3, 'The $100k cost per patient is the most significant barrier. Even with Breakthrough Therapy designation the regulatory path takes years.', '2025-01-10 08:30:00'),
 (5, 9, 4, 'Ireland have been extraordinary to watch this tournament. Crowley stepping into Sexton\'s boots seamlessly is remarkable.', '2025-03-17 09:00:00'),
-(6, 11, 2, 'The cardiovascular outcomes data from SELECT is genuinely impressive. Good to see approvals based on endpoints beyond weight loss.', '2025-01-26 10:00:00');
+(6, 11, 2, 'The cardiovascular outcomes data from SELECT is genuinely impressive. Good to see approvals based on endpoints beyond weight loss.', '2025-01-26 10:00:00'),
+(8, 17, 6, 'aa', '2026-03-08 23:10:29'),
+(9, 17, 5, 'adsasdadsdsa', '2026-03-09 01:07:06');
 
 -- --------------------------------------------------------
 
@@ -188,7 +191,8 @@ INSERT INTO `users` (`id`, `email`, `password`, `full_name`, `bio`, `avatar_url`
 (2, 'priya.sharma@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Priya Sharma', 'Freelance writer covering health, wellness, and nutrition.', NULL, 'free', 0, 0, '2024-03-03 09:00:00', '2026-03-07 19:48:14'),
 (3, 'lucas.ford@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Lucas Ford', 'Independent journalist covering science and the environment.', NULL, 'free', 0, 0, '2024-03-05 10:00:00', '2026-03-07 19:48:14'),
 (4, 'reader@example.com', '$2y$12$gxbVunjvFtZxnQCMc58fHej3sEpCV4rMb5TbKhxjjXAOn99Pjvg8e', 'Jamie Lee', 'Avid reader interested in science and technology news.', NULL, 'free', 0, 0, '2024-04-01 08:00:00', '2026-03-07 19:48:14'),
-(5, 'jamestan@example.com', '$2y$10$WThGM0YqN16DvgYvmx897uJCSFTz4XU6EPE46toW08.OsPVccgAGS', 'James Tan', NULL, NULL, 'premium', 0, 0, '2026-03-07 20:12:01', '2026-03-07 20:31:26');
+(5, 'jamestan@example.com', '$2y$10$WThGM0YqN16DvgYvmx897uJCSFTz4XU6EPE46toW08.OsPVccgAGS', 'James Tan', NULL, NULL, 'premium', 0, 0, '2026-03-07 20:12:01', '2026-03-07 20:31:26'),
+(6, 'freeuser@example.com', '$2y$10$QfvDlA1hZSAzQOB.I2//h./zJKzz/6kiYkyiqFs6LZtZX0V8w6LFi', 'freeuser', NULL, NULL, 'free', 0, 0, '2026-03-08 22:44:25', '2026-03-08 22:44:25');
 
 --
 -- Indexes for dumped tables
@@ -258,7 +262,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `articles`
 --
 ALTER TABLE `articles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `article_flags`
@@ -276,7 +280,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `saved_articles`
@@ -294,7 +298,7 @@ ALTER TABLE `site_feedback`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
