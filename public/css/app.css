@@ -712,12 +712,12 @@ textarea {
     font-size: 28px;
     font-weight: 700;
     font-family: Georgia, serif;
-    color: var(--fg);
+    color: #111827;
     margin-bottom: 8px;
 }
 
 .auth-box p.sub {
-    color: var(--muted);
+    color: #6b7280;
     margin-bottom: 32px;
     font-size: 14px;
 }
