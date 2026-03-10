@@ -29,7 +29,7 @@ function score_class(int $score): string {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SharedSpace – Truthh in Every Headline</title>
+    <title>SharedSpace – Truth in Every Headline</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/public/css/landing.css" />
@@ -44,7 +44,7 @@ function score_class(int $score): string {
         </a>
         <div class="nav-links" id="nav-links">
             <a href="#features">Features</a>
-            <a href="#how-it-works">How It Works</a>
+            <a href="#how-it-works">How It Workss</a>
             <a href="#testimonials">Testimonials</a>
             <a href="#pricing">Pricing</a>
         </div>
