@@ -3,3 +3,16 @@
 *.pem
 node_modules/
 .DS_Store
+
+# Ignore uploaded images
+public/uploads/*
+
+# Keep the uploads folder structure
+!public/uploads/articles/
+
+# Ignore vendor if installed on server (optional)
+vendor/
+
+# Ignore temporary files
+*.tmp
+*.cache
