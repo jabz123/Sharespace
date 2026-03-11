@@ -358,7 +358,29 @@ a:hover {
     opacity: .45;
     cursor: not-allowed;
 }
+.auth-alt-link{
+    margin-top:24px;
+    text-align:center;
+}
 
+.back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:14px;
+    text-decoration:none;
+}
+
+.back-link:hover{
+text-decoration:underline;
+}
+
+.back-icon{
+width:14px;
+height:14px;
+object-fit:contain;
+opacity: 0.7;
+}
 
 
 /*forms*/

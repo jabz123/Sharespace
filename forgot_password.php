@@ -82,8 +82,8 @@ Send Reset Link
 
 </form>
 
-<p class="text-sm text-muted" style="text-align:center;margin-top:20px">
-<a href="/login.php">Back to login</a>
+<p class="auth-alt-link">
+<a href="/login.php" class="back-link"><img src="/public/icons/backicon.png" class="back-icon">Back to login</a>
 </p>
 
 </div>
