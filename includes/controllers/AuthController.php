@@ -1,8 +1,10 @@
 <?php
 // handles authentication logic for the system
-// process login, register, logout and email verification actions
+// process login, register, logout and email verification reset password actions
 // validate credentials and insertion of new accounts into the database
 // sends verification emails using PHPMailer to verify user account
+// generates a password reset token and expiry time (30min)
+// sends an email containing the reset password link 
 // Manages user sessions (store user_id, check logged-in user, require login for pages)
 
 require_once __DIR__ . '/../../vendor/phpmailer/src/PHPMailer.php';
@@ -274,4 +276,41 @@ class AuthController {
             exit;
         }
     }
+    public function requestPasswordReset(string $email): array {
+
+    $email = strtolower(trim($email));
+
+    $user = DB::first(
+        "SELECT id FROM users WHERE email = ?",
+        [$email]
+    );
+
+    if (!$user) {
+        return ['error' => 'No account found with that email.'];
+    }
+
+    $token = bin2hex(random_bytes(32));
+
+    DB::execute(
+        "UPDATE users
+         SET reset_token = ?, reset_expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE)
+         WHERE id = ?",
+        [$token, $user['id']]
+    );
+
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'];
+
+    $link = $protocol . $host . "/reset_password.php?token=" . $token;
+
+    $this->sendEmail(
+        $email,
+        "Reset Your Password",
+        "<p>Click below to reset your password:</p>
+        <a href='$link'>$link</a>"
+    );
+
+    return ['ok' => true];
+}
+
 }
