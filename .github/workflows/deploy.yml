@@ -34,6 +34,7 @@ jobs:
           rsync -avz --delete \
             --exclude '.git' \
             --exclude '.github' \
+            --exclude 'public/uploads' \
             -e "ssh -i ~/.ssh/key.pem" \
             "$GITHUB_WORKSPACE/" \
             "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/"
@@ -43,12 +44,13 @@ jobs:
 
           ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
             sudo ln -sfn /var/www/releases/$RELEASE /var/www/current
+            sudo ln -sfn /var/www/storage/uploads /var/www/current/public/uploads
             sudo systemctl restart apache2
           "
 
           sleep 5
 
-          if curl -f "http://${{ secrets.EC2_HOST }}/" > /dev/null; then
+          if curl -f "http://${{ secrets.EC2_HOST }}/staging/index.php" > /dev/null; then
             echo "Deployment successful."
           else
             echo "Health check failed. Rolling back..."
