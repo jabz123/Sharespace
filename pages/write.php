@@ -36,7 +36,17 @@ if ($editId) {
 
 //update and publish article
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['publish'])) {
-     $imagePath = null;
+     $imagePath = $article->imagePath ?? null;
+
+    if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1') {
+        if (!empty($article->imagePath)) {
+            $filePath = __DIR__ . '/../public/' . $article->imagePath;
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+        $imagePath = null;
+    }
      //handle image upload for premium users
         if ($isPremium && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
 
@@ -96,12 +106,19 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         <div class="page-content">
 
             <form method="POST" id="write-form" enctype="multipart/form-data">
+                <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
                 <?php if ($isPremium): ?>
 
                 <div class="image-upload-container">
 
                     <div class="image-preview" id="imagePreview">
+
+                    <?php if ($isEdit && !empty($article->imagePath)): ?>
+                        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="Article Image">
+                    <?php else: ?>
                         <span>No image selected</span>
+                    <?php endif; ?>
+
                     </div>
 
                     <input type="file" id="articleImageInput" name="article_image" accept="image/*" hidden>
@@ -189,6 +206,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         function removeImage() {
             document.getElementById('articleImageInput').value = '';
             document.getElementById('imagePreview').innerHTML = '<span>No image selected</span>';
+            document.getElementById('removeImageFlag').value = "1";
         }
 
         </script>

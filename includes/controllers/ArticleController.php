@@ -90,11 +90,16 @@ class ArticleController {
             return ['error' => 'Article not found or permission denied.'];
         }
 
+        $imagePath = $input['image_path'] ?? null;
+
         DB::execute(
-            'UPDATE articles SET title = ?, excerpt = ?, content = ?, category_id = ?, updated_at = NOW()
-             WHERE id = ? AND author_id = ?',
-            [$title, $excerpt, $content, $categoryId, $articleId, $authorId]
+            'UPDATE articles
+            SET title = ?, excerpt = ?, content = ?, category_id = ?, image_path = ?, updated_at = NOW()
+            WHERE id = ? AND author_id = ?',
+            [$title, $excerpt, $content, $categoryId, $imagePath, $articleId, $authorId]
         );
+
+       
 
         return ['ok' => true];
     }
