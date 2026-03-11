@@ -27,12 +27,13 @@ jobs:
           RELEASE=$(date +%Y%m%d%H%M%S)
           echo "Deploying release: $RELEASE"
 
-          # Create new release folder
+          # Create release directory with proper permissions
           ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            mkdir -p /var/www/releases/$RELEASE
+            sudo mkdir -p /var/www/releases/$RELEASE &&
+            sudo chown -R $USER:www-data /var/www/releases/$RELEASE
           "
 
-          # Upload files
+          # Upload new code
           rsync -avz --delete \
             --exclude '.git' \
             --exclude '.github' \
@@ -41,14 +42,14 @@ jobs:
             "$GITHUB_WORKSPACE/" \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/
 
-          # Get previous release
+          # Get previous release for rollback
           OLD_RELEASE=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
           echo "Previous release: $OLD_RELEASE"
 
           # Activate new release
           ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            ln -sfn /var/www/storage/uploads /var/www/releases/$RELEASE/public/uploads
-            sudo ln -sfn /var/www/releases/$RELEASE /var/www/current
+            ln -sfn /var/www/storage/uploads /var/www/releases/$RELEASE/public/uploads &&
+            sudo ln -sfn /var/www/releases/$RELEASE /var/www/current &&
             sudo systemctl reload apache2
           "
 
@@ -63,7 +64,7 @@ jobs:
 
             if [ -n \"$OLD_RELEASE\" ]; then
               ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-                sudo ln -sfn $OLD_RELEASE /var/www/current
+                sudo ln -sfn $OLD_RELEASE /var/www/current &&
                 sudo systemctl reload apache2
               "
             fi
