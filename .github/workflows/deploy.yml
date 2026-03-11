@@ -50,7 +50,7 @@ jobs:
 
           sleep 5
 
-          if curl -f "http://${{ secrets.EC2_HOST }}/staging/index.php" > /dev/null; then
+          if curl -f "http://${{ secrets.EC2_HOST }}/index.php" > /dev/null; then
             echo "Deployment successful."
           else
             echo "Health check failed. Rolling back..."
