@@ -74,7 +74,6 @@ jobs:
 
       - name: Keep only last 5 releases
         run: |
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            cd /var/www/releases &&
-            ls -1dt */ | tail -n +6 | xargs -r rm -rf
+          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+            cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r sudo rm -rf
           "
