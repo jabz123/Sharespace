@@ -16,7 +16,7 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
           chmod 600 ~/.ssh/key.pem
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
@@ -25,40 +25,46 @@ jobs:
           set -e
 
           RELEASE=$(date +%Y%m%d%H%M%S)
-          echo "New release: $RELEASE"
+          echo "Deploying release: $RELEASE"
 
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+          # Create new release folder
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             mkdir -p /var/www/releases/$RELEASE
           "
 
+          # Upload files
           rsync -avz --delete \
             --exclude '.git' \
             --exclude '.github' \
             --exclude 'public/uploads' \
             -e "ssh -i ~/.ssh/key.pem" \
             "$GITHUB_WORKSPACE/" \
-            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/"
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/
 
-          OLD_TARGET=$(ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "readlink -f /var/www/current || true")
-          echo "Old release: $OLD_TARGET"
+          # Get previous release
+          OLD_RELEASE=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
+          echo "Previous release: $OLD_RELEASE"
 
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+          # Activate new release
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            ln -sfn /var/www/storage/uploads /var/www/releases/$RELEASE/public/uploads
             sudo ln -sfn /var/www/releases/$RELEASE /var/www/current
-            sudo ln -sfn /var/www/storage/uploads /var/www/current/public/uploads
-            sudo systemctl restart apache2
+            sudo systemctl reload apache2
           "
 
+          # Wait for server
           sleep 5
 
-          if curl -f "http://${{ secrets.EC2_HOST }}/index.php" > /dev/null; then
+          # Health check
+          if curl -f http://${{ secrets.EC2_HOST }}/index.php > /dev/null; then
             echo "Deployment successful."
           else
             echo "Health check failed. Rolling back..."
 
-            if [ -n \"$OLD_TARGET\" ]; then
-              ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-                sudo ln -sfn $OLD_TARGET /var/www/current
-                sudo systemctl restart apache2
+            if [ -n \"$OLD_RELEASE\" ]; then
+              ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+                sudo ln -sfn $OLD_RELEASE /var/www/current
+                sudo systemctl reload apache2
               "
             fi
 
@@ -67,6 +73,7 @@ jobs:
 
       - name: Keep only last 5 releases
         run: |
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-            cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r rm -rf
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            cd /var/www/releases &&
+            ls -1dt */ | tail -n +6 | xargs -r rm -rf
           "
