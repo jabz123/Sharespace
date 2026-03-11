@@ -102,23 +102,28 @@ function relative_time(string $dateStr): string {
 
 function article_card(Article $article): void {
     $url = BASE_PATH . '/pages/article.php?id=' . $article->id;
-    ?>
+?>
 <div class="article-card">
+
+    <?php if ($article->imagePath): ?>
+        <div class="card-image">
+            <img src="<?= BASE_PATH . '/' . $article->imagePath ?>" alt="Article Image">
+        </div>
+    <?php endif; ?>
+
     <div class="card-top">
         <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
         <?= trust_badge($article->trustScore) ?>
     </div>
+
     <h3 class="card-title">
         <a href="<?= $url ?>"><?= htmlspecialchars($article->title) ?></a>
     </h3>
-    <p class="card-excerpt"><?= htmlspecialchars(mb_substr($article->excerpt, 0, 120)) ?>…</p>
-    <div class="card-footer">
-        <div class="card-author">
-            <div class="author-avatar"><?= htmlspecialchars($article->authorInitial()) ?></div>
-            <span><?= htmlspecialchars($article->authorName) ?></span>
-        </div>
-        <span class="card-time"><?= relative_time($article->publishedAt) ?></span>
-    </div>
+
+    <p class="card-excerpt">
+        <?= htmlspecialchars(mb_substr($article->excerpt, 0, 120)) ?>…
+    </p>
+
 </div>
 <?php }
 ENDOFFILE
