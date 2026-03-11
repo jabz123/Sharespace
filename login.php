@@ -70,8 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .left-inner {
         flex: 1; display: flex; flex-direction: column;
-        justify-content: center; padding: 0 64px;
+        justify-content: center; align-items: center; padding: 0 48px;
     }
+
+    .auth-logo, .auth-box, .or-divider, .sso-row { width: 100%; max-width: 380px; }
 
     .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 48px; text-decoration: none; }
     .brand-mark { width: 32px; height: 32px; background: var(--ink); border-radius: 8px; position: relative; flex-shrink: 0; }
@@ -140,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .btn-sso { height: 42px; border: 1.5px solid var(--fog); border-radius: 9px; background: var(--white); font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
     .btn-sso:hover { border-color: #c8d4e3; background: var(--snow); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
-    .left-footer { padding: 22px 64px; border-top: 1px solid var(--fog); display: flex; align-items: center; justify-content: space-between; }
+    .left-footer { padding: 22px 48px; border-top: 1px solid var(--fog); display: flex; align-items: center; justify-content: space-between; }
     .signup-cta { font-size: 13px; color: var(--slate); }
     .signup-cta a { color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid var(--amber); padding-bottom: 1px; transition: color 0.15s; }
     .signup-cta a:hover { color: var(--amber-d); }
