@@ -27,10 +27,11 @@ jobs:
           RELEASE=$(date +%Y%m%d%H%M%S)
           echo "New release: $RELEASE"
 
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-            mkdir -p /var/www/releases/$RELEASE
-          "
+          # Create release directory
+          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "mkdir -p /var/www/releases/$RELEASE"
 
+          # Sync files
           rsync -avz --delete \
             --exclude '.git' \
             --exclude '.github' \
@@ -38,26 +39,35 @@ jobs:
             "$GITHUB_WORKSPACE/" \
             "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/"
 
-          OLD_TARGET=$(ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "readlink -f /var/www/current || true")
+          # Save old release path before switching
+          OLD_TARGET=$(ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "readlink -f /var/www/current 2>/dev/null || echo ''")
           echo "Old release: $OLD_TARGET"
 
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-            sudo ln -sfn /var/www/releases/$RELEASE /var/www/current
-            sudo systemctl restart apache2
-          "
+          # Switch symlink and restart apache
+          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "sudo ln -sfn /var/www/releases/$RELEASE /var/www/current && sudo systemctl restart apache2"
 
           sleep 5
 
-          if curl -f "http://${{ secrets.EC2_HOST }}/" > /dev/null; then
+          # Health check against dedicated endpoint
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 10 \
+            "http://${{ secrets.EC2_HOST }}/health.php")
+
+          echo "Health check HTTP status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" = "200" ]; then
             echo "Deployment successful."
           else
-            echo "Health check failed. Rolling back..."
+            echo "Health check failed (got $HTTP_CODE). Rolling back..."
 
-            if [ -n \"$OLD_TARGET\" ]; then
-              ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-                sudo ln -sfn $OLD_TARGET /var/www/current
-                sudo systemctl restart apache2
-              "
+            if [ -n "$OLD_TARGET" ]; then
+              ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+                "sudo ln -sfn $OLD_TARGET /var/www/current && sudo systemctl restart apache2"
+              echo "Rolled back to $OLD_TARGET"
+            else
+              echo "No previous release to roll back to."
             fi
 
             exit 1
@@ -65,6 +75,5 @@ jobs:
 
       - name: Keep only last 5 releases
         run: |
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-            cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r rm -rf
-          "
+          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r rm -rf"
