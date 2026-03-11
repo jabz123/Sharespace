@@ -44,7 +44,7 @@ function score_class(int $score): string {
         </a>
         <div class="nav-links" id="nav-links">
             <a href="#features">Features</a>
-            <a href="#how-it-works">How It Workss</a>
+            <a href="#how-it-works">How It Works</a>
             <a href="#testimonials">Testimonials</a>
             <a href="#pricing">Pricing</a>
         </div>
