@@ -56,16 +56,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     html, body { height: 100%; overflow: hidden; font-family: 'Geist', -apple-system, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
     body { display: flex; }
 
-    /* ══ LEFT PANEL ══ */
+    /* ══ LEFT PANEL — 40% ══ */
     .panel-left {
-        width: 480px; flex-shrink: 0; background: var(--white);
-        display: flex; flex-direction: column; position: relative; overflow: hidden;
+        width: 40%;
+        flex-shrink: 0;
+        background: var(--white);
+        display: flex; flex-direction: column;
+        position: relative; overflow: hidden;
     }
     .panel-left::after {
         content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
         background: linear-gradient(90deg, var(--amber), var(--amber-d) 60%, transparent); z-index: 10;
     }
-    .left-inner { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 56px; }
+    .left-inner {
+        flex: 1; display: flex; flex-direction: column;
+        justify-content: center; padding: 0 64px;
+    }
 
     .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 48px; text-decoration: none; }
     .brand-mark { width: 32px; height: 32px; background: var(--ink); border-radius: 8px; position: relative; flex-shrink: 0; }
@@ -79,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .brand-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 18px; color: var(--ink); letter-spacing: -0.2px; }
 
-    .auth-box h1 { font-family: 'Instrument Serif', Georgia, serif; font-size: 30px; font-weight: 400; color: var(--ink); letter-spacing: -0.7px; line-height: 1.15; margin-bottom: 5px; }
+    .auth-box h1 { font-family: 'Instrument Serif', Georgia, serif; font-size: 32px; font-weight: 400; color: var(--ink); letter-spacing: -0.7px; line-height: 1.15; margin-bottom: 5px; }
     .auth-box p.sub { font-size: 13.5px; color: var(--slate); margin-bottom: 28px; line-height: 1.5; }
 
     .alert { display: flex; align-items: flex-start; gap: 9px; border-radius: 9px; padding: 11px 13px; margin-bottom: 18px; font-size: 13px; line-height: 1.45; border: 1px solid; }
@@ -134,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .btn-sso { height: 42px; border: 1.5px solid var(--fog); border-radius: 9px; background: var(--white); font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
     .btn-sso:hover { border-color: #c8d4e3; background: var(--snow); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
-    .left-footer { padding: 22px 56px; border-top: 1px solid var(--fog); display: flex; align-items: center; justify-content: space-between; }
+    .left-footer { padding: 22px 64px; border-top: 1px solid var(--fog); display: flex; align-items: center; justify-content: space-between; }
     .signup-cta { font-size: 13px; color: var(--slate); }
     .signup-cta a { color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid var(--amber); padding-bottom: 1px; transition: color 0.15s; }
     .signup-cta a:hover { color: var(--amber-d); }
@@ -143,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 2.5px rgba(16,185,129,0.2); animation: pulse-green 2s infinite; }
     @keyframes pulse-green { 0%,100% { box-shadow: 0 0 0 2.5px rgba(16,185,129,0.2); } 50% { box-shadow: 0 0 0 5px rgba(16,185,129,0.07); } }
 
-    /* ══ RIGHT PANEL ══ */
+    /* ══ RIGHT PANEL — 60% ══ */
     .panel-right { flex: 1; background: var(--navy); position: relative; overflow: hidden; display: flex; flex-direction: column; }
     .bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.024) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.024) 1px, transparent 1px); background-size: 48px 48px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%); }
     .bg-glow-teal { position: absolute; top: -180px; right: -80px; width: 580px; height: 580px; background: radial-gradient(circle, rgba(13,148,136,0.11) 0%, transparent 65%); pointer-events: none; }
@@ -217,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-<!-- ══ LEFT ══ -->
+<!-- ══ LEFT — 40% ══ -->
 <div class="panel-left">
     <div class="left-inner">
 
@@ -307,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 
-<!-- ══ RIGHT ══ -->
+<!-- ══ RIGHT — 60% ══ -->
 <div class="panel-right">
     <div class="bg-grid"></div>
     <div class="bg-glow-teal"></div>
