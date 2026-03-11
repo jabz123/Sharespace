@@ -1,313 +1,281 @@
-<?php
-
-require_once __DIR__ . '/includes/auth.php';
-require_once __DIR__ . '/includes/controllers/AuthController.php';
-
-$auth = new AuthController();
-//redirect to dashboard if user is log in
-if ($auth->currentUser()) {
-    header('Location: /dashboard.php');
-    exit;
-}
-
-$error = null;
-//post login form
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $result = $auth->login(
-        $_POST['email']    ?? '',
-        $_POST['password'] ?? ''
-    );
-
-    if (isset($result['ok'])) {
-        header('Location: /dashboard.php');
-        exit;
-    }
-
-    $error = $result['error'];
-}
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Sign In – SharedSpace</title>
-    <link rel="stylesheet" href="/public/css/app.css" />
-    <style>
-        body { background: hsl(213,56%,10%); }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SharedSpace – Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .auth-wrap { display: flex; min-height: 100vh; }
+  :root {
+    --navy:       #0d1b2e;
+    --navy-card:  #112240;
+    --accent:     #f5a623;
+    --accent2:    #e8952a;
+    --muted:      #8899aa;
+    --white:      #ffffff;
+    --offwhite:   #f7f8fa;
+    --border-l:   #e5e9f0;
+    --text-dark:  #12233a;
+    --text-mid:   #4a5a72;
+  }
 
-        /* ── Form side — dark to match brand ── */
-        .auth-form-side {
-            width: 460px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 52px 56px;
-            background: hsl(213,56%,13%);
-            border-right: 1px solid rgba(255,255,255,.07);
-            position: relative;
-        }
-        .auth-form-side::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, hsl(38,88%,60%), hsl(15,88%,62%));
-        }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; }
 
-        /* logo */
-        .auth-logo {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 44px; color: #fff; text-decoration: none;
-        }
-        .auth-logo:hover { text-decoration: none; }
-        .auth-logo span:last-child { color: #fff; font-family: Georgia, serif; font-size: 18px; font-weight: 700; }
+  body { display: flex; height: 100vh; overflow: hidden; }
 
-        /* headings */
-        .auth-box h1 {
-            font-size: 28px; font-weight: 700;
-            font-family: Georgia, serif;
-            color: #fff;
-            margin-bottom: 6px; letter-spacing: -.3px;
-        }
-        .auth-box p.sub {
-            font-size: 14px;
-            color: rgba(255,255,255,.45);
-            margin-bottom: 36px;
-        }
+  /* LEFT */
+  .left {
+    width: 42%; min-width: 380px;
+    background: var(--white);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 60px 64px;
+    position: relative; z-index: 2;
+    box-shadow: 4px 0 40px rgba(13,27,46,0.10);
+  }
+  .left::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
 
-        /* labels */
-        .auth-box label {
-            font-size: 13px; font-weight: 500;
-            color: rgba(255,255,255,.6);
-        }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 48px; }
+  .brand-icon {
+    width: 34px; height: 34px; background: var(--navy);
+    border-radius: 7px; display: grid; place-items: center;
+  }
+  .brand-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-dark); }
 
-        /* inputs */
-        .auth-box input[type=email],
-        .auth-box input[type=password] {
-            background: rgba(255,255,255,.06);
-            border: 1px solid rgba(255,255,255,.12);
-            color: #fff;
-            font-size: 14px;
-        }
-        .auth-box input::placeholder { color: rgba(255,255,255,.25); }
-        .auth-box input:focus {
-            background: rgba(255,255,255,.09);
-            border-color: rgba(255,255,255,.28);
-            box-shadow: 0 0 0 3px rgba(255,255,255,.06);
-        }
-        .auth-box .icon { color: rgba(255,255,255,.35); }
+  .left h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: var(--text-dark); margin-bottom: 8px; }
+  .left .subtitle { font-size: 0.88rem; color: var(--text-mid); margin-bottom: 36px; }
 
-        /* password toggle */
-        .auth-box [data-toggle-password] { color: rgba(255,255,255,.4) !important; }
+  label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-dark); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 7px; }
 
-        /* sign in button */
-        .auth-box .btn-hero {
-            padding: 12px 18px;
-            font-size: 15px;
-            letter-spacing: .2px;
-            margin-top: 4px;
-            background: linear-gradient(135deg, hsl(38,88%,55%), hsl(15,88%,58%));
-            color: #fff;
-        }
-        .auth-box .btn-hero:hover { opacity: .88; }
+  .input-wrap { position: relative; margin-bottom: 20px; }
+  .input-wrap svg.icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .input-wrap input {
+    width: 100%; padding: 13px 14px 13px 40px;
+    border: 1.5px solid var(--border-l); border-radius: 10px;
+    font-size: 0.92rem; font-family: 'DM Sans', sans-serif;
+    color: var(--text-dark); background: var(--offwhite); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .input-wrap input:focus {
+    border-color: var(--accent); background: var(--white);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.13);
+  }
+  .input-wrap input::placeholder { color: #aab4c4; }
 
-        /* bottom link */
-        .auth-box .text-muted { color: rgba(255,255,255,.35) !important; }
-        .auth-box a { color: hsl(38,88%,65%); }
-        .auth-box a:hover { color: hsl(38,88%,75%); }
+  .eye-btn {
+    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    display: grid; place-items: center; padding: 2px;
+  }
+  .eye-btn:hover { color: var(--text-dark); }
 
-        /* alerts */
-        .auth-box .alert-error {
-            background: hsl(0,72%,51%,.15);
-            border-color: hsl(0,72%,51%,.3);
-            color: hsl(0,80%,75%);
-        }
-        .auth-box .alert-success {
-            background: hsl(142,71%,45%,.15);
-            border-color: hsl(142,71%,45%,.3);
-            color: hsl(142,60%,70%);
-        }
+  .btn-signin {
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: var(--white); font-family: 'DM Sans', sans-serif;
+    font-size: 0.97rem; font-weight: 600; cursor: pointer; margin-top: 6px;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 18px rgba(245,166,35,0.30);
+  }
+  .btn-signin:hover { opacity: 0.93; transform: translateY(-1px); box-shadow: 0 7px 22px rgba(245,166,35,0.38); }
 
-        /* ── Brand side ── */
-        .auth-brand-side {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-end;
-            padding: 52px 52px 80px;
-            background: linear-gradient(155deg,
-                hsl(213,56%,10%) 0%,
-                hsl(220,58%,20%) 55%,
-                hsl(213,56%,10%) 100%
-            );
-        }
-        .auth-brand-side::before {
-            content: '';
-            position: absolute; inset: 0; pointer-events: none;
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255,255,255,.022) 28px, rgba(255,255,255,.022) 29px),
-                repeating-linear-gradient(90deg, transparent, transparent 120px, rgba(255,255,255,.014) 120px, rgba(255,255,255,.014) 121px);
-        }
+  .register-cta { text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--text-mid); }
+  .register-cta a { color: var(--accent2); font-weight: 600; text-decoration: none; }
+  .register-cta a:hover { text-decoration: underline; }
 
-        /* ── News cards ── */
-        .nc {
-            position: absolute;
-            background: rgba(255,255,255,.055);
-            border: 1px solid rgba(255,255,255,.11);
-            border-radius: 10px;
-            padding: 14px 16px;
-            backdrop-filter: blur(10px);
-            pointer-events: none;
-            animation: nc-float 7s ease-in-out infinite;
-            z-index: 2;
-        }
-        .nc:nth-child(1) { top: 5%;  left: 5%;  width: 52%; animation-delay: 0s;   }
-        .nc:nth-child(2) { top: 24%; right: 5%; width: 46%; animation-delay: 1.9s; }
-        .nc:nth-child(3) { top: 44%; left: 5%;  width: 50%; animation-delay: 3.6s; }
-        .nc:nth-child(4) { top: 63%; right: 5%; width: 44%; animation-delay: 5.1s; }
-        @keyframes nc-float {
-            0%,100% { transform: translateY(0);    opacity: .6; }
-            50%      { transform: translateY(-8px); opacity: 1;  }
-        }
-        .nc-tag   { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: hsl(38,88%,65%); margin-bottom: 6px; }
-        .nc-title { font-size: 13px; font-family: Georgia, serif; color: rgba(255,255,255,.9); line-height: 1.45; }
-        .nc-foot  { display: flex; align-items: center; gap: 6px; margin-top: 9px; }
-        .nc-dot   { width: 5px; height: 5px; border-radius: 50%; background: hsl(142,68%,58%); flex-shrink: 0; animation: dot-blink 2s ease-in-out infinite; }
-        @keyframes dot-blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-        .nc-meta  { font-size: 10px; color: rgba(255,255,255,.38); }
-        .nc-score { font-size: 10px; font-weight: 700; color: hsl(142,68%,58%); background: rgba(34,197,94,.14); padding: 2px 9px; border-radius: 99px; margin-left: auto; }
+  /* RIGHT */
+  .right {
+    flex: 1; background: var(--navy);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 48px 52px;
+  }
+  .right::before {
+    content: ''; position: absolute; top: -120px; right: -120px;
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(78,205,196,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
 
-        /* ── Brand bottom ── */
-        .brand-body { position: relative; z-index: 3; max-width: 420px; }
-        .brand-rule { width: 36px; height: 3px; background: linear-gradient(90deg, hsl(38,88%,60%), hsl(15,88%,62%)); border-radius: 2px; margin-bottom: 20px; }
-        .brand-body h2 { font-size: 32px; font-weight: 700; font-family: Georgia, serif; color: #fff; line-height: 1.2; margin-bottom: 14px; letter-spacing: -.3px; }
-        .brand-body p  { font-size: 14px; color: rgba(255,255,255,.55); line-height: 1.75; margin-bottom: 32px; }
-        .brand-stats   { display: flex; gap: 36px; }
-        .bs { display: flex; flex-direction: column; gap: 3px; }
-        .bs-n { font-size: 22px; font-weight: 700; font-family: Georgia, serif; color: #fff; line-height: 1; }
-        .bs-l { font-size: 10px; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: .9px; margin-top: 4px; }
+  .cards-area { position: absolute; top: 32px; left: 0; right: 0; padding: 0 40px; display: flex; flex-direction: column; gap: 16px; }
+  .news-card {
+    background: #112240; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px;
+    padding: 18px 22px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    animation: floatUp 0.7s ease both;
+  }
+  .news-card:nth-child(1) { animation-delay: 0.05s; }
+  .news-card:nth-child(2) { animation-delay: 0.18s; margin-left: 48px; }
+  .news-card:nth-child(3) { animation-delay: 0.31s; }
+  .news-card:nth-child(4) { animation-delay: 0.44s; margin-left: 32px; }
+  @keyframes floatUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ── Live ticker ── */
-        .brand-ticker {
-            position: absolute; bottom: 0; left: 0; right: 0; z-index: 4;
-            background: rgba(0,0,0,.4);
-            border-top: 1px solid rgba(255,255,255,.07);
-            padding: 10px 52px;
-            display: flex; align-items: center; gap: 12px;
-            overflow: hidden;
-        }
-        .bt-live { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: hsl(38,88%,65%); white-space: nowrap; flex-shrink: 0; }
-        .bt-sep  { width: 1px; height: 13px; background: rgba(255,255,255,.15); flex-shrink: 0; }
-        .bt-text { font-size: 11px; color: rgba(255,255,255,.45); white-space: nowrap; animation: ticker 30s linear infinite; }
-        @keyframes ticker { 0%{transform:translateX(100%)} 100%{transform:translateX(-220%)} }
+  .card-tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .card-title { font-size: 0.88rem; font-weight: 600; color: #dce8f5; line-height: 1.4; }
+  .card-meta { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.72rem; color: var(--muted); }
+  .card-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ecdc4; flex-shrink: 0; }
+  .trust-badge {
+    flex-shrink: 0; display: flex; align-items: center; gap: 4px;
+    background: rgba(78,205,196,0.12); color: #4ecdc4;
+    font-size: 0.75rem; font-weight: 700; padding: 5px 10px; border-radius: 20px;
+    white-space: nowrap; align-self: flex-start; margin-top: 2px;
+  }
 
-        @media (max-width: 800px) {
-            .auth-brand-side { display: none; }
-            .auth-form-side  { width: 100%; border-right: none; }
-        }
-    </style>
+  .hero-text { position: relative; z-index: 2; margin-bottom: 10px; }
+  .hero-eyebrow { width: 32px; height: 3px; background: var(--accent); border-radius: 2px; margin-bottom: 14px; }
+  .hero-text h2 { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #fff; line-height: 1.2; margin-bottom: 12px; }
+  .hero-text p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; max-width: 340px; }
+
+  .stats { display: flex; gap: 36px; margin-top: 28px; position: relative; z-index: 2; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #fff; }
+  .stat-lbl { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+
+  .ticker {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 10px 24px; display: flex; align-items: center; gap: 14px; overflow: hidden;
+  }
+  .ticker-live { font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; flex-shrink: 0; background: rgba(245,166,35,0.13); padding: 3px 8px; border-radius: 4px; }
+  .ticker-track { display: flex; gap: 40px; animation: ticker 28s linear infinite; white-space: nowrap; }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .ticker-item { font-size: 0.75rem; color: var(--muted); }
+  .ticker-item::before { content: '·'; margin-right: 12px; color: rgba(255,255,255,0.2); }
+</style>
 </head>
 <body>
-<div class="auth-wrap">
 
-    <!-- Form side -->
-    <div class="auth-form-side">
-        <div class="auth-box">
-            <a href="/" class="auth-logo">
-                <span style="font-size:24px">📰</span>
-                <span>SharedSpace</span>
-            </a>
+<!-- LEFT -->
+<div class="left">
+  <div class="brand">
+    <div class="brand-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#f5a623"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.4)"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.4)"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="#f5a623" opacity="0.6"/>
+      </svg>
+    </div>
+    <span class="brand-name">SharedSpace</span>
+  </div>
 
-            <h1>Welcome back</h1>
-            <p class="sub">Sign in to continue to your dashboard</p>
+  <h1>Welcome back</h1>
+  <p class="subtitle">Sign in to continue to your dashboard</p>
 
-            <?php if ($error): ?>
-                <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-            <?php endif; ?>
+  <!-- YOUR PHP ERROR MESSAGE HERE -->
+  <?php if (!empty($error)): ?>
+    <p style="color:red; margin-bottom:16px;"><?= htmlspecialchars($error) ?></p>
+  <?php endif; ?>
 
-            <?php $successMsg = flash('flash_success'); if ($successMsg): ?>
-                <div class="alert alert-success"><?= htmlspecialchars($successMsg) ?></div>
-            <?php endif; ?>
-
-            <form method="POST" autocomplete="on">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <div class="input-icon">
-                        <span class="icon">✉</span>
-                        <input type="email" id="email" name="email" placeholder="you@example.com"
-                            value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-icon" style="position:relative">
-                        <span class="icon">🔒</span>
-                        <input type="password" id="password" name="password"
-                            placeholder="••••••••" required style="padding-right:44px" />
-                        <button type="button" data-toggle-password="password"
-                            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">👁</button>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-hero btn-full">Sign In</button>
-            </form>
-
-            <p class="text-sm text-muted" style="text-align:center;margin-top:20px">
-                Don't have an account? <a href="/register.php">Sign up free</a>
-            </p>
-        </div>
+  <form method="POST" action="/login.php">
+    <label for="email">Email</label>
+    <div class="input-wrap">
+      <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+      </svg>
+      <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required/>
     </div>
 
-    <!-- Brand side -->
-    <div class="auth-brand-side">
-
-        <div class="nc">
-            <div class="nc-tag">Breaking · World</div>
-            <div class="nc-title">Global Leaders Reach Historic Climate Agreement at Summit</div>
-            <div class="nc-foot"><div class="nc-dot"></div><span class="nc-meta">2 min ago · Reuters</span><span class="nc-score">✓ 94%</span></div>
-        </div>
-        <div class="nc">
-            <div class="nc-tag">Technology</div>
-            <div class="nc-title">AI Breakthrough Enables Real-Time Medical Diagnosis</div>
-            <div class="nc-foot"><div class="nc-dot"></div><span class="nc-meta">14 min ago · Tech Review</span><span class="nc-score">✓ 89%</span></div>
-        </div>
-        <div class="nc">
-            <div class="nc-tag">Economics</div>
-            <div class="nc-title">Central Banks Signal Rate Cuts as Inflation Eases</div>
-            <div class="nc-foot"><div class="nc-dot"></div><span class="nc-meta">1 hr ago · Financial Times</span><span class="nc-score">✓ 91%</span></div>
-        </div>
-        <div class="nc">
-            <div class="nc-tag">Science</div>
-            <div class="nc-title">NASA Confirms Water Ice Discovery on Lunar Surface</div>
-            <div class="nc-foot"><div class="nc-dot"></div><span class="nc-meta">3 hr ago · NASA</span><span class="nc-score">✓ 97%</span></div>
-        </div>
-
-        <div class="brand-body">
-            <div class="brand-rule"></div>
-            <h2>Truth in Every<br>Headline.</h2>
-            <p>Join thousands of journalists and readers who trust SharedSpace for verified, fact-checked news.</p>
-            <div class="brand-stats">
-                <div class="bs"><span class="bs-n">12K+</span><span class="bs-l">Verified Articles</span></div>
-                <div class="bs"><span class="bs-n">94%</span><span class="bs-l">Avg Trust Score</span></div>
-                <div class="bs"><span class="bs-n">3.4K</span><span class="bs-l">Active Writers</span></div>
-            </div>
-        </div>
-
-        <div class="brand-ticker">
-            <span class="bt-live">Live</span>
-            <div class="bt-sep"></div>
-            <span class="bt-text">Climate Summit Agreement &nbsp;·&nbsp; AI Medical Breakthrough &nbsp;·&nbsp; Rate Cut Signals &nbsp;·&nbsp; Lunar Water Ice Confirmed &nbsp;·&nbsp; Infrastructure Bill Passed &nbsp;·&nbsp; Record Tech Earnings &nbsp;·&nbsp; Peace Talks Resume &nbsp;·&nbsp; Clean Energy Milestone</span>
-        </div>
-
+    <label for="password">Password</label>
+    <div class="input-wrap">
+      <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required/>
+      <button type="button" class="eye-btn" onclick="togglePw()" aria-label="Toggle password">
+        <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
     </div>
 
+    <button type="submit" class="btn-signin">Sign In</button>
+  </form>
+
+  <p class="register-cta">Don't have an account? <a href="/register.php">Sign up free</a></p>
 </div>
-<script src="/public/js/app.js"></script>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="cards-area">
+    <div class="news-card">
+      <div class="card-left">
+        <div class="card-tag">Breaking · World</div>
+        <div class="card-title">Global Leaders Reach Historic Climate Agreement at Summit</div>
+        <div class="card-meta"><span class="card-dot"></span>2 min ago · Reuters</div>
+      </div>
+      <div class="trust-badge">✓ 94%</div>
+    </div>
+    <div class="news-card">
+      <div class="card-left">
+        <div class="card-tag">Technology</div>
+        <div class="card-title">AI Breakthrough Enables Real-Time Medical Diagnosis</div>
+        <div class="card-meta"><span class="card-dot"></span>14 min ago · Tech Review</div>
+      </div>
+      <div class="trust-badge">✓ 89%</div>
+    </div>
+    <div class="news-card">
+      <div class="card-left">
+        <div class="card-tag">Economics</div>
+        <div class="card-title">Central Banks Signal Rate Cuts as Inflation Eases</div>
+        <div class="card-meta"><span class="card-dot"></span>1 hr ago · Financial Times</div>
+      </div>
+      <div class="trust-badge">✓ 91%</div>
+    </div>
+    <div class="news-card">
+      <div class="card-left">
+        <div class="card-tag">Science</div>
+        <div class="card-title">NASA Confirms Water Ice Discovery on Lunar Surface</div>
+        <div class="card-meta"><span class="card-dot"></span>3 hr ago · NASA</div>
+      </div>
+      <div class="trust-badge">✓ 97%</div>
+    </div>
+  </div>
+
+  <div class="hero-text">
+    <div class="hero-eyebrow"></div>
+    <h2>Truth in Every<br>Headline.</h2>
+    <p>Join thousands of journalists and readers who trust SharedSpace for verified, fact-checked news.</p>
+  </div>
+
+  <div class="stats">
+    <div><div class="stat-val">12K+</div><div class="stat-lbl">Verified Articles</div></div>
+    <div><div class="stat-val">94%</div><div class="stat-lbl">Avg Trust Score</div></div>
+    <div><div class="stat-val">3.4K</div><div class="stat-lbl">Active Writers</div></div>
+  </div>
+
+  <div class="ticker">
+    <span class="ticker-live">Live</span>
+    <div class="ticker-track">
+      <span class="ticker-item">Climate Summit Agreement</span>
+      <span class="ticker-item">AI Medical Breakthrough</span>
+      <span class="ticker-item">Rate Cut Signals</span>
+      <span class="ticker-item">Lunar Water Ice Confirmed</span>
+      <span class="ticker-item">Infrastructure Bill Passed</span>
+      <span class="ticker-item">Climate Summit Agreement</span>
+      <span class="ticker-item">AI Medical Breakthrough</span>
+      <span class="ticker-item">Rate Cut Signals</span>
+      <span class="ticker-item">Lunar Water Ice Confirmed</span>
+      <span class="ticker-item">Infrastructure Bill Passed</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePw() {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eye-icon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      input.type = 'password';
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  }
+</script>
 </body>
 </html>
