@@ -272,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <div class="form-row-between">
                         <label for="password">Passwords</label>
-                        <a href="/forgot_password.php" class="forgot-link">Forgot password?</a>
+                        <a href="/forgot_password.php" class="forgot-link">Forgot passwords?</a>
                     </div>
                     <div class="input-shell">
                         <span class="pre-icon">
