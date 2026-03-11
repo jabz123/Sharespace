@@ -1,4 +1,9 @@
 <?php
+// performs writing and editing article function for this file
+// if an article id is provided, loads the article for editing and checks if the user is the author
+// handles publishing a new article or updating an existing article through ArticleController
+// premium users can upload an image for the article
+// displays the article form and pre-fills data when editing
 
 // boundary page for writing and editing article
 require_once __DIR__ . '/../includes/layout.php';

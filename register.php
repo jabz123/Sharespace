@@ -1,4 +1,8 @@
 <?php
+// handles user registration using AuthController
+// validates user input like name, email, and password
+// if registration is successful, redirect user to email verification notice page
+// displays the registration form for creating a new account
 
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';

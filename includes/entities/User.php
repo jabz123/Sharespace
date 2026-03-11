@@ -1,5 +1,10 @@
 <?php
 
+// stores user information like email, name, role and account status
+// when user data is retrieved from the database, each row is converted into this user object
+// this makes it easier for pages and controllers to access user data like $user->fullName
+// also includes helper functions for display such as getting the user's initial and formatting the role name
+
 //user data from db
 class User {
     public int    $id;

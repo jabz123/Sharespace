@@ -1,4 +1,9 @@
 <?php
+// handles authentication logic for the system
+// process login, register, logout and email verification actions
+// validate credentials and insertion of new accounts into the database
+// sends verification emails using PHPMailer to verify user account
+// Manages user sessions (store user_id, check logged-in user, require login for pages)
 
 require_once __DIR__ . '/../../vendor/phpmailer/src/PHPMailer.php';
 require_once __DIR__ . '/../../vendor/phpmailer/src/SMTP.php';

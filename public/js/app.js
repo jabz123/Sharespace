@@ -1,3 +1,7 @@
+
+// handles password visibility toggle for login and register forms
+// controls the search bar behaviour such as showing and clearing the search input
+
 //js shit
 
 //show password

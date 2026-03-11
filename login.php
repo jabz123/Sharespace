@@ -1,4 +1,7 @@
 <?php
+// Displays the login page UI
+// Contains the HTML login form for email and password input
+// When user clicks "Sign In", the form sends the input to AuthController.php for authentication
 
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';

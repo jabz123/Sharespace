@@ -1,4 +1,9 @@
 <?php
+// page that displays all articles written by the logged in user
+// allows the user to view, edit, or delete their own articles
+// retrieves the user's articles from ArticleController
+// handles article deletion using a POST request
+
 
 //for users own articles
 //can CRUD

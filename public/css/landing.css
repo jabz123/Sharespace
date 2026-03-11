@@ -491,12 +491,23 @@ a {
     transform: translateY(-2px);
 }
 
-.preview-thumb {
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(135deg, hsl(213 56% 24% / .08), hsl(0 84% 70% / .08));
-    border-radius: 10px;
-    margin-bottom: 14px;
+.preview-thumb{
+    position:relative;
+    width:100%;
+    height:120px;
+    background:linear-gradient(135deg, hsl(213 56% 24% / .08), hsl(0 84% 70% / .08));
+    border-radius:10px;
+    margin-bottom:14px;
+}
+.preview-lock{
+    position:absolute;
+    width:32px;
+    height:32px;
+    object-fit:contain;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%); 
+    
 }
 
 .preview-meta {

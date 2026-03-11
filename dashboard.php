@@ -1,4 +1,9 @@
 <?php
+// basically homepage/ after login will direct here.
+// retrieves recent articles from ArticleController
+// calculates some article stats like avg trust score and category count (functions created but not used in the UI yet)
+// displays recent articles and quick actions like writing a new article
+
 //dashboard page 
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';

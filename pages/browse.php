@@ -1,4 +1,10 @@
 <?php
+// page that displays the browse articles page
+// retrieves articles from ArticleController based on category, sort, and search
+// allows users to filter articles by category
+// allows users to search for articles using keywords
+// allows users to sort articles by recent or most trusted
+// displays the articles in a grid using article_card layout component
 
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';

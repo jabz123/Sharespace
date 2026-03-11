@@ -1,3 +1,12 @@
+<!--
+// page shown after a user registers an account
+// informs user to verify their email before logging in
+// displays messages for resend status, cooldown timer, or errors
+// provides button to go to login page
+// allows user to resend the verification email if needed
+// uses countdown.js to handle resend cooldown timer -->
+
+
 <div class="page-container">
 <div class="verify-card">
 

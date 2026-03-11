@@ -1,4 +1,10 @@
 <?php
+
+// starts the php session used across the website
+// provides helper functions for redirects and flash messages
+// flash messages store temporary success or error messages in session
+// used by pages to show messages after redirects 
+
 /**
  * Session bootstrap and shared utility helpers.
  *

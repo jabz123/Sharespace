@@ -1,6 +1,11 @@
 <?php
 
-//handles all comment related db queries and shit
+// handles comment-related logic for the system
+// retrieves comments from the database for articles
+// counts number of comments for each article
+// validates and inserts new comments into the database
+// allows users to delete their own comments
+// returns comment entities or result arrays, no html output
 
 
 require_once __DIR__ . '/../entities/Comment.php';

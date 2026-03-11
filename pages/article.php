@@ -1,4 +1,9 @@
 <?php
+// page that displays a full article and its comments
+// retrieves article and comment data from the controllers
+// checks user authentication and premium access before showing the article
+// allows users to post new comments or delete their own comments
+// uses layout helper functions to render the page ui
 
 //fetches article and comment shit from controllers
 require_once __DIR__ . '/../includes/layout.php';

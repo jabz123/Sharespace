@@ -1,5 +1,11 @@
 <?php
 
+// stores article information like title, content, author and category
+// when the controller retrieves articles from the database, each row is converted into this article object
+// easier for pages to access article data like $article->title or $article->content
+// also includes helper functions used when displaying articles
+// such as getting the author's initial, trust level and formatting article content
+
 //all the article data from db for rendering and display logic
 
 class Article {

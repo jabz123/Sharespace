@@ -1,5 +1,11 @@
 <?php
 
+// stores comment information like article id, user id, content and date
+// when comments are retrieved from the database, each row is converted into this comment object
+// this makes it easier for pages to access comment data like $comment->content
+// also includes a helper function to get the first letter of the commenter name for avatar display
+
+
 //comment data from db
 class Comment {
     public int    $id;

@@ -1,5 +1,10 @@
 <?php
 
+// shared layout helper functions used by many pages
+// handles common ui components like page head, footer, sidebar and dashboard header
+// also contains helper functions for displaying things like flash messages, article cards, trust badges and relative time
+// pages call these functions to render the interface instead of repeating the same html everywhere
+
 //data is all from entities
 //shared layout functions for rendering page head, sidebar, flash messages, all that shit
 

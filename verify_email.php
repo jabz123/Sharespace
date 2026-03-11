@@ -1,4 +1,10 @@
 <?php
+// this page is after user click verify button which leads to this page (email click verify button then open this page)
+// this page then reads verification token from the url
+// checks the database to find the user with this token
+// if token is valid, marks the user's email as verified
+// removes the verification token after verification
+// shows a success message and redirects user to login page
 
 // load DB connection
 require_once __DIR__ . '/includes/db.php';

@@ -1,4 +1,9 @@
 <?php
+// handles database connection for the system using pdo
+// provides helper functions to run sql queries and interact with the database
+// used by controllers to retrieve, insert, update and delete data
+// returns query results as arrays which controllers can convert into entity objects
+
 require_once __DIR__ . '/../config.php';
 
 class DB {

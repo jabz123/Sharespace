@@ -1,3 +1,9 @@
+// javascript for the email verification page
+// controls the resend verification email button cooldown
+// reads url parameters to determine how long the user must wait
+// disables the resend button and shows a countdown timer
+// re-enables the button when the cooldown time is finished
+
 const params = new URLSearchParams(window.location.search);
 const btn = document.getElementById("resendBtn");
 

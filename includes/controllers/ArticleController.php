@@ -1,7 +1,9 @@
 <?php
 
-//this handles all the article db shit and business logic, handles db queries
-//theres no html output from here, only article/category entities or result arrays
+// handles article-related logic for the system
+// retrieves articles and categories from the database
+// creates, updates and deletes articles
+// theres no html output from here, only article/category entities or result arrays
 
 
 require_once __DIR__ . '/../entities/Article.php';

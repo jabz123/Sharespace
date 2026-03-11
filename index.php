@@ -1,4 +1,6 @@
 <?php
+// retrieves a few recent articles from ArticleController to show preview cards
+// displays marketing sections like features, how it works, testimonials, and pricing
 //landing page
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
@@ -87,7 +89,7 @@ function score_class(int $score): string {
                 <?php if (!empty($previewArticles)):
                     foreach ($previewArticles as $article): ?>
                 <a href="/login.php" class="preview-card">
-                    <div class="preview-thumb"></div>
+                    <div class="preview-thumb"><img src="/public/icons/premiumlockicon.png" class="preview-lock"></div>
                     <div class="preview-meta">
                         <span class="preview-score <?= score_class($article->trustScore) ?>"><?= $article->trustScore ?>% Verified</span>
                         <span class="preview-cat"><?= htmlspecialchars($article->categoryName) ?></span>
