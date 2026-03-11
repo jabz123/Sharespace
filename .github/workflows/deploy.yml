@@ -30,7 +30,7 @@ jobs:
           # Create release directory with proper permissions
           ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             sudo mkdir -p /var/www/releases/$RELEASE &&
-            sudo chown -R $USER:www-data /var/www/releases/$RELEASE
+            sudo chown -R ${{ secrets.EC2_USER }}:www-data /var/www/releases/$RELEASE
           "
 
           # Upload new code
