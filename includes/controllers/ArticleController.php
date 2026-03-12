@@ -5,30 +5,30 @@
 // creates, updates and deletes articles
 // theres no html output from here, only article/category entities or result arrays
 
-
 require_once __DIR__ . '/../entities/Article.php';
 require_once __DIR__ . '/../entities/Category.php';
 
 class ArticleController {
-
-
     //returns n most recently published articles
     //maybe change this to recommended or some shit in future ig
     //returns Article[] array of objects
     public function getRecent(int $limit = 6): array {
         $rows = DB::query(
-            'SELECT a.*, u.full_name AS author_name, c.name AS category_name
-             FROM articles a
-             JOIN users u ON u.id = a.author_id
-             JOIN categories c ON c.id = a.category_id
-             ORDER BY a.published_at DESC
-             LIMIT ?',
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+            COUNT(v.id) AS view_count
+            FROM articles a
+            JOIN users u ON u.id = a.author_id
+            JOIN categories c ON c.id = a.category_id
+            LEFT JOIN article_views v ON v.article_id = a.id
+            GROUP BY a.id
+            ORDER BY a.published_at DESC
+            LIMIT ?',
             [$limit]
         );
         return array_map(fn($r) => new Article($r), $rows);
     }
 
-        //returns n most recently published articles for ladning page preview.
+    //returns n most recently published articles for ladning page preview.
     //returns Article[] array of objects
     public function getPreview(int $limit = 3): array {
         return $this->getRecent($limit);
@@ -39,11 +39,14 @@ class ArticleController {
     // 
     public function getById(int $id): ?Article {
         $row = DB::first(
-            'SELECT a.*, u.full_name AS author_name, c.name AS category_name
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+             COUNT(v.id) AS view_count
              FROM articles a
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
-             WHERE a.id = ?',
+             LEFT JOIN article_views v ON v.article_id = a.id
+             WHERE a.id = ?
+             GROUP BY a.id',
             [$id]
         );
         return $row ? new Article($row) : null;
@@ -61,11 +64,14 @@ class ArticleController {
     //return Article[] array
     public function getByAuthor(int $authorId): array {
         $rows = DB::query(
-            'SELECT a.*, u.full_name AS author_name, c.name AS category_name
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+             COUNT(v.id) AS view_count
              FROM articles a
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
+             LEFT JOIN article_views v ON v.article_id = a.id
              WHERE a.author_id = ?
+             GROUP BY a.id
              ORDER BY a.published_at DESC',
             [$authorId]
         );
@@ -99,8 +105,6 @@ class ArticleController {
             [$title, $excerpt, $content, $categoryId, $imagePath, $articleId, $authorId]
         );
 
-       
-
         return ['ok' => true];
     }
 
@@ -111,7 +115,6 @@ class ArticleController {
             'DELETE FROM articles WHERE id = ? AND author_id = ?',
             [$articleId, $authorId]
         );
-
         if ($affected === 0) {
             return ['error' => 'Article not found or permission denied.'];
         }
@@ -147,10 +150,12 @@ class ArticleController {
 
     public function getByCategory($category = null, $sort = 'recent', $search = null): array {
 
-        $sql = 'SELECT a.*, u.full_name AS author_name, c.name AS category_name
+        $sql = 'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+                COUNT(v.id) AS view_count
                 FROM articles a
                 JOIN users u ON u.id = a.author_id
-                JOIN categories c ON c.id = a.category_id';
+                JOIN categories c ON c.id = a.category_id
+                LEFT JOIN article_views v ON v.article_id = a.id';
 
         $conditions = [];
         $params = [];
@@ -168,6 +173,8 @@ class ArticleController {
         if ($conditions) {
             $sql .= ' WHERE ' . implode(' AND ', $conditions);
         }
+
+        $sql .= ' GROUP BY a.id';
 
         if ($sort === 'recent') {
             $sql .= ' ORDER BY a.published_at DESC';

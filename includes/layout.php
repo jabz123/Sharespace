@@ -18,10 +18,10 @@ function page_head(string $title): void { ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><?= htmlspecialchars($title) ?> – SharedSpace</title>
-    <link rel="stylesheet" href="/public/css/app.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title><?= htmlspecialchars($title) ?> – SharedSpace</title>
+<link rel="stylesheet" href="/public/css/app.css" />
 </head>
 <body>
 <?php }
@@ -218,6 +218,11 @@ function article_card(Article $article, User $user): void {
             <span class="meta-icon">💬</span>
             <span class="meta-count"><?= $commentCount ?></span>
         </div>
+
+        <div class="meta-item">
+            <span class="meta-icon">👁</span>
+            <span class="meta-count"><?= $article->viewCount ?></span>
+         </div>
 
         <div class="meta-item">
             <span class="meta-icon">🚩</span>

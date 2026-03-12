@@ -1102,6 +1102,14 @@ textarea {
 .mb-8 {
     margin-bottom: 32px;
 }
+.mb-10 {
+    font-family: Georgia, serif;
+    margin: 30px 0 16px 0;
+    padding-left: 12px;
+    border-left: 4px solid #2b6de0;
+    color: #1f2937;
+    margin-bottom:40px;
+}
 
 .role-badge {
     display: inline-block;
@@ -1513,4 +1521,35 @@ margin:0 auto;
     border-radius:6px;
     font-size:14px;
     white-space:nowrap;
+}
+
+/* Home page view more css */
+ .view-more-card {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px dashed grey;
+    border-radius:12px;
+    min-height:220px;
+    text-decoration:none;
+    outline:none;
+}
+.view-more-card:hover {
+    background-color: #f5f8ff;
+}
+
+ .view-more-content {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    color:#2b6de0;
+    font-weight:600;
+    font-size:16px;
+}
+
+.view-more-content img {
+    width:18px;
+    height:18px;
+    padding-top: 2px;
 }

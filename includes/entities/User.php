@@ -14,6 +14,7 @@ class User {
     public bool   $isPremium;
     public bool   $isSuspended;
     public string $createdAt;
+    public string $gender;
 
     public function __construct(array $row) {
         $this->id          = (int)$row['id'];
@@ -23,6 +24,7 @@ class User {
         $this->isPremium   = (bool)($row['is_premium']   ?? false);
         $this->isSuspended = (bool)($row['is_suspended'] ?? false);
         $this->createdAt   = $row['created_at'] ?? '';
+        $this->gender = $row['gender'] ?? '';
     }
 
     //use first letter of name for default avatar cos no picture yet

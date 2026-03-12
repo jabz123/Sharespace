@@ -21,6 +21,13 @@ $user = $auth->currentUser();
 
 $id      = (int)($_GET['id'] ?? 0);
 $article = $id ? $articleCtrl->getById($id) : null;
+// record article view
+// insert ignore prevents duplicate views from same user
+DB::execute(
+    "INSERT IGNORE INTO article_views (user_id, article_id)
+     VALUES (?, ?)",
+    [$user->id, $article->id]
+);
 
 if (!$article) {
     redirect('/dashboard.php', 'Article not found.');
