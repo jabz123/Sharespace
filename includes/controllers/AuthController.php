@@ -19,7 +19,7 @@ use PHPMailer\PHPMailer\Exception;
 
 require_once __DIR__ . '/../entities/User.php';
 require_once __DIR__ . '/../../config.php';
-
+require_once __DIR__ . '/OnboardingController.php';
 class AuthController {
 
 
@@ -269,10 +269,20 @@ class AuthController {
         return $cache[$id];
     }
 
-    //redirect to login page if no session
+    // redirect to login page if no session
+    // also ensures user has completed onboarding
     public function requireAuth(): void {
         if (empty($_SESSION['user_id'])) {
             header('Location: /login.php');
+            exit;
+        }
+        // get current user
+        $user = $this->currentUser();
+
+        // check if onboarding completed
+        $onboardCtrl = new OnboardingController();
+        if (!$onboardCtrl->isCompleted($user->id)) {
+            header('Location: /pages/onboarding.php');
             exit;
         }
     }

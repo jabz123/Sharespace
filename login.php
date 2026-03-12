@@ -2,9 +2,13 @@
 // Displays the login page UI
 // Contains the HTML login form for email and password input
 // When user clicks "Sign In", the form sends the input to AuthController.php for authentication
+// After successful login, check if the user has completed the onboarding form.
+// If not completed, redirect the user to onboarding.php to set their preferences.
+// when check for user details during login will also check if they completed onboarding form
 
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
+require_once __DIR__ . '/includes/controllers/OnboardingController.php';
 
 $auth = new AuthController();
 //redirect to dashboard if user is log in
@@ -22,7 +26,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if (isset($result['ok'])) {
-        header('Location: /dashboard.php');
+
+        // get login user
+        $user = $auth->currentUser();
+        $onboardCtrl = new OnboardingController();
+
+        //check if user completed onboarding form
+        if (!$onboardCtrl->isCompleted($user->id)) {
+            header('Location: /pages/onboarding.php');
+        } else {
+            header('Location: /dashboard.php');
+        }
+
         exit;
     }
 
