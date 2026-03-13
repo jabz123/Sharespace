@@ -25,7 +25,6 @@ class HomepageController {
         GROUP BY a.id
         ORDER BY view_count DESC, a.published_at DESC
         ", [$userId]);
-
         $unique = [];
         $usedCategories = [];
 
@@ -44,42 +43,42 @@ class HomepageController {
     // articles people in same age group are reading
     public function getPopularByAgeGroup($userId) {
         $rows = DB::query(
-        "SELECT a.*, u.full_name author_name, c.name category_name,
-        COUNT(v.id) AS view_count
+        "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+        (SELECT COUNT(*) FROM article_views v2 WHERE v2.article_id = a.id) AS view_count
         FROM articles a
-        LEFT JOIN article_views v ON v.article_id = a.id
+        JOIN article_views v ON v.article_id = a.id
         JOIN users reader ON reader.id = v.user_id
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
         WHERE reader.age_group =
             (SELECT age_group FROM users WHERE id = ?)
-
         GROUP BY a.id
-        ORDER BY view_count DESC
+        ORDER BY COUNT(v.id) DESC
         LIMIT 3
         ", [$userId]);
 
         return array_map(fn($r) => new Article($r), $rows);
-    }
+}
 
 
 
     // articles popular with same gender readers
     public function getPopularByGender($userId) {
         $rows = DB::query(
-        "SELECT a.*, u.full_name author_name, c.name category_name,
-        COUNT(v.id) AS view_count
+        "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+        (SELECT COUNT(*) FROM article_views v2 WHERE v2.article_id = a.id) AS view_count
         FROM articles a
-        LEFT JOIN article_views v ON v.article_id = a.id
+        JOIN article_views v ON v.article_id = a.id
         JOIN users reader ON reader.id = v.user_id
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
         WHERE reader.gender =
             (SELECT gender FROM users WHERE id = ?)
         GROUP BY a.id
-        ORDER BY view_count DESC
+        ORDER BY COUNT(v.id) DESC
         LIMIT 3
         ", [$userId]);
+
         return array_map(fn($r) => new Article($r), $rows);
     }
 
