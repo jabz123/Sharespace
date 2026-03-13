@@ -310,8 +310,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             </form>
 
-            <div class="or-divider"><span>or continue with</span></div>
-
 
         </div>
     </div>
