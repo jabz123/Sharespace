@@ -8,39 +8,13 @@ on:
 
 jobs:
 
-  deploy-production:
-    if: github.ref == 'refs/heads/AWS'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
-          chmod 600 ~/.ssh/key.pem
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
-
-      - name: Deploy Production
-        run: |
-          rsync -avz --delete \
-          --exclude '.git' \
-          --exclude '.github' \
-          -e "ssh -i ~/.ssh/key.pem" \
-          ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/current/
-
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            sudo systemctl reload apache2
-          "
-
   deploy-test:
+    name: Deploy to TEST (Staging Server)
     if: github.ref == 'refs/heads/TEST'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup SSH
@@ -48,16 +22,50 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.TEST_EC2_SSH_KEY }}" > ~/.ssh/key.pem
           chmod 600 ~/.ssh/key.pem
-          ssh-keyscan -H "${{ secrets.TEST_EC2_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.TEST_EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy Test Server
+      - name: Deploy to Staging Server
         run: |
           rsync -avz --delete \
-          --exclude '.git' \
-          --exclude '.github' \
+          --exclude ".git" \
+          --exclude ".github" \
           -e "ssh -i ~/.ssh/key.pem" \
           ./ ${{ secrets.TEST_EC2_USER }}@${{ secrets.TEST_EC2_HOST }}:/var/www/test/
 
+      - name: Reload Apache
+        run: |
           ssh -i ~/.ssh/key.pem ${{ secrets.TEST_EC2_USER }}@${{ secrets.TEST_EC2_HOST }} "
+            sudo systemctl reload apache2
+          "
+
+
+  deploy-production:
+    name: Deploy to Production Server
+    if: github.ref == 'refs/heads/AWS'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
+          chmod 600 ~/.ssh/key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Production Server
+        run: |
+          rsync -avz --delete \
+          --exclude ".git" \
+          --exclude ".github" \
+          -e "ssh -i ~/.ssh/key.pem" \
+          ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/current/
+
+      - name: Reload Apache
+        run: |
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             sudo systemctl reload apache2
           "
