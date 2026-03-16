@@ -5,9 +5,6 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 require_once __DIR__ . '/includes/controllers/ArticleController.php';
-require_once __DIR__ . '/includes/controllers/CommentController.php';
-require_once __DIR__ . '/includes/layout.php';
-require_once __DIR__ . '/includes/textlimit.php';
 
 $auth        = new AuthController();
 $articleCtrl = new ArticleController();
@@ -20,24 +17,7 @@ if ($auth->currentUser()) {
 
 //fetch 3 most recent articles for preview cards, also shows loading skeletons if query is slow
 $previewArticles = $articleCtrl->getPreview(3);
-// fetch hero section content
-$hero = DB::first(
-    "SELECT * FROM landing_sections WHERE section_key = 'hero'"
-);
-$features = DB::query(
-    "SELECT * FROM landing_features
-     ORDER BY display_order ASC"
-);
-$steps = DB::query(
-    "SELECT * FROM landing_steps ORDER BY display_order ASC"
-);
-$plans = DB::query(
-    "SELECT * FROM landing_pricing_plans ORDER BY display_order ASC"
-);
 
-$pricingFeatures = DB::query(
-    "SELECT * FROM landing_pricing_features ORDER BY display_order ASC"
-);
 
 //assigns css class based on trust score, only visual
 function score_class(int $score): string {
@@ -66,7 +46,7 @@ function score_class(int $score): string {
         </a>
         <div class="nav-links" id="nav-links">
             <a href="#features">Features</a>
-            <a href="#how-it-works">How It works</a>
+            <a href="#how-it-works">How It Works</a>
             <a href="#testimonials">Testimonials</a>
             <a href="#pricing">Pricing</a>
         </div>
@@ -92,112 +72,43 @@ function score_class(int $score): string {
     <div class="blob blob-right"></div>
     <div class="blob blob-left"></div>
     <div class="container hero-inner">
-        <div class="hero-badge fade-in">
-            <span>🛡</span>
-            <?= htmlspecialchars($hero['badge']) ?>
-        </div>
-
-        <h1 class="hero-title slide-up">
-            <?= htmlspecialchars($hero['title']) ?><br>
-            <span class="gradient-text"><?= htmlspecialchars($hero['title_highlight']) ?></span>
-        </h1>
-
+        <div class="hero-badge fade-in"><span>🛡</span> AI-Powered Fact Checking</div>
+        <h1 class="hero-title slide-up">Truth in Every<br><span class="gradient-text">Headline</span></h1>
         <p class="hero-sub slide-up" style="animation-delay:.1s">
-            <?= htmlspecialchars($hero['subtitle']) ?>
+            Join the platform where news is verified, trusted, and shared responsibly.
+            Our AI analyses every article for accuracy before it reaches you.
         </p>
-
         <div class="hero-cta slide-up" style="animation-delay:.1s">
             <a href="/register.php" class="btn-hero-lg">Start Publishing Free</a>
-            <a href="#video" class="btn-outline-lg">
-                <span class="play-icon">▶</span> Watch Demo
-            </a>
+            <a href="#video" class="btn-outline-lg"><span class="play-icon">▶</span> Watch Demo</a>
         </div>
-
-        <!-- ARTICLE PREVIEW -->
+       
         <div class="preview-window slide-up" style="animation-delay:.1s">
-            <div class="preview-header">
-                <h2>Recent Articles</h2>
-                <p>See what readers are discovering on SharedSpace.</p>
-            </div>
 
             <div class="preview-cards">
-
-            <?php if (!empty($previewArticles)): ?>
-
-            <?php foreach ($previewArticles as $article): ?>
-
+                <?php if (!empty($previewArticles)):
+                    foreach ($previewArticles as $article): ?>
                 <a href="/login.php" class="preview-card">
-                    <!-- CATEGORY + TRUST SCORE -->
+                    <div class="preview-thumb"><img src="/public/icons/premiumlockicon.png" class="preview-lock"></div>
                     <div class="preview-meta">
-                        <span class="preview-cat">
-                            <?= htmlspecialchars($article->categoryName) ?> </span>
-                        <span class="preview-score <?= score_class($article->trustScore) ?>">
-                            <?= $article->trustScore ?>%</span>
+                        <span class="preview-score <?= score_class($article->trustScore) ?>"><?= $article->trustScore ?>% Verified</span>
+                        <span class="preview-cat"><?= htmlspecialchars($article->categoryName) ?></span>
                     </div>
-
-                    <!-- IMAGE (OPTIONAL) -->
-                    <?php if (!empty($article->imagePath)): ?>
-                        <div class="preview-thumb">
-                            <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="">
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- TITLE -->
-                    <h3 class="preview-title">
-                        <?= htmlspecialchars(limit_words($article->title, 8)) ?>
-                    </h3>
-
-                    <!-- EXCERPT -->
-                    <p class="preview-excerpt">
-                        <?php
-                        $excerpt = $article->excerpt;
-                        if (mb_strlen($excerpt, 'UTF-8') > 120) {
-                            echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
-                        } else {
-                            echo htmlspecialchars($excerpt);
-                        }
-                        ?>
-                    </p>
-                    <!-- AUTHOR + STATS -->
-                    <div class="preview-footer">
-                    <div class="preview-author">
-                    <div class="author-avatar">
-                        <?= strtoupper(substr($article->authorName,0,1)) ?>
-                    </div>
-                    <div class="author-info">
-                        <span class="author-name">
-                            <?= htmlspecialchars($article->authorName) ?>
-                        </span>
-                        <span class="author-time">
-                            <?= relative_time($article->publishedAt) ?>
-                        </span>
-                        </div>
-                        </div>
-                        <?php
-                            $commentCtrl = new CommentController();
-                            $commentCount = $commentCtrl->countByArticle($article->id);
-                        ?>
-                        <div class="preview-stats">
-                        <span>👁 <?= $article->viewCount ?? 0 ?></span>
-                        <span>💬 <?= $commentCount ?></span>
-                        <span>🚩 0</span>
-                    </div>
-                    </div>
-                    </a>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <?php for ($i=0;$i<3;$i++): ?>
-                        <div class="preview-card skeleton">
-                            <div class="preview-thumb pulse"></div>
-                            <div class="skel-line w-half pulse"></div>
-                            <div class="skel-line w-full pulse"></div>
-                            <div class="skel-line w-three-quarters pulse"></div>
-                        </div>
-                    <?php endfor; ?>
-                    <?php endif; ?>
+                    <h3 class="preview-title"><?= htmlspecialchars(mb_substr($article->title, 0, 60)) ?><?= mb_strlen($article->title) > 60 ? '…' : '' ?></h3>
+                    <p class="preview-excerpt"><?= htmlspecialchars(mb_substr($article->excerpt, 0, 80)) ?>…</p>
+                </a>
+                <?php endforeach; else:
+                    for ($i = 0; $i < 3; $i++): ?>
+                <div class="preview-card skeleton">
+                    <div class="preview-thumb pulse"></div>
+                    <div class="skel-line w-half pulse"></div>
+                    <div class="skel-line w-full pulse"></div>
+                    <div class="skel-line w-three-quarters pulse"></div>
                 </div>
-                </div>
-                </div>
+                <?php endfor; endif; ?>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section id="features" class="section section-alt">
@@ -207,21 +118,20 @@ function score_class(int $score): string {
             <p>Everything you need to publish, verify, and share news with confidence.</p>
         </div>
         <div class="features-grid">
-<?php foreach ($features as $feature): ?>
-    <div class="feature-card">
-        <div class="feature-icon-box">
-            <?php if (!empty($feature['icon_path'])): ?>
-                <img src="/<?= htmlspecialchars($feature['icon_path']) ?>" alt="">
-            <?php endif; ?>
-        </div>
-        <h3>
-            <?= htmlspecialchars($feature['title']) ?>
-        </h3>
-        <p>
-            <?= htmlspecialchars($feature['description']) ?>
-        </p>
-    </div>
-    <?php endforeach; ?>
+            <?php foreach ([
+                ['🛡','AI Fact-Checking','Every article is analysed by our advanced AI to verify claims and provide a confidence score before publication.'],
+                ['⚡','Real-Time Publishing','Share your verified news instantly with our streamlined publishing workflow and instant distribution.'],
+                ['👥','Community Comments','Readers and writers can comment on every article, fostering open discussion around verified news.'],
+                ['📊','Trust Analytics','Track your credibility score over time and see how your articles perform in trust metrics.'],
+                ['🔒','Secure Accounts','Your account and data are protected with industry-standard security practices.'],
+                ['🌐','Multi-Category Support','Organise content across technology, politics, science, sports, and more with dedicated category management.'],
+            ] as [$icon,$title,$desc]): ?>
+            <div class="feature-card">
+                <div class="feature-icon-box"><?= $icon ?></div>
+                <h3><?= $title ?></h3>
+                <p><?= $desc ?></p>
+            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
@@ -233,59 +143,53 @@ function score_class(int $score): string {
             <p>From draft to verified publication in four simple steps.</p>
         </div>
         <div class="steps-grid">
-        <?php foreach ($steps as $i => $step): ?>
-        <div class="step-card">
-        <?php if ($i < count($steps) - 1): ?>
-            <div class="step-connector"></div>
-        <?php endif; ?>
-        <div class="step-icon-wrap">
-            <div class="step-icon-box">
-        <?php if (!empty($step['icon_path'])): ?>
-            <img src="/<?= htmlspecialchars($step['icon_path']) ?>" alt="">
-        <?php endif; ?>
+            <?php
+            $steps = [
+                ['✏️','01','Write Your Article','Create your news piece using our intuitive editor. Add sources, quotes, and supporting evidence.'],
+                ['🤖','02','AI Analysis','Our AI fact-checker analyses claims, cross-references sources, and generates a trust score.'],
+                ['✅','03','Review & Refine','See detailed feedback on claims that need verification. Improve your article\'s credibility.'],
+                ['📢','04','Publish & Share','Publish your verified article with confidence. Readers see the trust score upfront.'],
+            ];
+            foreach ($steps as $i => [$icon,$num,$title,$desc]): ?>
+            <div class="step-card">
+                <?php if ($i < 3): ?><div class="step-connector"></div><?php endif; ?>
+                <div class="step-icon-wrap">
+                    <div class="step-icon-box"><?= $icon ?></div>
+                    <div class="step-num"><?= $num ?></div>
+                </div>
+                <h3><?= $title ?></h3>
+                <p><?= $desc ?></p>
             </div>
-        <div class="step-num">
-            <?= htmlspecialchars($step['step_number']) ?>
-        </div>
-        </div>
-        <h3>
-            <?= htmlspecialchars($step['title']) ?>
-        </h3>
-        <p>
-            <?= htmlspecialchars($step['description']) ?>
-        </p>
-        </div>
-        <?php endforeach; ?>
-
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
 
 <section id="video" class="section section-alt">
-<div class="container">
-<div class="section-head">
-<h2>See SharedSpace in Action</h2>
-<p>Watch how our AI verifies news in real-time.</p>
-</div>
-<div class="video-wrapper">
-<video id="demo-video" controls preload="none" src="/public/demo.mp4">
-    Your browser does not support the video tag.
-</video>
-<div class="video-overlay" id="video-overlay">
-    <div class="play-btn" id="play-btn"><span>▶</span></div>
-    <h3>Watch the Demo</h3>
-    <p>See how our AI verifies news in real-time</p>
-</div>
-</div>
-</div>
+    <div class="container">
+        <div class="section-head">
+            <h2>See SharedSpace in Action</h2>
+            <p>Watch how our AI verifies news in real-time.</p>
+        </div>
+        <div class="video-wrapper">
+            <video id="demo-video" controls preload="none" src="/public/demo.mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="video-overlay" id="video-overlay">
+                <div class="play-btn" id="play-btn"><span>▶</span></div>
+                <h3>Watch the Demo</h3>
+                <p>See how our AI verifies news in real-time</p>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section id="testimonials" class="section">
     <div class="container">
-    <div class="section-head">
-        <h2>What Our Users Say</h2>
-        <p>Trusted by writers and readers who care about credible, verified news.</p>
-    </div>
+        <div class="section-head">
+            <h2>What Our Users Say</h2>
+            <p>Trusted by writers and readers who care about credible, verified news.</p>
+        </div>
         
 
         <!--reviews are all hardcoded for now-->
@@ -317,40 +221,46 @@ function score_class(int $score): string {
 
 <section id="pricing" class="section section-alt">
     <div class="container">
-
         <div class="section-head">
             <h2>Simple, Transparent Pricing</h2>
             <p>Start free and upgrade when you need more. No hidden fees.</p>
         </div>
         <div class="pricing-grid">
-        <?php foreach ($plans as $plan): ?>
-        <div class="pricing-card <?= $plan['is_popular'] ? 'popular' : '' ?>">
-        <?php if ($plan['is_popular']): ?>
-            <div class="popular-badge">Most Popular</div>
-        <?php endif; ?>
-        <div class="pricing-head">
-            <h3><?= htmlspecialchars($plan['name']) ?></h3>
-            <div class="price">
-            <?= htmlspecialchars($plan['price']) ?>
-            <span><?= htmlspecialchars($plan['price_suffix']) ?></span>
-        </div>
-            <p><?= htmlspecialchars($plan['description']) ?></p>
-            </div>
-            <ul class="pricing-features">
-                <?php foreach ($pricingFeatures as $feature): ?>
-                <?php if ($feature['plan_id'] == $plan['id']): ?>
-                    <li class="<?= $feature['is_included'] ? 'inc' : 'exc' ?>">
-                        <?= htmlspecialchars($feature['feature_text']) ?>
-                    </li>
-                <?php endif; ?>
-            <?php endforeach; ?>
+            <div class="pricing-card">
+                <div class="pricing-head">
+                    <h3>Free</h3>
+                    <div class="price">$0 <span>/ forever</span></div>
+                    <p>Perfect for casual readers and new writers</p>
+                </div>
+                <ul class="pricing-features">
+                    <li class="inc">Read all text-based articles</li>
+                    <li class="inc">Publish plain-text articles</li>
+                    <li class="inc">View AI trust scores</li>
+                    <li class="inc">Comment on articles</li>
+                    <li class="exc">Access to media content</li>
+                    <li class="exc">Save articles for later</li>
+                    <li class="exc">Ad-free experience</li>
                 </ul>
-                <a href="<?= htmlspecialchars($plan['button_link']) ?>"
-                   class="<?= $plan['is_popular'] ? 'btn-hero-full' : 'btn-outline-full' ?>">
-                    <?= htmlspecialchars($plan['button_text']) ?>
-                </a>
+                <a href="/register.php" class="btn-outline-full">Get Started Free</a>
             </div>
-        <?php endforeach; ?>
+            <div class="pricing-card popular">
+                <div class="popular-badge">Most Popular</div>
+                <div class="pricing-head">
+                    <h3>Premium</h3>
+                    <div class="price">$12 <span>/ per month</span></div>
+                    <p>For serious writers and engaged readers</p>
+                </div>
+                <ul class="pricing-features">
+                    <li class="inc">Everything in Free</li>
+                    <li class="inc">Access to all categories</li>
+                    <li class="inc">Read articles with media</li>
+                    <li class="inc">Save articles for later</li>
+                    <li class="inc">Ad-free experience</li>
+                    <li class="inc">Priority AI analysis</li>
+                    <li class="inc">Priority support</li>
+                </ul>
+                <a href="/register.php" class="btn-hero-full">Upgrade to Premium</a>
+            </div>
         </div>
     </div>
 </section>

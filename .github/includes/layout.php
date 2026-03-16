@@ -34,28 +34,21 @@ function page_foot(): void { ?>
 
 
 //receives user entity from authcontroller to render sidebar with user info and navigation links
-//sidebar navigation with role-based logic for system_admin
+//sidebar navigation
+//will add more shit here as time passes
 function sidebar(User $user): void {
     $path  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    
-    // Role-based navigation
-    if ($user->role === 'system_admin') {
-        $links = [
-            ['href' => '/pages/admin-dashboard.php', 'icon' => '🏠', 'label' => 'Admin Dashboard'],
-            ['href' => '/pages/browse.php',          'icon' => '👁', 'label' => 'Browse Articles'],
-        ];
-    } else {
-        $links = [
-            ['href' => '/dashboard.php',         'icon' => '🏠', 'label' => 'Home'],
-            ['href' => '/pages/browse.php',      'icon' => '👁', 'label' => 'Browse Articles'],
-            ['href' => '/pages/my-articles.php', 'icon' => '📄', 'label' => 'My Articles'],
-            ['href' => '/pages/write.php',       'icon' => '📝', 'label' => 'Write Article'],
-        ];
-    }
+    $links = [
+        ['href' => '/dashboard.php',         'icon' => '🏠', 'label' => 'Home'],
+        ['href' => '/pages/browse.php',      'icon' => '👁', 'label' => 'Browse Articles'],
+        ['href' => '/pages/my-articles.php', 'icon' => '📄', 'label' => 'My Articles'],
+        ['href' => '/pages/write.php',       'icon' => '📝', 'label' => 'Write Article'],
+        
+    ];
     ?>
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <a href="<?= $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : '/dashboard.php' ?>" class="logo-link">
+        <a href="/dashboard.php" class="logo-link">
             <div class="logo-icon">📰</div>
             <span class="logo-text">SharedSpace</span>
         </a>
@@ -68,8 +61,6 @@ function sidebar(User $user): void {
 
              <?php if ($user->role === 'premium'): ?>
                 <span class="role-badge premium">Premium</span>
-            <?php elseif ($user->role === 'system_admin'): ?>
-                <span class="role-badge system-admin">System Admin</span>
             <?php else: ?>
             <span class="role-badge free">Free</span>
              <?php endif; ?>
