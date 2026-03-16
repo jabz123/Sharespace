@@ -1,19 +1,32 @@
 <?php
-session_start();
+// admin dashboard page
+// only accessible to users with role == 'admin'
+// blank for now, ready for future feature additions
 
-// Check if user is logged in and if their role is admin
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: /'); // Redirect to homepage if not admin
-    exit;
+require_once __DIR__ . '/../includes/layout.php';
+require_once __DIR__ . '/../includes/controllers/AuthController.php';
+
+$auth = new AuthController();
+
+$auth->requireAuth();
+$user = $auth->currentUser();
+
+if ($user->role !== 'admin') {
+    redirect('/dashboard.php');
 }
 
-// Include the admin header
-include_once 'header-admin.php';
-
-// Admin dashboard layout
+page_head('Admin Dashboard');
 ?>
 
-<div class="dashboard">
-    <h1>Admin Dashboard</h1>
-    <!-- Add more dashboard content here -->
+<div class="dashboard-layout">
+<?php sidebar($user); ?>
+<main>
+<?php dash_header('Admin Dashboard', 'Welcome, ' . htmlspecialchars($user->fullName)); ?>
+<?php flash_messages(); ?>
+
+<div class="page-content">
 </div>
+</main>
+</div>
+
+<?php page_foot(); ?>
