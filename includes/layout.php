@@ -1,21 +1,13 @@
 <?php
-function sidebar() {
-    $user_role = get_user_role(); // Assuming this function fetches the current user's role
-    if ($user_role === 'admin') {
-        echo '<a href="admin-dashboard.php">Logo</a>';
-        echo '<ul>';
-        echo '<li><a href="admin-dashboard.php">Admin Dashboard</a></li>';
-        echo '<li><a href="browse-articles.php">Browse Articles</a></li>';
-        echo '</ul>';
-        echo '<span class="badge">Admin</span>';
-    } else {
-        echo '<a href="dashboard.php">Logo</a>';
-        echo '<ul>';
-        echo '<li><a href="home.php">Home</a></li>';
-        echo '<li><a href="browse-articles.php">Browse Articles</a></li>';
-        echo '<li><a href="my-articles.php">My Articles</a></li>';
-        echo '<li><a href="write-article.php">Write Article</a></li>';
-        echo '</ul>';
-    }
+// Updated role-based sidebar logic checking for system_admin
+if ($user_role === 'system_admin') {
+    echo '<div class="badge badge-system-admin">System Administrator</div>';
+    // Sidebar items for system_admin
+} elseif ($user_role === 'editor') {
+    echo '<div class="badge badge-editor">Editor</div>';
+    // Sidebar items for editor
+} else {
+    echo '<div class="badge badge-user">User</div>';
+    // Sidebar items for regular users
 }
 ?>
