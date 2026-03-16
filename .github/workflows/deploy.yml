@@ -3,14 +3,50 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - main
+      - AWS
+      - TEST
 
 jobs:
-  deploy:
+
+  deploy-test:
+    name: Deploy to TEST (Staging Server)
+    if: github.ref == 'refs/heads/TEST'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.TEST_EC2_SSH_KEY }}" > ~/.ssh/key.pem
+          chmod 600 ~/.ssh/key.pem
+          ssh-keyscan -H ${{ secrets.TEST_EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Staging Server
+        run: |
+          rsync -avz --delete \
+          --exclude ".git" \
+          --exclude ".github" \
+          -e "ssh -i ~/.ssh/key.pem" \
+          ./ ${{ secrets.TEST_EC2_USER }}@${{ secrets.TEST_EC2_HOST }}:/var/www/test/
+
+      - name: Reload Apache
+        run: |
+          ssh -i ~/.ssh/key.pem ${{ secrets.TEST_EC2_USER }}@${{ secrets.TEST_EC2_HOST }} "
+            sudo systemctl reload apache2
+          "
+
+
+  deploy-production:
+    name: Deploy to Production Server
+    if: github.ref == 'refs/heads/AWS'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup SSH
@@ -18,62 +54,18 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
           chmod 600 ~/.ssh/key.pem
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy with zero downtime and rollback
+      - name: Deploy to Production Server
         run: |
-          set -e
-
-          RELEASE=$(date +%Y%m%d%H%M%S)
-          echo "Deploying release: $RELEASE"
-
-          # Create release directory with proper permissions
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            sudo mkdir -p /var/www/releases/$RELEASE &&
-            sudo chown -R ${{ secrets.EC2_USER }}:www-data /var/www/releases/$RELEASE
-          "
-
-          # Upload new code
           rsync -avz --delete \
-            --exclude '.git' \
-            --exclude '.github' \
-            --exclude 'public/uploads' \
-            -e "ssh -i ~/.ssh/key.pem" \
-            "$GITHUB_WORKSPACE/" \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/
+          --exclude ".git" \
+          --exclude ".github" \
+          -e "ssh -i ~/.ssh/key.pem" \
+          ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/current/
 
-          # Get previous release for rollback
-          OLD_RELEASE=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
-          echo "Previous release: $OLD_RELEASE"
-
-          # Activate new release
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            ln -sfn /var/www/storage/uploads /var/www/releases/$RELEASE/public/uploads &&
-            sudo ln -sfn /var/www/releases/$RELEASE /var/www/current &&
-            sudo systemctl reload apache2
-          "
-
-          # Wait for server
-          sleep 5
-
-          # Health check
-          if curl -f http://${{ secrets.EC2_HOST }}/index.php > /dev/null; then
-            echo "Deployment successful."
-          else
-            echo "Health check failed. Rolling back..."
-
-            if [ -n \"$OLD_RELEASE\" ]; then
-              ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-                sudo ln -sfn $OLD_RELEASE /var/www/current &&
-                sudo systemctl reload apache2
-              "
-            fi
-
-            exit 1
-          fi
-
-      - name: Keep only last 5 releases
+      - name: Reload Apache
         run: |
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-            cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r sudo rm -rf
+          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            sudo systemctl reload apache2
           "
