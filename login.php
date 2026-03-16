@@ -316,7 +316,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="left-footer">
         <p class="signup-cta">Don't have an account? <a href="/register.php">Sign up free</a></p>
-        <p class="signup-cta">Don't have an account? <a href="/register.php">Sign up free</a></p>
         <div class="status-pill"><span class="status-dot"></span>All systems normal</div>
     </div>
 </div>
