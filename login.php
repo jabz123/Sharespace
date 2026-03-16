@@ -29,13 +29,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // get login user
         $user = $auth->currentUser();
-        $onboardCtrl = new OnboardingController();
-
-        //check if user completed onboarding form
-        if (!$onboardCtrl->isCompleted($user->id)) {
-            header('Location: /pages/onboarding.php');
+        
+        // system_admin users skip onboarding and go straight to admin dashboard
+        if ($user->role === 'system_admin') {
+            header('Location: /pages/admin-dashboard.php');
         } else {
-            header('Location: /dashboard.php');
+            // regular users check if they completed onboarding
+            $onboardCtrl = new OnboardingController();
+            if (!$onboardCtrl->isCompleted($user->id)) {
+                header('Location: /pages/onboarding.php');
+            } else {
+                header('Location: /dashboard.php');
+            }
         }
 
         exit;
