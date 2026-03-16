@@ -11,7 +11,7 @@ $articleCtrl = new ArticleController();
 
 //skip landing page if logged in
 if ($auth->currentUser()) {
-    header('Location: /dashboard.php');
+    header('Location: dashboard.php');
     exit;
 }
 
@@ -46,7 +46,7 @@ function score_class(int $score): string {
         </a>
         <div class="nav-links" id="nav-links">
             <a href="#features">Features</a>
-            <a href="#how-it-works">How It Worksssss</a>
+            <a href="#how-it-works">How It Works</a>
             <a href="#testimonials">Testimonials</a>
             <a href="#pricing">Pricing</a>
         </div>
@@ -58,7 +58,7 @@ function score_class(int $score): string {
     </div>
     <div class="mobile-menu" id="mobile-menu">
         <a href="#features">Features</a>
-        <a href="#how-it-works">How It Works</a>
+        <a href="#how-it-works">How It </a>
         <a href="#testimonials">Testimonials</a>
         <a href="#pricing">Pricing</a>
         <div class="mobile-auth">
