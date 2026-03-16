@@ -7,73 +7,82 @@ on:
 
 jobs:
   deploy:
+    name: Deploy Website
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
-          chmod 600 ~/.ssh/key.pem
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+    # 1. Checkout repository
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Deploy with zero downtime and rollback
-        run: |
-          set -e
+    # 2. Setup SSH access
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
+        chmod 600 ~/.ssh/key.pem
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-          RELEASE=$(date +%Y%m%d%H%M%S)
-          echo "Deploying release: $RELEASE"
+    # 3. Create new release folder
+    - name: Prepare New Release
+      run: |
+        RELEASE=$(date +%Y%m%d%H%M%S)
+        echo "RELEASE=$RELEASE" >> $GITHUB_ENV
 
-          # Create release directory with proper permissions
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            sudo mkdir -p /var/www/releases/$RELEASE &&
-            sudo chown -R ${{ secrets.EC2_USER }}:www-data /var/www/releases/$RELEASE
-          "
+        ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          sudo mkdir -p /var/www/releases/$RELEASE &&
+          sudo chown -R ${{ secrets.EC2_USER }}:www-data /var/www/releases/$RELEASE
+        "
 
-          # Upload new code
-          rsync -avz --delete \
-            --exclude '.git' \
-            --exclude '.github' \
-            --exclude 'public/uploads' \
-            -e "ssh -i ~/.ssh/key.pem" \
-            "$GITHUB_WORKSPACE/" \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/$RELEASE/
+    # 4. Upload project files
+    - name: Upload Files
+      run: |
+        rsync -avz --delete \
+          --exclude ".git" \
+          --exclude ".github" \
+          --exclude "public/uploads" \
+          -e "ssh -i ~/.ssh/key.pem" \
+          ./ \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/${{ env.RELEASE }}/
 
-          # Get previous release for rollback
-          OLD_RELEASE=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
-          echo "Previous release: $OLD_RELEASE"
+    # 5. Activate release
+    - name: Activate New Release
+      run: |
+        OLD_RELEASE=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
 
-          # Activate new release
-          ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            ln -sfn /var/www/storage/uploads /var/www/releases/$RELEASE/public/uploads &&
-            sudo ln -sfn /var/www/releases/$RELEASE /var/www/current &&
-            sudo systemctl reload apache2
-          "
+        echo "OLD_RELEASE=$OLD_RELEASE" >> $GITHUB_ENV
 
-          # Wait for server
-          sleep 5
+        ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          ln -sfn /var/www/storage/uploads /var/www/releases/${{ env.RELEASE }}/public/uploads &&
+          sudo ln -sfn /var/www/releases/${{ env.RELEASE }} /var/www/current &&
+          sudo systemctl reload apache2
+        "
 
-          # Health check
-          if curl -f http://${{ secrets.EC2_HOST }}/index.php > /dev/null; then
-            echo "Deployment successful."
-          else
-            echo "Health check failed. Rolling back..."
+    # 6. Health Check
+    - name: Verify Deployment
+      run: |
+        sleep 5
 
-            if [ -n \"$OLD_RELEASE\" ]; then
-              ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-                sudo ln -sfn $OLD_RELEASE /var/www/current &&
-                sudo systemctl reload apache2
-              "
-            fi
+        if curl -f http://${{ secrets.EC2_HOST }}/index.php > /dev/null; then
+          echo "Deployment successful."
+        else
+          echo "Health check failed. Rolling back..."
 
-            exit 1
+          if [ -n "${{ env.OLD_RELEASE }}" ]; then
+            ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+              sudo ln -sfn ${{ env.OLD_RELEASE }} /var/www/current &&
+              sudo systemctl reload apache2
+            "
           fi
 
-      - name: Keep only last 5 releases
-        run: |
-          ssh -i ~/.ssh/key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
-            cd /var/www/releases && ls -1dt */ | tail -n +6 | xargs -r sudo rm -rf
-          "
+          exit 1
+        fi
+
+    # 7. Cleanup old releases
+    - name: Cleanup Old Releases
+      run: |
+        ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          cd /var/www/releases &&
+          ls -1dt */ | tail -n +6 | xargs -r sudo rm -rf
+        "
