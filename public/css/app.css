@@ -170,6 +170,11 @@ a:hover {
     color: #fff;
 }
 
+.role-badge.admin {
+    background: var(--gradient-hero);
+    color: #fff;
+}
+
 .sidebar-nav {
     flex: 1;
     padding: 12px;
