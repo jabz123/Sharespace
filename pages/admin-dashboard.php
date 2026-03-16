@@ -1,17 +1,19 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/layout.php';
+require_once __DIR__ . '/../includes/controllers/AuthController.php';
 
-// Check if user is logged in and if their role is system_admin
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'system_admin') {
+$auth = new AuthController();
+
+// Check if user is logged in
+$user = $auth->currentUser();
+if (!$user) {
     header('Location: /');
     exit;
 }
 
-require_once __DIR__ . '/../includes/layout.php';
-
-$user = $_SESSION['user'] ?? null;
-if (!$user) {
-    header('Location: /');
+// Check if user is system_admin
+if ($user->role !== 'system_admin') {
+    header('Location: /dashboard.php');
     exit;
 }
 
