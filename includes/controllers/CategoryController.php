@@ -2,24 +2,17 @@
 
 // handles category-related logic for the admin system
 // allows system_admin to create, read, update and delete categories
-// validates all inputs and enforces data integrity
 // returns only data arrays, no html output
 
-require_once __DIR__ . '/../entities/Category.php';
 require_once __DIR__ . '/../db.php';
 
 class CategoryController {
-
-    //returns all categories with article count
-    //returns array of associative arrays
-    public function getAllWithStats(): array {
-        return DB::query(
-            'SELECT c.*, COUNT(a.id) AS article_count
-             FROM categories c
-             LEFT JOIN articles a ON a.category_id = c.id
-             GROUP BY c.id
-             ORDER BY c.name'
-        );
+    
+    // get all categories
+    // returns array of categories
+    public function getAll(): array {
+        $rows = DB::query('SELECT * FROM categories ORDER BY name');
+        return $rows;
     }
 
     //returns single category by id, or null if not found
