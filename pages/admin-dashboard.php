@@ -27,6 +27,10 @@ if ($user->role !== 'system_admin') {
 // get all categories
 $categories = $catCtrl->getAll();
 
+// read feedback from categories-handler redirect
+$successMsg = isset($_GET['success']) ? 'Operation completed successfully.' : null;
+$errorMsg   = isset($_GET['error'])   ? htmlspecialchars($_GET['error']) : null;
+
 page_head('Admin Dashboard');
 ?>
 <div class="dashboard-layout">
@@ -35,6 +39,12 @@ page_head('Admin Dashboard');
         <?php dash_header('Admin Dashboard', 'System Administration Panel'); ?>
         <div class="page-content">
             
+            <?php if ($successMsg): ?>
+                <div class="alert alert-success"><?= $successMsg ?></div>
+            <?php elseif ($errorMsg): ?>
+                <div class="alert alert-error"><?= $errorMsg ?></div>
+            <?php endif; ?>
+
             <!-- Create Category Button -->
             <div style="margin-bottom:32px">
                 <button type="button" class="btn btn-primary" onclick="openCreateModal()">➕ Add Category</button>
