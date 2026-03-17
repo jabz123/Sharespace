@@ -20,6 +20,7 @@ class ArticleController {
             JOIN users u ON u.id = a.author_id
             JOIN categories c ON c.id = a.category_id
             LEFT JOIN article_views v ON v.article_id = a.id
+            WHERE a.status = "published"
             GROUP BY a.id
             ORDER BY a.published_at DESC
             LIMIT ?',
@@ -45,12 +46,27 @@ class ArticleController {
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
              LEFT JOIN article_views v ON v.article_id = a.id
-             WHERE a.id = ?
+             WHERE a.id = ? AND a.status = "published"
              GROUP BY a.id',
             [$id]
         );
         return $row ? new Article($row) : null;
     }
+
+    // edit articles including article draft 
+    public function getByIdForAuthor(int $id, int $userId): ?Article {
+    $row = DB::first(
+            "SELECT a.*, u.full_name AS author_name, c.name AS category_name
+            FROM articles a
+            JOIN users u ON u.id = a.author_id
+            JOIN categories c ON c.id = a.category_id
+            WHERE a.id = ? AND a.author_id = ?",
+            [$id, $userId]
+        );
+
+        return $row ? new Article($row) : null;
+    }
+
 
     //return all categories for write article
     //returns Category[] array
@@ -70,9 +86,23 @@ class ArticleController {
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
              LEFT JOIN article_views v ON v.article_id = a.id
-             WHERE a.author_id = ?
+             WHERE a.author_id = ? AND a.status = "published"
              GROUP BY a.id
              ORDER BY a.published_at DESC',
+            [$authorId]
+        );
+        return array_map(fn($r) => new Article($r), $rows);
+    }
+    //returns all draft articles written by specific user
+    //return Article[] array
+    public function getDraftsByAuthor(int $authorId): array {
+        $rows = DB::query(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name
+            FROM articles a
+            JOIN users u ON u.id = a.author_id
+            JOIN categories c ON c.id = a.category_id
+            WHERE a.author_id = ? AND a.status = "draft"
+            ORDER BY a.updated_at DESC',
             [$authorId]
         );
         return array_map(fn($r) => new Article($r), $rows);
@@ -85,6 +115,7 @@ class ArticleController {
         $excerpt    = trim($input['excerpt']     ?? '');
         $content    = trim($input['content']     ?? '');
         $categoryId = (int)($input['category_id'] ?? 0);
+        $status = $input['status'] ?? null;
 
         if (!$title || !$excerpt || !$content || !$categoryId) {
             return ['error' => 'All fields are required.'];
@@ -98,11 +129,22 @@ class ArticleController {
 
         $imagePath = $input['image_path'] ?? null;
 
+        //  GET CURRENT STATUS FROM DB
+        $current = DB::first('SELECT status FROM articles WHERE id = ?', [$articleId]);
+
+        $status = $input['status'] ?? null;
+
+        // ONLY SET published_at WHEN draft → published
+        $setPublishedAt = '';
+        if ($current['status'] === 'draft' && $status === 'published') {
+            $setPublishedAt = ', published_at = NOW()';
+        }
+
         DB::execute(
-            'UPDATE articles
-            SET title = ?, excerpt = ?, content = ?, category_id = ?, image_path = ?, updated_at = NOW()
-            WHERE id = ? AND author_id = ?',
-            [$title, $excerpt, $content, $categoryId, $imagePath, $articleId, $authorId]
+            "UPDATE articles
+            SET title = ?, excerpt = ?, content = ?, category_id = ?, image_path = ?, status = ? $setPublishedAt, updated_at = NOW()
+            WHERE id = ? AND author_id = ?",
+            [$title, $excerpt, $content, $categoryId, $imagePath, $status, $articleId, $authorId]
         );
 
         return ['ok' => true];
@@ -140,10 +182,10 @@ class ArticleController {
         }
 
         DB::execute(
-            'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path)
-              VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$title, $excerpt, $content, $authorId, $categoryId, 80, $imagePath]
-        );
+        'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status, published_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+        [$title, $excerpt, $content, $authorId, $categoryId, 80, $imagePath, 'published']
+         );
 
         return ['ok' => true, 'id' => DB::lastId()];
     }
@@ -155,7 +197,9 @@ class ArticleController {
                 FROM articles a
                 JOIN users u ON u.id = a.author_id
                 JOIN categories c ON c.id = a.category_id
-                LEFT JOIN article_views v ON v.article_id = a.id';
+                LEFT JOIN article_views v ON v.article_id = a.id
+                WHERE a.status = "published"';
+                
 
         $conditions = [];
         $params = [];
@@ -186,5 +230,25 @@ class ArticleController {
 
         return array_map(fn($r) => new Article($r), $rows);
     }
+
+    public function saveDraft(int $authorId, array $input): array {
+
+    DB::execute(
+        'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+            $input['title'] ?? '',
+            $input['excerpt'] ?? '',
+            $input['content'] ?? '',
+            $authorId,
+            $input['category_id'] ?? null,
+            80,
+            $input['image_path'] ?? null,
+            'draft'
+        ]
+    );
+
+    return ['ok' => true];
+}
 
  }

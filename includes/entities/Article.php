@@ -22,6 +22,7 @@ class Article {
     public bool   $isPremiumOnly;
     public string $publishedAt;
     public int $viewCount;
+    public string $status;
 
     public function __construct(array $row) {
         $this->id            = (int)$row['id'];
@@ -38,6 +39,7 @@ class Article {
         $this->publishedAt   = $row['published_at'] ?? '';
         $this->imagePath = $row['image_path'] ?? null;
         $this->viewCount = $row['view_count'] ?? 0;
+        $this->status = $row['status'] ?? 'published';
     }
 
     //put user initial for default avatar cos no picture yyet

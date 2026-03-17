@@ -21,7 +21,7 @@ class HomepageController {
         JOIN categories c ON c.id = a.category_id
         JOIN user_interests ui ON ui.category_id = a.category_id
         LEFT JOIN article_views v ON v.article_id = a.id
-        WHERE ui.user_id = ?
+        WHERE ui.user_id = ? AND a.status = 'published'
         GROUP BY a.id
         ORDER BY view_count DESC, a.published_at DESC
         ", [$userId]);
@@ -51,7 +51,7 @@ class HomepageController {
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
         WHERE reader.age_group =
-            (SELECT age_group FROM users WHERE id = ?)
+            (SELECT age_group FROM users WHERE id = ?) AND a.status = 'published'
         GROUP BY a.id
         ORDER BY COUNT(v.id) DESC
         LIMIT 3
@@ -73,7 +73,7 @@ class HomepageController {
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
         WHERE reader.gender =
-            (SELECT gender FROM users WHERE id = ?)
+            (SELECT gender FROM users WHERE id = ?) AND a.status = 'published'
         GROUP BY a.id
         ORDER BY COUNT(v.id) DESC
         LIMIT 3
@@ -93,6 +93,7 @@ class HomepageController {
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
         LEFT JOIN article_views v ON v.article_id = a.id
+        WHERE a.status = 'published'
         GROUP BY a.id
         ORDER BY a.published_at DESC
         LIMIT $limit"

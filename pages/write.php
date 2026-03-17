@@ -26,7 +26,7 @@ $article = null;
 $isEdit  = false;
 
 if ($editId) {
-    $article = $articleCtrl->getById($editId);
+    $article = $articleCtrl->getByIdForAuthor($editId, $user->id);
     // only the author can edit own article
     if (!$article || $article->authorId !== $user->id) {
         redirect('/pages/my-articles.php', 'Article not found or permission denied.');
@@ -34,10 +34,16 @@ if ($editId) {
     $isEdit = true;
 }
 
-//update and publish article
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['publish'])) {
-     $imagePath = $article->imagePath ?? null;
+// =======================================================
+// 🔥 UPDATED: HANDLE BOTH DRAFT + PUBLISH
+// =======================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    $action = $_POST['action'] ?? 'publish'; // ⭐ NEW
+
+    $imagePath = $article->imagePath ?? null;
+
+    // remove image logic
     if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1') {
         if (!empty($article->imagePath)) {
             $filePath = __DIR__ . '/../public/' . $article->imagePath;
@@ -47,39 +53,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['publish'])) {
         }
         $imagePath = null;
     }
-     //handle image upload for premium users
-        if ($isPremium && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
 
-            // $uploadDir = __DIR__ . '/../uploads/articles/';
-            $uploadDir = __DIR__ . '/../public/uploads/articles/';
-            if (!is_dir($uploadDir)) {
+    // handle image upload for premium users
+    if ($isPremium && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
+
+        $uploadDir = __DIR__ . '/../public/uploads/articles/';
+        if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
-            }
-
-            //create unique filename
-            $fileName = time() . '_' . basename($_FILES['article_image']['name']);
-
-            $targetPath = $uploadDir . $fileName;
-
-            if (move_uploaded_file($_FILES['article_image']['tmp_name'], $targetPath)) {
-                $imagePath = 'uploads/articles/' . $fileName;
-            }
         }
 
-         //add image path into POST data
-        $_POST['image_path'] = $imagePath;
+        $fileName = time() . '_' . basename($_FILES['article_image']['name']);
+        $targetPath = $uploadDir . $fileName;
+
+        if (move_uploaded_file($_FILES['article_image']['tmp_name'], $targetPath)) {
+            $imagePath = 'uploads/articles/' . $fileName;
+        }
+    }
+
+    // add image path into POST data
+    $_POST['image_path'] = $imagePath;
+
+    // =======================================================
+    // ⭐ NEW: SAVE AS DRAFT
+    // =======================================================
+    if ($action === 'draft') {
+
+        $_POST['status'] = 'draft'; // future usage
+
+        if ($isEdit) {
+            $result = $articleCtrl->update($editId, $user->id, $_POST);
+        } else {
+            $result = $articleCtrl->saveDraft($user->id, $_POST); // ⭐ NEW FUNCTION
+        }
+
+        if (isset($result['ok'])) {
+            redirect('/pages/my-articles.php', null, 'Draft saved!');
+        }
+
+    } 
+    // =======================================================
+    // EXISTING PUBLISH (UNCHANGED)
+    // =======================================================
+    else {
+
+    // 🔥 PUBLISH ACTION
+    $_POST['status'] = 'published';
 
     if ($isEdit) {
         $result = $articleCtrl->update($editId, $user->id, $_POST);
         if (isset($result['ok'])) {
-            redirect('/pages/my-articles.php', null, 'Article updated!');
+            redirect('/pages/my-articles.php', null, 'Article published!');
         }
     } else {
         $result = $articleCtrl->publish($user->id, $_POST);
         if (isset($result['ok'])) {
             redirect('/pages/my-articles.php', null, 'Article published!');
+            }
         }
     }
+
     flash_set('flash_error', $result['error']);
 }
 
@@ -91,10 +123,10 @@ $val = [
     'category_id' => $_POST['category_id'] ?? ($article?->categoryId  ?? 0),
 ];
 
-//render form with existing article data if editing
-//render empty form if writing new articel
+//render form
 page_head($isEdit ? 'Edit Article' : 'Write Article');
 ?>
+
 <div class="dashboard-layout">
     <?php sidebar($user); ?>
     <main>
@@ -103,58 +135,50 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             $isEdit ? 'Update your article' : 'Share your story with the world'
         ); ?>
         <?php flash_messages(); ?>
-        <div class="page-content">
 
-            <form method="POST" id="write-form" enctype="multipart/form-data">
+        <!-- 🔥 NEW: FLEX LAYOUT -->
+        <div class="page-content write-layout">
+
+            <!-- ================= LEFT SIDE ================= -->
+            <form method="POST" id="write-form" enctype="multipart/form-data" style="flex:2">
+
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
+
                 <?php if ($isPremium): ?>
-
                 <div class="image-upload-container">
-
                     <div class="image-preview" id="imagePreview">
-
                     <?php if ($isEdit && !empty($article->imagePath)): ?>
-                        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="Article Image">
+                        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>">
                     <?php else: ?>
                         <span>No image selected</span>
                     <?php endif; ?>
-
                     </div>
 
-                    <input type="file" id="articleImageInput" name="article_image" accept="image/*" hidden>
+                    <input type="file" id="articleImageInput" name="article_image" hidden>
 
                     <div class="image-buttons">
                         <button type="button" class="btn btn-dark" onclick="selectImage()">Select Image</button>
                         <button type="button" class="btn btn-light" onclick="removeImage()">Remove Image</button>
                     </div>
-
                 </div>
-
                 <?php endif; ?>
 
                 <div class="form-group">
-                    <label for="title">Article Title</label>
-                    <input type="text" id="title" name="title"
-                        placeholder="Article title"
-                        value="<?= htmlspecialchars($val['title']) ?>"
-                        required />
+                    <label>Article Title</label>
+                    <input type="text" name="title" value="<?= htmlspecialchars($val['title']) ?>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="excerpt">Article Summary</label>
-                    <input type="text" id="excerpt" name="excerpt"
-                        placeholder="Brief summary of your article"
-                        value="<?= htmlspecialchars($val['excerpt']) ?>"
-                        required />
+                    <label>Article Summary</label>
+                    <input type="text" name="excerpt" value="<?= htmlspecialchars($val['excerpt']) ?>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="category_id">Category</label>
-                    <select id="category_id" name="category_id" required>
+                    <label>Category</label>
+                    <select name="category_id" required>
                         <option value="">Select category</option>
                         <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat->id ?>"
-                                <?= (int)$val['category_id'] === $cat->id ? 'selected' : '' ?>>
+                            <option value="<?= $cat->id ?>" <?= (int)$val['category_id'] === $cat->id ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($cat->name) ?>
                             </option>
                         <?php endforeach; ?>
@@ -162,53 +186,116 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 </div>
 
                 <div class="form-group">
-                    <label for="content">Content</label>
-                    <textarea id="content" name="content"
-                        placeholder="Write your article here… (## Heading, - bullets)"
-                        style="min-height:360px"
-                        required><?= htmlspecialchars($val['content']) ?></textarea>
+                    <label>Content</label>
+                    <textarea name="content" style="min-height:300px" required><?= htmlspecialchars($val['content']) ?></textarea>
                 </div>
 
-                <div class="flex gap-2">
-                    <button type="submit" name="publish" class="btn btn-primary">
-                        <?= $isEdit ? '💾 Save Changes' : 'Publish Article' ?>
+                <!-- 🔥 NEW BUTTONS -->
+                <div class="flex gap-2" style="margin-top:20px">
+
+                <!-- AI BUTTON -->
+                <button type="button" onclick="runAICheck()" class="btn btn-dark" style="flex:1">
+                    🤖 AI Fact Check
+                </button>
+
+                <!-- SAVE DRAFT (only for draft or new) -->
+                <?php if (!$isEdit || ($article->status ?? '') === 'draft'): ?>
+                    <button type="submit" name="action" value="draft" class="btn btn-secondary" style="flex:1">
+                        <?= $isEdit ? '💾 Update Draft' : '💾 Save Draft' ?>
                     </button>
-                    <a href="/pages/my-articles.php" class="btn btn-ghost">Cancel</a>
-                </div>
+                <?php endif; ?>
+
+                <button type="submit" name="action" value="publish" class="btn btn-primary" style="flex:1">
+                <?php
+                    $isDraft = !$isEdit || ($article->status === 'draft');
+                    echo $isDraft ? '🚀 Publish Article' : '💾 Save Changes';
+                    ?>
+                 </button>
+
+            </div>
 
             </form>
+
+            <!-- ================= RIGHT SIDE (AI PANEL) ================= -->
+            <div class="ai-panel">
+            <div class="card">
+
+            <h3>🛡 AI Verification</h3>
+
+            <!-- STATE 1 (DEFAULT) -->
+            <div id="ai-empty">
+                <p class="text-muted" style="margin-top:10px;">
+                    Click "AI Fact Check" to analyze your article's credibility before publishing.
+                </p>
+            </div>
+
+            <!-- STATE 2 (HIDDEN INITIALLY) -->
+            <div id="ai-result" style="display:none;">
+
+    <!-- SCORE -->
+    <div style="text-align:center; margin:20px 0;">
+        <h2 style="font-size:28px; font-weight:700;">90%</h2>
+        <p class="text-muted">Trust Score</p>
+    </div>
+
+    <!-- ⭐ NEW: DESCRIPTION TEXT -->
+    <p style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
+        This submission is a legitimate news article. It consists of well researched facts and is supported well by evidence.
+    </p>
+
+            <!-- PROGRESS BARS -->
+            <p>Factual Accuracy</p>
+            <div class="progress-bar"><div style="width:95%"></div></div>
+
+            <p>Source Quality</p>
+            <div class="progress-bar"><div style="width:80%"></div></div>
+
+            <p>Bias Detection</p>
+            <div class="progress-bar"><div style="width:5%"></div></div>
+
+            <p>Logical Consistency</p>
+            <div class="progress-bar"><div style="width:90%"></div></div>
+
+            <p>Completeness</p>
+            <div class="progress-bar"><div style="width:80%"></div></div>
+
+            <!-- ⭐ NEW: SUCCESS BOX -->
+            <div class="ai-success-box">
+                 Trust score is above 60%. Article can be published.
+            </div>
 
         </div>
     </main>
 </div>
+
 <script>
+// image preview logic (UNCHANGED)
+function selectImage() {
+    document.getElementById('articleImageInput').click();
+}
 
-        function selectImage() {
-            document.getElementById('articleImageInput').click();
-        }
+document.getElementById('articleImageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    if (!file) return;
 
-        document.getElementById('articleImageInput').addEventListener('change', function(e) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        preview.innerHTML = `<img src="${event.target.result}">`;
+    }
+    reader.readAsDataURL(file);
+});
 
-            const file = e.target.files[0];
-            const preview = document.getElementById('imagePreview');
+function removeImage() {
+    document.getElementById('articleImageInput').value = '';
+    document.getElementById('imagePreview').innerHTML = '<span>No image selected</span>';
+    document.getElementById('removeImageFlag').value = "1";
+}
 
-            if (!file) return;
-
-            const reader = new FileReader();
-
-            reader.onload = function(event) {
-                preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
-            }
-
-            reader.readAsDataURL(file);
-        });
-
-        function removeImage() {
-            document.getElementById('articleImageInput').value = '';
-            document.getElementById('imagePreview').innerHTML = '<span>No image selected</span>';
-            document.getElementById('removeImageFlag').value = "1";
-        }
-
-        </script>
+function runAICheck() {
+    document.getElementById('ai-empty').style.display = 'none';
+    document.getElementById('ai-result').style.display = 'block';
+}
+</script>
 
 <?php page_foot(); ?>

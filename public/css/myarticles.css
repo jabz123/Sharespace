@@ -1,0 +1,135 @@
+/* =========================
+   MY ARTICLES PAGE
+========================= */
+
+/* container spacing */
+.my-articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* each article card */
+.my-article-card {
+    padding: 18px 22px;
+    border-radius: 10px;
+}
+
+/* row layout */
+.my-article-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+/* left content */
+.my-article-info {
+    flex: 1;
+    min-width: 0;
+}
+
+/* top meta row */
+.my-article-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+/* time align right */
+.my-article-time {
+    margin-left: auto;
+    font-size: 12px;
+}
+
+/* title */
+.my-article-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    max-width: 520px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* link styling */
+.my-article-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.my-article-link:hover {
+    text-decoration: underline;
+}
+
+/* excerpt */
+.my-article-excerpt {
+    font-size: 13px;
+    color: #666;
+    max-width: 520px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* right side buttons */
+.my-article-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* toggle buttons */
+.article-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.toggle-btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: #eee;
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
+
+.toggle-btn:hover {
+    background: #ddd;
+}
+
+.toggle-btn.active {
+    background: #111;
+    color: #fff;
+}
+
+/* empty state spacing */
+.card-empty {
+    text-align: center;
+    padding: 48px 32px;
+}
+
+/* optional: better button spacing on small screens */
+@media (max-width: 768px) {
+    .my-article-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .my-article-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .my-article-title,
+    .my-article-excerpt {
+        max-width: 100%;
+    }
+}
