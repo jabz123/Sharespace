@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // handles category CRUD operations from the admin dashboard
 // processes create, update, and delete actions submitted via POST
