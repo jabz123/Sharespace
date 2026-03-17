@@ -9,9 +9,11 @@
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
+require_once __DIR__ . '/../includes/controllers/CategoryController.php';
 
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
+$categoryCtrl = new CategoryController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
@@ -20,6 +22,7 @@ $category = $_GET['category'] ?? null;
 $sort = $_GET['sort'] ?? 'recent';
 $search = $_GET['search'] ?? null;
 $articles = $articleCtrl->getByCategory($category, $sort, $search);
+$allCategories = $categoryCtrl->getAll();
 
 page_head('Browse Articles');
 ?>
@@ -41,23 +44,13 @@ page_head('Browse Articles');
         <a href="browse.php?sort=<?= $sort ?>&search=<?= $search ?>"
         class="<?= $category == null ? 'active-filter' : '' ?>">All</a>
 
-        <a href="?category=technology&sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == 'technology' ? 'active-filter' : '' ?>">Technology</a>
-
-        <a href="?category=science&sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == 'science' ? 'active-filter' : '' ?>">Science</a>
-
-        <a href="?category=politics&sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == 'politics' ? 'active-filter' : '' ?>">Politics</a>
-
-        <a href="?category=economy&sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == 'economy' ? 'active-filter' : '' ?>">Economy</a>
-
-        <a href="?category=sports&sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == 'sports' ? 'active-filter' : '' ?>">Sports</a>
-
-        <a href="?category=health&sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == 'health' ? 'active-filter' : '' ?>">Health</a>
+        <?php foreach ($allCategories as $cat): ?>
+        <?php $catSlug = strtolower($cat['name']); ?>
+        <a href="?category=<?= urlencode($catSlug) ?>&sort=<?= $sort ?>&search=<?= $search ?>"
+        class="<?= $category == $catSlug ? 'active-filter' : '' ?>">
+            <?= htmlspecialchars($cat['name']) ?>
+        </a>
+        <?php endforeach; ?>
     </div>
 
     <form method="GET" class="search-bar">
