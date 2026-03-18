@@ -43,6 +43,7 @@ function sidebar(User $user): void {
         $links = [
             ['href' => '/pages/admin-dashboard.php', 'icon' => '🏠', 'label' => 'Admin Dashboard'],
             ['href' => '/pages/browse.php',          'icon' => '👁', 'label' => 'Browse Articles'],
+            ['href' => '/pages/profile.php',         'icon' => '👤', 'label' => 'Profile'],
         ];
     } else {
         $links = [
@@ -50,6 +51,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/browse.php',      'icon' => '👁', 'label' => 'Browse Articles'],
             ['href' => '/pages/my-articles.php', 'icon' => '📄', 'label' => 'My Articles'],
             ['href' => '/pages/write.php',       'icon' => '📝', 'label' => 'Write Article'],
+            ['href' => '/pages/profile.php',     'icon' => '👤', 'label' => 'Profile'],
         ];
     }
     ?>
