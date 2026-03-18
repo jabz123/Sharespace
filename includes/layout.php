@@ -35,6 +35,7 @@ function page_foot(): void { ?>
 
 //receives user entity from authcontroller to render sidebar with user info and navigation links
 //sidebar navigation
+//will add more shit here as time passes
 function sidebar(User $user): void {
     $path  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $links = [
@@ -42,12 +43,8 @@ function sidebar(User $user): void {
         ['href' => '/pages/browse.php',      'icon' => '👁', 'label' => 'Browse Articles'],
         ['href' => '/pages/my-articles.php', 'icon' => '📄', 'label' => 'My Articles'],
         ['href' => '/pages/write.php',       'icon' => '📝', 'label' => 'Write Article'],
+        
     ];
-
-    // add admin link only for system_admin users
-    if ($user->role === 'system_admin') {
-        $links[] = ['href' => '/pages/admin-dashboard.php', 'icon' => '⚙️', 'label' => 'Admin Panel'];
-    }
     ?>
 <aside class="sidebar">
     <div class="sidebar-logo">
@@ -62,14 +59,12 @@ function sidebar(User $user): void {
         <div class="user-info">
             <p class="user-name"><?= htmlspecialchars($user->fullName) ?></p>
 
-            <?php if ($user->role === 'system_admin'): ?>
-                <span class="role-badge" style="background:var(--primary);color:#fff">System Admin</span>
-            <?php elseif ($user->role === 'premium'): ?>
+             <?php if ($user->role === 'premium'): ?>
                 <span class="role-badge premium">Premium</span>
             <?php else: ?>
-                <span class="role-badge free">Free</span>
-            <?php endif; ?>
-
+            <span class="role-badge free">Free</span>
+             <?php endif; ?>
+          
         </div>
     </div>
 
@@ -136,7 +131,7 @@ function article_card(Article $article, User $user): void {
 
     $url = '/pages/article.php?id=' . $article->id;
 
-    $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin';
+    $isPremiumUser = $user->role === 'premium';
 
     $hasImage = !empty($article->imagePath);
     $isPremiumArticle = $hasImage;
@@ -156,6 +151,7 @@ function article_card(Article $article, User $user): void {
     <div class="card-image">
 
         <img src="/public/<?= htmlspecialchars($article->imagePath) ?>">
+       
 
         <?php if (!$isPremiumUser): ?>
             <span class="premium-badge">Premium</span>
@@ -169,6 +165,8 @@ function article_card(Article $article, User $user): void {
     </div>
 
     <?php endif; ?>
+
+    
 
     <h3 class="card-title">
         <?= htmlspecialchars(limit_words($article->title, 8)) ?>
