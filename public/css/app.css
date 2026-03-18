@@ -193,6 +193,9 @@ a:hover {
     font-size: 15px;
     font-weight: bold;
     transition: all .15s;
+    width: 100%;
+    box-sizing: border-box;
+    text-decoration: none;
 }
 
 .nav-link:hover {
