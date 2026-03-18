@@ -215,7 +215,7 @@ class ArticleController {
         }
 
         if ($conditions) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' AND ' . implode(' AND ', $conditions);
         }
 
         $sql .= ' GROUP BY a.id';
