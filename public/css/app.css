@@ -142,6 +142,7 @@ a:hover {
 .user-info {
     flex: 1;
     min-width: 0;
+    margin-bottom: 20px;
 }
 
 .user-name {
@@ -1634,4 +1635,8 @@ margin:0 auto;
 .toggle-btn.active {
     background: #111;
     color: white;
+}
+
+.confirm_password {
+    margin-bottom: 20px;
 }
