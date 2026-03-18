@@ -43,6 +43,7 @@ function sidebar(User $user): void {
         $links = [
             ['href' => '/pages/admin-dashboard.php', 'icon' => '🏠', 'label' => 'Admin Dashboard'],
             ['href' => '/pages/browse.php',          'icon' => '👁', 'label' => 'Browse Articles'],
+            ['href' => '/pages/admin-landing.php',   'icon' => '🖼️', 'label' => 'Manage Landing Page'],
             ['href' => '/pages/profile.php',         'icon' => '👤', 'label' => 'Profile'],
         ];
     } else {
