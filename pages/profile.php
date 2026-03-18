@@ -33,11 +33,11 @@ page_head('Profile');
                     <label for="bio">Bio</label>
                     <textarea id="bio" name="bio" rows="4"><?= htmlspecialchars($user->bio ?? '') ?></textarea>
 
-                    <button type="submit" class="save-button">Save Changes</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
 
-                <!-- Edit Password Button -->
-                <a href="edit_password.php" class="btn">Edit Password</a>
+               
+                <a href="edit-password.php" class="btn">Edit Password</a>
             </div>
 </div>
 </main>

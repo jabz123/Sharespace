@@ -22,7 +22,7 @@ page_head('Edit Password');
                 <label for="confirm_password">Confirm New Password</label>
                 <input type="password" id="confirm_password" name="confirm_password" required>
 
-                <button type="submit" class="save-button">Save Changes</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
             <div style="margin-top: 20px;">
                 <a href="profile.php">Back to Profile</a>
