@@ -14,7 +14,7 @@ page_head('Edit Password');
         <?php dash_header('Edit Password', 'Change your account password'); ?>
         <?php flash_messages(); ?>
         <div class="page-content">
-            <form method="POST" action="/pages/process_password_update.php">
+            <form method="POST" action="/pages/process-password-update.php">
                 <label for="old_password">Current Password</label>
                 <input type="password" id="old_password" name="old_password" required>
 

@@ -19,8 +19,7 @@ page_head('Profile');
                 <div class="profile-header">
                     <div class="user-info">
                         <h2><?= htmlspecialchars($user->fullName); ?></h2>
-                        <p><?= htmlspecialchars(ucfirst($user->role)); // display user role: e.g., Free, Premium 
-                            ?></p>
+             
                     </div>
                 </div>
 
@@ -30,7 +29,7 @@ page_head('Profile');
 
                     <!-- avatar upload section -->
                     <div class="image-upload-container">
-                        <label>Profile Picture</label>
+                       
 
                         <!-- preview circle -->
                         <div id="avatarPreview" style="
