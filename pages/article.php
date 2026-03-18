@@ -33,8 +33,10 @@ if (!$article) {
     redirect('/dashboard.php', 'Article not found.');
 }
 
-// block free users from viewing image articles
-if ($article->imagePath && $user->role !== 'premium') {
+// block free users from viewing premium articles
+// system_admin and premium users can view all articles
+$canViewPremium = $user->role === 'premium' || $user->role === 'system_admin';
+if ($article->imagePath && !$canViewPremium) {
     redirect('/dashboard.php', 'This article is available for Premium users only.');
 }
 
