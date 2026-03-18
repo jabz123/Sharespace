@@ -21,6 +21,15 @@ $user = $auth->currentUser();
 
 $id      = (int)($_GET['id'] ?? 0);
 $article = $id ? $articleCtrl->getById($id) : null;
+
+// 🔥 Fetch premium pricing from database
+$premiumPlan = DB::first(
+    "SELECT price, price_suffix 
+     FROM landing_pricing_plans 
+     WHERE name = 'Premium' 
+     LIMIT 1"
+);
+
 // record article view
 // insert ignore prevents duplicate views from same user
 DB::execute(
@@ -33,10 +42,6 @@ if (!$article) {
     redirect('/dashboard.php', 'Article not found.');
 }
 
-// block free users from viewing image articles
-if ($article->imagePath && $user->role !== 'premium') {
-    redirect('/dashboard.php', 'This article is available for Premium users only.');
-}
 
 //post and delete comment logic 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -115,8 +120,51 @@ page_head($article->title);
 
                 <h3 class="article-content-title">Article</h3>
 
-                <div class="article-body">
+               <div class="article-body">
+
+                <?php 
+                //  Show full content if:
+                //  user is premium OR article is NOT premium (no image)
+                $isPremiumUser = $user->role === 'premium';
+                $isPremiumArticle = !empty($article->imagePath);
+                ?>
+
+                <?php if ($isPremiumUser || !$isPremiumArticle): ?>
+
+                    <!-- Premium users see FULL content -->
                     <?= $article->renderContent() ?>
+
+                <?php else: ?>
+
+                    <!--  Free users see PREVIEW only -->
+                    <?= $article->renderContentPreview(2) ?>
+
+                    <!--  PAYWALL SECTION -->
+                    <div class="paywall-box">
+
+                        <div class="paywall-title">
+                        <img src="/public/icons/premiumlockicon2.png" alt="">
+                        <span>Unlock the full story</span>
+                        </div>
+                        <p>
+                            Get complete access to this article and all premium content. 
+                            Stay informed with deeper insights and trusted reporting.
+                        </p>
+                       <div class="paywall-price">
+                    <span class="price-main">
+                        <?=($premiumPlan['price']) ?>
+                    </span>
+                    <span class="price-suffix">
+                        <?= $premiumPlan['price_suffix'] ?>
+                    </span>
+                </div>
+                        <a href="/subscribe.php" class="btn btn-primary">
+                            Upgrade to Premium
+                        </a>
+                    </div>
+
+                <?php endif; ?>
+
                 </div>
 
             </div>

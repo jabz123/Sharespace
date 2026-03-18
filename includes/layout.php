@@ -175,11 +175,6 @@ function article_card(Article $article, User $user): void {
 
         <?php if (!$isPremiumUser): ?>
             <span class="premium-badge">Premium</span>
-
-            <div class="premium-overlay">
-                <img src="/public/icons/premiumlockicon.png" class="premium-lock-icon">
-                <p>Premium Content</p>
-            </div>
         <?php endif; ?>
 
     </div>
@@ -192,25 +187,18 @@ function article_card(Article $article, User $user): void {
         <?= htmlspecialchars(limit_words($article->title, 8)) ?>
     </h3>
 
-<?php if ($isPremiumArticle && !$isPremiumUser): ?>
+        <!-- 🔥 Always show excerpt now (soft paywall implemented) -->
+        <p class="card-excerpt">
+        <?php
+        $excerpt = $article->excerpt;
 
-    <p class="card-excerpt">Upgrade to Premium to access this article...</p>
-
-<?php else: ?>
-
-    <p class="card-excerpt">
-    <?php
-    $excerpt = $article->excerpt;
-
-    if (mb_strlen($excerpt, 'UTF-8') > 120) {
-        echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
-    } else {
-        echo htmlspecialchars($excerpt);
-    }
-    ?>
-    </p>
-
-<?php endif; ?>
+        if (mb_strlen($excerpt, 'UTF-8') > 120) {
+            echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
+        } else {
+            echo htmlspecialchars($excerpt);
+        }
+        ?>
+        </p>
 
     <div class="card-footer">
 

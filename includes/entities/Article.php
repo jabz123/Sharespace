@@ -61,7 +61,11 @@ class Article {
     //converts numbered list to <ol><li>
     public function renderContent(): string {
         $out   = '';
-        $paras = explode("\n\n", $this->content);
+        // normalize line breaks (handles pasted content from web)
+        $content = str_replace(["\r\n", "\r"], "\n", $this->content);
+
+        // split by single OR double line breaks
+        $paras = preg_split("/\n{1,2}/", $content);
         foreach ($paras as $p) {
             $p = trim($p);
             if ($p === '') continue;
@@ -89,6 +93,68 @@ class Article {
                 $out .= '<p>' . htmlspecialchars($p) . '</p>';
             }
         }
+        return $out;
+    }
+
+
+
+    // Render preview content for free users (soft paywall)
+    // Splits article content into paragraphs and displays only the first few
+    // paragraphs to limit how much free users can read
+    public function renderContentPreview(int $paragraphLimit = 2): string {
+
+        $out   = '';
+        // convert all types of line breaks into a single format (\n)
+        // make all line breaks the same so can process/filter
+        $content = str_replace(["\r\n", "\r"], "\n", $this->content);
+
+        // split content into paragraphs using line breaks (handles both single and double spacing)
+        $paras = preg_split("/\n{1,2}/", $content);
+
+        // if only 1 paragraph, limit by words instead
+        if (count($paras) <= 1) {
+
+            $words = explode(" ", $this->content);
+            $words = array_slice($words, 0, 120); // limit to 120 words
+            $text  = implode(" ", $words) . "...";
+
+            return '<p>' . htmlspecialchars($text) . '</p>' . 
+                '<div class="paywall-fade"></div>';
+        }
+
+        // normal case: limit by paragraphs
+        $limitedParas = array_slice($paras, 0, $paragraphLimit);
+
+        foreach ($limitedParas as $p) {
+            $p = trim($p);
+            if ($p === '') continue;
+
+            // reuse same formatting logic as full content
+            if (str_starts_with($p, '## ')) {
+                $out .= '<h2>' . htmlspecialchars(substr($p, 3)) . '</h2>';
+            } elseif (str_starts_with($p, '### ')) {
+                $out .= '<h3>' . htmlspecialchars(substr($p, 4)) . '</h3>';
+            } elseif (str_starts_with($p, '- ') || str_contains($p, "\n- ")) {
+                $lines = explode("\n", $p);
+                $out  .= '<ul>';
+                foreach ($lines as $line) {
+                    $out .= str_starts_with($line, '- ')
+                        ? '<li>' . htmlspecialchars(substr($line, 2)) . '</li>'
+                        : '<p>'  . htmlspecialchars($line) . '</p>';
+                }
+                $out .= '</ul>';
+            } elseif (preg_match('/^\d+\./', $p)) {
+                $lines = explode("\n", $p);
+                $out  .= '<ol>';
+                foreach ($lines as $line) {
+                    $out .= '<li>' . htmlspecialchars(preg_replace('/^\d+\.\s*/', '', $line)) . '</li>';
+                }
+                $out .= '</ol>';
+            } else {
+                $out .= '<p>' . htmlspecialchars($p) . '</p>';
+            }
+        }
+
         return $out;
     }
 }

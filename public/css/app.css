@@ -836,7 +836,6 @@ textarea {
 }
 
 
-
 /*write article*/
 .write-grid {
     display: grid;
@@ -1639,4 +1638,66 @@ margin:0 auto;
 
 .confirm_password {
     margin-bottom: 20px;
+}
+
+
+/* 🔥 Paywall container */
+.paywall-box {
+    background: white; 
+    border: 1px solid #e5e7eb; 
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.paywall-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 12px;
+    font-size: 20px;
+}
+
+/* lock icon inside paywall title */
+.paywall-title img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* description */
+.paywall-box p {
+    color: #6b7280;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.paywall-price {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 4px;
+}
+
+ /* main price (big bold) */
+.price-main {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111827;
+    padding: 0;
+}
+
+/* suffix (smaller, lighter) */
+.price-suffix {
+    font-size: 14px;
+    color: #6b7280; 
+}
+
+
+/* button spacing */
+.paywall-box .btn {
+    margin-top: 8px;
 }
