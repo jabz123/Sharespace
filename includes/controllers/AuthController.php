@@ -286,6 +286,133 @@ class AuthController {
             exit;
         }
     }
+
+
+    // update the logged in user's profile (name, email, bio, avatar)
+    // $avatarFile should be $_FILES['avatar'] or an empty array if no upload
+    // returns ['ok' => true] or ['error' => '...']
+    public function updateProfile(int $userId, array $input, array $avatarFile = []): array {
+        $name  = trim($input['fullName'] ?? '');
+        $email = strtolower(trim($input['email'] ?? ''));
+        $bio   = trim($input['bio'] ?? '');
+
+        if (empty($name)) {
+            return ['error' => 'Full name required.'];
+        }
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['error' => 'A valid email address is required.'];
+        }
+
+        // check email is not alr taken by another user
+        if (DB::first('SELECT id FROM users WHERE email = ? AND id != ?', [$email, $userId])) {
+            return ['error' => 'That email is already in use by another account.'];
+        }
+
+        // handle avatar upload
+        $avatarPath = null; // null = no change
+        if (!empty($avatarFile) && isset($avatarFile['error']) && $avatarFile['error'] === UPLOAD_ERR_OK) {
+            $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            $mime    = mime_content_type($avatarFile['tmp_name']);
+            if (!in_array($mime, $allowed)) {
+                return ['error' => 'Avatar must be a JPEG, PNG, WEBP, or GIF image.'];
+            }
+            if ($avatarFile['size'] > 2 * 1024 * 1024) {
+                return ['error' => 'Avatar image must be under 2MB.'];
+            }
+
+            $uploadDir = __DIR__ . '/../../public/uploads/avatars/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // delete old avatar file if there is one
+            $existing = DB::first('SELECT avatar_url FROM users WHERE id = ?', [$userId]);
+            if (!empty($existing['avatar_url'])) {
+                $oldFile = __DIR__ . '/../../public/' . $existing['avatar_url'];
+                if (file_exists($oldFile)) {
+                    unlink($oldFile);
+                }
+            }
+
+            $ext        = pathinfo($avatarFile['name'], PATHINFO_EXTENSION);
+            $fileName   = time() . '_' . $userId . '.' . $ext;
+            $targetPath = $uploadDir . $fileName;
+
+            if (!move_uploaded_file($avatarFile['tmp_name'], $targetPath)) {
+                return ['error' => 'Failed to save avatar image. Please try again.'];
+            }
+
+            $avatarPath = 'uploads/avatars/' . $fileName;
+        }
+
+        // handle avatar removal
+        if (isset($input['remove_avatar']) && $input['remove_avatar'] === '1') {
+            $existing = DB::first('SELECT avatar_url FROM users WHERE id = ?', [$userId]);
+            if (!empty($existing['avatar_url'])) {
+                $oldFile = __DIR__ . '/../../public/' . $existing['avatar_url'];
+                if (file_exists($oldFile)) {
+                    unlink($oldFile);
+                }
+            }
+            $avatarPath = ''; // empty string = clear it in DB
+        }
+
+        if ($avatarPath !== null) {
+            // update including avatar
+            DB::execute(
+                'UPDATE users SET full_name = ?, email = ?, bio = ?, avatar_url = ?, updated_at = NOW() WHERE id = ?',
+                [$name, $email, $bio, $avatarPath ?: null, $userId]
+            );
+        } else {
+            // update without touching avatar
+            DB::execute(
+                'UPDATE users SET full_name = ?, email = ?, bio = ?, updated_at = NOW() WHERE id = ?',
+                [$name, $email, $bio, $userId]
+            );
+        }
+
+        // bust the static cache so currentUser() re-fetches fresh data
+        static $cache = [];
+        unset($cache[$userId]);
+
+        return ['ok' => true];
+    }
+
+    
+
+    // change the logged-in user's password
+    // requires current password to be correct first
+    // returns ['ok' => true] or ['error' => '...']
+    public function updatePassword(int $userId, array $input): array {
+        $old     = $input['old_password']     ?? '';
+        $new     = $input['new_password']     ?? '';
+        $confirm = $input['confirm_password'] ?? '';
+
+        if (empty($old) || empty($new) || empty($confirm)) {
+            return ['error' => 'All password fields are required.'];
+        }
+        if ($new !== $confirm) {
+            return ['error' => "New passwords don't match."];
+        }
+        if (strlen($new) < 6) {
+            return ['error' => 'New password must be at least 6 characters.'];
+        }
+
+        $row = DB::first('SELECT password FROM users WHERE id = ?', [$userId]);
+        if (!$row || !password_verify($old, $row['password'])) {
+            return ['error' => 'Current password is incorrect.'];
+        }
+
+        DB::execute(
+            'UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?',
+            [password_hash($new, PASSWORD_BCRYPT), $userId]
+        );
+
+        return ['ok' => true];
+    }
+
+
+
     public function requestPasswordReset(string $email): array {
 
     $email = strtolower(trim($email));

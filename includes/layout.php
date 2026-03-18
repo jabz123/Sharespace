@@ -65,7 +65,15 @@ function sidebar(User $user): void {
     </div>
 
     <div class="sidebar-user">
-        <div class="user-avatar"><?= htmlspecialchars($user->initial()) ?></div>
+        <?php if (!empty($user->avatarUrl)): ?>
+            <div class="user-avatar" style="background:none;padding:0;overflow:hidden">
+                <img src="/public/<?= htmlspecialchars($user->avatarUrl) ?>"
+                     alt="<?= htmlspecialchars($user->fullName) ?>"
+                     style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+            </div>
+        <?php else: ?>
+            <div class="user-avatar"><?= htmlspecialchars($user->initial()) ?></div>
+        <?php endif; ?>
         <div class="user-info">
             <p class="user-name"><?= htmlspecialchars($user->fullName) ?></p>
 
