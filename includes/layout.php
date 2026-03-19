@@ -151,7 +151,7 @@ function article_card(Article $article, User $user): void {
 
     $url = '/pages/article.php?id=' . $article->id;
 
-    $isPremiumUser = $user->role === 'premium';
+    $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin';
 
     $hasImage = !empty($article->imagePath);
     $isPremiumArticle = $hasImage;
