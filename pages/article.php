@@ -186,4 +186,5 @@ page_head($article->title);
         </div>
     </main>
 </div>
-<?php page_foot(); ?>
+<?php page_foot(); 
+?>
