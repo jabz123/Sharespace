@@ -286,10 +286,6 @@ a:hover {
     font-family: inherit;
 }
 
-.btn-primary {
-    background: var(--gradient-hero);
-    color: #fff;
-}
 
 .btn-primary:hover {
     opacity: .88;
@@ -1545,6 +1541,7 @@ margin:0 auto;
     border-radius:6px;
     text-decoration:none;
     border:none;
+    margin-top: 20px;
 }
 
 .btn-primary:hover{
