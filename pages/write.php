@@ -190,28 +190,30 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                     <textarea name="content" style="min-height:300px" required><?= htmlspecialchars($val['content']) ?></textarea>
                 </div>
 
-                <!-- 🔥 NEW BUTTONS -->
-                <div class="flex gap-2" style="margin-top:20px">
-
+                <div class="write-actions">
                 <!-- AI BUTTON -->
-                <button type="button" onclick="runAICheck()" class="btn btn-dark" style="flex:1">
+                <button type="button" onclick="runAICheck()" class="btn-ai" style="flex:1">
                     🤖 AI Fact Check
                 </button>
+                <!-- 🔥 NEW BUTTONS -->
+                <div class="write-actions-row">
+
 
                 <!-- SAVE DRAFT (only for draft or new) -->
                 <?php if (!$isEdit || ($article->status ?? '') === 'draft'): ?>
-                    <button type="submit" name="action" value="draft" class="btn btn-secondary" style="flex:1">
+                    <button type="submit" name="action" value="draft" class="btn-draft" style="flex:1">
                         <?= $isEdit ? '💾 Update Draft' : '💾 Save Draft' ?>
                     </button>
                 <?php endif; ?>
 
-                <button type="submit" name="action" value="publish" class="btn btn-primary" style="flex:1">
+                <button type="submit" name="action" value="publish" class="btn-publish" style="flex:1">
                 <?php
                     $isDraft = !$isEdit || ($article->status === 'draft');
                     echo $isDraft ? '🚀 Publish Article' : '💾 Save Changes';
                     ?>
                  </button>
 
+            </div>
             </div>
 
             </form>
