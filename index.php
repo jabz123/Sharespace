@@ -109,7 +109,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
             <a href="#features">Features</a>
             <a href="#how-it-works">How It Works</a>
             <a href="#testimonials">Testimonials</a>
-            <a href="#pricing">Pricing</a>
+            <a href="#pricing">Pricings</a>
         </div>
 
         <div class="nav-auth">
