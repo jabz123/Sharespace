@@ -1,6 +1,6 @@
 <?php
 // combined system admin dashboard
-// tabs: articles (CRUD), users (manage), categories (CRUD)
+// tabs: articles (view/suspend/unsuspend), users (suspend/unsuspend), categories (CRUD)
 // only accessible to users with role = 'system_admin'
 
 require_once __DIR__ . '/../includes/layout.php';
@@ -23,32 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     // ── ARTICLE ACTIONS ──────────────────────────────────────────
-    if ($action === 'delete_article') {
-        $result = $adminCtrl->deleteArticle((int)($_POST['article_id'] ?? 0));
+    if ($action === 'suspend_article') {
+        $result = $adminCtrl->suspendArticle((int)($_POST['article_id'] ?? 0));
         if (isset($result['ok'])) {
-            redirect('/pages/admin-dashboard.php?tab=articles', null, 'Article deleted successfully.');
+            redirect('/pages/admin-dashboard.php?tab=articles', null, 'Article suspended.');
         }
         redirect('/pages/admin-dashboard.php?tab=articles', $result['error']);
     }
 
-    if ($action === 'update_article') {
-        $articleId = (int)($_POST['article_id'] ?? 0);
-        $input     = $_POST;
-
-        if (!empty($_FILES['image']['name'])) {
-            $uploadDir = __DIR__ . '/../public/uploads/articles/';
-            $filename  = time() . '_' . basename($_FILES['image']['name']);
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename)) {
-                $input['image_path'] = 'uploads/articles/' . $filename;
-            }
-        } else {
-            $existing            = $adminCtrl->getArticleById($articleId);
-            $input['image_path'] = $existing?->imagePath ?? null;
-        }
-
-        $result = $adminCtrl->updateArticle($articleId, $input);
+    if ($action === 'unsuspend_article') {
+        $result = $adminCtrl->unsuspendArticle((int)($_POST['article_id'] ?? 0));
         if (isset($result['ok'])) {
-            redirect('/pages/admin-dashboard.php?tab=articles', null, 'Article updated successfully.');
+            redirect('/pages/admin-dashboard.php?tab=articles', null, 'Article restored to published.');
         }
         redirect('/pages/admin-dashboard.php?tab=articles', $result['error']);
     }
@@ -58,14 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $adminCtrl->updateUser((int)($_POST['user_id'] ?? 0), $_POST);
         if (isset($result['ok'])) {
             redirect('/pages/admin-dashboard.php?tab=users', null, 'User updated successfully.');
-        }
-        redirect('/pages/admin-dashboard.php?tab=users', $result['error']);
-    }
-
-    if ($action === 'delete_user') {
-        $result = $adminCtrl->deleteUser((int)($_POST['user_id'] ?? 0), $user->id);
-        if (isset($result['ok'])) {
-            redirect('/pages/admin-dashboard.php?tab=users', null, 'User deleted successfully.');
         }
         redirect('/pages/admin-dashboard.php?tab=users', $result['error']);
     }
@@ -98,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // ── load data depending on tab ───────────────────────────────────
 $stats      = $adminCtrl->getStats();
-$categories = $adminCtrl->getAllCategories(); // used in article edit dropdown
+$categories = $adminCtrl->getAllCategories();
 
 if ($tab === 'users') {
     $allUsers = $adminCtrl->getAllUsers();
@@ -106,12 +84,6 @@ if ($tab === 'users') {
     $allCategories = $adminCtrl->getAllCategoriesWithCount();
 } else {
     $allArticles = $adminCtrl->getAllArticles();
-}
-
-// load article into edit form if ?edit=ID is present
-$editArticle = null;
-if ($tab === 'articles' && isset($_GET['edit'])) {
-    $editArticle = $adminCtrl->getArticleById((int)$_GET['edit']);
 }
 
 page_head('Admin Dashboard');
@@ -161,75 +133,15 @@ page_head('Admin Dashboard');
 
     <!-- ════════════════════════════════════════════════════════════
          TAB: ARTICLES
+         admin can: view, suspend, unsuspend
+         admin cannot: edit
     ════════════════════════════════════════════════════════════ -->
     <?php if ($tab === 'articles'): ?>
 
-        <!-- inline edit form — appears when ?edit=ID is in the URL -->
-        <?php if ($editArticle): ?>
-        <div class="card" id="edit-form" style="padding:28px;margin-bottom:24px">
-            <h2 style="font-size:18px;font-weight:700;margin-bottom:20px">
-                ✏️ Editing: <?= htmlspecialchars($editArticle->title) ?>
-            </h2>
-            <form method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="action"     value="update_article">
-                <input type="hidden" name="article_id" value="<?= $editArticle->id ?>">
-                <div style="display:grid;gap:16px">
-
-                    <div>
-                        <label class="form-label">Title</label>
-                        <input type="text" name="title" class="form-input"
-                               value="<?= htmlspecialchars($editArticle->title) ?>" required>
-                    </div>
-
-                    <div>
-                        <label class="form-label">Category</label>
-                        <select name="category_id" class="form-input" required>
-                            <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat->id ?>"
-                                <?= $cat->id === $editArticle->categoryId ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($cat->name) ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="form-label">Excerpt</label>
-                        <textarea name="excerpt" class="form-input" rows="3" required><?= htmlspecialchars($editArticle->excerpt) ?></textarea>
-                    </div>
-
-                    <div>
-                        <label class="form-label">Content</label>
-                        <textarea name="content" class="form-input" rows="12" required><?= htmlspecialchars($editArticle->content) ?></textarea>
-                    </div>
-
-                    <div>
-                        <label class="form-label">Image (leave blank to keep existing)</label>
-                        <?php if ($editArticle->imagePath): ?>
-                            <div style="margin-bottom:8px">
-                                <img src="/public/<?= htmlspecialchars($editArticle->imagePath) ?>"
-                                     style="height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
-                            </div>
-                        <?php endif; ?>
-                        <input type="file" name="image" class="form-input" accept="image/*">
-                    </div>
-
-                    <div style="display:flex;gap:10px">
-                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
-                        <a href="/pages/admin-dashboard.php?tab=articles" class="btn btn-ghost">Cancel</a>
-                    </div>
-
-                </div>
-            </form>
-        </div>
-        <?php endif; ?>
-
-        <!-- articles table -->
         <div class="card" style="padding:24px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                <h2 style="font-size:17px;font-weight:700">All Articles (<?= count($allArticles) ?>)</h2>
-                <a href="/pages/write.php" class="btn btn-primary btn-sm">✏️ Write New Article</a>
-            </div>
+            <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">
+                All Articles (<?= count($allArticles) ?>)
+            </h2>
 
             <?php if (empty($allArticles)): ?>
                 <p class="text-muted" style="text-align:center;padding:32px">No articles found.</p>
@@ -243,18 +155,18 @@ page_head('Admin Dashboard');
                             <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Category</th>
                             <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Author</th>
                             <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Published</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Views</th>
+                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Status</th>
                             <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                     <?php foreach ($allArticles as $article): ?>
-                        <tr style="border-bottom:1px solid var(--border)">
+                        <?php $isSuspended = ($article->status ?? 'published') === 'suspended'; ?>
+                        <tr style="border-bottom:1px solid var(--border);<?= $isSuspended ? 'opacity:0.55' : '' ?>">
                             <td style="padding:12px 8px;color:var(--muted)">#<?= $article->id ?></td>
                             <td style="padding:12px 8px;max-width:240px">
                                 <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                                    <a href="/pages/article.php?id=<?= $article->id ?>" target="_blank"
-                                       style="color:var(--fg)"><?= htmlspecialchars($article->title) ?></a>
+                                    <?= htmlspecialchars($article->title) ?>
                                 </div>
                             </td>
                             <td style="padding:12px 8px">
@@ -264,19 +176,46 @@ page_head('Admin Dashboard');
                             <td style="padding:12px 8px;color:var(--muted);white-space:nowrap">
                                 <?= relative_time($article->publishedAt) ?>
                             </td>
-                            <td style="padding:12px 8px;color:var(--muted)">👁 <?= $article->viewCount ?></td>
+                            <td style="padding:12px 8px">
+                                <?php if ($isSuspended): ?>
+                                    <span style="font-size:11px;font-weight:600;color:var(--danger);
+                                                 background:#fff0f0;padding:2px 8px;border-radius:99px;
+                                                 border:1px solid var(--danger)">🚫 Suspended</span>
+                                <?php else: ?>
+                                    <span style="font-size:11px;font-weight:600;color:var(--success);
+                                                 background:#f0fff4;padding:2px 8px;border-radius:99px;
+                                                 border:1px solid var(--success)">✅ Published</span>
+                                <?php endif; ?>
+                            </td>
                             <td style="padding:12px 8px;text-align:right;white-space:nowrap">
-                                <a href="/pages/admin-dashboard.php?tab=articles&edit=<?= $article->id ?>#edit-form"
-                                   class="btn btn-ghost btn-sm">✏️ Edit</a>
+
+                                <!-- view: opens article in new tab (read only) -->
+                                <a href="/pages/article.php?id=<?= $article->id ?>" target="_blank"
+                                   class="btn btn-ghost btn-sm">👁 View</a>
+
+                                <!-- suspend / unsuspend toggle -->
+                                <?php if ($isSuspended): ?>
                                 <form method="POST" style="display:inline;margin:0">
-                                    <input type="hidden" name="action"     value="delete_article">
+                                    <input type="hidden" name="action"     value="unsuspend_article">
                                     <input type="hidden" name="article_id" value="<?= $article->id ?>">
                                     <button type="submit" class="btn btn-ghost btn-sm"
-                                            style="color:var(--danger)"
-                                            onclick="return confirm('Delete \'<?= htmlspecialchars(addslashes($article->title)) ?>\'? This cannot be undone.')">
-                                        🗑 Delete
+                                            style="color:var(--success)"
+                                            onclick="return confirm('Restore \'<?= htmlspecialchars(addslashes($article->title)) ?>\' back to published?')">
+                                        ✅ Restore
                                     </button>
                                 </form>
+                                <?php else: ?>
+                                <form method="POST" style="display:inline;margin:0">
+                                    <input type="hidden" name="action"     value="suspend_article">
+                                    <input type="hidden" name="article_id" value="<?= $article->id ?>">
+                                    <button type="submit" class="btn btn-ghost btn-sm"
+                                            style="color:var(--warning)"
+                                            onclick="return confirm('Suspend \'<?= htmlspecialchars(addslashes($article->title)) ?>\'? It will be hidden from all users.')">
+                                        🚫 Suspend
+                                    </button>
+                                </form>
+                                <?php endif; ?>
+
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -291,11 +230,15 @@ page_head('Admin Dashboard');
 
     <!-- ════════════════════════════════════════════════════════════
          TAB: USERS
+         admin can: suspend, unsuspend
+         admin cannot: delete, change role
     ════════════════════════════════════════════════════════════ -->
     <?php if ($tab === 'users'): ?>
 
         <div class="card" style="padding:24px">
-            <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">All Users (<?= count($allUsers) ?>)</h2>
+            <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">
+                All Users (<?= count($allUsers) ?>)
+            </h2>
 
             <?php if (empty($allUsers)): ?>
                 <p class="text-muted" style="text-align:center;padding:32px">No users found.</p>
@@ -308,14 +251,15 @@ page_head('Admin Dashboard');
                             <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Name</th>
                             <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Email</th>
                             <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Role</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Suspended</th>
+                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Status</th>
                             <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                     <?php foreach ($allUsers as $u): ?>
                         <tr style="border-bottom:1px solid var(--border);
-                            <?= $u->id === $user->id ? 'background:var(--primary-lt)' : '' ?>">
+                            <?= $u->id === $user->id ? 'background:var(--primary-lt)' : '' ?>
+                            <?= $u->isSuspended      ? 'opacity:0.55'                : '' ?>">
                             <td style="padding:12px 8px;color:var(--muted)">#<?= $u->id ?></td>
                             <td style="padding:12px 8px;font-weight:600">
                                 <?= htmlspecialchars($u->fullName) ?>
@@ -338,57 +282,44 @@ page_head('Admin Dashboard');
                             </td>
                             <td style="padding:12px 8px">
                                 <?php if ($u->isSuspended): ?>
-                                    <span style="color:var(--danger);font-weight:600;font-size:12px">🚫 Yes</span>
+                                    <span style="font-size:11px;font-weight:600;color:var(--danger);
+                                                 background:#fff0f0;padding:2px 8px;border-radius:99px;
+                                                 border:1px solid var(--danger)">🚫 Suspended</span>
                                 <?php else: ?>
-                                    <span style="color:var(--success);font-size:12px">✅ No</span>
+                                    <span style="font-size:11px;font-weight:600;color:var(--success);
+                                                 background:#f0fff4;padding:2px 8px;border-radius:99px;
+                                                 border:1px solid var(--success)">✅ Active</span>
                                 <?php endif; ?>
                             </td>
                             <td style="padding:12px 8px;text-align:right">
-                                <details style="display:inline-block;position:relative">
-                                    <summary class="btn btn-ghost btn-sm"
-                                             style="cursor:pointer;list-style:none">✏️ Edit</summary>
-                                    <div style="position:absolute;right:0;top:calc(100% + 4px);
-                                                background:var(--card);border:1px solid var(--border);
-                                                border-radius:var(--radius);padding:16px;min-width:220px;
-                                                z-index:50;box-shadow:var(--shadow-elevated)">
-                                        <form method="POST">
-                                            <input type="hidden" name="action"  value="update_user">
-                                            <input type="hidden" name="user_id" value="<?= $u->id ?>">
-                                            <div style="margin-bottom:12px">
-                                                <label class="form-label" style="font-size:12px">Role</label>
-                                                <select name="role" class="form-input" style="font-size:13px">
-                                                    <option value="free"
-                                                        <?= $u->role === 'free'         ? 'selected' : '' ?>>Free</option>
-                                                    <option value="premium"
-                                                        <?= $u->role === 'premium'      ? 'selected' : '' ?>>Premium</option>
-                                                    <option value="system_admin"
-                                                        <?= $u->role === 'system_admin' ? 'selected' : '' ?>>System Admin</option>
-                                                </select>
-                                            </div>
-                                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-                                                <input type="checkbox" name="is_suspended"
-                                                       id="susp_<?= $u->id ?>"
-                                                       <?= $u->isSuspended ? 'checked' : '' ?>
-                                                       <?= $u->id === $user->id ? 'disabled title="Cannot suspend yourself"' : '' ?>>
-                                                <label for="susp_<?= $u->id ?>" style="font-size:13px">Suspended</label>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary btn-sm" style="width:100%">
-                                                💾 Save
-                                            </button>
-                                        </form>
-                                    </div>
-                                </details>
-
                                 <?php if ($u->id !== $user->id): ?>
-                                <form method="POST" style="display:inline;margin:0">
-                                    <input type="hidden" name="action"  value="delete_user">
-                                    <input type="hidden" name="user_id" value="<?= $u->id ?>">
-                                    <button type="submit" class="btn btn-ghost btn-sm"
-                                            style="color:var(--danger)"
-                                            onclick="return confirm('Delete user \'<?= htmlspecialchars(addslashes($u->fullName)) ?>\'?\nThis also deletes all their articles and cannot be undone.')">
-                                        🗑 Delete
-                                    </button>
-                                </form>
+                                    <?php if ($u->isSuspended): ?>
+                                    <!-- unsuspend button -->
+                                    <form method="POST" style="display:inline;margin:0">
+                                        <input type="hidden" name="action"  value="update_user">
+                                        <input type="hidden" name="user_id" value="<?= $u->id ?>">
+                                        <!-- is_suspended omitted = 0 = unsuspend -->
+                                        <button type="submit" class="btn btn-ghost btn-sm"
+                                                style="color:var(--success)"
+                                                onclick="return confirm('Restore access for \'<?= htmlspecialchars(addslashes($u->fullName)) ?>\'?')">
+                                            ✅ Unsuspend
+                                        </button>
+                                    </form>
+                                    <?php else: ?>
+                                    <!-- suspend button -->
+                                    <form method="POST" style="display:inline;margin:0">
+                                        <input type="hidden" name="action"       value="update_user">
+                                        <input type="hidden" name="user_id"      value="<?= $u->id ?>">
+                                        <input type="hidden" name="is_suspended" value="1">
+                                        <button type="submit" class="btn btn-ghost btn-sm"
+                                                style="color:var(--danger)"
+                                                onclick="return confirm('Suspend \'<?= htmlspecialchars(addslashes($u->fullName)) ?>\'? They will not be able to log in.')">
+                                            🚫 Suspend
+                                        </button>
+                                    </form>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span style="font-size:12px;color:var(--muted)">— (you)</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -404,6 +335,7 @@ page_head('Admin Dashboard');
 
     <!-- ════════════════════════════════════════════════════════════
          TAB: CATEGORIES
+         admin can: create, edit, delete
     ════════════════════════════════════════════════════════════ -->
     <?php if ($tab === 'categories'): ?>
 
