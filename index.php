@@ -85,6 +85,7 @@ function youtubeEmbedUrl(?string $url): string
 }
 
 $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -106,6 +107,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
         </a>
 
         <div class="nav-links" id="nav-links">
+            <a href="#recent-articles">Recent Articles</a>
             <a href="#features">Features</a>
             <a href="#how-it-works">How It Works</a>
             <a href="#testimonials">Testimonials</a>
@@ -123,6 +125,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     </div>
 
     <div class="mobile-menu" id="mobile-menu">
+        <a href="#recent-articles">Recent Articles</a>
         <a href="#features">Features</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#testimonials">Testimonials</a>
@@ -166,7 +169,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
         </div>
 
         <!-- ARTICLE PREVIEW -->
-        <div class="preview-window slide-up" style="animation-delay:.1s">
+        <div id= "recent-articles" class="preview-window slide-up" style="animation-delay:.1s">
             <div class="preview-header">
                 <h2>Recent Articles</h2>
                 <p>See what readers are discovering on SharedSpace.</p>
@@ -209,7 +212,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                             <div class="preview-footer">
                                 <div class="preview-author">
                                     <div class="author-avatar">
-                                        <?= strtoupper(substr($article->authorName, 0, 1)) ?>
+                                        <?= htmlspecialchars($article->authorInitial()) ?>
                                     </div>
                                     <div class="author-info">
                                         <span class="author-name">
