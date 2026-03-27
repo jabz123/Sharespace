@@ -91,6 +91,7 @@ page_head('Profile');
 </div>
 
 <script>
+    //js is here for now
 // live preview when user picks a new image
 document.getElementById('avatarInput').addEventListener('change', function () {
     const file = this.files[0];

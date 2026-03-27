@@ -49,136 +49,136 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Reset Password – SharedSpace</title>
+    <title>Reset Password – SharedSpace</title>
 
-<link rel="stylesheet" href="/public/css/app.css">
+    <link rel="stylesheet" href="/public/css/app.css">
 
-<style>
-body { background: hsl(213,56%,10%); }
-</style>
+    <style>
+        body {
+            background: hsl(213, 56%, 10%);
+        }
+    </style>
 
 </head>
 
 <body>
 
-<div class="auth-wrap">
+    <div class="auth-wrap">
 
-<!-- LEFT SIDE -->
-<div class="auth-form-side">
+        <!-- LEFT SIDE -->
+        <div class="auth-form-side">
 
-<div class="auth-box">
+            <div class="auth-box">
 
-<a href="/" class="auth-logo">
-<span style="font-size:24px">📰</span>
-<span>SharedSpace</span>
-</a>
+                <a href="/" class="auth-logo">
+                    <span style="font-size:24px">📰</span>
+                    <span>SharedSpace</span>
+                </a>
 
-<h1>Reset Your Password</h1>
-<p class="sub">Enter your new password below</p>
+                <h1>Reset Your Password</h1>
+                <p class="sub">Enter your new password below</p>
 
-<?php if ($error): ?>
-<div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+                <?php if ($error): ?>
+                    <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
 
-<form method="POST">
+                <form method="POST">
 
-<div class="form-group">
-<label for="password">Password</label>
+                    <div class="form-group">
+                        <label for="password">Password</label>
 
-<div class="input-icon" style="position:relative">
+                        <div class="input-icon" style="position:relative">
 
-<span class="icon">🔒</span>
+                            <span class="icon">🔒</span>
 
-<input
-type="password"
-id="password"
-name="password"
-placeholder="••••••••"
-required
-style="padding-right:44px"
->
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="••••••••"
+                                required
+                                style="padding-right:44px">
 
-<button
-type="button"
-data-toggle-password="password"
-style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px"
->
-👁
-</button>
+                            <button
+                                type="button"
+                                data-toggle-password="password"
+                                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">
+                                👁
+                            </button>
 
-</div>
-</div>
+                        </div>
+                    </div>
 
 
-<div class="form-group">
-<label for="confirm_password">Confirm New Password</label>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
 
-<div class="input-icon" style="position:relative">
+                        <div class="input-icon" style="position:relative">
 
-<span class="icon">🔒</span>
+                            <span class="icon">🔒</span>
 
-<input
-type="password"
-id="confirm_password"
-name="confirm_password"
-placeholder="••••••••"
-required
-style="padding-right:44px"
->
+                            <input
+                                type="password"
+                                id="confirm_password"
+                                name="confirm_password"
+                                placeholder="••••••••"
+                                required
+                                style="padding-right:44px">
 
-<button
-type="button"
-data-toggle-password="confirm_password"
-style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px"
->
-👁
-</button>
+                            <button
+                                type="button"
+                                data-toggle-password="confirm_password"
+                                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">
+                                👁
+                            </button>
 
-</div>
-</div>
+                        </div>
+                    </div>
 
 
-<button type="submit" class="btn btn-hero btn-full">
-Continue
-</button>
+                    <button type="submit" class="btn btn-hero btn-full">
+                        Continue
+                    </button>
 
-</form>
+                </form>
 
-<p class="text-sm text-muted" style="text-align:center;margin-top:20px">
-<a href="/login.php">← Back to login</a>
-</p>
+                <p class="text-sm text-muted" style="text-align:center;margin-top:20px">
+                    <a href="/login.php">← Back to login</a>
+                </p>
 
-</div>
-</div>
+            </div>
+        </div>
 
 
-<!-- RIGHT SIDE -->
-<div class="auth-brand-side">
+        <!-- RIGHT SIDE -->
+        <div class="auth-brand-side">
 
-<div class="brand-body">
+            <div class="brand-body">
 
-<div class="brand-rule"></div>
+                <div class="brand-rule"></div>
 
-<h2>Truth in Every<br>Headline.</h2>
+                <h2>Truth in Every<br>Headline.</h2>
 
-<p>
-Join thousands of journalists and readers who trust SharedSpace
-for verified, fact-checked news. Our AI-powered platform ensures
-every article meets the highest standards of accuracy.
-</p>
+                <p>
+                    Join thousands of journalists and readers who trust SharedSpace
+                    for verified, fact-checked news. Our AI-powered platform ensures
+                    every article meets the highest standards of accuracy.
+                </p>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
-<script src="/public/js/app.js"></script>
+    <script src="/public/js/app.js"></script>
 
 </body>
+
 </html>

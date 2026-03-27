@@ -34,9 +34,9 @@ if ($editId) {
     $isEdit = true;
 }
 
-// =======================================================
-// 🔥 UPDATED: HANDLE BOTH DRAFT + PUBLISH
-// =======================================================
+
+//   HANDLE BOTH DRAFT + PUBLISH
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $_POST['action'] ?? 'publish'; // ⭐ NEW
@@ -73,9 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // add image path into POST data
     $_POST['image_path'] = $imagePath;
 
-    // =======================================================
-    // ⭐ NEW: SAVE AS DRAFT
-    // =======================================================
+    
+    // SAVE AS DRAFT
+    
     if ($action === 'draft') {
 
         $_POST['status'] = 'draft'; // future usage
@@ -91,12 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     } 
-    // =======================================================
+    
     // EXISTING PUBLISH (UNCHANGED)
-    // =======================================================
+    
     else {
 
-    // 🔥 PUBLISH ACTION
+    //  PUBLISH ACTION
     $_POST['status'] = 'published';
 
     if ($isEdit) {
@@ -136,7 +136,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         ); ?>
         <?php flash_messages(); ?>
 
-        <!-- 🔥 NEW: FLEX LAYOUT -->
+        <!--  FLEX LAYOUT -->
         <div class="page-content write-layout">
 
             <!-- ================= LEFT SIDE ================= -->
@@ -195,7 +195,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 <button type="button" onclick="runAICheck()" class="btn-ai" style="flex:1">
                     🤖 AI Fact Check
                 </button>
-                <!-- 🔥 NEW BUTTONS -->
+                <!-- NEW BUTTONS -->
                 <div class="write-actions-row">
 
 
@@ -240,7 +240,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         <p class="text-muted">Trust Score</p>
     </div>
 
-    <!-- ⭐ NEW: DESCRIPTION TEXT -->
+    <!--  DESCRIPTION TEXT -->
     <p style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
         This submission is a legitimate news article. It consists of well researched facts and is supported well by evidence.
     </p>
@@ -261,7 +261,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             <p>Completeness</p>
             <div class="progress-bar"><div style="width:80%"></div></div>
 
-            <!-- ⭐ NEW: SUCCESS BOX -->
+            <!-- SUCCESS BOX -->
             <div class="ai-success-box">
                  Trust score is above 60%. Article can be published.
             </div>

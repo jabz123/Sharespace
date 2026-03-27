@@ -50,103 +50,103 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="onboard-wrapper">
 
-<div class="onboard-container">
+    <div class="onboard-container">
 
-<h2 class="brand-name">SharedSpace</h2>
+        <h2 class="brand-name">SharedSpace</h2>
 
-<img src="/public/icons/clearicon.png" class="brand-logo" alt="logo">
+        <img src="/public/icons/clearicon.png" class="brand-logo" alt="logo">
 
-<h1 class="onboard-title">Tell us more about you.</h1>
+        <h1 class="onboard-title">Tell us more about you.</h1>
 
-<p class="onboard-sub">
-Choose 3 topics you're interested in to continue
-</p>
+        <p class="onboard-sub">
+            Choose 3 topics you're interested in to continue
+        </p>
 
-<?php if ($error): ?>
-<div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
-<form method="POST">
+        <form method="POST">
 
-<!-- Age Group -->
-<label class="section-title">Age Group</label>
+            <!-- Age Group -->
+            <label class="section-title">Age Group</label>
 
-<select name="age_group" required>
-<option value="">Select your age group</option>
-<option value="below12">12 and below</option>
-<option value="13-17">13-17</option>
-<option value="18-24">18-24</option>
-<option value="25-34">25-34</option>
-<option value="35-44">35-44</option>
-<option value="45+">45+</option>
-</select>
-
-
-<!-- Gender -->
-<label class="section-title">Gender</label>
-
-<div class="gender-options">
-
-<label>
-<input type="radio" name="gender" value="male" required>Male
-</label>
-
-<label>
-<input type="radio" name="gender" value="female">Female
-</label>
-
-</div>
+            <select name="age_group" required>
+                <option value="">Select your age group</option>
+                <option value="below12">12 and below</option>
+                <option value="13-17">13-17</option>
+                <option value="18-24">18-24</option>
+                <option value="25-34">25-34</option>
+                <option value="35-44">35-44</option>
+                <option value="45+">45+</option>
+            </select>
 
 
-<!-- Interests -->
-<label class="section-title">
-What are you interested in? <span>(Pick 3)</span>
-</label>
+            <!-- Gender -->
+            <label class="section-title">Gender</label>
 
-<!-- <div class="interest-topbar"> -->
-<div class="interest-header">
-<span id="interestCounter">0 / 3 selected</span>
+            <div class="gender-options">
 
-<button type="button" id="clearInterests" class="clear-btn">
-Clear all
-</button>
+                <label>
+                    <input type="radio" name="gender" value="male" required>Male
+                </label>
 
-</div>
+                <label>
+                    <input type="radio" name="gender" value="female">Female
+                </label>
 
-<div class="interest-grid">
-
-<?php foreach ($categories as $cat): ?>
-
-<label class="interest-chip">
-<input type="checkbox" class="interest-checkbox" name="interests[]" value="<?= $cat->id ?>">
-
-<span><?= htmlspecialchars($cat->name) ?></span>
-
-</label>
-
-<?php endforeach; ?>
-
-</div>
+            </div>
 
 
-<!-- Bio -->
-<label class="section-title">Tell us about yourself</label>
+            <!-- Interests -->
+            <label class="section-title">
+                What are you interested in? <span>(Pick 3)</span>
+            </label>
 
-<textarea name="bio" id="bio" maxlength="150" required placeholder="Write a short bio about yourself..." ></textarea>
+            <!-- <div class="interest-topbar"> -->
+            <div class="interest-header">
+                <span id="interestCounter">0 / 3 selected</span>
 
-<div class="bio-counter">
-<span id="bioCounter">0 / 150</span>
-</div>
+                <button type="button" id="clearInterests" class="clear-btn">
+                    Clear all
+                </button>
+
+            </div>
+
+            <div class="interest-grid">
+
+                <?php foreach ($categories as $cat): ?>
+
+                    <label class="interest-chip">
+                        <input type="checkbox" class="interest-checkbox" name="interests[]" value="<?= $cat->id ?>">
+
+                        <span><?= htmlspecialchars($cat->name) ?></span>
+
+                    </label>
+
+                <?php endforeach; ?>
+
+            </div>
 
 
-<!-- Buttons -->
-<button type="submit" class="btn-primary">Save Preferences</button>
+            <!-- Bio -->
+            <label class="section-title">Tell us about yourself</label>
 
-<a href="/logout.php" class="btn-secondary">Logout</a>
+            <textarea name="bio" id="bio" maxlength="150" required placeholder="Write a short bio about yourself..."></textarea>
 
-</form>
+            <div class="bio-counter">
+                <span id="bioCounter">0 / 150</span>
+            </div>
 
-</div>
+
+            <!-- Buttons -->
+            <button type="submit" class="btn-primary">Save Preferences</button>
+
+            <a href="/logout.php" class="btn-secondary">Logout</a>
+
+        </form>
+
+    </div>
 
 </div>
 

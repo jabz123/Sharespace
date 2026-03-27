@@ -1,5 +1,6 @@
 <?php
 // handles profile update form submission including avatar upload
+//form handler
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
  

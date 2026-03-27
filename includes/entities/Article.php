@@ -57,6 +57,10 @@ class Article {
 
     //converts ## to <h2> 
     //converts ### to <h3>
+
+    // lightweight markdown parsing for article content, supports headings, paragraphs and lists
+    // so that writers can format their articles without needing to write HTML
+    
     //converts - to <ul><li> 
     //converts numbered list to <ol><li>
     public function renderContent(): string {

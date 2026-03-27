@@ -29,93 +29,92 @@ page_head('Browse Articles');
 
 <div class="dashboard-layout">
 
-<?php sidebar($user); ?>
+    <?php sidebar($user); ?>
 
-<main>
+    <main>
 
 
-<!-- page header -->
-<?php dash_header('Browse Articles', 'Explore all articles'); ?>
+        <!-- page header -->
+        <?php dash_header('Browse Articles', 'Explore all articles'); ?>
 
-<div class="page-content">
-    <div class="filter-row">
+        <div class="page-content">
+            <div class="filter-row">
 
-    <div class="category-filters">
-        <a href="browse.php?sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == null ? 'active-filter' : '' ?>">All</a>
+                <div class="category-filters">
+                    <a href="browse.php?sort=<?= $sort ?>&search=<?= $search ?>"
+                        class="<?= $category == null ? 'active-filter' : '' ?>">All</a>
 
-        <?php foreach ($allCategories as $cat): ?>
-        <?php $catSlug = strtolower($cat['name']); ?>
-        <a href="?category=<?= urlencode($catSlug) ?>&sort=<?= $sort ?>&search=<?= $search ?>"
-        class="<?= $category == $catSlug ? 'active-filter' : '' ?>">
-            <?= htmlspecialchars($cat['name']) ?>
-        </a>
-        <?php endforeach; ?>
-    </div>
+                    <?php foreach ($allCategories as $cat): ?>
+                        <?php $catSlug = strtolower($cat['name']); ?>
+                        <a href="?category=<?= urlencode($catSlug) ?>&sort=<?= $sort ?>&search=<?= $search ?>"
+                            class="<?= $category == $catSlug ? 'active-filter' : '' ?>">
+                            <?= htmlspecialchars($cat['name']) ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
 
-    <form method="GET" class="search-bar">
+                <form method="GET" class="search-bar">
 
-        <div class="search-input-wrapper">
+                    <div class="search-input-wrapper">
 
-            <input 
-                type="text" 
-                id="searchInput"
-                name="search" 
-                placeholder="Search articles"
-                value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
-            >
+                        <input
+                            type="text"
+                            id="searchInput"
+                            name="search"
+                            placeholder="Search articles"
+                            value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
 
-            <button type="button" id="clearSearch" class="clear-btn"><img src="/public/icons/clearicon.png" alt="Clear"></button>
+                        <button type="button" id="clearSearch" class="clear-btn"><img src="/public/icons/clearicon.png" alt="Clear"></button>
+
+                    </div>
+
+                    <input type="hidden" name="category" value="<?= $category ?>">
+                    <input type="hidden" name="sort" value="<?= $sort ?>">
+
+                    <button type="submit" class="search-btn"> <img src="/public/icons/searchicon.png" alt="Search"></button>
+
+                </form>
+
+            </div>
+
+
+            <div class="sort-filters">
+
+                <span>Sort By:</span>
+
+                <a href="?category=<?= $category ?>&sort=recent&search=<?= $search ?>"
+                    class="sort-btn <?= $sort == 'recent' ? 'active-filter' : '' ?>">Recent
+                </a>
+
+                <a href="?category=<?= $category ?>&sort=trusted&search=<?= $search ?>"
+                    class="sort-btn <?= $sort == 'trusted' ? 'active-filter' : '' ?>">Most Trusted
+                </a>
+
+            </div>
+
+
+
+            <div class="article-grid">
+
+                <?php if (empty($articles)): ?>
+
+                    <p>No articles found.</p>
+
+                <?php else: ?>
+
+                    <?php foreach ($articles as $article): ?>
+
+                        <?php article_card($article, $user); ?>
+
+                    <?php endforeach; ?>
+
+                <?php endif; ?>
+
+            </div>
 
         </div>
 
-        <input type="hidden" name="category" value="<?= $category ?>">
-        <input type="hidden" name="sort" value="<?= $sort ?>">
-
-         <button type="submit" class="search-btn"> <img src="/public/icons/searchicon.png" alt="Search"></button>
-
-    </form>
-
-</div>
-
-
-<div class="sort-filters">
-
-<span>Sort By:</span>
-
-<a href="?category=<?= $category ?>&sort=recent&search=<?= $search ?>" 
-class="sort-btn <?= $sort == 'recent' ? 'active-filter' : '' ?>">Recent
-</a>
-
-<a href="?category=<?= $category ?>&sort=trusted&search=<?= $search ?>"
-class="sort-btn <?= $sort == 'trusted' ? 'active-filter' : '' ?>">Most Trusted
-</a>
-
-</div>
-
-
-
-<div class="article-grid">
-
-<?php if(empty($articles)): ?>
-
-<p>No articles found.</p>
-
-<?php else: ?>
-
-<?php foreach($articles as $article): ?>
-
-<?php article_card($article, $user); ?>
-
-<?php endforeach; ?>
-
-<?php endif; ?>
-
-</div>
-
-</div>
-
-</main>
+    </main>
 
 </div>
 

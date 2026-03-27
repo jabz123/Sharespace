@@ -26,89 +26,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Forgot Password – SharedSpace</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Forgot Password – SharedSpace</title>
 
-<link rel="stylesheet" href="/public/css/app.css">
+    <link rel="stylesheet" href="/public/css/app.css">
 
-<style>
-body { background: hsl(213,56%,10%); }
-</style>
+    <style>
+        body {
+            background: hsl(213, 56%, 10%);
+        }
+    </style>
 
 </head>
 
 <body>
 
-<div class="auth-wrap">
+    <div class="auth-wrap">
 
-<!-- LEFT FORM -->
-<div class="auth-form-side">
+        <!-- LEFT FORM -->
+        <div class="auth-form-side">
 
-<div class="auth-box">
+            <div class="auth-box">
 
-<a href="/login.php" class="auth-logo">
-<span style="font-size:24px">📰</span>
-<span>SharedSpace</span>
-</a>
+                <a href="/login.php" class="auth-logo">
+                    <span style="font-size:24px">📰</span>
+                    <span>SharedSpace</span>
+                </a>
 
-<h1>Forgot Password</h1>
-<p class="sub">Enter your email to reset your password</p>
+                <h1>Forgot Password</h1>
+                <p class="sub">Enter your email to reset your password</p>
 
-<?php if ($message): ?>
-<div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
-<?php endif; ?>
+                <?php if ($message): ?>
+                    <div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
+                <?php endif; ?>
 
-<form method="POST">
+                <form method="POST">
 
-<div class="form-group">
-<label>Email</label>
+                    <div class="form-group">
+                        <label>Email</label>
 
-<div class="input-icon">
-<span class="icon">✉</span>
+                        <div class="input-icon">
+                            <span class="icon">✉</span>
 
-<input type="email"
-name="email"
-placeholder="you@example.com"
-required>
-</div>
+                            <input type="email"
+                                name="email"
+                                placeholder="you@example.com"
+                                required>
+                        </div>
 
-</div>
+                    </div>
 
-<button type="submit" class="btn btn-hero btn-full">
-Send Reset Link
-</button>
+                    <button type="submit" class="btn btn-hero btn-full">
+                        Send Reset Link
+                    </button>
 
-</form>
+                </form>
 
-<p class="auth-alt-link">
-<a href="/login.php" class="back-link"><img src="/public/icons/backicon.png" class="back-icon">Back to login</a>
-</p>
+                <p class="auth-alt-link">
+                    <a href="/login.php" class="back-link"><img src="/public/icons/backicon.png" class="back-icon">Back to login</a>
+                </p>
 
-</div>
-</div>
+            </div>
+        </div>
 
-<!-- RIGHT BRAND SIDE -->
+        <!-- RIGHT BRAND SIDE -->
 
-<div class="auth-brand-side">
+        <div class="auth-brand-side">
 
-<div class="brand-body">
+            <div class="brand-body">
 
-<div class="brand-rule"></div>
+                <div class="brand-rule"></div>
 
-<h2>Truth in Every<br>Headline.</h2>
+                <h2>Truth in Every<br>Headline.</h2>
 
-<p>
-Join thousands of journalists and readers who trust SharedSpace
-for verified, fact-checked news.
-</p>
+                <p>
+                    Join thousands of journalists and readers who trust SharedSpace
+                    for verified, fact-checked news.
+                </p>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
 </body>
+
 </html>

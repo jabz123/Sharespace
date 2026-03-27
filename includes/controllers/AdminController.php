@@ -14,10 +14,10 @@ require_once __DIR__ . '/../db.php';
 
 class AdminController {
 
-    // ─────────────────────────────────────────────
-    // GUARD: call this at top of every admin page
+
+   
     // redirects away if user is not system_admin
-    // ─────────────────────────────────────────────
+
     public function requireAdmin(User $user): void {
         if ($user->role !== 'system_admin') {
             header('Location: /dashboard.php');
@@ -25,9 +25,8 @@ class AdminController {
         }
     }
 
-    // ─────────────────────────────────────────────
+ 
     // ARTICLE MANAGEMENT
-    // ─────────────────────────────────────────────
 
     // get all articles with author + category info, newest first
     public function getAllArticles(): array {
@@ -99,9 +98,7 @@ class AdminController {
         return array_map(fn($r) => new Category($r), $rows);
     }
 
-    // ─────────────────────────────────────────────
     // USER MANAGEMENT
-    // ─────────────────────────────────────────────
 
     // get all users, newest first
     public function getAllUsers(): array {
@@ -143,9 +140,7 @@ class AdminController {
         return compact('totalArticles', 'totalUsers', 'premiumUsers', 'suspended');
     }
 
-    // ─────────────────────────────────────────────
     // CATEGORY MANAGEMENT
-    // ─────────────────────────────────────────────
 
     // get all categories with article count
     public function getAllCategoriesWithCount(): array {
