@@ -12,11 +12,9 @@ jobs:
 
     steps:
 
-    # 1. Checkout repository
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # 2. Setup SSH access
     - name: Setup SSH
       run: |
         mkdir -p ~/.ssh
@@ -24,18 +22,16 @@ jobs:
         chmod 600 ~/.ssh/key.pem
         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-    # 3. Create new release folder
     - name: Prepare New Release
       run: |
         RELEASE=$(date +%Y%m%d%H%M%S)
         echo "RELEASE=$RELEASE" >> $GITHUB_ENV
 
         ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-          sudo mkdir -p /var/www/releases/$RELEASE &&
-          sudo chown -R ${{ secrets.EC2_USER }}:www-data /var/www/releases/$RELEASE
+          mkdir -p /var/www/releases/$RELEASE &&
+          chown -R ${{ secrets.EC2_USER }}:www-data /var/www/releases/$RELEASE
         "
 
-    # 4. Upload project files
     - name: Upload Files
       run: |
         rsync -avz --delete \
@@ -46,7 +42,6 @@ jobs:
           ./ \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/releases/${{ env.RELEASE }}/
 
-    # 5. Activate release
     - name: Activate New Release
       run: |
         OLD_RELEASE=$(ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "readlink -f /var/www/current || true")
@@ -55,11 +50,10 @@ jobs:
 
         ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
           ln -sfn /var/www/storage/uploads /var/www/releases/${{ env.RELEASE }}/public/uploads &&
-          sudo ln -sfn /var/www/releases/${{ env.RELEASE }} /var/www/current &&
+          ln -sfn /var/www/releases/${{ env.RELEASE }} /var/www/current &&
           sudo systemctl reload apache2
         "
 
-    # 6. Health Check
     - name: Verify Deployment
       run: |
         sleep 5
@@ -71,7 +65,7 @@ jobs:
 
           if [ -n "${{ env.OLD_RELEASE }}" ]; then
             ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-              sudo ln -sfn ${{ env.OLD_RELEASE }} /var/www/current &&
+              ln -sfn ${{ env.OLD_RELEASE }} /var/www/current &&
               sudo systemctl reload apache2
             "
           fi
@@ -79,10 +73,9 @@ jobs:
           exit 1
         fi
 
-    # 7. Cleanup old releases
     - name: Cleanup Old Releases
       run: |
         ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
           cd /var/www/releases &&
-          ls -1dt */ | tail -n +6 | xargs -r sudo rm -rf
+          ls -1dt */ | tail -n +6 | xargs -r rm -rf
         "
