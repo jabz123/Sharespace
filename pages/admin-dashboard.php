@@ -516,6 +516,9 @@ page_head('Admin Dashboard');
             <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">
                 Categories &amp; Their Experts
             </h2>
+            <?php if (empty($categoriesWithExperts)): ?>
+                <p class="text-muted" style="text-align:center;padding:32px">No categories have been created yet. Add categories first, then assign experts to them.</p>
+            <?php else: ?>
             <div style="overflow-x:auto">
                 <table style="width:100%;border-collapse:collapse;font-size:14px">
                     <thead>
@@ -543,6 +546,7 @@ page_head('Admin Dashboard');
                     </tbody>
                 </table>
             </div>
+            <?php endif; ?>
         </div>
 
         <!-- ── SECTION 2: Current category experts ──────────────── -->
