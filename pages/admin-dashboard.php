@@ -72,42 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         redirect('/pages/admin-dashboard.php?tab=categories', $result['error']);
     }
-
-    // ── CATEGORY EXPERT ACTIONS ──────────────────────────────────
-    if ($action === 'promote_to_expert') {
-        $result = $adminCtrl->promoteUserToCategoryAdmin((int)($_POST['user_id'] ?? 0));
-        if (isset($result['ok'])) {
-            redirect('/pages/admin-dashboard.php?tab=experts', null, 'User promoted to category expert.');
-        }
-        redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
-    }
-
-    if ($action === 'assign_category_to_expert') {
-        $result = $adminCtrl->assignCategoryToExpert(
-            (int)($_POST['user_id']     ?? 0),
-            (int)($_POST['category_id'] ?? 0)
-        );
-        if (isset($result['ok'])) {
-            redirect('/pages/admin-dashboard.php?tab=experts', null, 'Category assigned to expert.');
-        }
-        redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
-    }
-
-    if ($action === 'unassign_category_from_expert') {
-        $result = $adminCtrl->unassignCategoryFromExpert((int)($_POST['user_id'] ?? 0));
-        if (isset($result['ok'])) {
-            redirect('/pages/admin-dashboard.php?tab=experts', null, 'Category unassigned from expert.');
-        }
-        redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
-    }
-
-    if ($action === 'demote_category_admin') {
-        $result = $adminCtrl->demoteCategoryAdmin((int)($_POST['user_id'] ?? 0));
-        if (isset($result['ok'])) {
-            redirect('/pages/admin-dashboard.php?tab=experts', null, 'Expert demoted back to free user.');
-        }
-        redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
-    }
 }
 
 // ── load data depending on tab ───────────────────────────────────
@@ -118,10 +82,6 @@ if ($tab === 'users') {
     $allUsers = $adminCtrl->getAllUsers();
 } elseif ($tab === 'categories') {
     $allCategories = $adminCtrl->getAllCategoriesWithCount();
-} elseif ($tab === 'experts') {
-    $categoryExperts      = $adminCtrl->getCategoryExperts();
-    $categoriesWithExperts = $adminCtrl->getCategoriesWithExperts();
-    $promotableUsers      = $adminCtrl->getPromotableUsers();
 } else {
     $allArticles = $adminCtrl->getAllArticles();
 }
@@ -167,10 +127,6 @@ page_head('Admin Dashboard');
         <a href="/pages/admin-dashboard.php?tab=categories"
            class="btn <?= $tab === 'categories' ? 'btn-primary' : 'btn-ghost' ?>">
             📋 Manage Categories
-        </a>
-        <a href="/pages/admin-dashboard.php?tab=experts"
-           class="btn <?= $tab === 'experts' ? 'btn-primary' : 'btn-ghost' ?>">
-            👨‍💼 Manage Category Experts
         </a>
     </div>
 
@@ -502,196 +458,6 @@ page_head('Admin Dashboard');
         </script>
 
     <?php endif; // end categories tab ?>
-
-
-    <!-- ════════════════════════════════════════════════════════════
-         TAB: MANAGE CATEGORY EXPERTS
-         admin can: promote free/premium → category_admin,
-                    assign / unassign categories, demote category_admin → free
-    ════════════════════════════════════════════════════════════ -->
-    <?php if ($tab === 'experts'): ?>
-
-        <?php if (empty($categoryExperts)): ?>
-        <!-- ── Getting-started callout (shown only when no category admins exist) ── -->
-        <div style="background:var(--primary-light,#eef2ff);border:1px solid var(--primary);border-radius:10px;padding:20px 24px;margin-bottom:24px;display:flex;gap:16px;align-items:flex-start">
-            <div style="font-size:28px;line-height:1">ℹ️</div>
-            <div>
-                <div style="font-weight:700;font-size:15px;margin-bottom:6px">No category admins yet — here's how to get started</div>
-                <ol style="margin:0;padding-left:20px;font-size:14px;color:var(--muted);line-height:1.8">
-                    <li><strong>Scroll down to "Promote Users to Category Expert"</strong> and promote any free or premium user to give them the category admin role.</li>
-                    <li>Once promoted, they will appear in <strong>"Current Category Experts"</strong> where you can assign a category for them to manage.</li>
-                </ol>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- ── SECTION 1: Categories with their experts ─────────── -->
-        <div class="card" style="padding:24px;margin-bottom:24px">
-            <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">
-                Categories &amp; Their Experts
-            </h2>
-            <?php if (empty($categoriesWithExperts)): ?>
-                <p class="text-muted" style="text-align:center;padding:32px">No categories have been created yet. Add categories first, then assign experts to them.</p>
-            <?php else: ?>
-            <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse;font-size:14px">
-                    <thead>
-                        <tr style="border-bottom:2px solid var(--border)">
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Category</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Assigned Experts</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($categoriesWithExperts as $cat): ?>
-                        <tr style="border-bottom:1px solid var(--border)">
-                            <td style="padding:12px 8px;font-weight:600"><?= htmlspecialchars($cat['name']) ?></td>
-                            <td style="padding:12px 8px;color:var(--muted)">
-                                <?php if ($cat['expert_count'] > 0): ?>
-                                    <?= htmlspecialchars($cat['expert_names']) ?>
-                                    <span style="font-size:11px;margin-left:6px;color:var(--primary)">
-                                        (<?= $cat['expert_count'] ?> expert<?= $cat['expert_count'] > 1 ? 's' : '' ?>)
-                                    </span>
-                                <?php else: ?>
-                                    <span style="font-size:12px;color:var(--muted);font-style:italic">No experts assigned</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- ── SECTION 2: Current category experts ──────────────── -->
-        <div class="card" style="padding:24px;margin-bottom:24px">
-            <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">
-                Current Category Experts (<?= count($categoryExperts) ?>)
-            </h2>
-
-            <?php if (empty($categoryExperts)): ?>
-                <p class="text-muted" style="text-align:center;padding:32px">No category admins yet. Use the <strong>"Promote Users to Category Expert"</strong> section below to promote a user first.</p>
-            <?php else: ?>
-            <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse;font-size:14px">
-                    <thead>
-                        <tr style="border-bottom:2px solid var(--border)">
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Name</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Email</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Assigned Category</th>
-                            <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($categoryExperts as $expert): ?>
-                        <tr style="border-bottom:1px solid var(--border)">
-                            <td style="padding:12px 8px;font-weight:600"><?= htmlspecialchars($expert['full_name']) ?></td>
-                            <td style="padding:12px 8px;color:var(--muted)"><?= htmlspecialchars($expert['email']) ?></td>
-                            <td style="padding:12px 8px">
-                                <?php if ($expert['managed_category_id']): ?>
-                                    <span class="category-tag"><?= htmlspecialchars($expert['category_name']) ?></span>
-                                <?php else: ?>
-                                    <!-- assign category form -->
-                                    <form method="POST" style="display:flex;gap:6px;align-items:center;margin:0">
-                                        <input type="hidden" name="action"  value="assign_category_to_expert">
-                                        <input type="hidden" name="user_id" value="<?= $expert['id'] ?>">
-                                        <select name="category_id" class="form-input" style="padding:4px 8px;font-size:13px;min-width:140px" required>
-                                            <option value="">— select category —</option>
-                                            <?php foreach ($categories as $cat): ?>
-                                                <option value="<?= $cat->id ?>"><?= htmlspecialchars($cat->name) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" class="btn btn-ghost btn-sm"
-                                                style="color:var(--primary)">Assign</button>
-                                    </form>
-                                <?php endif; ?>
-                            </td>
-                            <td style="padding:12px 8px;text-align:right;white-space:nowrap">
-                                <?php if ($expert['managed_category_id']): ?>
-                                <!-- unassign button -->
-                                <form method="POST" style="display:inline;margin:0">
-                                    <input type="hidden" name="action"  value="unassign_category_from_expert">
-                                    <input type="hidden" name="user_id" value="<?= $expert['id'] ?>">
-                                    <button type="submit" class="btn btn-ghost btn-sm"
-                                            style="color:var(--warning)"
-                                            onclick="return confirm('Unassign category from \'<?= htmlspecialchars(addslashes($expert['full_name'])) ?>\'?')">
-                                        🔓 Unassign
-                                    </button>
-                                </form>
-                                <?php endif; ?>
-                                <!-- demote button -->
-                                <form method="POST" style="display:inline;margin:0">
-                                    <input type="hidden" name="action"  value="demote_category_admin">
-                                    <input type="hidden" name="user_id" value="<?= $expert['id'] ?>">
-                                    <button type="submit" class="btn btn-ghost btn-sm"
-                                            style="color:var(--danger)"
-                                            onclick="return confirm('Demote \'<?= htmlspecialchars(addslashes($expert['full_name'])) ?>\' back to free user?')">
-                                        ⬇️ Demote
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- ── SECTION 3: Promote free/premium users to expert ──── -->
-        <div class="card" style="padding:24px">
-            <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">
-                Promote Users to Category Expert (<?= count($promotableUsers) ?>)
-            </h2>
-
-            <?php if (empty($promotableUsers)): ?>
-                <p class="text-muted" style="text-align:center;padding:32px">No free or premium users available to promote.</p>
-            <?php else: ?>
-            <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse;font-size:14px">
-                    <thead>
-                        <tr style="border-bottom:2px solid var(--border)">
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Name</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Email</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Role</th>
-                            <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($promotableUsers as $pu): ?>
-                        <tr style="border-bottom:1px solid var(--border)">
-                            <td style="padding:12px 8px;font-weight:600"><?= htmlspecialchars($pu->fullName) ?></td>
-                            <td style="padding:12px 8px;color:var(--muted)"><?= htmlspecialchars($pu->email) ?></td>
-                            <td style="padding:12px 8px">
-                                <?php
-                                $roleStyle = $pu->role === 'premium'
-                                    ? 'background:var(--warning);color:#fff'
-                                    : '';
-                                ?>
-                                <span class="role-badge" style="<?= $roleStyle ?>">
-                                    <?= htmlspecialchars($pu->roleLabel()) ?>
-                                </span>
-                            </td>
-                            <td style="padding:12px 8px;text-align:right">
-                                <form method="POST" style="display:inline;margin:0">
-                                    <input type="hidden" name="action"  value="promote_to_expert">
-                                    <input type="hidden" name="user_id" value="<?= $pu->id ?>">
-                                    <button type="submit" class="btn btn-ghost btn-sm"
-                                            style="color:var(--primary)"
-                                            onclick="return confirm('Promote \'<?= htmlspecialchars(addslashes($pu->fullName)) ?>\' to category expert?')">
-                                        ⬆️ Promote
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <?php endif; ?>
-        </div>
-
-    <?php endif; // end experts tab ?>
 
 </div><!-- /.page-content -->
 </main>
