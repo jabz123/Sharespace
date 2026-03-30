@@ -10,17 +10,19 @@ USE sharedspace;
 -- need to have shit like age group(dropdown), interests(select from dropdown), gender
 -- will do in future
 CREATE TABLE users (
-    id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    email        VARCHAR(255) NOT NULL UNIQUE,
-    password     VARCHAR(255) NOT NULL,
-    full_name    VARCHAR(255),
-    bio          TEXT,
-    avatar_url   TEXT,
-    role         ENUM('free','premium','category_admin','system_admin','ai_trainer') NOT NULL DEFAULT 'free',
-    is_premium   TINYINT(1)   NOT NULL DEFAULT 0,
-    is_suspended TINYINT(1)   NOT NULL DEFAULT 0,
-    created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    id                   INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email                VARCHAR(255) NOT NULL UNIQUE,
+    password             VARCHAR(255) NOT NULL,
+    full_name            VARCHAR(255),
+    bio                  TEXT,
+    avatar_url           TEXT,
+    gender               VARCHAR(50),
+    role                 ENUM('free','premium','category_admin','system_admin','ai_trainer') NOT NULL DEFAULT 'free',
+    is_premium           TINYINT(1)   NOT NULL DEFAULT 0,
+    is_suspended         TINYINT(1)   NOT NULL DEFAULT 0,
+    managed_category_id  INT          DEFAULT NULL,
+    created_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE categories (
@@ -31,6 +33,11 @@ CREATE TABLE categories (
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (admin_user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- add FK for managed_category_id after categories table exists (circular dependency)
+ALTER TABLE users
+    ADD CONSTRAINT users_managed_category_fk
+    FOREIGN KEY (managed_category_id) REFERENCES categories(id) ON DELETE SET NULL;
 
 -- make field for images
 -- do in future
