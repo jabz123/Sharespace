@@ -271,9 +271,10 @@ page_head('Admin Dashboard');
                             <td style="padding:12px 8px">
                                 <?php
                                 $roleStyle = match($u->role) {
-                                    'system_admin' => 'background:var(--primary);color:#fff',
-                                    'premium'      => 'background:var(--warning);color:#fff',
-                                    default        => ''
+                                    'system_admin'   => 'background:var(--primary);color:#fff',
+                                    'premium'        => 'background:var(--warning);color:#fff',
+                                    'category_admin' => 'background:#d1fae5;color:#065f46',
+                                    default          => ''
                                 };
                                 ?>
                                 <span class="role-badge" style="<?= $roleStyle ?>">
