@@ -48,7 +48,7 @@ function sidebar(User $user): void {
         ];
     } elseif ($user->role === 'category_admin') {
         $links = [
-            ['href' => '/pages/category-admin-dashboard.php', 'icon' => '🏠', 'label' => 'Category Dashboard'],
+            ['href' => '/pages/category-admin-dashboard.php', 'icon' => '🏠', 'label' => 'Home'],
             ['href' => '/pages/browse.php',                   'icon' => '👁', 'label' => 'Browse Articles'],
             ['href' => '/pages/profile.php',                  'icon' => '👤', 'label' => 'Profile'],
         ];
@@ -159,7 +159,7 @@ function article_card(Article $article, User $user): void {
 
     $url = '/pages/article.php?id=' . $article->id;
 
-    $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin';
+    $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
 
     $hasImage = !empty($article->imagePath);
     $isPremiumArticle = $hasImage;

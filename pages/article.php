@@ -125,7 +125,7 @@ page_head($article->title);
                 <?php 
                 //  Show full content if:
                 //  user is premium OR article is NOT premium (no image)
-                $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin';
+                $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
                 $isPremiumArticle = !empty($article->imagePath);
                 ?>
 
