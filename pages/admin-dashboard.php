@@ -511,6 +511,20 @@ page_head('Admin Dashboard');
     ════════════════════════════════════════════════════════════ -->
     <?php if ($tab === 'experts'): ?>
 
+        <?php if (empty($categoryExperts)): ?>
+        <!-- ── Getting-started callout (shown only when no category admins exist) ── -->
+        <div style="background:var(--primary-light,#eef2ff);border:1px solid var(--primary);border-radius:10px;padding:20px 24px;margin-bottom:24px;display:flex;gap:16px;align-items:flex-start">
+            <div style="font-size:28px;line-height:1">ℹ️</div>
+            <div>
+                <div style="font-weight:700;font-size:15px;margin-bottom:6px">No category admins yet — here's how to get started</div>
+                <ol style="margin:0;padding-left:20px;font-size:14px;color:var(--muted);line-height:1.8">
+                    <li><strong>Scroll down to "Promote Users to Category Expert"</strong> and promote any free or premium user to give them the category admin role.</li>
+                    <li>Once promoted, they will appear in <strong>"Current Category Experts"</strong> where you can assign a category for them to manage.</li>
+                </ol>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- ── SECTION 1: Categories with their experts ─────────── -->
         <div class="card" style="padding:24px;margin-bottom:24px">
             <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">
@@ -556,7 +570,7 @@ page_head('Admin Dashboard');
             </h2>
 
             <?php if (empty($categoryExperts)): ?>
-                <p class="text-muted" style="text-align:center;padding:32px">No category experts yet.</p>
+                <p class="text-muted" style="text-align:center;padding:32px">No category admins yet. Use the <strong>"Promote Users to Category Expert"</strong> section below to promote a user first.</p>
             <?php else: ?>
             <div style="overflow-x:auto">
                 <table style="width:100%;border-collapse:collapse;font-size:14px">
