@@ -88,7 +88,7 @@ function sidebar(User $user): void {
             <?php elseif ($user->role === 'system_admin'): ?>
                 <span class="role-badge system-admin">System Admin</span>
             <?php elseif ($user->role === 'category_admin'): ?>
-                <span class="role-badge system-admin">Category Admin</span>
+                <span class="role-badge category-admin">Category Admin</span>
             <?php else: ?>
             <span class="role-badge free">Free</span>
              <?php endif; ?>
