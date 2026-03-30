@@ -46,6 +46,15 @@ function sidebar(User $user): void {
             ['href' => '/pages/admin-landing.php',   'icon' => '🖼️', 'label' => 'Manage Landing Page'],
             ['href' => '/pages/profile.php',         'icon' => '👤', 'label' => 'Profile'],
         ];
+    } elseif ($user->role === 'category_admin') {
+        $links = [
+            ['href' => '/dashboard.php',                  'icon' => '🏠', 'label' => 'Home'],
+            ['href' => '/pages/browse.php',               'icon' => '👁', 'label' => 'Browse Articles'],
+            ['href' => '/pages/manage-category.php',      'icon' => '📋', 'label' => 'Manage My Category'],
+            ['href' => '/pages/my-articles.php',          'icon' => '📄', 'label' => 'My Articles'],
+            ['href' => '/pages/write.php',                'icon' => '📝', 'label' => 'Write Article'],
+            ['href' => '/pages/profile.php',              'icon' => '👤', 'label' => 'Profile'],
+        ];
     } else {
         $links = [
             ['href' => '/dashboard.php',         'icon' => '🏠', 'label' => 'Home'],
@@ -81,6 +90,8 @@ function sidebar(User $user): void {
                 <span class="role-badge premium">Premium</span>
             <?php elseif ($user->role === 'system_admin'): ?>
                 <span class="role-badge system-admin">System Admin</span>
+            <?php elseif ($user->role === 'category_admin'): ?>
+                <span class="role-badge" style="background:var(--primary);color:#fff">Category Admin</span>
             <?php else: ?>
             <span class="role-badge free">Free</span>
              <?php endif; ?>

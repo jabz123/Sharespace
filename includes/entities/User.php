@@ -17,18 +17,20 @@ class User {
     public string $gender;
     public string $bio;
     public string $avatarUrl;
+    public ?int   $managedCategoryId;
 
     public function __construct(array $row) {
-        $this->id          = (int)$row['id'];
-        $this->email       = $row['email'];
-        $this->fullName    = $row['full_name'] ?? '';
-        $this->role        = $row['role']       ?? 'free';
-        $this->isPremium   = (bool)($row['is_premium']   ?? false);
-        $this->isSuspended = (bool)($row['is_suspended'] ?? false);
-        $this->createdAt   = $row['created_at'] ?? '';
-        $this->gender      = $row['gender']     ?? '';
-        $this->bio         = $row['bio']        ?? '';
-        $this->avatarUrl   = $row['avatar_url'] ?? '';
+        $this->id                = (int)$row['id'];
+        $this->email             = $row['email'];
+        $this->fullName          = $row['full_name'] ?? '';
+        $this->role              = $row['role']       ?? 'free';
+        $this->isPremium         = (bool)($row['is_premium']   ?? false);
+        $this->isSuspended       = (bool)($row['is_suspended'] ?? false);
+        $this->createdAt         = $row['created_at'] ?? '';
+        $this->gender            = $row['gender']     ?? '';
+        $this->bio               = $row['bio']        ?? '';
+        $this->avatarUrl         = $row['avatar_url'] ?? '';
+        $this->managedCategoryId = isset($row['managed_category_id']) ? (int)$row['managed_category_id'] : null;
     }
 
     //use first letter of name for default avatar cos no picture yet

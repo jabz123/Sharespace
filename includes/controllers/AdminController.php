@@ -311,4 +311,21 @@ class AdminController {
         DB::execute("UPDATE users SET role = 'free', managed_category_id = NULL WHERE id = ?", [$userId]);
         return ['ok' => true];
     }
+
+    // get all articles in a specific category (for category admin use)
+    public function getArticlesByCategory(int $categoryId): array {
+        $rows = DB::query(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+             COUNT(v.id) AS view_count
+             FROM articles a
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             LEFT JOIN article_views v ON v.article_id = a.id
+             WHERE a.category_id = ?
+             GROUP BY a.id
+             ORDER BY a.published_at DESC',
+            [$categoryId]
+        );
+        return array_map(fn($r) => new Article($r), $rows);
+    }
 }
