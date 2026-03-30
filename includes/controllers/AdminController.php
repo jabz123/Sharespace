@@ -218,4 +218,130 @@ class AdminController {
 
         return ['ok' => true];
     }
+
+
+    // CATEGORY EXPERT MANAGEMENT
+
+    // get all free/premium users that can be promoted to category_admin
+    public function getPromotableUsers(): array {
+        $rows = DB::query(
+            "SELECT * FROM users WHERE role IN ('free', 'premium') ORDER BY full_name"
+        );
+        return array_map(fn($r) => new User($r), $rows);
+    }
+
+    // get all category_admin users with their assigned category info
+    public function getCategoryExperts(): array {
+        $rows = DB::query(
+            "SELECT u.*, c.name AS category_name, c.id AS assigned_category_id
+             FROM users u
+             LEFT JOIN categories c ON c.admin_user_id = u.id
+             WHERE u.role = 'category_admin'
+             ORDER BY u.full_name"
+        );
+        return array_map(fn($r) => new User($r), $rows);
+    }
+
+    // get all categories with their assigned expert info
+    public function getCategoriesWithExperts(): array {
+        return DB::query(
+            "SELECT c.*, u.id AS expert_user_id, u.full_name AS expert_name, u.email AS expert_email
+             FROM categories c
+             LEFT JOIN users u ON u.id = c.admin_user_id
+             ORDER BY c.name"
+        );
+    }
+
+    // promote a free/premium user to category_admin
+    public function promoteUserToCategoryAdmin(int $userId): array {
+        $user = DB::first('SELECT id, role FROM users WHERE id = ?', [$userId]);
+
+        if (!$user) {
+            return ['error' => 'User not found.'];
+        }
+        if ($user['role'] === 'category_admin') {
+            return ['error' => 'User is already a category expert.'];
+        }
+        if (!in_array($user['role'], ['free', 'premium'])) {
+            return ['error' => 'Only free or premium users can be promoted.'];
+        }
+
+        DB::execute(
+            "UPDATE users SET role = 'category_admin' WHERE id = ?",
+            [$userId]
+        );
+
+        return ['ok' => true];
+    }
+
+    // assign a category to a category_admin user
+    // one category_admin can only manage one category at a time
+    public function assignCategoryToExpert(int $categoryId, int $userId): array {
+        if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
+            return ['error' => 'Category not found.'];
+        }
+
+        $user = DB::first('SELECT id, role FROM users WHERE id = ?', [$userId]);
+        if (!$user) {
+            return ['error' => 'User not found.'];
+        }
+        if ($user['role'] !== 'category_admin') {
+            return ['error' => 'User is not a category expert.'];
+        }
+
+        // check if this expert already manages a different category
+        if (DB::first(
+            'SELECT id FROM categories WHERE admin_user_id = ? AND id != ?',
+            [$userId, $categoryId]
+        )) {
+            return ['error' => 'This expert already manages another category. Remove that assignment first.'];
+        }
+
+        DB::execute(
+            'UPDATE categories SET admin_user_id = ? WHERE id = ?',
+            [$userId, $categoryId]
+        );
+
+        return ['ok' => true];
+    }
+
+    // unassign a category from its expert
+    public function unassignCategoryExpert(int $categoryId): array {
+        if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
+            return ['error' => 'Category not found.'];
+        }
+
+        DB::execute(
+            'UPDATE categories SET admin_user_id = NULL WHERE id = ?',
+            [$categoryId]
+        );
+
+        return ['ok' => true];
+    }
+
+    // demote a category_admin back to free and remove their category assignment
+    public function demoteCategoryAdmin(int $userId): array {
+        $user = DB::first('SELECT id, role FROM users WHERE id = ?', [$userId]);
+
+        if (!$user) {
+            return ['error' => 'User not found.'];
+        }
+        if ($user['role'] !== 'category_admin') {
+            return ['error' => 'User is not a category expert.'];
+        }
+
+        // remove any category assignment for this expert
+        DB::execute(
+            'UPDATE categories SET admin_user_id = NULL WHERE admin_user_id = ?',
+            [$userId]
+        );
+
+        // revert role to free
+        DB::execute(
+            "UPDATE users SET role = 'free' WHERE id = ?",
+            [$userId]
+        );
+
+        return ['ok' => true];
+    }
 }
