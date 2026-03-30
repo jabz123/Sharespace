@@ -13,7 +13,14 @@ require_once __DIR__ . '/includes/controllers/OnboardingController.php';
 $auth = new AuthController();
 //redirect to dashboard if user is log in
 if ($auth->currentUser()) {
-    header('Location: /dashboard.php');
+    $currentUser = $auth->currentUser();
+    if ($currentUser->role === 'system_admin') {
+        header('Location: /pages/admin-dashboard.php');
+    } elseif ($currentUser->role === 'category_admin') {
+        header('Location: /pages/category-admin-dashboard.php');
+    } else {
+        header('Location: /dashboard.php');
+    }
     exit;
 }
 
@@ -33,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // system_admin users skip onboarding and go straight to admin dashboard
         if ($user->role === 'system_admin') {
             header('Location: /pages/admin-dashboard.php');
+        } elseif ($user->role === 'category_admin') {
+            // category_admin users go straight to the category admin dashboard
+            header('Location: /pages/category-admin-dashboard.php');
         } else {
             // regular users check if they completed onboarding
             $onboardCtrl = new OnboardingController();

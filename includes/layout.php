@@ -46,6 +46,12 @@ function sidebar(User $user): void {
             ['href' => '/pages/admin-landing.php',   'icon' => '🖼️', 'label' => 'Manage Landing Page'],
             ['href' => '/pages/profile.php',         'icon' => '👤', 'label' => 'Profile'],
         ];
+    } elseif ($user->role === 'category_admin') {
+        $links = [
+            ['href' => '/pages/category-admin-dashboard.php', 'icon' => '🏠', 'label' => 'Category Dashboard'],
+            ['href' => '/pages/browse.php',                   'icon' => '👁', 'label' => 'Browse Articles'],
+            ['href' => '/pages/profile.php',                  'icon' => '👤', 'label' => 'Profile'],
+        ];
     } else {
         $links = [
             ['href' => '/dashboard.php',         'icon' => '🏠', 'label' => 'Home'],
@@ -58,7 +64,7 @@ function sidebar(User $user): void {
     ?>
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <a href="<?= $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : '/dashboard.php' ?>" class="logo-link">
+        <a href="<?= $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php') ?>" class="logo-link">
             <div class="logo-icon">📰</div>
             <span class="logo-text">SharedSpace</span>
         </a>
@@ -81,6 +87,8 @@ function sidebar(User $user): void {
                 <span class="role-badge premium">Premium</span>
             <?php elseif ($user->role === 'system_admin'): ?>
                 <span class="role-badge system-admin">System Admin</span>
+            <?php elseif ($user->role === 'category_admin'): ?>
+                <span class="role-badge system-admin">Category Admin</span>
             <?php else: ?>
             <span class="role-badge free">Free</span>
              <?php endif; ?>
