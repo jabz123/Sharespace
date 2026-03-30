@@ -17,6 +17,12 @@ $auth->requireAuth();
 // get current logged in user
 $user = $auth->currentUser();
 
+// category_admin users should be on their own dashboard
+if ($user->role === 'category_admin') {
+    header('Location: /pages/category-admin-dashboard.php');
+    exit;
+}
+
 
 
 // homepage recommendation sections
