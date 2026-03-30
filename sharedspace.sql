@@ -183,7 +183,8 @@ CREATE TABLE `users` (
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `email_verified` tinyint(1) DEFAULT 0,
   `verification_token` varchar(255) DEFAULT NULL,
-  `last_verification_email` datetime DEFAULT NULL
+  `last_verification_email` datetime DEFAULT NULL,
+  `managed_category_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -258,7 +259,8 @@ ALTER TABLE `site_feedback`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `managed_category_id` (`managed_category_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -349,6 +351,12 @@ ALTER TABLE `saved_articles`
 --
 ALTER TABLE `site_feedback`
   ADD CONSTRAINT `site_feedback_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`managed_category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
