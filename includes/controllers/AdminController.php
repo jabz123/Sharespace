@@ -218,4 +218,97 @@ class AdminController {
 
         return ['ok' => true];
     }
+
+    // CATEGORY EXPERT MANAGEMENT
+
+    // get free/premium users available to be promoted to category_admin
+    public function getPromotableUsers(): array {
+        $rows = DB::query(
+            "SELECT * FROM users WHERE role IN ('free', 'premium') AND is_suspended = 0 ORDER BY full_name"
+        );
+        return array_map(fn($r) => new User($r), $rows);
+    }
+
+    // get all category_admin users with their assigned category name
+    public function getCategoryExperts(): array {
+        return DB::query(
+            "SELECT u.id, u.full_name, u.email, u.role, u.managed_category_id,
+                    c.name AS category_name
+             FROM users u
+             LEFT JOIN categories c ON c.id = u.managed_category_id
+             WHERE u.role = 'category_admin'
+             ORDER BY u.full_name"
+        );
+    }
+
+    // get all categories with their assigned expert users
+    public function getCategoriesWithExperts(): array {
+        return DB::query(
+            "SELECT c.id, c.name, c.description,
+                    GROUP_CONCAT(u.full_name ORDER BY u.full_name SEPARATOR ', ') AS expert_names,
+                    COUNT(u.id) AS expert_count
+             FROM categories c
+             LEFT JOIN users u ON u.managed_category_id = c.id AND u.role = 'category_admin'
+             GROUP BY c.id
+             ORDER BY c.name"
+        );
+    }
+
+    // promote a free/premium user to category_admin role
+    public function promoteUserToCategoryAdmin(int $userId): array {
+        $u = DB::first('SELECT id, role FROM users WHERE id = ?', [$userId]);
+        if (!$u) {
+            return ['error' => 'User not found.'];
+        }
+        if (!in_array($u['role'], ['free', 'premium'])) {
+            return ['error' => 'Only free or premium users can be promoted to category expert.'];
+        }
+        DB::execute("UPDATE users SET role = 'category_admin' WHERE id = ?", [$userId]);
+        return ['ok' => true];
+    }
+
+    // assign a category to a category_admin user (one category per expert)
+    public function assignCategoryToExpert(int $userId, int $categoryId): array {
+        $u = DB::first('SELECT id, role, managed_category_id FROM users WHERE id = ?', [$userId]);
+        if (!$u) {
+            return ['error' => 'User not found.'];
+        }
+        if ($u['role'] !== 'category_admin') {
+            return ['error' => 'User is not a category expert.'];
+        }
+        if ($u['managed_category_id'] !== null) {
+            return ['error' => 'This expert already manages a category. Unassign first.'];
+        }
+        if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
+            return ['error' => 'Category not found.'];
+        }
+        DB::execute('UPDATE users SET managed_category_id = ? WHERE id = ?', [$categoryId, $userId]);
+        return ['ok' => true];
+    }
+
+    // unassign a category from a category_admin user
+    public function unassignCategoryFromExpert(int $userId): array {
+        $u = DB::first('SELECT id, role FROM users WHERE id = ?', [$userId]);
+        if (!$u) {
+            return ['error' => 'User not found.'];
+        }
+        if ($u['role'] !== 'category_admin') {
+            return ['error' => 'User is not a category expert.'];
+        }
+        DB::execute('UPDATE users SET managed_category_id = NULL WHERE id = ?', [$userId]);
+        return ['ok' => true];
+    }
+
+    // demote a category_admin back to free and clear their category assignment
+    public function demoteCategoryAdmin(int $userId): array {
+        $u = DB::first('SELECT id, role FROM users WHERE id = ?', [$userId]);
+        if (!$u) {
+            return ['error' => 'User not found.'];
+        }
+        if ($u['role'] !== 'category_admin') {
+            return ['error' => 'User is not a category expert.'];
+        }
+        DB::execute("UPDATE users SET role = 'free', managed_category_id = NULL WHERE id = ?", [$userId]);
+        return ['ok' => true];
+    }
 }
