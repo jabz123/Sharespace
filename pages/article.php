@@ -44,23 +44,42 @@ DB::execute(
 );
 
 if (!$article) {
+
+    if ($user->role === 'system_admin') {
+        redirect('/pages/admin-dashboard.php', 'Article not found or not published.');
+    }
+
     redirect('/dashboard.php', 'Article not found.');
 }
 
 
-//post and delete comment logic 
+// post and delete comment logic 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
+    // preserve return URL
+    $return = $_GET['return'] ?? '';
+
+    // base URL
+    $url = '/pages/article.php?id=' . $article->id;
+
+    // append return if exists
+    if ($return) {
+        $url .= '&return=' . urlencode($return);
+    }
+
+    // always go back to comments section
+    $url .= '#comments';
+
     if ($action === 'comment') {
         $commentCtrl->post($article->id, $user->id, $_POST['comment_body'] ?? '');
-        header('Location: /pages/article.php?id=' . $article->id . '#comments');
+        header('Location: ' . $url);
         exit;
     }
 
     if ($action === 'delete_comment') {
         $commentCtrl->delete((int)($_POST['comment_id'] ?? 0), $user->id);
-        header('Location: /pages/article.php?id=' . $article->id . '#comments');
+        header('Location: ' . $url);
         exit;
     }
 }
@@ -81,23 +100,34 @@ page_head($article->title);
                 <div class="flex items-center justify-between mb-6">
 
     <?php
-    // back button logic (UNCHANGED)
-    $referer  = $_SERVER['HTTP_REFERER'] ?? '';
-    $backUrl  = str_contains($referer, 'my-articles')
-        ? '/pages/my-articles.php'
-        : '/dashboard.php';
+    $returnUrl = $_GET['return'] ?? '';
+
+        // security check (optional but recommended)
+        if ($returnUrl && !str_starts_with($returnUrl, '/')) {
+            $returnUrl = '';
+        }
+
+        // fallback based on role
+        if (!$returnUrl) {
+        if ($user->role === 'system_admin') {
+            $returnUrl = '/pages/admin-dashboard.php';
+        } else {
+            $returnUrl = '/dashboard.php';
+        }
+    }
     ?>
 
-    <!-- LEFT SIDE (UNCHANGED BUTTONS) -->
+    <!-- LEFT SIDE -->
     <div class="flex items-center gap-2">
-        <a href="<?= $backUrl ?>" class="btn btn-ghost btn-sm">← Back</a>
+        <a href="<?= htmlspecialchars($returnUrl) ?>" class="btn btn-ghost btn-sm">← Back</a>
 
         <?php if ($isAuthor): ?>
             <a href="/pages/write.php?id=<?= $article->id ?>" class="btn btn-ghost btn-sm">✏️ Edit</a>
         <?php endif; ?>
     </div>
 
-    <!-- RIGHT SIDE (NEW ICON BUTTONS) -->
+    <!-- RIGHT SIDE -->
+     <?php if ($user->role !== 'system_admin'): ?>
     <div class="flex items-center gap-4">
 
         <button class="icon-btn" id="saveBtn" title="Save">
@@ -115,6 +145,7 @@ page_head($article->title);
         </button>
 
     </div>
+    <?php endif; ?> 
 
 </div>
 

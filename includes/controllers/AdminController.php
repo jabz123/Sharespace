@@ -37,6 +37,7 @@ class AdminController {
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
              LEFT JOIN article_views v ON v.article_id = a.id
+             WHERE a.status IN ("published", "suspended")
              GROUP BY a.id
              ORDER BY a.published_at DESC'
         );
@@ -132,7 +133,11 @@ class AdminController {
 
     // summary counts for admin dashboard overview cards
     public function getStats(): array {
-        $totalArticles = DB::first('SELECT COUNT(*) AS cnt FROM articles')['cnt'] ?? 0;
+        $totalArticles = DB::first("SELECT COUNT(*) AS cnt 
+        FROM articles 
+        WHERE status IN ('published', 'suspended')"
+        )['cnt'] ?? 0;
+        
         $totalUsers    = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
         $premiumUsers  = DB::first("SELECT COUNT(*) AS cnt FROM users WHERE role = 'premium'")['cnt'] ?? 0;
         $suspended     = DB::first('SELECT COUNT(*) AS cnt FROM users WHERE is_suspended = 1')['cnt'] ?? 0;

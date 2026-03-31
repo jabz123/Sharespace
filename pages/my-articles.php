@@ -95,7 +95,7 @@ page_head('My Articles');
             </div>
         <!--title-->
         <h3 class="my-article-title">
-        <a href="/pages/article.php?id=<?= $article->id ?>" class="my-article-link">
+        <a href="/pages/article.php?id=<?= $article->id ?>&return=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="my-article-link">
             <?= htmlspecialchars($article->title) ?>
         </a>
         </h3>

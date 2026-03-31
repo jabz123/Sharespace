@@ -158,7 +158,8 @@ function relative_time(string $dateStr): string {
 //receives entity from articlecontroller
 function article_card(Article $article, User $user): void {
 
-    $url = '/pages/article.php?id=' . $article->id;
+    $currentUrl = $_SERVER['REQUEST_URI'];
+    $url = '/pages/article.php?id=' . $article->id . '&return=' . urlencode($currentUrl);
 
     $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
 
