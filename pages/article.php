@@ -30,6 +30,11 @@ $premiumPlan = DB::first(
      LIMIT 1"
 );
 
+$isSaved = DB::first(
+    "SELECT id FROM saved_articles WHERE user_id = ? AND article_id = ?",
+    [$user->id, $article->id]
+) ? true : false;
+
 // record article view
 // insert ignore prevents duplicate views from same user
 DB::execute(
@@ -72,19 +77,46 @@ page_head($article->title);
         <?php dash_header(htmlspecialchars($article->categoryName), 'Article'); ?>
         <div class="page-content">
             <div class="article-detail">
+                
+                <div class="flex items-center justify-between mb-6">
 
-                <div class="flex items-center gap-2 mb-6">
-                    <?php //back button logic, if user come from my articles page then back go there, ifnot back go dashboard
-                    $referer  = $_SERVER['HTTP_REFERER'] ?? '';
-                    $backUrl  = str_contains($referer, 'my-articles')
-                        ? '/pages/my-articles.php'
-                        : '/dashboard.php';
-                    ?>
-                    <a href="<?= $backUrl ?>" class="btn btn-ghost btn-sm">← Back</a>
-                    <?php if ($isAuthor): ?>
-                        <a href="/pages/write.php?id=<?= $article->id ?>" class="btn btn-ghost btn-sm">✏️ Edit</a>
-                    <?php endif; ?>
-                </div>
+    <?php
+    // back button logic (UNCHANGED)
+    $referer  = $_SERVER['HTTP_REFERER'] ?? '';
+    $backUrl  = str_contains($referer, 'my-articles')
+        ? '/pages/my-articles.php'
+        : '/dashboard.php';
+    ?>
+
+    <!-- LEFT SIDE (UNCHANGED BUTTONS) -->
+    <div class="flex items-center gap-2">
+        <a href="<?= $backUrl ?>" class="btn btn-ghost btn-sm">← Back</a>
+
+        <?php if ($isAuthor): ?>
+            <a href="/pages/write.php?id=<?= $article->id ?>" class="btn btn-ghost btn-sm">✏️ Edit</a>
+        <?php endif; ?>
+    </div>
+
+    <!-- RIGHT SIDE (NEW ICON BUTTONS) -->
+    <div class="flex items-center gap-4">
+
+        <button class="icon-btn" id="saveBtn" title="Save">
+        <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/bookmark.png' ?>" 
+        data-default="/public/icons/bookmark.png"
+        data-active="/public/icons/bookmarkactive.png">
+        </button>
+
+        <button class="icon-btn" id="flagBtn" title="Flag">
+            <img src="/public/icons/flag.png" alt="Flag">
+        </button>
+
+        <button class="icon-btn" id="shareBtn" title="Share">
+            <img src="/public/icons/share.png" alt="Share">
+        </button>
+
+    </div>
+
+</div>
 
                 <div class="flex justify-between items-center mb-3">
                     <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
@@ -232,4 +264,29 @@ page_head($article->title);
         </div>
     </main>
 </div>
+
+   <script>
+    const saveBtn = document.getElementById("saveBtn");
+    const saveIcon = document.getElementById("saveIcon");
+
+    saveBtn.addEventListener("click", function () {
+
+        fetch('/actions/toggle-save.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'article_id=<?= $article->id ?>'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.saved) {
+                saveIcon.src = saveIcon.dataset.active;
+            } else {
+                saveIcon.src = saveIcon.dataset.default;
+            }
+        });
+
+    });
+    </script>
 <?php page_foot(); ?>

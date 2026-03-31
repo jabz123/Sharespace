@@ -250,5 +250,64 @@ class ArticleController {
 
     return ['ok' => true];
 }
+    // save article function
+    public function toggleSave(int $userId, int $articleId): bool {
+        
+        $existing = DB::first(
+            "SELECT id FROM saved_articles WHERE user_id = ? AND article_id = ?",
+            [$userId, $articleId]
+        );
+
+        if ($existing) {
+            DB::execute(
+                "DELETE FROM saved_articles WHERE user_id = ? AND article_id = ?",
+                [$userId, $articleId]
+            );
+            return false; // now unsaved
+        }
+
+        DB::execute(
+            "INSERT INTO saved_articles (user_id, article_id) VALUES (?, ?)",
+            [$userId, $articleId]
+        );
+
+        return true; // now saved
+    }
+
+
+    // get saved articles for current user
+    public function getSavedArticles(int $userId, int $limit = null): array {
+        $sql = "
+            SELECT 
+            a.*,
+            u.full_name AS author_name,
+            c.name AS category_name,
+            COUNT(v.id) AS view_count,
+            COUNT(DISTINCT cmt.id) AS comments_count
+            FROM articles a
+            JOIN saved_articles s ON s.article_id = a.id
+            JOIN users u ON u.id = a.author_id
+            JOIN categories c ON c.id = a.category_id
+            LEFT JOIN article_views v ON v.article_id = a.id
+            LEFT JOIN comments cmt ON cmt.article_id = a.id
+            WHERE s.user_id = ?
+            GROUP BY a.id
+            ORDER BY s.created_at DESC
+        ";
+        if ($limit) {
+            $sql .= " LIMIT " . (int)$limit;
+        }
+        $rows = DB::query($sql, [$userId]);
+        return array_map(fn($row) => new Article($row), $rows);
+    }
+
+    public function countSavedArticles(int $userId): int {
+    $row = DB::first(
+        "SELECT COUNT(*) as total FROM saved_articles WHERE user_id = ?",
+        [$userId]
+    );
+
+    return (int)$row['total'];
+}
 
  }

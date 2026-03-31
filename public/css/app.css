@@ -1764,3 +1764,76 @@ margin:0 auto;
 .btn-publish:hover {
     background: #1d4ed8;
 }
+
+
+.icon-btn img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: 0.2s ease;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.7;
+    transition: 0.2s ease;
+}
+
+.icon-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.icon-btn.active img {
+    filter: 
+        drop-shadow(0 0 1px black)
+        drop-shadow(0 0 1px black);
+}
+
+
+.icon-btn.active img {
+    opacity: 1;
+}
+
+.highlight-number {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827; /* darker for emphasis */
+}
+/* PAYWALL CARD */
+.paywall-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    background: linear-gradient(145deg, #f9fafb, #f1f5f9);
+    border: 2px dashed #d1d5db;
+
+    min-height: 260px;
+}
+
+.paywall-inner {
+    padding: 24px 20px;
+}
+
+.paywall-icon {
+    width: 40px;
+    margin-bottom: 12px;
+    opacity: 0.85;
+}
+
+.paywall-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.paywall-card p {
+    font-size: 15px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
