@@ -102,7 +102,7 @@ page_head($article->title);
 
         <button class="icon-btn" id="saveBtn" title="Save">
         <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/Bookmark.png' ?>" 
-        data-default="/public/icons/bookmark.png"
+        data-default="/public/icons/Bookmark.png"
         data-active="/public/icons/bookmarkactive.png">
         </button>
 

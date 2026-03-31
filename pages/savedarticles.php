@@ -45,7 +45,7 @@ page_head('Saved Articles');
         <?php endforeach; ?>
 
         <!-- 🔒 PAYWALL CARD INSIDE GRID -->
-        <?php if (!$isPremium && $totalSaved > 4): ?>
+        <?php if (!$isPremium && $totalSaved > 3): ?>
 
             <div class="article-card paywall-card">
 
