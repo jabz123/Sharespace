@@ -282,6 +282,7 @@ class ArticleController {
             a.*,
             u.full_name AS author_name,
             c.name AS category_name,
+            s.created_at AS saved_at,
             COUNT(v.id) AS view_count,
             COUNT(DISTINCT cmt.id) AS comments_count
             FROM articles a
@@ -291,7 +292,7 @@ class ArticleController {
             LEFT JOIN article_views v ON v.article_id = a.id
             LEFT JOIN comments cmt ON cmt.article_id = a.id
             WHERE s.user_id = ?
-            GROUP BY a.id
+            GROUP BY a.id, s.created_at
             ORDER BY s.created_at DESC
         ";
         if ($limit) {
@@ -299,7 +300,7 @@ class ArticleController {
         }
         $rows = DB::query($sql, [$userId]);
         return array_map(fn($row) => new Article($row), $rows);
-    }
+}
 
     public function countSavedArticles(int $userId): int {
     $row = DB::first(

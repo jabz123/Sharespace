@@ -23,6 +23,7 @@ class Article {
     public string $publishedAt;
     public int $viewCount;
     public string $status;
+    public ?string $imagePath;
 
     public function __construct(array $row) {
         $this->id            = (int)$row['id'];
