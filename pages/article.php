@@ -101,7 +101,7 @@ page_head($article->title);
     <div class="flex items-center gap-4">
 
         <button class="icon-btn" id="saveBtn" title="Save">
-        <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/bookmark.png' ?>" 
+        <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/Bookmark.png' ?>" 
         data-default="/public/icons/bookmark.png"
         data-active="/public/icons/bookmarkactive.png">
         </button>
