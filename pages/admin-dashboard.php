@@ -1,5 +1,4 @@
 <?php
-// combined system admin dashboard
 // tabs: articles | users | categories | category experts
 // only accessible to users with role = 'system_admin'
 
@@ -14,14 +13,14 @@ $auth->requireAuth();
 $user = $auth->currentUser();
 $adminCtrl->requireAdmin($user);
 
-// ── active tab ───────────────────────────────────────────────────
+// active tab 
 $tab = $_GET['tab'] ?? 'articles';
 
-// ── handle all POST actions ──────────────────────────────────────
+// handle all POST actions 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    // ── ARTICLE ACTIONS ──────────────────────────────────────────
+    // ARTICLE ACTIONS 
     if ($action === 'suspend_article') {
         $result = $adminCtrl->suspendArticle((int)($_POST['article_id'] ?? 0));
         if (isset($result['ok'])) {
@@ -38,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/pages/admin-dashboard.php?tab=articles', $result['error']);
     }
 
-    // ── USER ACTIONS ─────────────────────────────────────────────
+    // USER ACTIONS
     if ($action === 'update_user') {
         $result = $adminCtrl->updateUser((int)($_POST['user_id'] ?? 0), $_POST);
         if (isset($result['ok'])) {
@@ -47,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/pages/admin-dashboard.php?tab=users', $result['error']);
     }
 
-    // ── CATEGORY ACTIONS ─────────────────────────────────────────
+    // CATEGORY ACTIONS 
     if ($action === 'create_category') {
         $result = $adminCtrl->createCategory($_POST);
         if (isset($result['ok'])) {
@@ -72,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/pages/admin-dashboard.php?tab=categories', $result['error']);
     }
 
-    // ── CATEGORY EXPERT ACTIONS ───────────────────────────────────
+    // CATEGORY EXPERT ACTIONS
     if ($action === 'assign_expert') {
         $result = $adminCtrl->assignExpert(
             (int)($_POST['category_id'] ?? 0),
@@ -93,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ── load data depending on tab ───────────────────────────────────
+// load data depending on tab 
 $stats      = $adminCtrl->getStats();
 $categories = $adminCtrl->getAllCategories();
 
@@ -118,7 +117,7 @@ page_head('Admin Dashboard');
 
 <div class="page-content">
 
-    <!-- ── STATS CARDS ─────────────────────────────────────────── -->
+    <!-- STATS CARDS -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px">
         <?php
         $cards = [
@@ -136,7 +135,7 @@ page_head('Admin Dashboard');
         <?php endforeach; ?>
     </div>
 
-    <!-- ── TAB BUTTONS ─────────────────────────────────────────── -->
+    <!-- TAB BUTTONS -->
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
         <a href="/pages/admin-dashboard.php?tab=articles"
            class="btn <?= $tab === 'articles'   ? 'btn-primary' : 'btn-ghost' ?>">
@@ -157,9 +156,7 @@ page_head('Admin Dashboard');
     </div>
 
 
-    <!-- ════════════════════════════════════════════════════════════
-         TAB: ARTICLES
-    ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: ARTICLES -->
     <?php if ($tab === 'articles'): ?>
 
         <div class="card" style="padding:24px">
@@ -245,12 +242,10 @@ page_head('Admin Dashboard');
             <?php endif; ?>
         </div>
 
-    <?php endif; // end articles tab ?>
+    <?php endif; ?>
 
 
-    <!-- ════════════════════════════════════════════════════════════
-         TAB: USERS
-    ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: USERS -->
     <?php if ($tab === 'users'): ?>
 
         <div class="card" style="padding:24px">
@@ -346,12 +341,10 @@ page_head('Admin Dashboard');
             <?php endif; ?>
         </div>
 
-    <?php endif; // end users tab ?>
+    <?php endif; ?>
 
 
-    <!-- ════════════════════════════════════════════════════════════
-         TAB: CATEGORIES
-    ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: CATEGORIES --> 
     <?php if ($tab === 'categories'): ?>
 
         <div style="margin-bottom:16px">
@@ -467,15 +460,10 @@ page_head('Admin Dashboard');
         }
         </script>
 
-    <?php endif; // end categories tab ?>
+    <?php endif;?>
 
 
-    <!-- ════════════════════════════════════════════════════════════
-         TAB: CATEGORY EXPERTS
-         system admin assigns one category_admin user per category
-         uses: categories.admin_user_id + users.role = 'category_admin'
-    ════════════════════════════════════════════════════════════ -->
-    <?php if ($tab === 'experts'): ?>
+    <!-- TAB: CATEGORY EXPERTS --> 
 
         <div class="card" style="padding:24px">
             <div style="margin-bottom:20px">
@@ -583,9 +571,9 @@ page_head('Admin Dashboard');
             <?php endif; ?>
         </div>
 
-    <?php endif; // end experts tab ?>
+    <?php endif; ?>
 
-</div><!-- /.page-content -->
+</div>
 </main>
-</div><!-- /.dashboard-layout -->
+</div>
 <?php page_foot(); ?>
