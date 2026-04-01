@@ -4,6 +4,7 @@
 // articles: view, suspend, unsuspend (no edit)
 // users: suspend, unsuspend (no delete, no role change)
 // categories: full CRUD
+// category experts: assign/unassign users as category_admin for a category
 // only accessible to users with role = 'system_admin'
 // no html output, only data or result arrays
 
@@ -14,9 +15,9 @@ require_once __DIR__ . '/../db.php';
 
 class AdminController {
 
-
-   
-    // redirects away if user is not system_admin
+    // ─────────────────────────────────────────────
+    // GUARD
+    // ─────────────────────────────────────────────
 
     public function requireAdmin(User $user): void {
         if ($user->role !== 'system_admin') {
@@ -25,8 +26,9 @@ class AdminController {
         }
     }
 
- 
+    // ─────────────────────────────────────────────
     // ARTICLE MANAGEMENT
+    // ─────────────────────────────────────────────
 
     // get all articles with author + category info, newest first
     public function getAllArticles(): array {
@@ -44,7 +46,7 @@ class AdminController {
         return array_map(fn($r) => new Article($r), $rows);
     }
 
-    // get single article by id (no author restriction - admin can see all)
+    // get single article by id (no author restriction)
     public function getArticleById(int $id): ?Article {
         $row = DB::first(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
@@ -60,31 +62,25 @@ class AdminController {
         return $row ? new Article($row) : null;
     }
 
-    // admin suspend: sets article status to 'suspended' — hides from all users
+    // sets article status to 'suspended' — hides from all users
     public function suspendArticle(int $articleId): array {
         if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
             return ['error' => 'Article not found.'];
         }
-        DB::execute(
-            "UPDATE articles SET status = 'suspended' WHERE id = ?",
-            [$articleId]
-        );
+        DB::execute("UPDATE articles SET status = 'suspended' WHERE id = ?", [$articleId]);
         return ['ok' => true];
     }
 
-    // admin unsuspend: restores article status back to 'published'
+    // restores article status back to 'published'
     public function unsuspendArticle(int $articleId): array {
         if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
             return ['error' => 'Article not found.'];
         }
-        DB::execute(
-            "UPDATE articles SET status = 'published' WHERE id = ?",
-            [$articleId]
-        );
+        DB::execute("UPDATE articles SET status = 'published' WHERE id = ?", [$articleId]);
         return ['ok' => true];
     }
 
-    // admin delete article: no author_id restriction
+    // delete article: no author_id restriction
     public function deleteArticle(int $articleId): array {
         $affected = DB::execute('DELETE FROM articles WHERE id = ?', [$articleId]);
         if ($affected === 0) {
@@ -99,7 +95,9 @@ class AdminController {
         return array_map(fn($r) => new Category($r), $rows);
     }
 
+    // ─────────────────────────────────────────────
     // USER MANAGEMENT
+    // ─────────────────────────────────────────────
 
     // get all users, newest first
     public function getAllUsers(): array {
@@ -114,7 +112,6 @@ class AdminController {
     }
 
     // update user suspension status only
-    // role is passed through unchanged so the SQL stays consistent
     // is_suspended: 1 = suspend, omitted = 0 = unsuspend
     public function updateUser(int $userId, array $input): array {
         $isSuspended = isset($input['is_suspended']) ? 1 : 0;
@@ -133,19 +130,19 @@ class AdminController {
 
     // summary counts for admin dashboard overview cards
     public function getStats(): array {
-        $totalArticles = DB::first("SELECT COUNT(*) AS cnt 
-        FROM articles 
-        WHERE status IN ('published', 'suspended')"
+        $totalArticles = DB::first(
+            "SELECT COUNT(*) AS cnt FROM articles WHERE status IN ('published', 'suspended')"
         )['cnt'] ?? 0;
-        
-        $totalUsers    = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
-        $premiumUsers  = DB::first("SELECT COUNT(*) AS cnt FROM users WHERE role = 'premium'")['cnt'] ?? 0;
-        $suspended     = DB::first('SELECT COUNT(*) AS cnt FROM users WHERE is_suspended = 1')['cnt'] ?? 0;
+        $totalUsers   = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
+        $premiumUsers = DB::first("SELECT COUNT(*) AS cnt FROM users WHERE role = 'premium'")['cnt'] ?? 0;
+        $suspended    = DB::first('SELECT COUNT(*) AS cnt FROM users WHERE is_suspended = 1')['cnt'] ?? 0;
 
         return compact('totalArticles', 'totalUsers', 'premiumUsers', 'suspended');
     }
 
+    // ─────────────────────────────────────────────
     // CATEGORY MANAGEMENT
+    // ─────────────────────────────────────────────
 
     // get all categories with article count
     public function getAllCategoriesWithCount(): array {
@@ -186,11 +183,7 @@ class AdminController {
         if (!$name) {
             return ['error' => 'Category name is required.'];
         }
-        $existing = DB::first(
-            'SELECT id FROM categories WHERE name = ? AND id != ?',
-            [$name, $categoryId]
-        );
-        if ($existing) {
+        if (DB::first('SELECT id FROM categories WHERE name = ? AND id != ?', [$name, $categoryId])) {
             return ['error' => 'A category with that name already exists.'];
         }
         if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
@@ -220,7 +213,112 @@ class AdminController {
         }
 
         DB::execute('DELETE FROM categories WHERE id = ?', [$categoryId]);
+        return ['ok' => true];
+    }
+
+    // ─────────────────────────────────────────────
+    // CATEGORY EXPERT MANAGEMENT
+    //
+    // How it works:
+    //   - categories.admin_user_id  → which user is assigned as expert for that category
+    //   - users.role = 'category_admin' → marks the user as a category expert
+    //
+    // Assigning:
+    //   1. Set categories.admin_user_id = user id
+    //   2. Set users.role = 'category_admin'
+    //
+    // Unassigning:
+    //   1. Set categories.admin_user_id = NULL
+    //   2. Set users.role back to 'free'
+    //      (only if they are not assigned to another category)
+    // ─────────────────────────────────────────────
+
+    // get all categories with their assigned expert (if any)
+    public function getCategoriesWithExperts(): array {
+        return DB::query(
+            'SELECT c.id, c.name, c.description, c.admin_user_id,
+                    u.full_name AS expert_name, u.email AS expert_email
+             FROM categories c
+             LEFT JOIN users u ON u.id = c.admin_user_id
+             ORDER BY c.name'
+        );
+    }
+
+    // get all users eligible to be category experts
+    // returns free users + existing category_admin users (so they show in the dropdown)
+    public function getEligibleExperts(): array {
+        return DB::query(
+            "SELECT id, full_name, email, role
+             FROM users
+             WHERE role IN ('free', 'category_admin')
+             AND is_suspended = 0
+             ORDER BY full_name"
+        );
+    }
+
+    // assign a user as the expert for a category
+    // - sets categories.admin_user_id
+    // - promotes user role to 'category_admin'
+    // - if category already had a different expert, demotes the old one first
+    public function assignExpert(int $categoryId, int $userId): array {
+        if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
+            return ['error' => 'Category not found.'];
+        }
+        if (!DB::first('SELECT id FROM users WHERE id = ?', [$userId])) {
+            return ['error' => 'User not found.'];
+        }
+
+        // if this category already has a different expert, unassign them first
+        $current = DB::first('SELECT admin_user_id FROM categories WHERE id = ?', [$categoryId]);
+        if ($current && $current['admin_user_id'] && $current['admin_user_id'] !== $userId) {
+            $this->demoteExpertIfUnused((int)$current['admin_user_id']);
+        }
+
+        // assign the new expert to this category
+        DB::execute(
+            'UPDATE categories SET admin_user_id = ? WHERE id = ?',
+            [$userId, $categoryId]
+        );
+
+        // promote the user to category_admin role
+        DB::execute(
+            "UPDATE users SET role = 'category_admin' WHERE id = ?",
+            [$userId]
+        );
 
         return ['ok' => true];
+    }
+
+    // unassign the expert from a category
+    // - clears categories.admin_user_id
+    // - demotes user back to 'free' only if they have no other category assigned
+    public function unassignExpert(int $categoryId): array {
+        $current = DB::first('SELECT admin_user_id FROM categories WHERE id = ?', [$categoryId]);
+        if (!$current) {
+            return ['error' => 'Category not found.'];
+        }
+
+        $expertId = $current['admin_user_id'];
+
+        // clear the category's expert
+        DB::execute('UPDATE categories SET admin_user_id = NULL WHERE id = ?', [$categoryId]);
+
+        // demote the user if they are no longer assigned to any category
+        if ($expertId) {
+            $this->demoteExpertIfUnused((int)$expertId);
+        }
+
+        return ['ok' => true];
+    }
+
+    // helper: demote a user back to 'free' if they are not assigned to any other category
+    private function demoteExpertIfUnused(int $userId): void {
+        $stillAssigned = DB::first(
+            'SELECT id FROM categories WHERE admin_user_id = ?',
+            [$userId]
+        );
+        if (!$stillAssigned) {
+            DB::execute("UPDATE users SET role = 'free' WHERE id = ?", [$userId]);
+        }
     }
 }
