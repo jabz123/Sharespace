@@ -571,7 +571,7 @@ page_head('Admin Dashboard');
             <?php endif; ?>
         </div>
 
-    <?php endif; ?>
+    
 
 </div>
 </main>
