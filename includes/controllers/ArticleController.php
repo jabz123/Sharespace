@@ -15,17 +15,20 @@ class ArticleController {
     public function getRecent(int $limit = 6): array {
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-            COUNT(v.id) AS view_count
+            COUNT(DISTINCT v.id) AS view_count,
+            COUNT(DISTINCT f.id) AS flag_count
             FROM articles a
             JOIN users u ON u.id = a.author_id
             JOIN categories c ON c.id = a.category_id
             LEFT JOIN article_views v ON v.article_id = a.id
+            LEFT JOIN article_flags f ON f.article_id = a.id
             WHERE a.status = "published"
             GROUP BY a.id
             ORDER BY a.published_at DESC
             LIMIT ?',
             [$limit]
         );
+
         return array_map(fn($r) => new Article($r), $rows);
     }
 
@@ -41,7 +44,7 @@ class ArticleController {
     public function getById(int $id): ?Article {
         $row = DB::first(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-             COUNT(v.id) AS view_count
+             COUNT(DISTINCT v.id) AS view_count
              FROM articles a
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
@@ -81,7 +84,7 @@ class ArticleController {
     public function getByAuthor(int $authorId): array {
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-             COUNT(v.id) AS view_count
+             COUNT(DISTINCT v.id) AS view_count
              FROM articles a
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
@@ -193,11 +196,13 @@ class ArticleController {
     public function getByCategory($category = null, $sort = 'recent', $search = null): array {
 
         $sql = 'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-                COUNT(v.id) AS view_count
+                COUNT(DISTINCT v.id) AS view_count,
+                COUNT(DISTINCT f.id) AS flag_count
                 FROM articles a
                 JOIN users u ON u.id = a.author_id
                 JOIN categories c ON c.id = a.category_id
                 LEFT JOIN article_views v ON v.article_id = a.id
+                LEFT JOIN article_flags f ON f.article_id = a.id
                 WHERE a.status = "published"';
                 
 
@@ -283,14 +288,16 @@ class ArticleController {
             u.full_name AS author_name,
             c.name AS category_name,
             s.created_at AS saved_at,
-            COUNT(v.id) AS view_count,
-            COUNT(DISTINCT cmt.id) AS comments_count
+            COUNT(DISTINCT v.id) AS view_count,
+            COUNT(DISTINCT cmt.id) AS comments_count,
+            COUNT(DISTINCT f.id) AS flag_count
             FROM articles a
             JOIN saved_articles s ON s.article_id = a.id
             JOIN users u ON u.id = a.author_id
             JOIN categories c ON c.id = a.category_id
             LEFT JOIN article_views v ON v.article_id = a.id
             LEFT JOIN comments cmt ON cmt.article_id = a.id
+            LEFT JOIN article_flags f ON f.article_id = a.id
             WHERE s.user_id = ?
             GROUP BY a.id, s.created_at
             ORDER BY s.created_at DESC

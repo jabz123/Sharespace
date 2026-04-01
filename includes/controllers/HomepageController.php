@@ -15,12 +15,14 @@ class HomepageController {
 
         $rows = DB::query(
         "SELECT a.*, u.full_name author_name, c.name category_name,
-        COUNT(v.id) AS view_count
+        COUNT(DISTINCT v.id) AS view_count,
+        COUNT(DISTINCT f.id) AS flag_count
         FROM articles a
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
         JOIN user_interests ui ON ui.category_id = a.category_id
         LEFT JOIN article_views v ON v.article_id = a.id
+        LEFT JOIN article_flags f ON f.article_id = a.id
         WHERE ui.user_id = ? AND a.status = 'published'
         GROUP BY a.id
         ORDER BY view_count DESC, a.published_at DESC
@@ -42,18 +44,25 @@ class HomepageController {
 
     // articles people in same age group are reading
     public function getPopularByAgeGroup($userId) {
-        $rows = DB::query(
-        "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-        (SELECT COUNT(*) FROM article_views v2 WHERE v2.article_id = a.id) AS view_count
+       $rows = DB::query(
+        "SELECT a.*, 
+        u.full_name AS author_name, 
+        c.name AS category_name,
+        COUNT(DISTINCT v.id) AS age_group_views,
+        (SELECT COUNT(*) FROM article_views v2 WHERE v2.article_id = a.id) AS view_count,
+        COUNT(DISTINCT f.id) AS flag_count
         FROM articles a
         JOIN article_views v ON v.article_id = a.id
         JOIN users reader ON reader.id = v.user_id
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
-        WHERE reader.age_group =
-            (SELECT age_group FROM users WHERE id = ?) AND a.status = 'published'
+        LEFT JOIN article_flags f ON f.article_id = a.id
+        WHERE reader.age_group = (
+            SELECT age_group FROM users WHERE id = ?
+        )
+        AND a.status = 'published'
         GROUP BY a.id
-        ORDER BY COUNT(v.id) DESC
+        ORDER BY age_group_views DESC
         LIMIT 3
         ", [$userId]);
 
@@ -65,17 +74,26 @@ class HomepageController {
     // articles popular with same gender readers
     public function getPopularByGender($userId) {
         $rows = DB::query(
-        "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-        (SELECT COUNT(*) FROM article_views v2 WHERE v2.article_id = a.id) AS view_count
+        "SELECT a.*, 
+        u.full_name AS author_name, 
+        c.name AS category_name,
+        COUNT(DISTINCT v.id) AS gender_views,
+        (SELECT COUNT(*) 
+        FROM article_views v2 
+        WHERE v2.article_id = a.id) AS view_count,
+        COUNT(DISTINCT f.id) AS flag_count
         FROM articles a
         JOIN article_views v ON v.article_id = a.id
         JOIN users reader ON reader.id = v.user_id
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
-        WHERE reader.gender =
-            (SELECT gender FROM users WHERE id = ?) AND a.status = 'published'
+        LEFT JOIN article_flags f ON f.article_id = a.id
+        WHERE reader.gender = (
+            SELECT gender FROM users WHERE id = ?
+        )
+        AND a.status = 'published'
         GROUP BY a.id
-        ORDER BY COUNT(v.id) DESC
+        ORDER BY gender_views DESC
         LIMIT 3
         ", [$userId]);
 
@@ -88,11 +106,13 @@ class HomepageController {
     public function getLatest(int $limit = 6) {
         $rows = DB::query(
         "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-        COUNT(v.id) AS view_count
+        COUNT(DISTINCT v.id) AS view_count,
+        COUNT(DISTINCT f.id) AS flag_count
         FROM articles a
         JOIN users u ON u.id = a.author_id
         JOIN categories c ON c.id = a.category_id
         LEFT JOIN article_views v ON v.article_id = a.id
+        LEFT JOIN article_flags f ON f.article_id = a.id
         WHERE a.status = 'published'
         GROUP BY a.id
         ORDER BY a.published_at DESC

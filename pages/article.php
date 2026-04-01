@@ -35,6 +35,11 @@ $isSaved = DB::first(
     [$user->id, $article->id]
 ) ? true : false;
 
+$alreadyFlagged = DB::first(
+    "SELECT id FROM article_flags WHERE user_id = ? AND article_id = ?",
+    [$user->id, $article->id]
+) !== null;
+
 // record article view
 // insert ignore prevents duplicate views from same user
 DB::execute(
@@ -136,8 +141,9 @@ page_head($article->title);
         data-active="/public/icons/bookmarkactive.png">
         </button>
 
-        <button class="icon-btn" id="flagBtn" title="Flag">
-            <img src="/public/icons/flag.png" alt="Flag">
+        <button class="icon-btn <?= $alreadyFlagged ? 'flagged' : '' ?>" id="flagBtn" data-article-id="<?= $article->id ?>"
+        <?= $alreadyFlagged ? 'disabled' : '' ?> title="<?= $alreadyFlagged ? 'Already flagged' : 'Flag' ?>">
+        <img src="/public/icons/flag.png" alt="Flag">
         </button>
 
         <button class="icon-btn" id="shareBtn" title="Share">
@@ -296,6 +302,52 @@ page_head($article->title);
     </main>
 </div>
 
+<!-- FLAG MODAL FORM -->
+<div id="flagModal" class="modal hidden">
+    <div class="modal-overlay"></div>
+
+    <div class="modal-content">
+        <h2>🚩 Report Article</h2>
+        <p class="modal-sub">Help us keep SharedSpace safe and reliable.</p>
+
+        <form id="flagForm">
+            <input type="hidden" name="article_id" value="<?= $article->id ?>">
+
+            <!-- Reasons -->
+            <div class="form-group">
+                <label>Select a reason</label>
+
+                <label><input type="radio" name="reason" value="Inappropriate language" required> Inappropriate language</label>
+                <label><input type="radio" name="reason" value="Misinformation"> Misinformation</label>
+                <label><input type="radio" name="reason" value="Hate speech"> Hate speech</label>
+                <label><input type="radio" name="reason" value="Violence"> Violence</label>
+                <label><input type="radio" name="reason" value="Advertising"> Advertising</label>
+                <label><input type="radio" name="reason" value="Other"> Other</label>
+            </div>
+
+            <!-- Additional info -->
+            <div class="form-group">
+                <label>Tell us more</label>
+                <textarea 
+                    name="details" 
+                    id="flagDetails"
+                    rows="3"
+                    placeholder="Provide more details..."
+                    maxlength="100"
+                    required
+                ></textarea>
+                <small id="charCount">0/100</small>
+            </div>
+
+            <!-- Actions -->
+            <div class="modal-actions">
+                <button type="button" id="closeModal" class="btn btn-ghost">Cancel</button>
+                <button type="submit" class="btn btn-danger">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+
    <script>
     const saveBtn = document.getElementById("saveBtn");
     const saveIcon = document.getElementById("saveIcon");
@@ -320,4 +372,5 @@ page_head($article->title);
 
     });
     </script>
+    
 <?php page_foot(); ?>

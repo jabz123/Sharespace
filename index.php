@@ -232,7 +232,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                                 <div class="preview-stats">
                                     <span>👁 <?= $article->viewCount ?? 0 ?></span>
                                     <span>💬 <?= $commentCount ?></span>
-                                    <span>🚩 0</span>
+                                    <span>🚩 <?= $article->flagCount ?></span>
                                 </div>
                             </div>
                         </a>

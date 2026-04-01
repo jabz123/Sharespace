@@ -34,7 +34,7 @@ class AdminController {
     public function getAllArticles(): array {
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-             COUNT(v.id) AS view_count
+             COUNT(DISTINCT v.id) AS view_count
              FROM articles a
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id
@@ -50,7 +50,7 @@ class AdminController {
     public function getArticleById(int $id): ?Article {
         $row = DB::first(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
-             COUNT(v.id) AS view_count
+             COUNT(DISTINCT v.id) AS view_count
              FROM articles a
              JOIN users u ON u.id = a.author_id
              JOIN categories c ON c.id = a.category_id

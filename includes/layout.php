@@ -27,6 +27,11 @@ function page_head(string $title): void { ?>
 <?php }
 
 function page_foot(): void { ?>
+    <div id="toast" class="toast hidden">
+        <span id="toastMessage"></span>
+        <button id="toastClose">✕</button>
+    </div>
+
     <script src="/public/js/app.js"></script>
 </body>
 </html>
@@ -244,7 +249,7 @@ function article_card(Article $article, User $user): void {
 
         <div class="meta-item">
             <span class="meta-icon">🚩</span>
-            <span class="meta-count">0</span>
+            <span class="meta-count"><?= $article->flagCount ?></span>
         </div>
 
     </div>

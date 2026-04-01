@@ -34,3 +34,100 @@ if(searchInput && clearBtn){
     });
 
 }
+
+
+// FLAG MODAL 
+const flagBtn = document.getElementById('flagBtn');
+const flagModal = document.getElementById('flagModal');
+const closeModal = document.getElementById('closeModal');
+const overlay = document.querySelector('.modal-overlay');
+
+// open modal
+if (flagBtn && flagModal) {
+    flagBtn.addEventListener('click', () => {
+        flagModal.classList.remove('hidden');
+    });
+}
+
+// close modal (cancel button)
+if (closeModal && flagModal) {
+    closeModal.addEventListener('click', () => {
+        flagModal.classList.add('hidden');
+    });
+}
+
+// close modal (click outside)
+if (overlay && flagModal) {
+    overlay.addEventListener('click', () => {
+        flagModal.classList.add('hidden');
+    });
+}
+
+
+// character counter limit.
+const detailsInput = document.getElementById('flagDetails');
+const charCount = document.getElementById('charCount');
+const maxLength = 100;
+
+if (detailsInput && charCount) {
+    detailsInput.addEventListener('input', () => {
+        const length = detailsInput.value.length;
+        charCount.textContent = `${length}/${maxLength}`;
+    });
+}
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastClose = document.getElementById('toastClose');
+
+    toastMessage.textContent = message;
+    toast.classList.remove('hidden');
+
+    // auto hide after 3s
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+
+    // manual close
+    toastClose.onclick = () => {
+        toast.classList.add('hidden');
+    };
+}
+
+
+// submit form for flagged article
+const flagForm = document.getElementById('flagForm');
+
+if (flagForm && flagBtn && flagModal) {
+    flagForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(flagForm);
+
+        try {
+            const res = await fetch('/actions/flag-article.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+
+         if (data.ok) {
+        flagBtn.disabled = true;
+        flagBtn.classList.add('flagged');
+        flagBtn.title = 'Already flagged';
+
+        flagModal.classList.add('hidden');
+
+        showToast('Report submitted successfully. Our team will review it.');
+        }
+        else {
+            alert(data.error || 'Something went wrong.');
+        }
+
+        } catch (err) {
+            console.error(err);
+            alert('Network error.');
+        }
+    });
+}
