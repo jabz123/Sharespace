@@ -1,6 +1,6 @@
 <?php
 // combined system admin dashboard
-// tabs: articles (view/suspend/unsuspend), users (suspend/unsuspend), categories (CRUD)
+// tabs: articles | users | categories | category experts
 // only accessible to users with role = 'system_admin'
 
 require_once __DIR__ . '/../includes/layout.php';
@@ -12,10 +12,9 @@ $adminCtrl = new AdminController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
-$adminCtrl->requireAdmin($user); // redirects non-admins to /dashboard.php
+$adminCtrl->requireAdmin($user);
 
 // ── active tab ───────────────────────────────────────────────────
-// ?tab=articles (default) | ?tab=users | ?tab=categories
 $tab = $_GET['tab'] ?? 'articles';
 
 // ── handle all POST actions ──────────────────────────────────────
@@ -72,6 +71,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         redirect('/pages/admin-dashboard.php?tab=categories', $result['error']);
     }
+
+    // ── CATEGORY EXPERT ACTIONS ───────────────────────────────────
+    if ($action === 'assign_expert') {
+        $result = $adminCtrl->assignExpert(
+            (int)($_POST['category_id'] ?? 0),
+            (int)($_POST['user_id']     ?? 0)
+        );
+        if (isset($result['ok'])) {
+            redirect('/pages/admin-dashboard.php?tab=experts', null, 'Category expert assigned successfully.');
+        }
+        redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
+    }
+
+    if ($action === 'unassign_expert') {
+        $result = $adminCtrl->unassignExpert((int)($_POST['category_id'] ?? 0));
+        if (isset($result['ok'])) {
+            redirect('/pages/admin-dashboard.php?tab=experts', null, 'Category expert removed.');
+        }
+        redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
+    }
 }
 
 // ── load data depending on tab ───────────────────────────────────
@@ -82,6 +101,9 @@ if ($tab === 'users') {
     $allUsers = $adminCtrl->getAllUsers();
 } elseif ($tab === 'categories') {
     $allCategories = $adminCtrl->getAllCategoriesWithCount();
+} elseif ($tab === 'experts') {
+    $expertCategories  = $adminCtrl->getCategoriesWithExperts();
+    $eligibleExperts   = $adminCtrl->getEligibleExperts();
 } else {
     $allArticles = $adminCtrl->getAllArticles();
 }
@@ -128,13 +150,15 @@ page_head('Admin Dashboard');
            class="btn <?= $tab === 'categories' ? 'btn-primary' : 'btn-ghost' ?>">
             📋 Manage Categories
         </a>
+        <a href="/pages/admin-dashboard.php?tab=experts"
+           class="btn <?= $tab === 'experts'    ? 'btn-primary' : 'btn-ghost' ?>">
+            🎓 Manage Category Experts
+        </a>
     </div>
 
 
     <!-- ════════════════════════════════════════════════════════════
          TAB: ARTICLES
-         admin can: view, suspend, unsuspend
-         admin cannot: edit
     ════════════════════════════════════════════════════════════ -->
     <?php if ($tab === 'articles'): ?>
 
@@ -188,12 +212,9 @@ page_head('Admin Dashboard');
                                 <?php endif; ?>
                             </td>
                             <td style="padding:12px 8px;text-align:right;white-space:nowrap">
-
-                                <!-- view: opens article in new tab (read only) -->
                                 <a href="/pages/article.php?id=<?= $article->id ?>" target="_blank"
                                    class="btn btn-ghost btn-sm">👁 View</a>
 
-                                <!-- suspend / unsuspend toggle -->
                                 <?php if ($isSuspended): ?>
                                 <form method="POST" style="display:inline;margin:0">
                                     <input type="hidden" name="action"     value="unsuspend_article">
@@ -215,7 +236,6 @@ page_head('Admin Dashboard');
                                     </button>
                                 </form>
                                 <?php endif; ?>
-
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -230,8 +250,6 @@ page_head('Admin Dashboard');
 
     <!-- ════════════════════════════════════════════════════════════
          TAB: USERS
-         admin can: suspend, unsuspend
-         admin cannot: delete, change role
     ════════════════════════════════════════════════════════════ -->
     <?php if ($tab === 'users'): ?>
 
@@ -259,7 +277,7 @@ page_head('Admin Dashboard');
                     <?php foreach ($allUsers as $u): ?>
                         <tr style="border-bottom:1px solid var(--border);
                             <?= $u->id === $user->id ? 'background:var(--primary-lt)' : '' ?>
-                            <?= $u->isSuspended      ? 'opacity:0.55'                : '' ?>">
+                            <?= $u->isSuspended      ? ';opacity:0.55'               : '' ?>">
                             <td style="padding:12px 8px;color:var(--muted)">#<?= $u->id ?></td>
                             <td style="padding:12px 8px;font-weight:600">
                                 <?= htmlspecialchars($u->fullName) ?>
@@ -273,7 +291,7 @@ page_head('Admin Dashboard');
                                 $roleStyle = match($u->role) {
                                     'system_admin'   => 'background:var(--primary);color:#fff',
                                     'premium'        => 'background:var(--warning);color:#fff',
-                                    'category_admin' => 'background:#d1fae5;color:#065f46',
+                                    'category_admin' => 'background:#7c3aed;color:#fff',
                                     default          => ''
                                 };
                                 ?>
@@ -295,11 +313,9 @@ page_head('Admin Dashboard');
                             <td style="padding:12px 8px;text-align:right">
                                 <?php if ($u->id !== $user->id): ?>
                                     <?php if ($u->isSuspended): ?>
-                                    <!-- unsuspend button -->
                                     <form method="POST" style="display:inline;margin:0">
                                         <input type="hidden" name="action"  value="update_user">
                                         <input type="hidden" name="user_id" value="<?= $u->id ?>">
-                                        <!-- is_suspended omitted = 0 = unsuspend -->
                                         <button type="submit" class="btn btn-ghost btn-sm"
                                                 style="color:var(--success)"
                                                 onclick="return confirm('Restore access for \'<?= htmlspecialchars(addslashes($u->fullName)) ?>\'?')">
@@ -307,7 +323,6 @@ page_head('Admin Dashboard');
                                         </button>
                                     </form>
                                     <?php else: ?>
-                                    <!-- suspend button -->
                                     <form method="POST" style="display:inline;margin:0">
                                         <input type="hidden" name="action"       value="update_user">
                                         <input type="hidden" name="user_id"      value="<?= $u->id ?>">
@@ -336,7 +351,6 @@ page_head('Admin Dashboard');
 
     <!-- ════════════════════════════════════════════════════════════
          TAB: CATEGORIES
-         admin can: create, edit, delete
     ════════════════════════════════════════════════════════════ -->
     <?php if ($tab === 'categories'): ?>
 
@@ -410,19 +424,14 @@ page_head('Admin Dashboard');
                 <form method="POST" id="categoryForm">
                     <input type="hidden" name="action"      id="formAction" value="create_category">
                     <input type="hidden" name="category_id" id="categoryId" value="">
-
                     <div style="margin-bottom:14px">
                         <label class="form-label">Category Name</label>
-                        <input type="text" name="name" id="catName" class="form-input"
-                               maxlength="100" required>
+                        <input type="text" name="name" id="catName" class="form-input" maxlength="100" required>
                     </div>
-
                     <div style="margin-bottom:20px">
                         <label class="form-label">Description</label>
-                        <textarea name="description" id="catDesc" class="form-input"
-                                  maxlength="500" rows="3"></textarea>
+                        <textarea name="description" id="catDesc" class="form-input" maxlength="500" rows="3"></textarea>
                     </div>
-
                     <div style="display:flex;gap:8px;justify-content:flex-end">
                         <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="submitBtn">Add</button>
@@ -459,6 +468,122 @@ page_head('Admin Dashboard');
         </script>
 
     <?php endif; // end categories tab ?>
+
+
+    <!-- ════════════════════════════════════════════════════════════
+         TAB: CATEGORY EXPERTS
+         system admin assigns one category_admin user per category
+         uses: categories.admin_user_id + users.role = 'category_admin'
+    ════════════════════════════════════════════════════════════ -->
+    <?php if ($tab === 'experts'): ?>
+
+        <div class="card" style="padding:24px">
+            <div style="margin-bottom:20px">
+                <h2 style="font-size:17px;font-weight:700;margin-bottom:6px">
+                    🎓 Manage Category Experts
+                </h2>
+                <p style="font-size:13px;color:var(--muted)">
+                    Assign one expert per category. Experts get the <strong style="font-weight:600">Category Admin</strong> role
+                    and can manage articles in their assigned category.
+                </p>
+            </div>
+
+            <?php if (empty($expertCategories)): ?>
+                <p class="text-muted" style="text-align:center;padding:32px">No categories found.</p>
+            <?php else: ?>
+            <div style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse;font-size:14px">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--border)">
+                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Category</th>
+                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Assigned Expert</th>
+                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Expert Email</th>
+                            <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($expertCategories as $cat): ?>
+                        <tr style="border-bottom:1px solid var(--border)">
+                            <td style="padding:14px 8px">
+                                <span class="category-tag"><?= htmlspecialchars($cat['name']) ?></span>
+                            </td>
+                            <td style="padding:14px 8px;font-weight:600">
+                                <?php if ($cat['admin_user_id']): ?>
+                                    <?= htmlspecialchars($cat['expert_name']) ?>
+                                    <span style="font-size:10px;font-weight:500;padding:1px 7px;border-radius:99px;
+                                                 background:#ede9fe;color:#7c3aed;margin-left:6px">
+                                        Category Admin
+                                    </span>
+                                <?php else: ?>
+                                    <span style="color:var(--muted);font-weight:400;font-style:italic">No expert assigned</span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="padding:14px 8px;color:var(--muted)">
+                                <?= $cat['admin_user_id'] ? htmlspecialchars($cat['expert_email']) : '—' ?>
+                            </td>
+                            <td style="padding:14px 8px;text-align:right;white-space:nowrap">
+
+                                <!-- assign / reassign: dropdown to pick a user -->
+                                <details style="display:inline-block;position:relative">
+                                    <summary class="btn btn-ghost btn-sm"
+                                             style="cursor:pointer;list-style:none">
+                                        <?= $cat['admin_user_id'] ? '🔄 Reassign' : '➕ Assign' ?>
+                                    </summary>
+                                    <div style="position:absolute;right:0;top:calc(100% + 4px);
+                                                background:var(--card);border:1px solid var(--border);
+                                                border-radius:var(--radius);padding:16px;min-width:260px;
+                                                z-index:50;box-shadow:var(--shadow-elevated)">
+                                        <form method="POST">
+                                            <input type="hidden" name="action"      value="assign_expert">
+                                            <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
+
+                                            <div style="margin-bottom:12px">
+                                                <label class="form-label" style="font-size:12px">
+                                                    Select user to assign as expert for
+                                                    <strong style="font-weight:600"><?= htmlspecialchars($cat['name']) ?></strong>
+                                                </label>
+                                                <select name="user_id" class="form-input" style="font-size:13px" required>
+                                                    <option value="">— choose a user —</option>
+                                                    <?php foreach ($eligibleExperts as $expert): ?>
+                                                    <option value="<?= $expert['id'] ?>"
+                                                        <?= $expert['id'] == $cat['admin_user_id'] ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($expert['full_name']) ?>
+                                                        (<?= htmlspecialchars($expert['email']) ?>)
+                                                    </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary btn-sm" style="width:100%">
+                                                ✅ Confirm Assignment
+                                            </button>
+                                        </form>
+                                    </div>
+                                </details>
+
+                                <!-- unassign button — only shown if an expert is assigned -->
+                                <?php if ($cat['admin_user_id']): ?>
+                                <form method="POST" style="display:inline;margin:0">
+                                    <input type="hidden" name="action"      value="unassign_expert">
+                                    <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
+                                    <button type="submit" class="btn btn-ghost btn-sm"
+                                            style="color:var(--danger)"
+                                            onclick="return confirm('Remove \'<?= htmlspecialchars(addslashes($cat['expert_name'])) ?>\' as expert for \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?')">
+                                        ✕ Remove
+                                    </button>
+                                </form>
+                                <?php endif; ?>
+
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php endif; ?>
+        </div>
+
+    <?php endif; // end experts tab ?>
 
 </div><!-- /.page-content -->
 </main>
