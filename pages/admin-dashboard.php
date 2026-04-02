@@ -497,11 +497,19 @@ page_head('Admin Dashboard');
                             </td>
                             <td style="padding:14px 8px;font-weight:600">
                                 <?php if ($cat['admin_user_id']): ?>
-                                    <?= htmlspecialchars($cat['expert_name']) ?>
-                                    <span style="font-size:10px;font-weight:500;padding:1px 7px;border-radius:99px;
-                                                 background:#ede9fe;color:#7c3aed;margin-left:6px">
-                                        Category Admin
-                                    </span>
+                                    <div>
+                                        <?= htmlspecialchars($cat['expert_name']) ?>
+                                        <div style="margin-top:4px">
+                                            <span style="font-size:10px;font-weight:500;padding:1px 7px;border-radius:99px;
+                                                         background:#ede9fe;color:#7c3aed">
+                                                Category Admin
+                                            </span>
+                                            <span style="font-size:10px;font-weight:500;padding:1px 7px;border-radius:99px;
+                                                         background:#dbeafe;color:#1d4ed8;margin-left:4px">
+                                                <?= htmlspecialchars($cat['name']) ?>
+                                            </span>
+                                        </div>
+                                    </div>
                                 <?php else: ?>
                                     <span style="color:var(--muted);font-weight:400;font-style:italic">No expert assigned</span>
                                 <?php endif; ?>
