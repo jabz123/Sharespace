@@ -179,7 +179,7 @@ a:hover {
 .role-badge.category-name {
     background: #ede9fe;
     color: #7c3aed;
-    display: block;
+    display: inline-block;
 }
 
 .sidebar-nav {

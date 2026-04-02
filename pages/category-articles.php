@@ -43,12 +43,10 @@ page_head('Category Articles');
 
 <div class="page-content">
 
-    <div style="margin-bottom:24px">
-        <h1 class="dash-title" style="font-size:20px">Category Articles</h1>
-        <?php if ($assignedCategory): ?>
-        <p class="dash-subtitle"><?= htmlspecialchars($assignedCategory['name']) ?> – all articles in your category</p>
-        <?php endif; ?>
-    </div>
+    <?php
+    $subtitle = $assignedCategory ? htmlspecialchars($assignedCategory['name']) . ' – all articles in your category' : '';
+    dash_header('Category Articles', $subtitle);
+    ?>
 
     <?php if (!$assignedCategory): ?>
         <div class="alert alert-error">You are not assigned to any category.</div>
