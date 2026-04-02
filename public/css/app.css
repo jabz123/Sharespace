@@ -176,6 +176,12 @@ a:hover {
     color: #065f46;
 }
 
+.role-badge.category-name {
+    background: #ede9fe;
+    color: #7c3aed;
+    display: block;
+}
+
 .sidebar-nav {
     flex: 1;
     padding: 12px;
