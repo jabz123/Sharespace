@@ -52,62 +52,27 @@ dash_header('Category Articles', $subtitle);
     <?php if (!$assignedCategory): ?>
         <div class="alert alert-error">You are not assigned to any category.</div>
 
-    <?php elseif (empty($articles)): ?>
-        <p class="text-muted">No articles found in the <strong><?= htmlspecialchars($assignedCategory['name']) ?></strong> category yet.</p>
-
     <?php else: ?>
-        <div style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse;font-size:14px">
-                <thead>
-                    <tr style="border-bottom:2px solid var(--border)">
-                        <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">ID</th>
-                        <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Title</th>
-                        <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Author</th>
-                        <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Published</th>
-                        <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Views</th>
-                        <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Status</th>
-                        <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($articles as $article): ?>
-                    <?php $isSuspended = $article->status === 'suspended'; ?>
-                    <tr style="border-bottom:1px solid var(--border);<?= $isSuspended ? 'opacity:0.55' : '' ?>">
-                        <td style="padding:12px 8px;color:var(--muted)">#<?= $article->id ?></td>
-                        <td style="padding:12px 8px;max-width:260px">
-                            <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                                <?= htmlspecialchars($article->title) ?>
-                            </div>
-                        </td>
-                        <td style="padding:12px 8px"><?= htmlspecialchars($article->authorName) ?></td>
-                        <td style="padding:12px 8px;color:var(--muted);white-space:nowrap">
-                            <?= relative_time($article->publishedAt) ?>
-                        </td>
-                        <td style="padding:12px 8px;color:var(--muted)"><?= $article->viewCount ?></td>
-                        <td style="padding:12px 8px">
-                            <?php if ($isSuspended): ?>
-                                <span style="font-size:11px;font-weight:600;color:var(--danger);
-                                             background:#fff0f0;padding:2px 8px;border-radius:99px;
-                                             border:1px solid var(--danger)">🚫 Suspended</span>
-                            <?php else: ?>
-                                <span style="font-size:11px;font-weight:600;color:var(--success);
-                                             background:#f0fff4;padding:2px 8px;border-radius:99px;
-                                             border:1px solid var(--success)">✅ Published</span>
-                            <?php endif; ?>
-                        </td>
-                        <td style="padding:12px 8px;text-align:right">
-                            <a href="/pages/article.php?id=<?= $article->id ?>" target="_blank"
-                               class="btn btn-ghost btn-sm">👁 View</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
+        <!-- Articles counter stat card -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px">
+            <div class="card" style="padding:20px 24px;text-align:center">
+                <div style="font-size:28px;margin-bottom:6px">📰</div>
+                <div style="font-size:24px;font-weight:800;color:var(--primary)"><?= count($articles) ?></div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px">Articles</div>
+            </div>
         </div>
-        <p style="margin-top:12px;font-size:13px;color:var(--muted)">
-            <?= count($articles) ?> article<?= count($articles) !== 1 ? 's' : '' ?> in
-            <strong><?= htmlspecialchars($assignedCategory['name']) ?></strong>
-        </p>
+
+        <?php if (empty($articles)): ?>
+            <p class="text-muted">No articles found in the <strong><?= htmlspecialchars($assignedCategory['name']) ?></strong> category yet.</p>
+
+        <?php else: ?>
+            <div class="article-grid">
+                <?php foreach ($articles as $article): ?>
+                    <?php article_card($article, $user); ?>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
     <?php endif; ?>
 
 </div>
