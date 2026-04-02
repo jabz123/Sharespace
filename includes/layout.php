@@ -56,6 +56,7 @@ function sidebar(User $user): void {
         $links = [
             ['href' => '/pages/category-admin-dashboard.php', 'icon' => '🏠', 'label' => 'Home'],
             ['href' => '/pages/browse.php',                   'icon' => '👁', 'label' => 'Browse Articles'],
+            ['href' => '/pages/category-articles.php',        'icon' => '📋', 'label' => 'Category Articles'],
             ['href' => '/pages/profile.php',                  'icon' => '👤', 'label' => 'Profile'],
         ];
     } else {
