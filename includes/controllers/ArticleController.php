@@ -241,7 +241,7 @@ class ArticleController {
     // returns Article[] array
     public function getAllByCategory(int $categoryId): array {
         $rows = DB::query(
-            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+            "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count,
              COUNT(DISTINCT f.id) AS flag_count
              FROM articles a
@@ -251,7 +251,7 @@ class ArticleController {
              LEFT JOIN article_flags f ON f.article_id = a.id
              WHERE a.category_id = ? AND a.status IN ('published', 'suspended')
              GROUP BY a.id
-             ORDER BY a.published_at DESC',
+             ORDER BY a.published_at DESC",
             [$categoryId]
         );
         return array_map(fn($r) => new Article($r), $rows);
