@@ -15,7 +15,7 @@ $articleCtrl = new ArticleController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
-$isPremium = ($user->role === 'premium');
+$canUploadImage = ($user->role === 'premium' || $user->role === 'category_admin');
 
 //load categories for dropdown
 $categories = $articleCtrl->getAllCategories();
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // handle image upload for premium users
-    if ($isPremium && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
+    if ($canUploadImage && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
 
         $uploadDir = __DIR__ . '/../public/uploads/articles/';
         if (!is_dir($uploadDir)) {
@@ -144,7 +144,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
 
-                <?php if ($isPremium): ?>
+                <?php if ($canUploadImage): ?>
                 <div class="image-upload-container">
                     <div class="image-preview" id="imagePreview">
                     <?php if ($isEdit && !empty($article->imagePath)): ?>
