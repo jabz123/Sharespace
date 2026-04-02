@@ -54,15 +54,6 @@ page_head('Category Articles');
         <div class="alert alert-error">You are not assigned to any category.</div>
 
     <?php else: ?>
-        <!-- Articles counter stat card -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px">
-            <div class="card" style="padding:20px 24px;text-align:center">
-                <div style="font-size:28px;margin-bottom:6px">📰</div>
-                <div style="font-size:24px;font-weight:800;color:var(--primary)"><?= count($articles) ?></div>
-                <div style="font-size:12px;color:var(--muted);margin-top:2px">Articles</div>
-            </div>
-        </div>
-
         <?php if (empty($articles)): ?>
             <p class="text-muted">No articles found in the <strong><?= htmlspecialchars($assignedCategory['name']) ?></strong> category yet.</p>
 
