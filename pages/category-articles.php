@@ -41,12 +41,12 @@ page_head('Category Articles');
 <main>
 <?php flash_messages(); ?>
 
-<div class="page-content">
+<?php
+$subtitle = $assignedCategory ? htmlspecialchars($assignedCategory['name']) . ' – all articles in your category' : '';
+dash_header('Category Articles', $subtitle);
+?>
 
-    <?php
-    $subtitle = $assignedCategory ? htmlspecialchars($assignedCategory['name']) . ' – all articles in your category' : '';
-    dash_header('Category Articles', $subtitle);
-    ?>
+<div class="page-content">
 
     <?php if (!$assignedCategory): ?>
         <div class="alert alert-error">You are not assigned to any category.</div>
