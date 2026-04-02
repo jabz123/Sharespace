@@ -39,15 +39,16 @@ page_head('Category Articles');
 <div class="dashboard-layout">
 <?php sidebar($user); ?>
 <main>
-<?php
-$subtitle = $assignedCategory
-    ? htmlspecialchars($assignedCategory['name']) . ' – all articles in your category'
-    : 'No category assigned';
-dash_header('Category Articles', $subtitle);
-?>
 <?php flash_messages(); ?>
 
 <div class="page-content">
+
+    <div style="margin-bottom:24px">
+        <h1 class="dash-title" style="font-size:20px">Category Articles</h1>
+        <?php if ($assignedCategory): ?>
+        <p class="dash-subtitle"><?= htmlspecialchars($assignedCategory['name']) ?> – all articles in your category</p>
+        <?php endif; ?>
+    </div>
 
     <?php if (!$assignedCategory): ?>
         <div class="alert alert-error">You are not assigned to any category.</div>
