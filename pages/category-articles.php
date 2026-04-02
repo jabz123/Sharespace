@@ -28,9 +28,11 @@ $assignedCategory = DB::first(
     [$user->id]
 );
 
+$search = trim($_GET['search'] ?? '') ?: null;
+
 // fetch all articles for the assigned category
 $articles = $assignedCategory
-    ? $articleCtrl->getAllByCategory((int)$assignedCategory['id'])
+    ? $articleCtrl->getAllByCategory((int)$assignedCategory['id'], $search)
     : [];
 
 page_head('Category Articles');
@@ -52,6 +54,30 @@ dash_header('Category Articles', $subtitle);
         <div class="alert alert-error">You are not assigned to any category.</div>
 
     <?php else: ?>
+
+        <div class="filter-row">
+            <p class="article-count"><?= count($articles) ?> article<?= count($articles) !== 1 ? 's' : '' ?></p>
+
+            <form method="GET" class="search-bar">
+
+                <div class="search-input-wrapper">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        name="search"
+                        placeholder="Search by title or writer"
+                        value="<?= htmlspecialchars($search ?? '') ?>">
+
+                    <button type="button" id="clearSearch" class="clear-btn"><img src="/public/icons/clearicon.png" alt="Clear"></button>
+
+                </div>
+
+                <button type="submit" class="search-btn"> <img src="/public/icons/searchicon.png" alt="Search"></button>
+
+            </form>
+        </div>
+
         <?php if (empty($articles)): ?>
             <p class="text-muted">No articles found in the <strong><?= htmlspecialchars($assignedCategory['name']) ?></strong> category yet.</p>
 
