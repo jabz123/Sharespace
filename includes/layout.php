@@ -9,6 +9,7 @@
 //shared layout functions for rendering page head, sidebar, flash messages, all that shit
 
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/ArticleController.php';
 require_once __DIR__ . '/controllers/CommentController.php';
@@ -94,7 +95,15 @@ function sidebar(User $user): void {
             <?php elseif ($user->role === 'system_admin'): ?>
                 <span class="role-badge system-admin">System Admin</span>
             <?php elseif ($user->role === 'category_admin'): ?>
-                <span class="role-badge category-admin">Category Admin</span>
+                <span class="role-badge category-admin">Category Expert</span>
+                <?php
+                $assignedCategory = DB::first(
+                    'SELECT name FROM categories WHERE admin_user_id = ?',
+                    [$user->id]
+                );
+                if ($assignedCategory): ?>
+                <span class="role-badge category-name"><?= htmlspecialchars($assignedCategory['name']) ?></span>
+                <?php endif; ?>
             <?php else: ?>
             <span class="role-badge free">Free</span>
              <?php endif; ?>
