@@ -43,15 +43,17 @@ page_head('Category Articles');
 
 <div class="page-content">
 
+    <div style="margin-bottom:24px">
+        <h1 class="dash-title" style="font-size:20px">Category Articles</h1>
+        <?php if ($assignedCategory): ?>
+        <p class="dash-subtitle"><?= htmlspecialchars($assignedCategory['name']) ?> – all articles in your category</p>
+        <?php endif; ?>
+    </div>
+
     <?php if (!$assignedCategory): ?>
         <div class="alert alert-error">You are not assigned to any category.</div>
 
     <?php else: ?>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-            <h1 class="dash-title" style="font-size:18px;margin:0">📰 <?= htmlspecialchars($assignedCategory['name']) ?></h1>
-            <span style="font-size:12px;color:var(--muted);background:var(--secondary);border:1px solid var(--border);border-radius:999px;padding:2px 10px"><?= count($articles) ?> article<?= count($articles) !== 1 ? 's' : '' ?></span>
-        </div>
-
         <?php if (empty($articles)): ?>
             <p class="text-muted">No articles found in the <strong><?= htmlspecialchars($assignedCategory['name']) ?></strong> category yet.</p>
 
