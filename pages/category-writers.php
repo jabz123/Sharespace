@@ -92,12 +92,12 @@ dash_header('Category Writers', $subtitle);
                     <?php endif; ?>
                 </div>
                 <div class="writer-name"><?= htmlspecialchars($writer['full_name']) ?></div>
-                <?php if (!empty($writer['bio'])): ?>
-                    <div class="writer-bio"><?= htmlspecialchars($writer['bio']) ?></div>
-                <?php endif; ?>
                 <div class="writer-article-count">
                     <?= (int)$writer['article_count'] ?> <?= htmlspecialchars($assignedCategory['name']) ?> <?= $articleWord ?>
                 </div>
+                <?php if (!empty($writer['bio'])): ?>
+                    <div class="writer-bio"><em><?= htmlspecialchars($writer['bio']) ?></em></div>
+                <?php endif; ?>
             </div>
             <?php endforeach; ?>
         </div>
