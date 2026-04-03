@@ -31,11 +31,11 @@ $assignedCategory = DB::first(
 $writers = [];
 if ($assignedCategory) {
     $writers = DB::query(
-        'SELECT u.id, u.full_name, u.avatar_url, COUNT(a.id) AS article_count
+        'SELECT u.id, u.full_name, u.avatar_url, u.bio, COUNT(a.id) AS article_count
          FROM users u
          JOIN articles a ON a.author_id = u.id
          WHERE a.category_id = ? AND a.status = \'published\'
-         GROUP BY u.id, u.full_name, u.avatar_url
+         GROUP BY u.id, u.full_name, u.avatar_url, u.bio
          ORDER BY article_count DESC, u.full_name ASC',
         [(int)$assignedCategory['id']]
     );
@@ -65,14 +65,24 @@ dash_header('Category Writers', $subtitle);
         <p class="text-muted">No writers have published articles in the <strong><?= htmlspecialchars($assignedCategory['name']) ?></strong> category yet.</p>
 
     <?php else: ?>
-        <p class="article-count" style="margin-bottom:24px"><?= count($writers) ?> writer<?= count($writers) !== 1 ? 's' : '' ?></p>
+        <div class="writers-toolbar">
+            <p class="article-count"><?= count($writers) ?> writer<?= count($writers) !== 1 ? 's' : '' ?></p>
+            <div class="writers-search-wrapper">
+                <input type="text" id="writerSearch" class="writers-search-input" placeholder="Search writers…" autocomplete="off">
+                <button type="button" id="clearWriterSearch" class="writers-search-clear" style="display:none">
+                    <img src="/public/icons/clearicon.png" alt="Clear">
+                </button>
+            </div>
+        </div>
 
-        <div class="writer-grid">
+        <p id="writerNoResults" class="text-muted" style="display:none">No writers match your search.</p>
+
+        <div class="writer-grid" id="writerGrid">
             <?php foreach ($writers as $writer):
                 $initial = strtoupper(mb_substr($writer['full_name'], 0, 1)) ?: '?';
                 $articleWord = (int)$writer['article_count'] === 1 ? 'article' : 'articles';
             ?>
-            <div class="writer-card">
+            <div class="writer-card" data-name="<?= htmlspecialchars(strtolower($writer['full_name'])) ?>">
                 <div class="writer-avatar-lg">
                     <?php if (!empty($writer['avatar_url'])): ?>
                         <img src="/public/<?= htmlspecialchars($writer['avatar_url']) ?>"
@@ -82,6 +92,9 @@ dash_header('Category Writers', $subtitle);
                     <?php endif; ?>
                 </div>
                 <div class="writer-name"><?= htmlspecialchars($writer['full_name']) ?></div>
+                <?php if (!empty($writer['bio'])): ?>
+                    <div class="writer-bio"><?= htmlspecialchars($writer['bio']) ?></div>
+                <?php endif; ?>
                 <div class="writer-article-count">
                     <?= (int)$writer['article_count'] ?> <?= htmlspecialchars($assignedCategory['name']) ?> <?= $articleWord ?>
                 </div>
