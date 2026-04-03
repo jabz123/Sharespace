@@ -36,7 +36,42 @@ if(searchInput && clearBtn){
 }
 
 
-// FLAG MODAL 
+// writer search filter (category writers page)
+const writerSearch = document.getElementById('writerSearch');
+const clearWriterSearch = document.getElementById('clearWriterSearch');
+const writerGrid = document.getElementById('writerGrid');
+const writerNoResults = document.getElementById('writerNoResults');
+
+if (writerSearch && writerGrid) {
+    writerSearch.addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+        clearWriterSearch.style.display = query.length ? 'flex' : 'none';
+        let visible = 0;
+        writerGrid.querySelectorAll('.writer-card').forEach(card => {
+            const name = card.dataset.name || '';
+            const show = name.includes(query);
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        if (writerNoResults) {
+            writerNoResults.style.display = visible === 0 ? '' : 'none';
+        }
+    });
+
+    if (clearWriterSearch) {
+        clearWriterSearch.addEventListener('click', function () {
+            writerSearch.value = '';
+            this.style.display = 'none';
+            writerGrid.querySelectorAll('.writer-card').forEach(card => {
+                card.style.display = '';
+            });
+            if (writerNoResults) writerNoResults.style.display = 'none';
+            writerSearch.focus();
+        });
+    }
+}
+
+
 const flagBtn = document.getElementById('flagBtn');
 const flagModal = document.getElementById('flagModal');
 const closeModal = document.getElementById('closeModal');
