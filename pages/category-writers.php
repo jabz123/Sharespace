@@ -70,7 +70,7 @@ dash_header('Category Writers', $subtitle);
         <div class="writer-grid">
             <?php foreach ($writers as $writer):
                 $initial = strtoupper(mb_substr($writer['full_name'], 0, 1)) ?: '?';
-                $articleWord = $writer['article_count'] === '1' ? 'article' : 'articles';
+                $articleWord = (int)$writer['article_count'] === 1 ? 'article' : 'articles';
             ?>
             <div class="writer-card">
                 <div class="writer-avatar-lg">
