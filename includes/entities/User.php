@@ -6,7 +6,8 @@
 // also includes helper functions for display such as getting the user's initial and formatting the role name
 
 //user data from db
-class User {
+class User
+{
     public int    $id;
     public string $email;
     public string $fullName;
@@ -18,7 +19,12 @@ class User {
     public string $bio;
     public string $avatarUrl;
 
-    public function __construct(array $row) {
+    public $stripe_customer_id;
+    public $stripe_subscription_id;
+    public $subscribed_at;
+
+    public function __construct(array $row)
+    {
         $this->id          = (int)$row['id'];
         $this->email       = $row['email'];
         $this->fullName    = $row['full_name'] ?? '';
@@ -29,16 +35,22 @@ class User {
         $this->gender      = $row['gender']     ?? '';
         $this->bio         = $row['bio']        ?? '';
         $this->avatarUrl   = $row['avatar_url'] ?? '';
+
+        $this->stripe_customer_id    = $row['stripe_customer_id'] ?? null;
+        $this->stripe_subscription_id = $row['stripe_subscription_id'] ?? null;
+        $this->subscribed_at         = $row['subscribed_at'] ?? null;
     }
 
     //use first letter of name for default avatar cos no picture yet
-    public function initial(): string {
+    public function initial(): string
+    {
         return strtoupper(mb_substr($this->fullName, 0, 1)) ?: '?';
     }
 
     //converts free to Free, admin to Admin, premium_user to Premium User
     //makes it easier to read ig
-    public function roleLabel(): string {
+    public function roleLabel(): string
+    {
         return ucwords(str_replace('_', ' ', $this->role));
     }
 }

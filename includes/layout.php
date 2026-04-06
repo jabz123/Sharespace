@@ -71,6 +71,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/write.php',       'icon' => '📝', 'label' => 'Write Article'],
             ['href' => '/pages/profile.php',     'icon' => '👤', 'label' => 'Profile'],
             ['href' => '/pages/savedarticles.php',     'icon' => '🔖', 'label' => 'Saved articles'],
+            ['href' => '/pages/subscription.php',     'icon' => '💳', 'label' => $user->role === 'premium' ? 'Subscription' : 'Upgrade'],
         ];
     }
     ?>

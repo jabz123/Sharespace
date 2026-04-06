@@ -1,0 +1,35 @@
+<?php
+session_start();
+
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/controllers/AuthController.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../vendor/stripe/stripe-php/init.php';
+
+$auth = new AuthController();
+$user = $auth->currentUser();
+
+if (!$user || $user->role !== 'free') {
+    header('Location: /pages/subscription.php');
+    exit;
+}
+
+\Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
+
+$session = \Stripe\Checkout\Session::create([
+    'mode'                => 'subscription',
+    'payment_method_types' => ['card'],
+    'line_items'          => [[
+        'price'    => STRIPE_PRICE_ID,
+        'quantity' => 1,
+    ]],
+    'customer_email'      => $user->email,
+    'metadata'            => ['user_id' => $user->id],
+
+    'success_url' => 'http://http://47.128.202.6/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}',
+    'cancel_url'  => 'http://http://47.128.202.6/subscribe-cancel.php',
+
+]);
+
+header('Location: ' . $session->url);
+exit;

@@ -12,6 +12,13 @@ date_default_timezone_set('Asia/Singapore');
 
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
 define('GROQ_API_KEY', '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');
+
+//stripe shit
+define('STRIPE_PUBLIC_KEY',  'pk_test_51TJAljQbEqKAvs55VRP6eLrnKdPbJymWgZ0B5oWgzl8N4DHOJ8muCR8Mr25vSsNKjB702hyrCOWEAZCW9x6GktlA00nf9EAGSS');
+define('STRIPE_SECRET_KEY',  'sk_test_51TJAljQbEqKAvs55YlyGnED9kz3uETBPejDDOEkbCz8xFW9a3u0Y3ETY6mU09ldBaH9uGzfm0ji1HsVKtI1ll3Uz00Yhjud6uw');
+define('STRIPE_WEBHOOK_SECRET', 'whsec_ry1oiK8XVQJr5oDJkyV0v1ZDk6KiieHS'); //  testing webhook secret: whsec_ad7559713353dfbddbdc0ff7f972044a51d3ac9359c606fe2515302a6b8e6a50
+define('STRIPE_PRICE_ID',    'price_1TJAyTQbEqKAvs55u6Rm7n8I');  // your monthly price ID from Stripe dashboard
+
  
 // =============================
 // SMTP Email Configuration
@@ -28,3 +35,4 @@ define('SMTP_FROM_NAME', 'SharedSpace');
 // Backup account below for sending of email:
 // define('SMTP_USER', 'marcuskhongg@gmail.com');
 // define('SMTP_PASS', 'jltrolbbzzdxhrux');
+
