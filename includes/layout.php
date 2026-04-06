@@ -58,6 +58,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/browse.php',                   'icon' => '👁', 'label' => 'Browse Articles'],
             ['href' => '/pages/category-articles.php',        'icon' => '📋', 'label' => 'Category Articles'],
             ['href' => '/pages/category-writers.php',         'icon' => '✍️', 'label' => 'Category Writers'],
+            ['href' => '/pages/flagged-articles.php',         'icon' => '🚩', 'label' => 'Flagged Articles'],
             ['href' => '/pages/my-articles.php',              'icon' => '📄', 'label' => 'My Articles'],
             ['href' => '/pages/write.php',                    'icon' => '📝', 'label' => 'Write Article'],
             ['href' => '/pages/profile.php',                  'icon' => '👤', 'label' => 'Profile'],
