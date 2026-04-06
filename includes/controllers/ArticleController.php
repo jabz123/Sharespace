@@ -193,7 +193,7 @@ class ArticleController {
         return ['ok' => true, 'id' => DB::lastId()];
     }
 
-    public function getByCategory($category = null, $sort = 'recent', $search = null): array {
+    public function getByCategory($category = null, $sort = 'recent', $search = null, $limit = 12, $offset = 0): array {
 
         $sql = 'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
                 COUNT(DISTINCT v.id) AS view_count,
@@ -231,9 +231,36 @@ class ArticleController {
             $sql .= ' ORDER BY a.trust_score DESC, a.published_at DESC';
         }
 
+        $sql .= ' LIMIT ? OFFSET ?';
+        $params[] = $limit;
+        $params[] = $offset;
+
         $rows = DB::query($sql, $params);
 
         return array_map(fn($r) => new Article($r), $rows);
+    }
+    
+
+    public function countByCategory($category = null, $search = null): int {
+
+        $sql = "SELECT COUNT(*) as total
+                FROM articles a
+                JOIN categories c ON c.id = a.category_id
+                WHERE a.status = 'published'";
+
+        $params = [];
+
+        if ($category) {
+            $sql .= " AND LOWER(c.name) = ?";
+            $params[] = strtolower($category);
+        }
+
+        if ($search) {
+            $sql .= " AND a.title LIKE ?";
+            $params[] = "%$search%";
+        }
+
+        return (int) DB::first($sql, $params)['total'];
     }
 
     // returns all articles (published + suspended) for a given author in a given category

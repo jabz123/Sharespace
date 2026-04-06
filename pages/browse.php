@@ -21,7 +21,14 @@ $user = $auth->currentUser();
 $category = $_GET['category'] ?? null;
 $sort = $_GET['sort'] ?? 'recent';
 $search = $_GET['search'] ?? null;
-$articles = $articleCtrl->getByCategory($category, $sort, $search);
+$page = max(1, (int)($_GET['page'] ?? 1));
+$perPage = 12;
+$offset = ($page - 1) * $perPage;
+$totalArticles = $articleCtrl->countByCategory($category, $search);
+$totalPages = ceil($totalArticles / $perPage);
+$articles = $articleCtrl->getByCategory($category, $sort, $search, $perPage, $offset);
+
+// $articles = $articleCtrl->getByCategory($category, $sort, $search);
 $allCategories = $categoryCtrl->getAll();
 
 page_head('Browse Articles');
@@ -113,6 +120,56 @@ page_head('Browse Articles');
             </div>
 
         </div>
+            <div class="pagination">
+
+               <!-- ⏮ FIRST PAGE -->
+                <a href="<?= $page > 1 
+                    ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=1'
+                    : '#' ?>"
+                class="page-btn <?= $page == 1 ? 'disabled' : '' ?>">
+                ⏮
+                </a>
+
+                <!-- ◀ PREVIOUS -->
+                <a href="<?= $page > 1 
+                    ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=' . ($page - 1)
+                    : '#' ?>"
+                class="page-btn <?= $page == 1 ? 'disabled' : '' ?>">
+                ◀
+                </a>
+                <form method="GET" class="page-form">
+                <!-- PAGE INPUT -->
+                <input 
+                    type="number" 
+                    id="pageInput"
+                    name="page" 
+                    value="<?= $page ?>" 
+                    min="1" 
+                    max="<?= $totalPages ?>"
+                    class="page-input">
+
+                <span>of <?= $totalPages ?></span>
+                <input type="hidden" name="category" value="<?= $category ?>">
+                <input type="hidden" name="sort" value="<?= $sort ?>">
+                <input type="hidden" name="search" value="<?= $search ?>">
+                    </form>
+               <!-- ▶ NEXT -->
+            <a href="<?= $page < $totalPages 
+                ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=' . ($page + 1)
+                : '#' ?>"
+            class="page-btn <?= $page == $totalPages ? 'disabled' : '' ?>">
+            ▶
+            </a>
+
+            <!-- ⏭ LAST -->
+            <a href="<?= $page < $totalPages 
+                ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=' . $totalPages
+                : '#' ?>"
+            class="page-btn <?= $page == $totalPages ? 'disabled' : '' ?>">
+            ⏭
+            </a>
+
+            </div>
 
     </main>
 
