@@ -128,7 +128,7 @@ page_head('Flagged Articles');
             </p>
             <p style="font-size:14px;margin-top:8px"><?= htmlspecialchars($detailArticle->excerpt) ?></p>
 
-            <div class="flex gap-3 mt-6">
+            <div class="flex items-center gap-3 mt-6">
                 <a href="/pages/article.php?id=<?= $detailArticle->id ?>&return=<?= urlencode('/pages/flagged-articles.php?id=' . $detailArticle->id) ?>"
                    class="btn btn-ghost btn-sm" target="_blank">
                     👁 View Article
