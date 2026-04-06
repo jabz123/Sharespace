@@ -1422,10 +1422,11 @@ textarea {
 }
 .suspended-badge {
     display: inline-block;
-    background: #dc3545;
-    color: #fff;
+    background: transparent;
+    color: #dc3545;
     font-size: 11px;
     font-weight: 700;
+    font-style: italic;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 3px 8px;
