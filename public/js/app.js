@@ -47,7 +47,7 @@ if (writerSearch && writerGrid) {
         const query = this.value.trim().toLowerCase();
         clearWriterSearch.style.display = query.length ? 'flex' : 'none';
         let visible = 0;
-        writerGrid.querySelectorAll('.writer-card').forEach(card => {
+        writerGrid.querySelectorAll('.writer-card-link').forEach(card => {
             const name = card.dataset.name || '';
             const show = name.includes(query);
             card.style.display = show ? '' : 'none';
@@ -62,7 +62,7 @@ if (writerSearch && writerGrid) {
         clearWriterSearch.addEventListener('click', function () {
             writerSearch.value = '';
             this.style.display = 'none';
-            writerGrid.querySelectorAll('.writer-card').forEach(card => {
+            writerGrid.querySelectorAll('.writer-card-link').forEach(card => {
                 card.style.display = '';
             });
             if (writerNoResults) writerNoResults.style.display = 'none';

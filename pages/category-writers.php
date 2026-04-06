@@ -81,8 +81,10 @@ dash_header('Category Writers', $subtitle);
             <?php foreach ($writers as $writer):
                 $initial = strtoupper(mb_substr($writer['full_name'], 0, 1)) ?: '?';
                 $articleWord = (int)$writer['article_count'] === 1 ? 'article' : 'articles';
+                $writerUrl = '/pages/writer-articles.php?writer_id=' . (int)$writer['id'];
             ?>
-            <div class="writer-card" data-name="<?= htmlspecialchars(strtolower($writer['full_name'])) ?>">
+            <a href="<?= $writerUrl ?>" class="writer-card-link" data-name="<?= htmlspecialchars(strtolower($writer['full_name'])) ?>">
+            <div class="writer-card">
                 <div class="writer-avatar-lg">
                     <?php if (!empty($writer['avatar_url'])): ?>
                         <img src="/public/<?= htmlspecialchars($writer['avatar_url']) ?>"
@@ -99,6 +101,7 @@ dash_header('Category Writers', $subtitle);
                     <div class="writer-bio"><em><?= htmlspecialchars($writer['bio']) ?></em></div>
                 <?php endif; ?>
             </div>
+            </a>
             <?php endforeach; ?>
         </div>
 
