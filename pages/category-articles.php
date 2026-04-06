@@ -55,6 +55,27 @@ dash_header('Category Articles', $subtitle);
 
     <?php else: ?>
 
+        <div class="writer-profile-bar">
+            <div class="writer-avatar-lg">
+                <?php if (!empty($user->avatarUrl)): ?>
+                    <img src="/public/<?= htmlspecialchars($user->avatarUrl) ?>"
+                         alt="<?= htmlspecialchars($user->fullName) ?>">
+                <?php else: ?>
+                    <?= htmlspecialchars($user->initial()) ?>
+                <?php endif; ?>
+            </div>
+            <div class="writer-profile-info">
+                <div class="writer-name profile-name-lg"><?= htmlspecialchars($user->fullName) ?></div>
+                <div class="profile-badges">
+                    <span class="role-badge category-admin">Category Expert</span>
+                    <span class="role-badge category-name"><?= htmlspecialchars($assignedCategory['name']) ?></span>
+                </div>
+                <?php if (!empty($user->bio)): ?>
+                    <div class="writer-bio profile-bio"><?= htmlspecialchars($user->bio) ?></div>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <div class="filter-row">
             <p class="article-count"><?= count($articles) ?> article<?= count($articles) !== 1 ? 's' : '' ?></p>
 
