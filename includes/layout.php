@@ -195,6 +195,10 @@ function article_card(Article $article, User $user): void {
         <?= trust_badge($article->trustScore) ?>
     </div>
 
+    <?php if ($article->status === 'suspended'): ?>
+        <span class="suspended-badge">Suspended Article</span>
+    <?php endif; ?>
+
     <?php if ($hasImage): ?>
 
     <div class="card-image">
