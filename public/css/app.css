@@ -2200,7 +2200,6 @@ margin:0 auto;
     color: var(--muted);
     margin-top: 12px;
 }
-<<<<<<< Updated upstream
 .pagination {
     display: flex;
     justify-content: center;
@@ -2251,7 +2250,6 @@ margin:0 auto;
     pointer-events: none;
     cursor: not-allowed;
 }
-=======
 
 
 /* subscription shit */
@@ -2307,4 +2305,3 @@ margin:0 auto;
 .sub-features-list { text-align: left; margin-bottom: 32px;
     display: flex; flex-direction: column; gap: 12px; }
 .btn-upgrade { width: 100%; padding: 14px; font-size: 15px; font-weight: 600; }
->>>>>>> Stashed changes
