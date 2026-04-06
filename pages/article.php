@@ -203,6 +203,10 @@ page_head($article->title);
                 <?php endif; ?>
 
                 <h3 class="article-content-title">Article</h3>
+               <div class="tts-bar">
+                <button class="tts-btn play" onclick="readArticle()">▶ Listen</button>
+                <button class="tts-btn stop" onclick="stopReading()">⏹ Stop</button>
+                </div>
 
                 <div class="article-body">
 
@@ -230,10 +234,10 @@ page_head($article->title);
                                 <img src="/public/icons/premiumlockicon2.png" alt="">
                                 <span>Unlock the full story</span>
                             </div>
-                            <p>
+                            <p2>
                                 Get complete access to this article and all premium content.
                                 Stay informed with deeper insights and trusted reporting.
-                            </p>
+                            </p2>
                             <div class="paywall-price">
                                 <span class="price-main">
                                     <?= ($premiumPlan['price']) ?>

@@ -2250,6 +2250,57 @@ margin:0 auto;
     pointer-events: none;
     cursor: not-allowed;
 }
+.tts-bar {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 20px;
+}
+
+.tts-btn {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Play button (primary) */
+.tts-btn.play {
+    background: #2563eb;
+    color: white;
+    border: none;
+}
+
+.tts-btn.play:hover {
+    background: #1d4ed8;
+}
+
+/* Stop button (secondary) */
+.tts-btn.stop {
+    color: #374151;
+}
+
+.tts-btn.stop:hover {
+    background: #f3f4f6;
+}
+
+/* Paragraph highlight */
+.highlight-reading {
+    background: #fff3cd;
+    border-left: 4px solid #f59e0b;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.highlight-reading {
+    background: #fff3cd;
+    border-left: 4px solid #f59e0b;
+    padding-left: 10px;
+    transition: all 0.3s ease;
+}
 
 
 /* subscription shit */

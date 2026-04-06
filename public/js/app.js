@@ -166,3 +166,126 @@ if (flagForm && flagBtn && flagModal) {
         }
     });
 }
+
+
+// TEXT TO SPEECH FOR ARTICLE CONTENT
+let paragraphs = [];
+let currentIndex = 0;
+let utterance = null;
+let isReading = false;
+let selectedVoice = null;
+
+
+// LOAD ARTICLE CONTENT
+function loadArticle() {
+    const nodes = document.querySelectorAll('.article-body p');
+    paragraphs = Array.from(nodes);
+}
+
+// 
+function loadPreferredVoice() {
+    const voices = speechSynthesis.getVoices();
+
+    selectedVoice =
+        voices.find(v => v.name === "Google UK English Female") ||
+        voices.find(v => v.name === "Google US English") ||
+        voices.find(v => v.name === "Microsoft Zira") ||
+        voices.find(v => v.name === "Samantha") ||
+        voices.find(v => v.lang === "en-US") ||
+        voices[0];
+
+    console.log("Using voice:", selectedVoice?.name);
+}
+
+speechSynthesis.onvoiceschanged = loadPreferredVoice;
+window.onload = loadPreferredVoice;
+
+
+// HIGHLIGHT PARAGRAPH
+function highlightParagraph(index) {
+    paragraphs.forEach(p => p.classList.remove('highlight-reading'));
+
+    if (paragraphs[index]) {
+        paragraphs[index].classList.add('highlight-reading');
+        paragraphs[index].scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    }
+}
+
+
+// SPEAK FUNCTION
+function speak(index) {
+
+    if (index >= paragraphs.length) {
+        stopReading(); // auto reset when finished
+        return;
+    }
+
+    const text = paragraphs[index].innerText;
+
+    utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = selectedVoice;
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    highlightParagraph(index);
+
+    utterance.onend = () => {
+        currentIndex++;
+        speak(currentIndex);
+    };
+
+    speechSynthesis.speak(utterance);
+}
+
+
+
+// ▶ READ ARTICLE
+
+function readArticle() {
+
+    if (paragraphs.length === 0) loadArticle();
+
+    //  Always reset to prevent bugs
+    speechSynthesis.cancel();
+
+    currentIndex = 0;
+    isReading = true;
+
+    speak(currentIndex);
+}
+
+
+
+// ⏹ STOP READING
+function stopReading() {
+    speechSynthesis.cancel();
+
+    isReading = false;
+    currentIndex = 0;
+
+    paragraphs.forEach(p => p.classList.remove('highlight-reading'));
+}
+
+
+// STOP AUDIO WHEN USER LEAVE PAGE OR PAGE NOT ACTIVE
+// Leave page
+window.addEventListener("beforeunload", () => {
+    speechSynthesis.cancel();
+});
+
+// Switch tab / minimize
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        speechSynthesis.cancel();
+    }
+});
+
+// Click any link
+document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+        speechSynthesis.cancel();
+    });
+});
