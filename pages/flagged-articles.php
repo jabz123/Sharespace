@@ -146,7 +146,7 @@ page_head('Flagged Articles');
                           onsubmit="return confirm('Confirm flag? This will hide the article from the public.')">
                         <input type="hidden" name="action"     value="confirm_flag">
                         <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
-                        <button type="submit" class="btn btn-danger btn-sm">🚫 Confirm Flag (Hide Article)</button>
+                        <button type="submit" class="btn btn-danger btn-sm" style="white-space:nowrap">🚫 Confirm Flag (Hide Article)</button>
                     </form>
                 <?php else: ?>
                     <span class="alert alert-error" style="display:inline-block;padding:6px 14px;font-size:13px">
