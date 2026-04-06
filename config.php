@@ -5,11 +5,14 @@
 define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
 define('DB_NAME', 'sharedspace');
-define('DB_USER', 'shareduser');
-define('DB_PASS', 'password123'); 
+define('DB_USER', 'root');
+define('DB_PASS', 'password'); 
 date_default_timezone_set('Asia/Singapore');
 
 
+//dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
+define('GROQ_API_KEY', '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');
+ 
 // =============================
 // SMTP Email Configuration
 // =============================

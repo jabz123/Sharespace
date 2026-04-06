@@ -2064,3 +2064,84 @@ margin:0 auto;
     overflow: hidden;
     word-break: break-word;
 }
+
+/* AI Overview shit */
+.ai-overview-panel {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    background: var(--secondary);
+    margin-bottom: 8px;
+}
+.ai-overview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.ai-overview-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ai-overview-title h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+}
+.ai-icon {
+    font-size: 16px;
+    color: var(--primary);
+}
+.ai-overview-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
+}
+.ai-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.ai-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: var(--primary);
+    color: #fff;
+}
+.ai-badge-muted {
+    background: var(--border);
+    color: var(--muted);
+}
+.ai-section {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+.ai-section h4 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+.ai-section p {
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+}
+.ai-section ul {
+    padding-left: 18px;
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0;
+}
+.ai-loading {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 12px;
+}

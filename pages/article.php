@@ -101,59 +101,59 @@ page_head($article->title);
         <?php dash_header(htmlspecialchars($article->categoryName), 'Article'); ?>
         <div class="page-content">
             <div class="article-detail">
-                
+
                 <div class="flex items-center justify-between mb-6">
 
-    <?php
-    $returnUrl = $_GET['return'] ?? '';
+                    <?php
+                    $returnUrl = $_GET['return'] ?? '';
 
-        // security check (optional but recommended)
-        if ($returnUrl && !str_starts_with($returnUrl, '/')) {
-            $returnUrl = '';
-        }
+                    // security check (optional but recommended)
+                    if ($returnUrl && !str_starts_with($returnUrl, '/')) {
+                        $returnUrl = '';
+                    }
 
-        // fallback based on role
-        if (!$returnUrl) {
-        if ($user->role === 'system_admin') {
-            $returnUrl = '/pages/admin-dashboard.php';
-        } else {
-            $returnUrl = '/dashboard.php';
-        }
-    }
-    ?>
+                    // fallback based on role
+                    if (!$returnUrl) {
+                        if ($user->role === 'system_admin') {
+                            $returnUrl = '/pages/admin-dashboard.php';
+                        } else {
+                            $returnUrl = '/dashboard.php';
+                        }
+                    }
+                    ?>
 
-    <!-- LEFT SIDE -->
-    <div class="flex items-center gap-2">
-        <a href="<?= htmlspecialchars($returnUrl) ?>" class="btn btn-ghost btn-sm">← Back</a>
+                    <!-- LEFT SIDE -->
+                    <div class="flex items-center gap-2">
+                        <a href="<?= htmlspecialchars($returnUrl) ?>" class="btn btn-ghost btn-sm">← Back</a>
 
-        <?php if ($isAuthor): ?>
-            <a href="/pages/write.php?id=<?= $article->id ?>" class="btn btn-ghost btn-sm">✏️ Edit</a>
-        <?php endif; ?>
-    </div>
+                        <?php if ($isAuthor): ?>
+                            <a href="/pages/write.php?id=<?= $article->id ?>" class="btn btn-ghost btn-sm">✏️ Edit</a>
+                        <?php endif; ?>
+                    </div>
 
-    <!-- RIGHT SIDE -->
-     <?php if ($user->role !== 'system_admin'): ?>
-    <div class="flex items-center gap-4">
+                    <!-- RIGHT SIDE -->
+                    <?php if ($user->role !== 'system_admin'): ?>
+                        <div class="flex items-center gap-4">
 
-        <button class="icon-btn" id="saveBtn" title="Save">
-        <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/Bookmark.png' ?>" 
-        data-default="/public/icons/Bookmark.png"
-        data-active="/public/icons/bookmarkactive.png">
-        </button>
+                            <button class="icon-btn" id="saveBtn" title="Save">
+                                <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/Bookmark.png' ?>"
+                                    data-default="/public/icons/Bookmark.png"
+                                    data-active="/public/icons/bookmarkactive.png">
+                            </button>
 
-        <button class="icon-btn <?= $alreadyFlagged ? 'flagged' : '' ?>" id="flagBtn" data-article-id="<?= $article->id ?>"
-        <?= $alreadyFlagged ? 'disabled' : '' ?> title="<?= $alreadyFlagged ? 'Already flagged' : 'Flag' ?>">
-        <img src="/public/icons/flag.png" alt="Flag">
-        </button>
+                            <button class="icon-btn <?= $alreadyFlagged ? 'flagged' : '' ?>" id="flagBtn" data-article-id="<?= $article->id ?>"
+                                <?= $alreadyFlagged ? 'disabled' : '' ?> title="<?= $alreadyFlagged ? 'Already flagged' : 'Flag' ?>">
+                                <img src="/public/icons/flag.png" alt="Flag">
+                            </button>
 
-        <button class="icon-btn" id="shareBtn" title="Share">
-            <img src="/public/icons/share.png" alt="Share">
-        </button>
+                            <button class="icon-btn" id="shareBtn" title="Share">
+                                <img src="/public/icons/share.png" alt="Share">
+                            </button>
 
-    </div>
-    <?php endif; ?> 
+                        </div>
+                    <?php endif; ?>
 
-</div>
+                </div>
 
                 <div class="flex justify-between items-center mb-3">
                     <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
@@ -163,7 +163,7 @@ page_head($article->title);
                 <h1 style="font-size:32px;font-weight:800;font-family:Georgia,serif;line-height:1.2;margin-bottom:16px">
                     <?= htmlspecialchars($article->title) ?>
                 </h1>
-                 <div class="article-meta">
+                <div class="article-meta">
                     <div class="author-avatar" style="width:42px;height:42px;font-size:16px"><?= htmlspecialchars($article->authorInitial()) ?></div>
                     <div>
                         <p style="font-weight:600;font-size:14px"><?= htmlspecialchars($article->authorName) ?></p>
@@ -172,129 +172,149 @@ page_head($article->title);
                 </div>
                 <?php if (!empty($article->imagePath)): ?>
 
-                <div class="article-banner">
-                    <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="Article Image">
-                </div>
+                    <div class="article-banner">
+                        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="Article Image">
+                    </div>
 
                 <?php endif; ?>
                 <?php if (!empty($article->excerpt)): ?>
 
-                <div class="article-summary">
-                    <h3 class="summary-title">Brief Summary</h3>
-                    <p class="summary-text">
-                        <?= htmlspecialchars($article->excerpt) ?>
-                    </p>
-                </div>
+                    <div class="article-summary">
+                        <h3 class="summary-title">Brief Summary</h3>
+                        <p class="summary-text">
+                            <?= htmlspecialchars($article->excerpt) ?>
+                        </p>
+                    </div>
+                    <!-- AI Overview shit, new. -->
+                    <div class="ai-overview-panel" id="aiOverviewPanel" style="margin-top:40px;">
+                        <div class="ai-overview-header">
+                            <div class="ai-overview-title">
+                                <span class="ai-icon">&#10022;</span>
+                                <h3>AI Overview</h3>
+                            </div>
+                            <button id="aiOverviewBtn" class="btn btn-secondary btn-sm"
+                                data-article-id="<?= $article->id ?>">
+                                Generate
+                            </button>
+                        </div>
+                        <div id="aiOverviewContent"></div>
+                    </div>
+
                 <?php endif; ?>
 
                 <h3 class="article-content-title">Article</h3>
 
-               <div class="article-body">
+                <div class="article-body">
 
-                <?php 
-                //  Show full content if:
-                //  user is premium OR article is NOT premium (no image)
-                $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
-                $isPremiumArticle = !empty($article->imagePath);
-                ?>
+                    <?php
+                    //  Show full content if:
+                    //  user is premium OR article is NOT premium (no image)
+                    $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
+                    $isPremiumArticle = !empty($article->imagePath);
+                    ?>
 
-                <?php if ($isPremiumUser || !$isPremiumArticle): ?>
+                    <?php if ($isPremiumUser || !$isPremiumArticle): ?>
 
-                    <!-- Premium users see FULL content -->
-                    <?= $article->renderContent() ?>
+                        <!-- Premium users see FULL content -->
+                        <?= $article->renderContent() ?>
 
-                <?php else: ?>
+                    <?php else: ?>
 
-                    <!--  Free users see PREVIEW only -->
-                    <?= $article->renderContentPreview(2) ?>
+                        <!--  Free users see PREVIEW only -->
+                        <?= $article->renderContentPreview(2) ?>
 
-                    <!--  PAYWALL SECTION -->
-                    <div class="paywall-box">
+                        <!--  PAYWALL SECTION -->
+                        <div class="paywall-box">
 
-                        <div class="paywall-title">
-                        <img src="/public/icons/premiumlockicon2.png" alt="">
-                        <span>Unlock the full story</span>
+                            <div class="paywall-title">
+                                <img src="/public/icons/premiumlockicon2.png" alt="">
+                                <span>Unlock the full story</span>
+                            </div>
+                            <p>
+                                Get complete access to this article and all premium content.
+                                Stay informed with deeper insights and trusted reporting.
+                            </p>
+                            <div class="paywall-price">
+                                <span class="price-main">
+                                    <?= ($premiumPlan['price']) ?>
+                                </span>
+                                <span class="price-suffix">
+                                    <?= $premiumPlan['price_suffix'] ?>
+                                </span>
+                            </div>
+                            <a href="/subscribe.php" class="btn btn-primary">
+                                Upgrade to Premium
+                            </a>
                         </div>
-                        <p>
-                            Get complete access to this article and all premium content. 
-                            Stay informed with deeper insights and trusted reporting.
-                        </p>
-                       <div class="paywall-price">
-                    <span class="price-main">
-                        <?=($premiumPlan['price']) ?>
-                    </span>
-                    <span class="price-suffix">
-                        <?= $premiumPlan['price_suffix'] ?>
-                    </span>
-                </div>
-                        <a href="/subscribe.php" class="btn btn-primary">
-                            Upgrade to Premium
-                        </a>
-                    </div>
 
-                <?php endif; ?>
+                    <?php endif; ?>
 
                 </div>
 
             </div>
 
 
+
+
+
+
+
             <div id="comments" style="margin-top:48px;padding-top:32px;border-top:2px solid var(--border)">
-            <div class="comments-container">
+                <div class="comments-container">
 
-                <h2 style="font-size:20px;font-weight:700;font-family:Georgia,serif;margin-bottom:24px">
-                    💬 Comments <span style="font-size:14px;font-weight:400;color:var(--muted)">(<?= count($comments) ?>)</span>
-                </h2>
+                    <h2 style="font-size:20px;font-weight:700;font-family:Georgia,serif;margin-bottom:24px">
+                        💬 Comments <span style="font-size:14px;font-weight:400;color:var(--muted)">(<?= count($comments) ?>)</span>
+                    </h2>
 
 
-                <div class="card" style="margin-bottom:28px">
-                    <form method="POST">
-                        <input type="hidden" name="action" value="comment">
-                        <div class="form-group" style="margin-bottom:12px">
-                            <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block">
-                                Leave a comment as <span style="color:var(--primary)"><?= htmlspecialchars($user->fullName) ?></span>
-                            </label>
-                            <textarea name="comment_body" rows="3"
-                                placeholder="Share your thoughts on this article…"
-                                style="width:100%;resize:vertical"
-                                required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
-                    </form>
-                </div>
-
-                <!--comment list-->
-                <?php if (empty($comments)): ?>
-                    <p class="text-muted" style="text-align:center;padding:32px 0">
-                        No comments yet. Be the first to share your thoughts!
-                    </p>
-                <?php else: ?>
-                    <div style="display:flex;flex-direction:column;gap:16px">
-                        <?php foreach ($comments as $comment):
-                            $canDelete = $comment->userId === $user->id;
-                        ?>
-                            <div class="card" style="padding:16px 20px">
-                                <div class="flex items-center gap-3" style="margin-bottom:10px">
-                                    <div class="author-avatar" style="width:34px;height:34px;font-size:13px;flex-shrink:0"><?= htmlspecialchars($comment->initial()) ?></div>
-                                    <div style="flex:1">
-                                        <span style="font-weight:600;font-size:14px"><?= htmlspecialchars($comment->commenterName) ?></span>
-                                        <span class="text-muted" style="font-size:12px;margin-left:8px"><?= relative_time($comment->createdAt) ?></span>
-                                    </div>
-                                    <?php if ($canDelete): ?>
-                                        <form method="POST" style="margin:0">
-                                            <input type="hidden" name="action" value="delete_comment">
-                                            <input type="hidden" name="comment_id" value="<?= $comment->id ?>">
-                                            <button type="submit" class="btn btn-ghost btn-sm"
-                                                style="font-size:11px;padding:2px 8px;color:var(--muted)"
-                                                onclick="return confirm('Delete this comment?')">✕</button>
-                                        </form>
-                                    <?php endif; ?>
-                                </div>
-                                <p style="font-size:14px;line-height:1.6;color:var(--fg);margin:0"><?= nl2br(htmlspecialchars($comment->content)) ?></p>
+                    <div class="card" style="margin-bottom:28px">
+                        <form method="POST">
+                            <input type="hidden" name="action" value="comment">
+                            <div class="form-group" style="margin-bottom:12px">
+                                <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block">
+                                    Leave a comment as <span style="color:var(--primary)"><?= htmlspecialchars($user->fullName) ?></span>
+                                </label>
+                                <textarea name="comment_body" rows="3"
+                                    placeholder="Share your thoughts on this article…"
+                                    style="width:100%;resize:vertical"
+                                    required></textarea>
                             </div>
-                        <?php endforeach; ?>
+                            <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                        </form>
                     </div>
-                <?php endif; ?>
+
+                    <!--comment list-->
+                    <?php if (empty($comments)): ?>
+                        <p class="text-muted" style="text-align:center;padding:32px 0">
+                            No comments yet. Be the first to share your thoughts!
+                        </p>
+                    <?php else: ?>
+                        <div style="display:flex;flex-direction:column;gap:16px">
+                            <?php foreach ($comments as $comment):
+                                $canDelete = $comment->userId === $user->id;
+                            ?>
+                                <div class="card" style="padding:16px 20px">
+                                    <div class="flex items-center gap-3" style="margin-bottom:10px">
+                                        <div class="author-avatar" style="width:34px;height:34px;font-size:13px;flex-shrink:0"><?= htmlspecialchars($comment->initial()) ?></div>
+                                        <div style="flex:1">
+                                            <span style="font-weight:600;font-size:14px"><?= htmlspecialchars($comment->commenterName) ?></span>
+                                            <span class="text-muted" style="font-size:12px;margin-left:8px"><?= relative_time($comment->createdAt) ?></span>
+                                        </div>
+                                        <?php if ($canDelete): ?>
+                                            <form method="POST" style="margin:0">
+                                                <input type="hidden" name="action" value="delete_comment">
+                                                <input type="hidden" name="comment_id" value="<?= $comment->id ?>">
+                                                <button type="submit" class="btn btn-ghost btn-sm"
+                                                    style="font-size:11px;padding:2px 8px;color:var(--muted)"
+                                                    onclick="return confirm('Delete this comment?')">✕</button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                    <p style="font-size:14px;line-height:1.6;color:var(--fg);margin:0"><?= nl2br(htmlspecialchars($comment->content)) ?></p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -328,14 +348,13 @@ page_head($article->title);
             <!-- Additional info -->
             <div class="form-group">
                 <label>Tell us more</label>
-                <textarea 
-                    name="details" 
+                <textarea
+                    name="details"
                     id="flagDetails"
                     rows="3"
                     placeholder="Provide more details..."
                     maxlength="100"
-                    required
-                ></textarea>
+                    required></textarea>
                 <small id="charCount">0/100</small>
             </div>
 
@@ -348,29 +367,90 @@ page_head($article->title);
     </div>
 </div>
 
-   <script>
+<script>
     const saveBtn = document.getElementById("saveBtn");
     const saveIcon = document.getElementById("saveIcon");
 
-    saveBtn.addEventListener("click", function () {
+    saveBtn.addEventListener("click", function() {
 
         fetch('/actions/toggle-save.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'article_id=<?= $article->id ?>'
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.saved) {
-                saveIcon.src = saveIcon.dataset.active;
-            } else {
-                saveIcon.src = saveIcon.dataset.default;
-            }
-        });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'article_id=<?= $article->id ?>'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.saved) {
+                    saveIcon.src = saveIcon.dataset.active;
+                } else {
+                    saveIcon.src = saveIcon.dataset.default;
+                }
+            });
 
     });
-    </script>
-    
+</script>
+
+<!--script for ai overview shit -->
+<script>
+    (function() {
+        const btn = document.getElementById('aiOverviewBtn');
+        const content = document.getElementById('aiOverviewContent');
+        if (!btn) return;
+
+        btn.addEventListener('click', async function() {
+            const articleId = btn.dataset.articleId;
+
+            btn.disabled = true;
+            btn.textContent = 'Generating…';
+            content.innerHTML = '<p class="ai-loading">Analysing article…</p>';
+
+            try {
+                const res = await fetch('/api/ai-overview.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        article_id: parseInt(articleId)
+                    })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    content.innerHTML = `<p class="alert alert-error">${data.error}</p>`;
+                    return;
+                }
+
+                const points = (data.key_points || [])
+                    .map(p => `<li>${p}</li>`)
+                    .join('');
+
+                content.innerHTML = `
+                <div class="ai-overview-body">
+                    <div class="ai-meta">
+                        <span class="ai-badge">${data.tone}</span>
+                        <span class="ai-badge ai-badge-muted">${data.read_time}</span>
+                    </div>
+                    <div class="ai-section">
+                        <h4>Summary</h4>
+                        <p>${data.summary}</p>
+                    </div>
+                    <div class="ai-section">
+                        <h4>Key Points</h4>
+                        <ul>${points}</ul>
+                    </div>
+                </div>
+            `;
+            } catch (e) {
+                content.innerHTML = `<p class="alert alert-error">Network error: ${e.message}</p>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Regenerate';
+            }
+        });
+    })();
+</script>
+
 <?php page_foot(); ?>
