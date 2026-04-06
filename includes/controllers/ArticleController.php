@@ -236,6 +236,27 @@ class ArticleController {
         return array_map(fn($r) => new Article($r), $rows);
     }
 
+    // returns all articles (published + suspended) for a given author in a given category
+    // used by category admin's writer-articles page
+    // returns Article[] array
+    public function getByAuthorAndCategory(int $authorId, int $categoryId): array {
+        $rows = DB::query(
+            "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+             COUNT(DISTINCT v.id) AS view_count,
+             COUNT(DISTINCT f.id) AS flag_count
+             FROM articles a
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             LEFT JOIN article_views v ON v.article_id = a.id
+             LEFT JOIN article_flags f ON f.article_id = a.id
+             WHERE a.author_id = ? AND a.category_id = ? AND a.status IN ('published', 'suspended')
+             GROUP BY a.id
+             ORDER BY a.published_at DESC",
+            [$authorId, $categoryId]
+        );
+        return array_map(fn($r) => new Article($r), $rows);
+    }
+
     // returns all articles (published + suspended) for a given category id
     // optionally filters by a search term matching title or author name
     // used by category admin's category articles page
