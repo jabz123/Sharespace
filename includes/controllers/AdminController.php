@@ -321,4 +321,69 @@ class AdminController {
             DB::execute("UPDATE users SET role = 'free' WHERE id = ?", [$userId]);
         }
     }
+
+    // ─────────────────────────────────────────────
+    // FLAGGED ARTICLE MANAGEMENT (category admin)
+    // ─────────────────────────────────────────────
+
+    // get all articles with at least one flag in a given category
+    // returns Article[] sorted by flag count descending
+    public function getFlaggedArticlesByCategory(int $categoryId): array {
+        $rows = DB::query(
+            "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+             COUNT(DISTINCT v.id) AS view_count,
+             COUNT(DISTINCT f.id) AS flag_count
+             FROM articles a
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             LEFT JOIN article_views v ON v.article_id = a.id
+             INNER JOIN article_flags f ON f.article_id = a.id
+             WHERE a.category_id = ? AND a.status IN ('published', 'suspended')
+             GROUP BY a.id
+             ORDER BY flag_count DESC, a.published_at DESC",
+            [$categoryId]
+        );
+        return array_map(fn($r) => new Article($r), $rows);
+    }
+
+    // get all individual flag reports for a specific article
+    public function getFlagsByArticle(int $articleId): array {
+        return DB::query(
+            "SELECT f.*, u.full_name AS reporter_name
+             FROM article_flags f
+             JOIN users u ON u.id = f.user_id
+             WHERE f.article_id = ?
+             ORDER BY f.created_at DESC",
+            [$articleId]
+        );
+    }
+
+    // dismiss all flags for an article — article stays published
+    public function dismissFlags(int $articleId): array {
+        if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
+            return ['error' => 'Article not found.'];
+        }
+        DB::execute('DELETE FROM article_flags WHERE article_id = ?', [$articleId]);
+        return ['ok' => true];
+    }
+
+    // confirm flags: suspend the article and clear its flags
+    public function confirmFlag(int $articleId): array {
+        if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
+            return ['error' => 'Article not found.'];
+        }
+        DB::execute("UPDATE articles SET status = 'suspended' WHERE id = ?", [$articleId]);
+        DB::execute('DELETE FROM article_flags WHERE article_id = ?', [$articleId]);
+        return ['ok' => true];
+    }
+
+    // dismiss flags and restore a suspended article back to published
+    public function restoreAndDismissFlags(int $articleId): array {
+        if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
+            return ['error' => 'Article not found.'];
+        }
+        DB::execute("UPDATE articles SET status = 'published' WHERE id = ?", [$articleId]);
+        DB::execute('DELETE FROM article_flags WHERE article_id = ?', [$articleId]);
+        return ['ok' => true];
+    }
 }
