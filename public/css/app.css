@@ -2180,19 +2180,3 @@ margin:0 auto;
     color: var(--muted);
     margin-top: 12px;
 }
-
-/* user profile bar on category-articles page */
-.profile-name-lg {
-    font-size: 18px;
-}
-
-.profile-badges {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-}
-
-.profile-bio {
-    margin-top: 6px;
-}
