@@ -11,8 +11,10 @@ public/uploads/*
 !public/uploads/articles/
 
 # Ignore vendor if installed on server (optional)
-vendor/
+
 
 # Ignore temporary files
 *.tmp
 *.cache
+config.php
+sharedspace.sql
