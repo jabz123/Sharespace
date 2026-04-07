@@ -99,6 +99,13 @@ CREATE TABLE `article_flags` (
   `article_id` int NOT NULL,
   `user_id` int NOT NULL,
   `reason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'inappropriate',
+  `details` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `suggested_category_id` int DEFAULT NULL,
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `ai_confidence` float DEFAULT NULL,
+  `ai_reason_codes_json` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ai_user_message` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ai_admin_notes` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

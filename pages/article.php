@@ -40,6 +40,12 @@ $alreadyFlagged = DB::first(
     [$user->id, $article->id]
 ) !== null;
 
+// load categories for the "wrong category" flag option (exclude current article category)
+$flagCategories = DB::query(
+    "SELECT id, name FROM categories WHERE id != ? ORDER BY name",
+    [$article->category_id ?? 0]
+);
+
 // record article view
 // insert ignore prevents duplicate views from same user
 DB::execute(
@@ -341,17 +347,27 @@ page_head($article->title);
             <div class="form-group">
                 <label>Select a reason</label>
 
-                <label><input type="radio" name="reason" value="Inappropriate language" required> Inappropriate language</label>
-                <label><input type="radio" name="reason" value="Misinformation"> Misinformation</label>
-                <label><input type="radio" name="reason" value="Hate speech"> Hate speech</label>
-                <label><input type="radio" name="reason" value="Violence"> Violence</label>
-                <label><input type="radio" name="reason" value="Advertising"> Advertising</label>
-                <label><input type="radio" name="reason" value="Wrong category"> Wrong category</label>
-                <label><input type="radio" name="reason" value="Other"> Other</label>
+                <label><input type="radio" name="reason" value="INAPPROPRIATE_LANGUAGE" required> Inappropriate language</label>
+                <label><input type="radio" name="reason" value="MISINFORMATION"> Misinformation</label>
+                <label><input type="radio" name="reason" value="HATE_SPEECH"> Hate speech</label>
+                <label><input type="radio" name="reason" value="VIOLENCE"> Violence</label>
+                <label><input type="radio" name="reason" value="ADVERTISING"> Advertising</label>
+                <label><input type="radio" name="reason" value="WRONG_CATEGORY"> Wrong category</label>
+            </div>
+
+            <!-- Category selector — shown only for WRONG_CATEGORY -->
+            <div class="form-group" id="categoryGroup" style="display:none">
+                <label for="suggestedCategory">Suggest the correct category</label>
+                <select name="suggested_category_id" id="suggestedCategory">
+                    <option value="">— Select a category —</option>
+                    <?php foreach ($flagCategories as $cat): ?>
+                        <option value="<?= (int)$cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <!-- Additional info -->
-            <div class="form-group">
+            <div class="form-group" id="detailsGroup">
                 <label>Tell us more</label>
                 <textarea
                     name="details"

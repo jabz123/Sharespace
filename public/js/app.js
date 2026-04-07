@@ -110,6 +110,26 @@ if (detailsInput && charCount) {
         charCount.textContent = `${length}/${maxLength}`;
     });
 }
+
+// toggle category selector / details field based on selected reason
+const reasonRadios = document.querySelectorAll('input[name="reason"]');
+const categoryGroup = document.getElementById('categoryGroup');
+const detailsGroup = document.getElementById('detailsGroup');
+const suggestedCategory = document.getElementById('suggestedCategory');
+
+reasonRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+        const isWrongCategory = radio.value === 'WRONG_CATEGORY';
+        if (categoryGroup) {
+            categoryGroup.style.display = isWrongCategory ? '' : 'none';
+            if (suggestedCategory) suggestedCategory.required = isWrongCategory;
+        }
+        if (detailsGroup && detailsInput) {
+            detailsGroup.style.display = isWrongCategory ? 'none' : '';
+            detailsInput.required = !isWrongCategory;
+        }
+    });
+});
 function showToast(message) {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toastMessage');
@@ -154,7 +174,7 @@ if (flagForm && flagBtn && flagModal) {
 
         flagModal.classList.add('hidden');
 
-        showToast('Report submitted successfully. Our team will review it.');
+        showToast(data.message || 'Report submitted successfully. Our team will review it.');
         }
         else {
             alert(data.error || 'Something went wrong.');
