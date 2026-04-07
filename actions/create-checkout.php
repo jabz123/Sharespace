@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../config.php';
@@ -16,20 +19,22 @@ if (!$user || $user->role !== 'free') {
 
 \Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
 
-$session = \Stripe\Checkout\Session::create([
-    'mode'                => 'subscription',
-    'payment_method_types' => ['card'],
-    'line_items'          => [[
-        'price'    => STRIPE_PRICE_ID,
-        'quantity' => 1,
-    ]],
-    'customer_email'      => $user->email,
-    'metadata'            => ['user_id' => $user->id],
+try {
+    $session = \Stripe\Checkout\Session::create([
+        'mode'                => 'subscription',
+        'payment_method_types' => ['card'],
+        'line_items'          => [[
+            'price'    => STRIPE_PRICE_ID,
+            'quantity' => 1,
+        ]],
+        'customer_email'      => $user->email,
+        'metadata'            => ['user_id' => $user->id],
+        'success_url' => 'https://47.128.202.6/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url'  => 'https://47.128.202.6/subscribe-cancel.php',
+    ]);
 
-    'success_url' => 'http://http://47.128.202.6/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url'  => 'http://http://47.128.202.6/subscribe-cancel.php',
-
-]);
-
-header('Location: ' . $session->url);
-exit;
+    header('Location: ' . $session->url);
+    exit;
+} catch (\Exception $e) {
+    die("Error: " . $e->getMessage());
+}
