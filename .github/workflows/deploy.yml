@@ -34,7 +34,7 @@ jobs:
 
     - name: Upload Files
       run: |
-        rsync -avz --delete \
+        rsync -avz --checksum --delete \
           --exclude ".git" \
           --exclude ".github" \
           --exclude "public/uploads" \
