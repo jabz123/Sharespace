@@ -21,7 +21,6 @@ set_time_limit(30);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../vendor/stripe/stripe-php/init.php';
-\Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
 
 // DB logging — check webhook_log table in phpMyAdmin to debug
 function wh_log(string $msg): void {
@@ -54,7 +53,9 @@ try {
     exit;
 }
 
-
+http_response_code(200);
+echo 'ok';
+flush();
 
 wh_log('SIG OK event=' . $event->type);
 
@@ -65,25 +66,15 @@ if ($event->type === 'checkout.session.completed') {
     wh_log("checkout user_id=$userId customer={$session->customer} sub={$session->subscription}");
 
     if ($userId) {
-        $subscription = \Stripe\Subscription::retrieve($session->subscription);
-
-        $currentPeriodEnd = $subscription->current_period_end;
-
         $rows = DB::execute(
             "UPDATE users
-            SET role='premium', is_premium=1,
-                stripe_customer_id=?,
-                stripe_subscription_id=?,
-                subscribed_at=NOW(),
-                current_period_end=FROM_UNIXTIME(?),
-                subscription_cancel_at=NULL
-            WHERE id=?",
-            [
-                $session->customer,
-                $session->subscription,
-                $currentPeriodEnd,
-                $userId
-            ]
+             SET role='premium', is_premium=1,
+                 stripe_customer_id=?,
+                 stripe_subscription_id=?,
+                 subscribed_at=NOW(),
+                 subscription_cancel_at=NULL
+             WHERE id=?",
+            [$session->customer, $session->subscription, $userId]
         );
         wh_log("upgraded user $userId rows_affected=$rows");
     }
@@ -110,12 +101,10 @@ if ($event->type === 'customer.subscription.updated') {
         // Use cancel_at if set, otherwise fall back to current_period_end
         $endTimestamp = $cancelAt ?: $periodEnd;
         $rows = DB::execute(
-        "UPDATE users 
-        SET subscription_cancel_at=FROM_UNIXTIME(?),
-            current_period_end=FROM_UNIXTIME(?)
-        WHERE stripe_subscription_id=?",
-        [$endTimestamp, $periodEnd, $subId]
-    );
+            "UPDATE users SET subscription_cancel_at=FROM_UNIXTIME(?)
+             WHERE stripe_subscription_id=?",
+            [$endTimestamp, $subId]
+        );
         wh_log("stored cancel_at=$endTimestamp rows_affected=$rows");
 
         if ($rows === 0) {
@@ -125,12 +114,9 @@ if ($event->type === 'customer.subscription.updated') {
     } else {
         // User reactivated — clear the cancel date
         $rows = DB::execute(
-        "UPDATE users 
-        SET subscription_cancel_at=NULL,
-            current_period_end=FROM_UNIXTIME(?)
-        WHERE stripe_subscription_id=?",
-        [$periodEnd, $subId]
-    );
+            "UPDATE users SET subscription_cancel_at=NULL WHERE stripe_subscription_id=?",
+            [$subId]
+        );
         wh_log("cleared cancel_at (reactivated) rows_affected=$rows");
     }
 }
@@ -145,9 +131,8 @@ if ($event->type === 'customer.subscription.deleted') {
     $rows = DB::execute(
         "UPDATE users
          SET role='free', is_premium=0,
-        stripe_subscription_id=NULL,
-        subscription_cancel_at=NULL,
-        current_period_end=NULL
+             stripe_subscription_id=NULL,
+             subscription_cancel_at=NULL
          WHERE stripe_subscription_id=?",
         [$subId]
     );
@@ -160,7 +145,3 @@ if ($event->type === 'customer.subscription.deleted') {
 }
 
 wh_log('done');
-
-http_response_code(200);
-echo 'ok';
-flush();
