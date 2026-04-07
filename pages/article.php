@@ -346,6 +346,7 @@ page_head($article->title);
                 <label><input type="radio" name="reason" value="Hate speech"> Hate speech</label>
                 <label><input type="radio" name="reason" value="Violence"> Violence</label>
                 <label><input type="radio" name="reason" value="Advertising"> Advertising</label>
+                <label><input type="radio" name="reason" value="Wrong category"> Wrong category</label>
                 <label><input type="radio" name="reason" value="Other"> Other</label>
             </div>
 
