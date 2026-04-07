@@ -1,4 +1,13 @@
 <?php
+
+// Log every single request, even if it fails
+file_put_contents(__DIR__ . '/../logs/webhook-raw.log', 
+    date('Y-m-d H:i:s') . " | Method: " . $_SERVER['REQUEST_METHOD'] . 
+    " | Headers: " . json_encode(getallheaders()) . 
+    " | Body length: " . strlen(file_get_contents('php://input')) . "\n", 
+    FILE_APPEND
+);
+
 set_time_limit(30);
 
 require_once __DIR__ . '/../config.php';
