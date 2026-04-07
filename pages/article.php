@@ -9,34 +9,18 @@
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
-require_once __DIR__ . '/../includes/controllers/AdminController.php';
 require_once __DIR__ . '/../includes/controllers/CommentController.php';
 
 //initialise controllers
 $auth        = new AuthController();
 $articleCtrl = new ArticleController();
-$adminCtrl   = new AdminController();
 $commentCtrl = new CommentController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
 
 $id      = (int)($_GET['id'] ?? 0);
-// admin roles can view suspended articles (e.g. flagged articles under review)
-if ($id && ($user->role === 'system_admin' || $user->role === 'category_admin')) {
-    $article = $adminCtrl->getArticleById($id);
-} else {
-    $article = $id ? $articleCtrl->getById($id) : null;
-}
-
-if (!$article) {
-
-    if ($user->role === 'system_admin') {
-        redirect('/pages/admin-dashboard.php', 'Article not found or not published.');
-    }
-
-    redirect('/dashboard.php', 'Article not found.');
-}
+$article = $id ? $articleCtrl->getById($id) : null;
 
 // 🔥 Fetch premium pricing from database
 $premiumPlan = DB::first(
@@ -56,12 +40,6 @@ $alreadyFlagged = DB::first(
     [$user->id, $article->id]
 ) !== null;
 
-// load categories for the "wrong category" flag option (exclude current article category)
-$flagCategories = DB::query(
-    "SELECT id, name FROM categories WHERE id != ? ORDER BY name",
-    [$article->category_id ?? 0]
-);
-
 // record article view
 // insert ignore prevents duplicate views from same user
 DB::execute(
@@ -69,6 +47,15 @@ DB::execute(
      VALUES (?, ?)",
     [$user->id, $article->id]
 );
+
+if (!$article) {
+
+    if ($user->role === 'system_admin') {
+        redirect('/pages/admin-dashboard.php', 'Article not found or not published.');
+    }
+
+    redirect('/dashboard.php', 'Article not found.');
+}
 
 
 // post and delete comment logic 
@@ -354,27 +341,17 @@ page_head($article->title);
             <div class="form-group">
                 <label>Select a reason</label>
 
-                <label><input type="radio" name="reason" value="INAPPROPRIATE_LANGUAGE" required> Inappropriate language</label>
-                <label><input type="radio" name="reason" value="MISINFORMATION"> Misinformation</label>
-                <label><input type="radio" name="reason" value="HATE_SPEECH"> Hate speech</label>
-                <label><input type="radio" name="reason" value="VIOLENCE"> Violence</label>
-                <label><input type="radio" name="reason" value="ADVERTISING"> Advertising</label>
-                <label><input type="radio" name="reason" value="WRONG_CATEGORY"> Wrong category</label>
-            </div>
-
-            <!-- Category selector — shown only for WRONG_CATEGORY -->
-            <div class="form-group" id="categoryGroup" style="display:none">
-                <label for="suggestedCategory">Suggest the correct category</label>
-                <select name="suggested_category_id" id="suggestedCategory">
-                    <option value="">— Select a category —</option>
-                    <?php foreach ($flagCategories as $cat): ?>
-                        <option value="<?= (int)$cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <label><input type="radio" name="reason" value="Inappropriate language" required> Inappropriate language</label>
+                <label><input type="radio" name="reason" value="Misinformation"> Misinformation</label>
+                <label><input type="radio" name="reason" value="Hate speech"> Hate speech</label>
+                <label><input type="radio" name="reason" value="Violence"> Violence</label>
+                <label><input type="radio" name="reason" value="Advertising"> Advertising</label>
+                <label><input type="radio" name="reason" value="Wrong category"> Wrong category</label>
+                <label><input type="radio" name="reason" value="Other"> Other</label>
             </div>
 
             <!-- Additional info -->
-            <div class="form-group" id="detailsGroup">
+            <div class="form-group">
                 <label>Tell us more</label>
                 <textarea
                     name="details"
