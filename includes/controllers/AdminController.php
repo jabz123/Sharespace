@@ -328,6 +328,7 @@ class AdminController {
 
     // get all articles with at least one flag in a given category
     // returns Article[] sorted by flag count descending
+    // excludes flags that were AI-rejected so only actionable flags appear
     public function getFlaggedArticlesByCategory(int $categoryId): array {
         $rows = DB::query(
             "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
@@ -339,6 +340,7 @@ class AdminController {
              LEFT JOIN article_views v ON v.article_id = a.id
              INNER JOIN article_flags f ON f.article_id = a.id
              WHERE a.category_id = ? AND a.status IN ('published', 'suspended')
+             AND (f.status IS NULL OR f.status != 'REJECTED')
              GROUP BY a.id
              ORDER BY flag_count DESC, a.published_at DESC",
             [$categoryId]
@@ -346,13 +348,14 @@ class AdminController {
         return array_map(fn($r) => new Article($r), $rows);
     }
 
-    // get all individual flag reports for a specific article
+    // get all individual flag reports for a specific article (excluding AI-rejected flags)
     public function getFlagsByArticle(int $articleId): array {
         return DB::query(
             "SELECT f.*, u.full_name AS reporter_name
              FROM article_flags f
              JOIN users u ON u.id = f.user_id
              WHERE f.article_id = ?
+             AND (f.status IS NULL OR f.status != 'REJECTED')
              ORDER BY f.created_at DESC",
             [$articleId]
         );
