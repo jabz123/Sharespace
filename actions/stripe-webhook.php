@@ -54,9 +54,7 @@ try {
     exit;
 }
 
-http_response_code(200);
-echo 'ok';
-flush();
+
 
 wh_log('SIG OK event=' . $event->type);
 
@@ -162,3 +160,7 @@ if ($event->type === 'customer.subscription.deleted') {
 }
 
 wh_log('done');
+
+http_response_code(200);
+echo 'ok';
+flush();
