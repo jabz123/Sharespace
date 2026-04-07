@@ -29,8 +29,8 @@ try {
         ]],
         'customer_email'      => $user->email,
         'metadata'            => ['user_id' => $user->id],
-        'success_url' => 'https://buirdly-prearticulate-rachal.ngrok-free.dev/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}', //http://47.128.202.6
-        'cancel_url'  => 'https://buirdly-prearticulate-rachal.ngrok-free.dev/subscribe-cancel.php', //http://47.128.202.6
+        'success_url' => 'http://47.128.202.6/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}', //http://47.128.202.6
+        'cancel_url'  => 'http://47.128.202.6/subscribe-cancel.php', //http://47.128.202.6
     ]);
 
     header('Location: ' . $session->url);
