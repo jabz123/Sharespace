@@ -3,15 +3,6 @@ require_once __DIR__ . '/../includes/auth.php';
 
 header('Content-Type: application/json');
 
-// prevent PHP warnings/notices from corrupting the JSON response
-ini_set('display_errors', '0');
-
-// catch any unexpected exception and return JSON instead of an HTML error page
-set_exception_handler(function (Throwable $e) {
-    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
-    exit;
-});
-
 // must be logged in
 if (empty($_SESSION['user_id'])) {
     echo json_encode(['error' => 'Unauthorized']);

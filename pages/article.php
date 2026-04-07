@@ -9,25 +9,18 @@
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
-require_once __DIR__ . '/../includes/controllers/AdminController.php';
 require_once __DIR__ . '/../includes/controllers/CommentController.php';
 
 //initialise controllers
 $auth        = new AuthController();
 $articleCtrl = new ArticleController();
-$adminCtrl   = new AdminController();
 $commentCtrl = new CommentController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
 
 $id      = (int)($_GET['id'] ?? 0);
-// admin roles can view suspended articles (e.g. flagged articles under review)
-if ($id && ($user->role === 'system_admin' || $user->role === 'category_admin')) {
-    $article = $adminCtrl->getArticleById($id);
-} else {
-    $article = $id ? $articleCtrl->getById($id) : null;
-}
+$article = $id ? $articleCtrl->getById($id) : null;
 
 if (!$article) {
 
