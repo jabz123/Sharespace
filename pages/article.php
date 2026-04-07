@@ -22,15 +22,6 @@ $user = $auth->currentUser();
 $id      = (int)($_GET['id'] ?? 0);
 $article = $id ? $articleCtrl->getById($id) : null;
 
-if (!$article) {
-
-    if ($user->role === 'system_admin') {
-        redirect('/pages/admin-dashboard.php', 'Article not found or not published.');
-    }
-
-    redirect('/dashboard.php', 'Article not found.');
-}
-
 // 🔥 Fetch premium pricing from database
 $premiumPlan = DB::first(
     "SELECT price, price_suffix 
@@ -62,6 +53,15 @@ DB::execute(
      VALUES (?, ?)",
     [$user->id, $article->id]
 );
+
+if (!$article) {
+
+    if ($user->role === 'system_admin') {
+        redirect('/pages/admin-dashboard.php', 'Article not found or not published.');
+    }
+
+    redirect('/dashboard.php', 'Article not found.');
+}
 
 
 // post and delete comment logic 
