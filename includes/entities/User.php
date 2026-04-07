@@ -37,9 +37,9 @@ class User
         $this->bio         = $row['bio']        ?? '';
         $this->avatarUrl   = $row['avatar_url'] ?? '';
 
-        $this->stripe_customer_id    = $row['stripe_customer_id'] ?? null;
+        $this->stripe_customer_id     = $row['stripe_customer_id']     ?? null;
         $this->stripe_subscription_id = $row['stripe_subscription_id'] ?? null;
-        $this->subscribed_at         = $row['subscribed_at'] ?? null;
+        $this->subscribed_at          = $row['subscribed_at']          ?? null;
         $this->subscription_cancel_at = $row['subscription_cancel_at'] ?? null;
     }
 
