@@ -29,8 +29,8 @@ try {
         ]],
         'customer_email'      => $user->email,
         'metadata'            => ['user_id' => $user->id],
-        'success_url' => 'https://47.128.202.6/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}',
-        'cancel_url'  => 'https://47.128.202.6/subscribe-cancel.php',
+        'success_url' => 'http://47.128.202.6/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url'  => 'http://47.128.202.6/subscribe-cancel.php',
     ]);
 
     header('Location: ' . $session->url);
