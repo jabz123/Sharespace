@@ -18,7 +18,7 @@ if (!$user || !$user->stripe_customer_id) {
 try {
     $session = \Stripe\BillingPortal\Session::create([
         'customer'   => $user->stripe_customer_id,
-        'return_url' => 'http://47.128.202.6/pages/subscription.php', //http://47.128.202.6/pages/subscription.php
+        'return_url' => 'https://sharedspace.tech/pages/subscription.php', //http://47.128.202.6/pages/subscription.php
     ]);
     
     echo "Portal session created: " . $session->url . "<br>";
