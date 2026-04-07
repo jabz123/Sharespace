@@ -36,11 +36,3 @@ define('SMTP_FROM_NAME', 'SharedSpace');
 // define('SMTP_USER', 'marcuskhongg@gmail.com');
 // define('SMTP_PASS', 'jltrolbbzzdxhrux');
 
-
-// =============================
-// n8n Workflow Configuration
-// =============================
-
-define('N8N_FLAG_WEBHOOK_URL', 'https://your-n8n-instance.com/webhook/flag-article'); // replace with your n8n webhook URL
-define('N8N_SHARED_SECRET',   'change-me-to-a-random-secret');                        // shared secret sent as x-ss-secret header
-
