@@ -37,16 +37,33 @@ page_head('Subscription');
             <?php if ($user->role === 'premium'): ?>
 
                 <!-- ── PREMIUM VIEW (Image 1) ── -->
+                <?php $cancelAt = $user->subscription_cancel_at; ?>
                 <div class="sub-status-card">
                     <div class="sub-status-left">
-                        <div class="sub-status-icon">✓</div>
+                        <div class="sub-status-icon"><?= $cancelAt ? '⚠' : '✓' ?></div>
                         <div>
                             <h3>Premium Subscription</h3>
-                            <p>Your subscription is active</p>
+                            <?php if ($cancelAt): ?>
+                                <p>Your plan is active but cancels on <strong><?= htmlspecialchars(date('d M Y', strtotime($cancelAt))) ?></strong></p>
+                            <?php else: ?>
+                                <p>Your subscription is active</p>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <span class="sub-badge active">Active</span>
+                    <span class="sub-badge <?= $cancelAt ? 'cancelling' : 'active' ?>">
+                        <?= $cancelAt ? 'Cancelling' : 'Active' ?>
+                    </span>
                 </div>
+
+                <?php if ($cancelAt): ?>
+                <div class="sub-status-card" style="background:var(--warning-bg,#fff8e1);border-color:var(--warning-border,#ffe082);margin-top:0">
+                    <div class="sub-status-left">
+                        <div>
+                            <p style="margin:0">You still have full premium access until <strong><?= htmlspecialchars(date('d M Y', strtotime($cancelAt))) ?></strong>. You can reactivate anytime through the billing portal.</p>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <div class="sub-details-card">
                     <h3>Subscription Details</h3>
@@ -64,7 +81,7 @@ page_head('Subscription');
                         </div>
                     </div>
                     <a href="/actions/create-portal-session.php" class="btn btn-primary btn-manage">
-                        ↗ Manage Subscription
+                        ↗ <?= $cancelAt ? 'Reactivate / Manage Subscription' : 'Manage Subscription' ?>
                     </a>
                 </div>
 

@@ -22,6 +22,7 @@ class User
     public $stripe_customer_id;
     public $stripe_subscription_id;
     public $subscribed_at;
+    public $subscription_cancel_at; // set when user has scheduled a cancellation
 
     public function __construct(array $row)
     {
@@ -39,6 +40,7 @@ class User
         $this->stripe_customer_id    = $row['stripe_customer_id'] ?? null;
         $this->stripe_subscription_id = $row['stripe_subscription_id'] ?? null;
         $this->subscribed_at         = $row['subscribed_at'] ?? null;
+        $this->subscription_cancel_at = $row['subscription_cancel_at'] ?? null;
     }
 
     //use first letter of name for default avatar cos no picture yet
