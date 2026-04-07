@@ -4,27 +4,51 @@ require_once __DIR__ . '/includes/db.php';
 
 echo "<pre>";
 
-// ── Force-write the correct stripe-webhook.php ───────────────────────
-$correctWebhook = base64_decode('PD9waHANCnNldF90aW1lX2xpbWl0KDMwKTsNCg0KcmVxdWlyZV9vbmNlIF9fRElSX18gLiAnLy4uL2NvbmZpZy5waHAnOw0KcmVxdWlyZV9vbmNlIF9fRElSX18gLiAnLy4uL2luY2x1ZGVzL2RiLnBocCc7DQpyZXF1aXJlX29uY2UgX19ESVJfXyAuICcvLi4vdmVuZG9yL3N0cmlwZS9zdHJpcGUtcGhwL2luaXQucGhwJzsNCg0KLy8g4pSA4pSAIERCIGxvZ2dpbmcgKHZpc2libGUgaW4gcGhwTXlBZG1pbikg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSADQovLyBDcmVhdGVzIHRoZSB0YWJsZSBhdXRvbWF0aWNhbGx5IG9uIGZpcnN0IHJ1bi4NCmZ1bmN0aW9uIHdoX2xvZyhzdHJpbmcgJG1zZyk6IHZvaWQgew0KICAgIHRyeSB7DQogICAgICAgIERCOjpleGVjdXRlKA0KICAgICAgICAgICAgIkNSRUFURSBUQUJMRSBJRiBOT1QgRVhJU1RTIHdlYmhvb2tfbG9nICgNCiAgICAgICAgICAgICAgICBpZCAgICAgICAgIElOVCBBVVRPX0lOQ1JFTUVOVCBQUklNQVJZIEtFWSwNCiAgICAgICAgICAgICAgICBjcmVhdGVkX2F0IERBVEVUSU1FIERFRkFVTFQgTk9XKCksDQogICAgICAgICAgICAgICAgbWVzc2FnZSAgICBURVhUDQogICAgICAgICAgICApIg0KICAgICAgICApOw0KICAgICAgICBEQjo6ZXhlY3V0ZSgiSU5TRVJUIElOVE8gd2ViaG9va19sb2cgKG1lc3NhZ2UpIFZBTFVFUyAoPykiLCBbJG1zZ10pOw0KICAgIH0gY2F0Y2ggKFxFeGNlcHRpb24gJGUpIHsNCiAgICAgICAgLy8gSWYgREIgbG9nZ2luZyBmYWlscyB0aGVyZSdzIG5vdGhpbmcgd2UgY2FuIGRvIOKAlCBjYXJyeSBvbg0KICAgIH0NCn0NCg0KJHBheWxvYWQgICA9IGZpbGVfZ2V0X2NvbnRlbnRzKCdwaHA6Ly9pbnB1dCcpOw0KJHNpZ0hlYWRlciA9ICRfU0VSVkVSWydIVFRQX1NUUklQRV9TSUdOQVRVUkUnXSA/PyAnJzsNCg0Kd2hfbG9nKCdISVQgc2lnPScgLiAoJHNpZ0hlYWRlciA/ICdwcmVzZW50JyA6ICdNSVNTSU5HJykgLiAnIGJ5dGVzPScgLiBzdHJsZW4oJHBheWxvYWQpKTsNCg0KJHJhdyA9IGpzb25fZGVjb2RlKCRwYXlsb2FkLCB0cnVlKTsNCndoX2xvZygncmF3X3R5cGU9JyAuICgkcmF3Wyd0eXBlJ10gPz8gJ25vbmUnKSAuICcgb2JqX2lkPScgLiAoJHJhd1snZGF0YSddWydvYmplY3QnXVsnaWQnXSA/PyAnbi9hJykpOw0KDQovLyDilIDilIAgU2lnbmF0dXJlIHZlcmlmaWNhdGlvbiDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIANCnRyeSB7DQogICAgJGV2ZW50ID0gXFN0cmlwZVxXZWJob29rOjpjb25zdHJ1Y3RFdmVudCgkcGF5bG9hZCwgJHNpZ0hlYWRlciwgU1RSSVBFX1dFQkhPT0tfU0VDUkVUKTsNCn0gY2F0Y2ggKFxTdHJpcGVcRXhjZXB0aW9uXFNpZ25hdHVyZVZlcmlmaWNhdGlvbkV4Y2VwdGlvbiAkZSkgew0KICAgIHdoX2xvZygnU0lHTkFUVVJFIEZBSUxFRCDigJQgc2VjcmV0IGluIGNvbmZpZyBzdGFydHMgd2l0aDogJyAuIHN1YnN0cihTVFJJUEVfV0VCSE9PS19TRUNSRVQsIDAsIDIyKSk7DQogICAgaHR0cF9yZXNwb25zZV9jb2RlKDQwMCk7DQogICAgZXhpdDsNCn0gY2F0Y2ggKFxFeGNlcHRpb24gJGUpIHsNCiAgICB3aF9sb2coJ1BBUlNFIEVSUk9SOiAnIC4gJGUtPmdldE1lc3NhZ2UoKSk7DQogICAgaHR0cF9yZXNwb25zZV9jb2RlKDQwMCk7DQogICAgZXhpdDsNCn0NCg0KaHR0cF9yZXNwb25zZV9jb2RlKDIwMCk7DQplY2hvICdvayc7DQpmbHVzaCgpOw0KDQp3aF9sb2coJ1NJRyBPSyBldmVudD0nIC4gJGV2ZW50LT50eXBlKTsNCg0KLy8g4pSA4pSAIGNoZWNrb3V0LnNlc3Npb24uY29tcGxldGVkIOKGkiB1cGdyYWRlIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgA0KaWYgKCRldmVudC0+dHlwZSA9PT0gJ2NoZWNrb3V0LnNlc3Npb24uY29tcGxldGVkJykgew0KICAgICRzZXNzaW9uID0gJGV2ZW50LT5kYXRhLT5vYmplY3Q7DQogICAgJHVzZXJJZCAgPSAoaW50KSgkc2Vzc2lvbi0+bWV0YWRhdGEtPnVzZXJfaWQgPz8gMCk7DQogICAgd2hfbG9nKCJjaGVja291dCB1c2VyX2lkPSR1c2VySWQgY3VzdG9tZXI9eyRzZXNzaW9uLT5jdXN0b21lcn0gc3ViPXskc2Vzc2lvbi0+c3Vic2NyaXB0aW9ufSIpOw0KDQogICAgaWYgKCR1c2VySWQpIHsNCiAgICAgICAgJHJvd3MgPSBEQjo6ZXhlY3V0ZSgNCiAgICAgICAgICAgICJVUERBVEUgdXNlcnMNCiAgICAgICAgICAgICBTRVQgcm9sZT0ncHJlbWl1bScsIGlzX3ByZW1pdW09MSwNCiAgICAgICAgICAgICAgICAgc3RyaXBlX2N1c3RvbWVyX2lkPT8sDQogICAgICAgICAgICAgICAgIHN0cmlwZV9zdWJzY3JpcHRpb25faWQ9PywNCiAgICAgICAgICAgICAgICAgc3Vic2NyaWJlZF9hdD1OT1coKSwNCiAgICAgICAgICAgICAgICAgc3Vic2NyaXB0aW9uX2NhbmNlbF9hdD1OVUxMDQogICAgICAgICAgICAgV0hFUkUgaWQ9PyIsDQogICAgICAgICAgICBbJHNlc3Npb24tPmN1c3RvbWVyLCAkc2Vzc2lvbi0+c3Vic2NyaXB0aW9uLCAkdXNlcklkXQ0KICAgICAgICApOw0KICAgICAgICB3aF9sb2coInVwZ3JhZGVkIHVzZXIgJHVzZXJJZCByb3dzX2FmZmVjdGVkPSRyb3dzIik7DQogICAgfQ0KfQ0KDQovLyDilIDilIAgY3VzdG9tZXIuc3Vic2NyaXB0aW9uLnVwZGF0ZWQg4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSADQovLyBGaXJlcyB3aGVuIGNhbmNlbGxhdGlvbiBpcyBTQ0hFRFVMRUQgKGNhbmNlbF9hdCA9IGZ1dHVyZSB1bml4IHRpbWVzdGFtcCkuDQovLyBTdWJzY3JpcHRpb24gaXMgc3RpbGwgYWN0aXZlIOKAlCBkbyBOT1QgZG93bmdyYWRlIGhlcmUuDQppZiAoJGV2ZW50LT50eXBlID09PSAnY3VzdG9tZXIuc3Vic2NyaXB0aW9uLnVwZGF0ZWQnKSB7DQogICAgJHN1YiAgICAgID0gJGV2ZW50LT5kYXRhLT5vYmplY3Q7DQogICAgJHN1YklkICAgID0gJHN1Yi0+aWQ7DQogICAgJGNhbmNlbEF0ID0gJHN1Yi0+Y2FuY2VsX2F0Ow0KICAgICRzdGF0dXMgICA9ICRzdWItPnN0YXR1czsNCiAgICB3aF9sb2coInN1Yi51cGRhdGVkIHN1Yj0kc3ViSWQgc3RhdHVzPSRzdGF0dXMgY2FuY2VsX2F0PSIgLiAoJGNhbmNlbEF0ID8/ICdudWxsJykpOw0KDQogICAgaWYgKCRjYW5jZWxBdCkgew0KICAgICAgICAkcm93cyA9IERCOjpleGVjdXRlKA0KICAgICAgICAgICAgIlVQREFURSB1c2VycyBTRVQgc3Vic2NyaXB0aW9uX2NhbmNlbF9hdD1GUk9NX1VOSVhUSU1FKD8pIFdIRVJFIHN0cmlwZV9zdWJzY3JpcHRpb25faWQ9PyIsDQogICAgICAgICAgICBbJGNhbmNlbEF0LCAkc3ViSWRdDQogICAgICAgICk7DQogICAgICAgIHdoX2xvZygic3RvcmVkIGNhbmNlbF9hdCByb3dzX2FmZmVjdGVkPSRyb3dzIik7DQoNCiAgICAgICAgaWYgKCRyb3dzID09PSAwKSB7DQogICAgICAgICAgICAvLyBObyByb3cgbWF0Y2hlZCDigJQgbG9nIHdoYXQncyBhY3R1YWxseSBpbiB0aGUgREIgc28gd2UgY2FuIHNlZSB0aGUgbWlzbWF0Y2gNCiAgICAgICAgICAgICRhbGwgPSBEQjo6cXVlcnkoDQogICAgICAgICAgICAgICAgIlNFTEVDVCBpZCwgc3RyaXBlX3N1YnNjcmlwdGlvbl9pZCBGUk9NIHVzZXJzIFdIRVJFIHN0cmlwZV9zdWJzY3JpcHRpb25faWQgSVMgTk9UIE5VTEwiDQogICAgICAgICAgICApOw0KICAgICAgICAgICAgd2hfbG9nKCJOTyBNQVRDSCDigJQgc3VicyBpbiBEQjogIiAuIGpzb25fZW5jb2RlKCRhbGwpKTsNCiAgICAgICAgfQ0KICAgIH0gZWxzZSB7DQogICAgICAgICRyb3dzID0gREI6OmV4ZWN1dGUoDQogICAgICAgICAgICAiVVBEQVRFIHVzZXJzIFNFVCBzdWJzY3JpcHRpb25fY2FuY2VsX2F0PU5VTEwgV0hFUkUgc3RyaXBlX3N1YnNjcmlwdGlvbl9pZD0/IiwNCiAgICAgICAgICAgIFskc3ViSWRdDQogICAgICAgICk7DQogICAgICAgIHdoX2xvZygiY2xlYXJlZCBjYW5jZWxfYXQgKHJlYWN0aXZhdGVkKSByb3dzX2FmZmVjdGVkPSRyb3dzIik7DQogICAgfQ0KfQ0KDQovLyDilIDilIAgY3VzdG9tZXIuc3Vic2NyaXB0aW9uLmRlbGV0ZWQg4oaSIGRvd25ncmFkZSDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIANCi8vIEZpcmVzIHdoZW4gdGhlIGJpbGxpbmcgcGVyaW9kIGFjdHVhbGx5IGVuZHMuDQppZiAoJGV2ZW50LT50eXBlID09PSAnY3VzdG9tZXIuc3Vic2NyaXB0aW9uLmRlbGV0ZWQnKSB7DQogICAgJHN1YiAgID0gJGV2ZW50LT5kYXRhLT5vYmplY3Q7DQogICAgJHN1YklkID0gJHN1Yi0+aWQ7DQogICAgd2hfbG9nKCJzdWIuZGVsZXRlZCBzdWI9JHN1YklkIOKAlCBkb3duZ3JhZGluZyB1c2VyIik7DQoNCiAgICAkcm93cyA9IERCOjpleGVjdXRlKA0KICAgICAgICAiVVBEQVRFIHVzZXJzDQogICAgICAgICBTRVQgcm9sZT0nZnJlZScsIGlzX3ByZW1pdW09MCwNCiAgICAgICAgICAgICBzdHJpcGVfc3Vic2NyaXB0aW9uX2lkPU5VTEwsDQogICAgICAgICAgICAgc3Vic2NyaXB0aW9uX2NhbmNlbF9hdD1OVUxMDQogICAgICAgICBXSEVSRSBzdHJpcGVfc3Vic2NyaXB0aW9uX2lkPT8iLA0KICAgICAgICBbJHN1YklkXQ0KICAgICk7DQogICAgd2hfbG9nKCJkb3duZ3JhZGVkIHJvd3NfYWZmZWN0ZWQ9JHJvd3MiKTsNCg0KICAgIGlmICgkcm93cyA9PT0gMCkgew0KICAgICAgICAkYWxsID0gREI6OnF1ZXJ5KA0KICAgICAgICAgICAgIlNFTEVDVCBpZCwgc3RyaXBlX3N1YnNjcmlwdGlvbl9pZCBGUk9NIHVzZXJzIFdIRVJFIHN0cmlwZV9zdWJzY3JpcHRpb25faWQgSVMgTk9UIE5VTEwiDQogICAgICAgICk7DQogICAgICAgIHdoX2xvZygiTk8gTUFUQ0gg4oCUIHN1YnMgaW4gREI6ICIgLiBqc29uX2VuY29kZSgkYWxsKSk7DQogICAgfQ0KfQ0KDQp3aF9sb2coJ2RvbmUnKTs=');
+echo "=== WEBHOOK FILE INVESTIGATION ===\n";
 $webhookPath = __DIR__ . '/actions/stripe-webhook.php';
-$expectedMd5 = 'd88b5d009e3266fec1d9187fa470adc7';
-$currentMd5  = md5_file($webhookPath);
 
-echo "=== WEBHOOK PATCH ===\n";
-echo "Current MD5:  $currentMd5\n";
-echo "Expected MD5: $expectedMd5\n";
+// Is it a symlink?
+echo "Is symlink:    " . (is_link($webhookPath) ? 'YES' : 'no') . "\n";
+echo "realpath:      " . realpath($webhookPath) . "\n";
+echo "readlink:      " . (is_link($webhookPath) ? readlink($webhookPath) : 'n/a') . "\n";
+echo "Current MD5:   " . md5_file($webhookPath) . "\n";
+echo "Expected MD5:  d88b5d009e3266fec1d9187fa470adc7\n\n";
 
-if ($currentMd5 !== $expectedMd5) {
-    $written = file_put_contents($webhookPath, $correctWebhook);
-    $newMd5  = md5_file($webhookPath);
-    echo "Patched: " . ($written !== false ? 'YES' : 'FAILED — permission denied?') . "\n";
-    echo "New MD5: $newMd5\n";
-    echo "Match:   " . ($newMd5 === $expectedMd5 ? 'YES ✓' : 'NO ✗') . "\n";
+// Is actions/ directory itself a symlink?
+$actionsDir = __DIR__ . '/actions';
+echo "=== ACTIONS DIRECTORY ===\n";
+echo "Is symlink:    " . (is_link($actionsDir) ? 'YES' : 'no') . "\n";
+echo "realpath:      " . realpath($actionsDir) . "\n";
+echo "readlink:      " . (is_link($actionsDir) ? readlink($actionsDir) : 'n/a') . "\n\n";
+
+// What does /var/www/storage contain?
+echo "=== /var/www/storage CONTENTS ===\n";
+$storage = '/var/www/storage';
+if (is_dir($storage)) {
+    $items = scandir($storage);
+    foreach ($items as $item) {
+        if ($item === '.' || $item === '..') continue;
+        $full = $storage . '/' . $item;
+        $type = is_link($full) ? 'symlink→' . readlink($full) : (is_dir($full) ? 'dir' : 'file');
+        echo "  $item ($type)\n";
+    }
 } else {
-    echo "Already correct — no patch needed.\n";
+    echo "  /var/www/storage does not exist or not readable\n";
 }
 
-// ── DB log test ───────────────────────────────────────────────────────
+// List all symlinks in the current release
+echo "\n=== SYMLINKS IN CURRENT RELEASE ===\n";
+$release = __DIR__;
+$iter = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($release, RecursiveDirectoryIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::SELF_FIRST
+);
+foreach ($iter as $path => $info) {
+    if (is_link($path)) {
+        echo "  " . str_replace($release . '/', '', $path) . " → " . readlink($path) . "\n";
+    }
+}
+
 echo "\n=== DATABASE ===\n";
 try {
     DB::execute("CREATE TABLE IF NOT EXISTS webhook_log (
@@ -32,17 +56,14 @@ try {
         created_at DATETIME DEFAULT NOW(),
         message TEXT
     )");
-    DB::execute("INSERT INTO webhook_log (message) VALUES (?)", ['patch-test at ' . date('Y-m-d H:i:s')]);
+    DB::execute("INSERT INTO webhook_log (message) VALUES (?)", ['investigate at ' . date('Y-m-d H:i:s')]);
     $rows = DB::query("SELECT * FROM webhook_log ORDER BY id DESC LIMIT 3");
     foreach ($rows as $row) {
-        echo "  [{['id']}] {['created_at']} — {['message']}\n";
+        echo "  [" . $row['id'] . "] " . $row['created_at'] . " — " . $row['message'] . "\n";
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     echo "DB ERROR: " . $e->getMessage() . "\n";
 }
 
-echo "\n=== STRIPE CONFIG ===\n";
-echo "Webhook secret prefix: " . substr(STRIPE_WEBHOOK_SECRET, 0, 22) . "...\n";
-
-echo "\n=== DONE — now trigger a Stripe cancellation and check webhook_log ===\n";
+echo "\n=== DONE ===\n";
 echo "</pre>";
