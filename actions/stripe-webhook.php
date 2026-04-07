@@ -5,8 +5,7 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../vendor/stripe/stripe-php/init.php';
 
-// ── DB logging (visible in phpMyAdmin) ──────────────────────────────
-// Creates the table automatically on first run.
+// DB logging — check webhook_log table in phpMyAdmin to debug
 function wh_log(string $msg): void {
     try {
         DB::execute(
@@ -17,9 +16,7 @@ function wh_log(string $msg): void {
             )"
         );
         DB::execute("INSERT INTO webhook_log (message) VALUES (?)", [$msg]);
-    } catch (\Exception $e) {
-        // If DB logging fails there's nothing we can do — carry on
-    }
+    } catch (\Exception $e) {}
 }
 
 $payload   = file_get_contents('php://input');
@@ -27,14 +24,10 @@ $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
 
 wh_log('HIT sig=' . ($sigHeader ? 'present' : 'MISSING') . ' bytes=' . strlen($payload));
 
-$raw = json_decode($payload, true);
-wh_log('raw_type=' . ($raw['type'] ?? 'none') . ' obj_id=' . ($raw['data']['object']['id'] ?? 'n/a'));
-
-// ── Signature verification ───────────────────────────────────────────
 try {
     $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, STRIPE_WEBHOOK_SECRET);
 } catch (\Stripe\Exception\SignatureVerificationException $e) {
-    wh_log('SIGNATURE FAILED — secret in config starts with: ' . substr(STRIPE_WEBHOOK_SECRET, 0, 22));
+    wh_log('SIGNATURE FAILED: ' . $e->getMessage());
     http_response_code(400);
     exit;
 } catch (\Exception $e) {
@@ -49,7 +42,7 @@ flush();
 
 wh_log('SIG OK event=' . $event->type);
 
-// ── checkout.session.completed → upgrade ─────────────────────────────
+// ── checkout.session.completed → upgrade user to premium ─────────────
 if ($event->type === 'checkout.session.completed') {
     $session = $event->data->object;
     $userId  = (int)($session->metadata->user_id ?? 0);
@@ -70,31 +63,39 @@ if ($event->type === 'checkout.session.completed') {
     }
 }
 
-// ── customer.subscription.updated ────────────────────────────────────
-// Fires when cancellation is SCHEDULED (cancel_at = future unix timestamp).
-// Subscription is still active — do NOT downgrade here.
+// ── customer.subscription.updated → store cancellation date ──────────
+// Fires when user cancels via billing portal.
+// Stripe sets cancel_at_period_end=true OR cancel_at=timestamp.
+// We store the end date so the UI can show "cancels on X".
 if ($event->type === 'customer.subscription.updated') {
-    $sub      = $event->data->object;
-    $subId    = $sub->id;
-    $cancelAt = $sub->cancel_at;
-    $status   = $sub->status;
-    wh_log("sub.updated sub=$subId status=$status cancel_at=" . ($cancelAt ?? 'null'));
+    $sub   = $event->data->object;
+    $subId = $sub->id;
 
-    if ($cancelAt) {
+    // cancel_at_period_end = true means "cancel at end of current period"
+    $cancelAtPeriodEnd = (bool)($sub->cancel_at_period_end ?? false);
+    // cancel_at = explicit unix timestamp (set when cancel_at_period_end is true)
+    $cancelAt = $sub->cancel_at ?? null;
+    // current_period_end = when the current billing period ends
+    $periodEnd = $sub->current_period_end ?? null;
+
+    wh_log("sub.updated sub=$subId cancel_at_period_end=$cancelAtPeriodEnd cancel_at=$cancelAt period_end=$periodEnd");
+
+    if ($cancelAtPeriodEnd || $cancelAt) {
+        // Use cancel_at if set, otherwise fall back to current_period_end
+        $endTimestamp = $cancelAt ?: $periodEnd;
         $rows = DB::execute(
-            "UPDATE users SET subscription_cancel_at=FROM_UNIXTIME(?) WHERE stripe_subscription_id=?",
-            [$cancelAt, $subId]
+            "UPDATE users SET subscription_cancel_at=FROM_UNIXTIME(?)
+             WHERE stripe_subscription_id=?",
+            [$endTimestamp, $subId]
         );
-        wh_log("stored cancel_at rows_affected=$rows");
+        wh_log("stored cancel_at=$endTimestamp rows_affected=$rows");
 
         if ($rows === 0) {
-            // No row matched — log what's actually in the DB so we can see the mismatch
-            $all = DB::query(
-                "SELECT id, stripe_subscription_id FROM users WHERE stripe_subscription_id IS NOT NULL"
-            );
+            $all = DB::query("SELECT id, stripe_subscription_id FROM users WHERE stripe_subscription_id IS NOT NULL");
             wh_log("NO MATCH — subs in DB: " . json_encode($all));
         }
     } else {
+        // User reactivated — clear the cancel date
         $rows = DB::execute(
             "UPDATE users SET subscription_cancel_at=NULL WHERE stripe_subscription_id=?",
             [$subId]
@@ -103,8 +104,8 @@ if ($event->type === 'customer.subscription.updated') {
     }
 }
 
-// ── customer.subscription.deleted → downgrade ────────────────────────
-// Fires when the billing period actually ends.
+// ── customer.subscription.deleted → downgrade to free ────────────────
+// Fires when the billing period actually ends after cancellation.
 if ($event->type === 'customer.subscription.deleted') {
     $sub   = $event->data->object;
     $subId = $sub->id;
@@ -121,9 +122,7 @@ if ($event->type === 'customer.subscription.deleted') {
     wh_log("downgraded rows_affected=$rows");
 
     if ($rows === 0) {
-        $all = DB::query(
-            "SELECT id, stripe_subscription_id FROM users WHERE stripe_subscription_id IS NOT NULL"
-        );
+        $all = DB::query("SELECT id, stripe_subscription_id FROM users WHERE stripe_subscription_id IS NOT NULL");
         wh_log("NO MATCH — subs in DB: " . json_encode($all));
     }
 }
