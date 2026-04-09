@@ -3531,7 +3531,7 @@ label {
 .article-body p,
 .article-body li,
 .article-body blockquote {
-    color: #dbe7ff;
+    color: #ffffff;
 }
 
 .meta-label {
@@ -3560,4 +3560,22 @@ label {
 .sort-filters > span,
 .dash-subtitle {
     color: #8ea7cc;
+}
+
+.summary-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: 8px;
+}
+
+.article-content-title {
+    margin-top: 34px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    font-size: 28px;
+    font-weight: 400;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
 }
