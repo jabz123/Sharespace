@@ -9,6 +9,11 @@ require_once __DIR__ . '/../entities/Article.php';
 require_once __DIR__ . '/../entities/Category.php';
 
 class ArticleController {
+    private function resolveTrustScore(array $input): int {
+        $score = (int)($input['trust_score'] ?? 80);
+        return max(0, min(100, $score));
+    }
+
     //returns n most recently published articles
     //maybe change this to recommended or some shit in future ig
     //returns Article[] array of objects
@@ -119,6 +124,7 @@ class ArticleController {
         $content    = trim($input['content']     ?? '');
         $categoryId = (int)($input['category_id'] ?? 0);
         $status = $input['status'] ?? null;
+        $trustScore = $this->resolveTrustScore($input);
 
         if (!$title || !$excerpt || !$content || !$categoryId) {
             return ['error' => 'All fields are required.'];
@@ -145,9 +151,9 @@ class ArticleController {
 
         DB::execute(
             "UPDATE articles
-            SET title = ?, excerpt = ?, content = ?, category_id = ?, image_path = ?, status = ? $setPublishedAt, updated_at = NOW()
+            SET title = ?, excerpt = ?, content = ?, category_id = ?, trust_score = ?, image_path = ?, status = ? $setPublishedAt, updated_at = NOW()
             WHERE id = ? AND author_id = ?",
-            [$title, $excerpt, $content, $categoryId, $imagePath, $status, $articleId, $authorId]
+            [$title, $excerpt, $content, $categoryId, $trustScore, $imagePath, $status, $articleId, $authorId]
         );
 
         return ['ok' => true];
@@ -175,6 +181,7 @@ class ArticleController {
         $content    = trim($input['content']     ?? '');
         $categoryId = (int)($input['category_id'] ?? 0);
         $imagePath = $input['image_path'] ?? null;
+        $trustScore = $this->resolveTrustScore($input);
        
         if (!$title || !$excerpt || !$content || !$categoryId) {
             return ['error' => 'All fields are required.'];
@@ -187,7 +194,7 @@ class ArticleController {
         DB::execute(
         'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status, published_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-        [$title, $excerpt, $content, $authorId, $categoryId, 80, $imagePath, 'published']
+        [$title, $excerpt, $content, $authorId, $categoryId, $trustScore, $imagePath, 'published']
          );
 
         return ['ok' => true, 'id' => DB::lastId()];
@@ -314,6 +321,7 @@ class ArticleController {
     }
 
     public function saveDraft(int $authorId, array $input): array {
+    $trustScore = $this->resolveTrustScore($input);
 
     DB::execute(
         'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status)
@@ -324,7 +332,7 @@ class ArticleController {
             $input['content'] ?? '',
             $authorId,
             $input['category_id'] ?? null,
-            80,
+            $trustScore,
             $input['image_path'] ?? null,
             'draft'
         ]

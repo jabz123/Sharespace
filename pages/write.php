@@ -121,6 +121,8 @@ $val = [
     'excerpt'     => $_POST['excerpt']     ?? ($article?->excerpt     ?? ''),
     'content'     => $_POST['content']     ?? ($article?->content     ?? ''),
     'category_id' => $_POST['category_id'] ?? ($article?->categoryId  ?? 0),
+    'source_url'  => $_POST['source_url']  ?? '',
+    'trust_score' => (int)($_POST['trust_score'] ?? ($article?->trustScore ?? 80)),
 ];
 
 //render form
@@ -143,6 +145,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             <form method="POST" id="write-form" enctype="multipart/form-data" style="flex:2">
 
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
+                <input type="hidden" name="trust_score" id="trustScoreInput" value="<?= (int)$val['trust_score'] ?>">
 
                 <?php if ($canUploadImage): ?>
                 <div class="image-upload-container">
@@ -183,6 +186,17 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Reference Link (Optional)</label>
+                    <input
+                        type="url"
+                        name="source_url"
+                        id="sourceUrlInput"
+                        value="<?= htmlspecialchars($val['source_url']) ?>"
+                        placeholder="https://www.straitstimes.com/"
+                    >
                 </div>
 
                 <div class="form-group">
@@ -229,6 +243,19 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 <p class="text-muted" style="margin-top:10px;">
                     Click "AI Fact Check" to analyze your article's credibility before publishing.
                 </p>
+                <p class="text-muted" style="font-size:13px;">
+                    You can include a reference link such as `The Straits Times` article URL for extra context.
+                </p>
+            </div>
+
+            <div id="ai-loading" style="display:none;">
+                <p class="text-muted" style="margin-top:10px;">
+                    Running n8n verification workflow...
+                </p>
+            </div>
+
+            <div id="ai-error" style="display:none;">
+                <div class="alert alert-error" id="aiErrorMessage" style="margin-top:14px;"></div>
             </div>
 
             <!-- STATE 2 (HIDDEN INITIALLY) -->
@@ -236,34 +263,36 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
     <!-- SCORE -->
     <div style="text-align:center; margin:20px 0;">
-        <h2 style="font-size:28px; font-weight:700;">90%</h2>
+        <h2 id="aiTrustScore" style="font-size:28px; font-weight:700;"><?= (int)$val['trust_score'] ?>%</h2>
         <p class="text-muted">Trust Score</p>
     </div>
 
     <!--  DESCRIPTION TEXT -->
-    <p style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
-        This submission is a legitimate news article. It consists of well researched facts and is supported well by evidence.
+    <p id="aiSummary" style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
+        Run AI Fact Check to see a real verification summary from n8n.
     </p>
+
+            <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:none;"></p>
 
             <!-- PROGRESS BARS -->
             <p>Factual Accuracy</p>
-            <div class="progress-bar"><div style="width:95%"></div></div>
+            <div class="progress-bar"><div id="metricFactualAccuracy" style="width:0%"></div></div>
 
             <p>Source Quality</p>
-            <div class="progress-bar"><div style="width:80%"></div></div>
+            <div class="progress-bar"><div id="metricSourceQuality" style="width:0%"></div></div>
 
             <p>Bias Detection</p>
-            <div class="progress-bar"><div style="width:5%"></div></div>
+            <div class="progress-bar"><div id="metricBiasDetection" style="width:0%"></div></div>
 
             <p>Logical Consistency</p>
-            <div class="progress-bar"><div style="width:90%"></div></div>
+            <div class="progress-bar"><div id="metricLogicalConsistency" style="width:0%"></div></div>
 
             <p>Completeness</p>
-            <div class="progress-bar"><div style="width:80%"></div></div>
+            <div class="progress-bar"><div id="metricCompleteness" style="width:0%"></div></div>
 
             <!-- SUCCESS BOX -->
-            <div class="ai-success-box">
-                 Trust score is above 60%. Article can be published.
+            <div class="ai-success-box" id="aiVerdictBox">
+                 Waiting for verification.
             </div>
 
         </div>
@@ -294,9 +323,109 @@ function removeImage() {
     document.getElementById('removeImageFlag').value = "1";
 }
 
-function runAICheck() {
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+function setMetricBar(id, value) {
+    const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
+    document.getElementById(id).style.width = `${safeValue}%`;
+}
+
+function resetAIStates() {
     document.getElementById('ai-empty').style.display = 'none';
-    document.getElementById('ai-result').style.display = 'block';
+    document.getElementById('ai-loading').style.display = 'none';
+    document.getElementById('ai-error').style.display = 'none';
+    document.getElementById('ai-result').style.display = 'none';
+}
+
+function showAIError(message) {
+    resetAIStates();
+    document.getElementById('ai-error').style.display = 'block';
+    document.getElementById('aiErrorMessage').textContent = message;
+}
+
+async function runAICheck() {
+    const title = document.querySelector('input[name="title"]').value.trim();
+    const excerpt = document.querySelector('input[name="excerpt"]').value.trim();
+    const content = document.querySelector('textarea[name="content"]').value.trim();
+    const categorySelect = document.querySelector('select[name="category_id"]');
+    const sourceUrl = document.getElementById('sourceUrlInput').value.trim();
+    const button = document.querySelector('.btn-ai');
+
+    if (!title || !excerpt || !content || !categorySelect.value) {
+        showAIError('Fill in the title, summary, category, and content before running AI verification.');
+        return;
+    }
+
+    resetAIStates();
+    document.getElementById('ai-loading').style.display = 'block';
+    button.disabled = true;
+    button.textContent = 'Running AI Fact Check...';
+
+    try {
+        const response = await fetch('/api/ai-verify.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title,
+                excerpt,
+                content,
+                category: categorySelect.options[categorySelect.selectedIndex].text,
+                source_url: sourceUrl
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'AI verification failed.');
+        }
+
+        const metrics = data.metrics || {};
+        const trustScore = Math.max(0, Math.min(100, Number(data.trust_score) || 0));
+        const verdictBox = document.getElementById('aiVerdictBox');
+        const sourceLabel = document.getElementById('aiSourceLabel');
+
+        document.getElementById('trustScoreInput').value = trustScore;
+        document.getElementById('aiTrustScore').textContent = `${trustScore}%`;
+        document.getElementById('aiSummary').textContent = data.summary || 'Verification completed.';
+
+        if (data.source_label) {
+            sourceLabel.style.display = 'block';
+            sourceLabel.textContent = data.source_label;
+        } else if (sourceUrl) {
+            sourceLabel.style.display = 'block';
+            sourceLabel.innerHTML = `Reference used: <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceUrl)}</a>`;
+        } else {
+            sourceLabel.style.display = 'none';
+            sourceLabel.textContent = '';
+        }
+
+        setMetricBar('metricFactualAccuracy', metrics.factual_accuracy);
+        setMetricBar('metricSourceQuality', metrics.source_quality);
+        setMetricBar('metricBiasDetection', metrics.bias_detection);
+        setMetricBar('metricLogicalConsistency', metrics.logical_consistency);
+        setMetricBar('metricCompleteness', metrics.completeness);
+
+        verdictBox.textContent = data.verdict || 'Verification completed.';
+        verdictBox.style.background = trustScore >= 60 ? '#22c55e' : '#f59e0b';
+        verdictBox.style.color = trustScore >= 60 ? '#000' : '#111827';
+
+        resetAIStates();
+        document.getElementById('ai-result').style.display = 'block';
+    } catch (error) {
+        showAIError(error.message || 'AI verification failed.');
+    } finally {
+        button.disabled = false;
+        button.textContent = '🤖 AI Fact Check';
+    }
 }
 </script>
 
