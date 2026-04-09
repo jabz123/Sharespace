@@ -3773,6 +3773,29 @@ body,
         radial-gradient(circle, rgba(255,167,44,0.95) 0%, rgba(255,167,44,0.34) 26%, rgba(255,167,44,0.1) 52%, transparent 74%);
 }
 
+.preview-window {
+    position: relative;
+}
+
+.preview-window::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -22px;
+    width: min(78%, 720px);
+    height: 18px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(255,210,136,0.95) 0%, rgba(255,173,61,0.72) 22%, rgba(255,173,61,0.24) 52%, transparent 76%),
+        linear-gradient(90deg, transparent 0%, rgba(255,176,58,0.08) 12%, rgba(255,187,76,0.92) 50%, rgba(255,176,58,0.08) 88%, transparent 100%);
+    box-shadow:
+        0 0 14px rgba(255,166,42,0.34),
+        0 0 36px rgba(255,166,42,0.22),
+        0 0 76px rgba(255,166,42,0.16);
+    filter: blur(0.4px);
+}
+
 .btn-hero-lg {
     background: linear-gradient(135deg, #ffca5a 0%, #ffae24 45%, #ef8d10 100%);
     color: #11151f;
