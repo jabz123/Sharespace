@@ -80,7 +80,7 @@ function sidebar(User $user): void {
     <div class="sidebar-logo">
         <?php sharedspace_brand(
             $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php'),
-            'dark',
+            'light',
             'sidebar-brand'
         ); ?>
     </div>
