@@ -133,7 +133,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "{\n  \"ok\": false,\n  \"error\": \"={{json.error}}\" \n}",
+        "responseBody": "{\n  \"ok\": false,\n  \"error\": \"={{ $json.error }}\" \n}",
         "options": {
           "responseCode": "={{$json.httpCode || 400}}"
         }
@@ -223,9 +223,6 @@
     "templateCredsSetupCompleted": true,
     "instanceId": "6eaf351a0f0b3e7bc4fedc6ca67569093b65851c7921c00e4c2e026b2fa91c84"
   },
-  "id": "zzzyxUVkUBaHNCAf",
-  "tags": []
-}
   "id": "zzzyxUVkUBaHNCAf",
   "tags": []
 }
