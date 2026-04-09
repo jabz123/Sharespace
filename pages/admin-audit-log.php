@@ -22,9 +22,18 @@ $offset  = ($page - 1) * $perPage;
 $filterAction = trim($_GET['filter'] ?? '');
 
 // fetch
-$entries    = $adminCtrl->getAuditLog($perPage, $offset, $filterAction ?: null);
-$totalCount = $adminCtrl->getAuditLogCount($filterAction ?: null);
-$totalPages = (int)ceil($totalCount / $perPage);
+$entries = [];
+$totalCount = 0;
+$totalPages = 0;
+$auditError = null;
+
+try {
+    $entries    = $adminCtrl->getAuditLog($perPage, $offset, $filterAction ?: null);
+    $totalCount = $adminCtrl->getAuditLogCount($filterAction ?: null);
+    $totalPages = (int)ceil($totalCount / $perPage);
+} catch (Throwable $e) {
+    $auditError = 'The audit log is not available yet on this environment. Please ensure the audit_log table exists and try again.';
+}
 
 // action → [display label, badge bg colour]
 $actionMeta = [
@@ -55,10 +64,10 @@ page_head('Audit Log');
                 flex-wrap:wrap;gap:12px;margin-bottom:24px">
         <div style="font-size:13px;color:var(--muted)">
             Showing
-            <strong style="color:var(--text)"><?= number_format($totalCount) ?></strong>
+            <strong style="color:var(--fg)"><?= number_format($totalCount) ?></strong>
             total entr<?= $totalCount === 1 ? 'y' : 'ies' ?>
             <?php if ($filterAction): ?>
-                filtered by <strong style="color:var(--text)"><?= htmlspecialchars(str_replace('_', ' ', $filterAction)) ?></strong>
+                filtered by <strong style="color:var(--fg)"><?= htmlspecialchars(str_replace('_', ' ', $filterAction)) ?></strong>
                 &mdash; <a href="/pages/admin-audit-log.php" style="color:var(--primary)">clear filter</a>
             <?php endif; ?>
         </div>
@@ -80,7 +89,12 @@ page_head('Audit Log');
 
     <!-- LOG TABLE -->
     <div class="card" style="padding:0;overflow:hidden">
-        <?php if (empty($entries)): ?>
+        <?php if ($auditError): ?>
+            <div style="padding:28px 24px;border-bottom:1px solid var(--border);background:rgba(245,166,35,0.06);color:var(--fg)">
+                <div style="font-weight:700;margin-bottom:6px">Audit log unavailable</div>
+                <div style="font-size:14px;color:var(--muted)"><?= htmlspecialchars($auditError) ?></div>
+            </div>
+        <?php elseif (empty($entries)): ?>
             <div style="text-align:center;padding:60px 24px;color:var(--muted)">
                 <?php if ($filterAction): ?>
                     No entries found for this action type.
