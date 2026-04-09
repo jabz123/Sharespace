@@ -386,4 +386,96 @@ class AdminController {
         DB::execute('DELETE FROM article_flags WHERE article_id = ?', [$articleId]);
         return ['ok' => true];
     }
+
+    // ─────────────────────────────────────────────
+    // EXTENDED STATS (for analytics quick-stats bar)
+    // ─────────────────────────────────────────────
+
+    // Returns all stats needed for the dashboard analytics bar:
+    // totalArticles, totalUsers, totalCategories,
+    // flaggedArticles, suspendedArticles, premiumUsers
+    public function getExtendedStats(): array {
+        $totalArticles     = DB::first(
+            "SELECT COUNT(*) AS cnt FROM articles WHERE status IN ('published','suspended')"
+        )['cnt'] ?? 0;
+
+        $totalUsers        = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
+
+        $totalCategories   = DB::first('SELECT COUNT(*) AS cnt FROM categories')['cnt'] ?? 0;
+
+        $flaggedArticles   = DB::first(
+            'SELECT COUNT(DISTINCT article_id) AS cnt FROM article_flags'
+        )['cnt'] ?? 0;
+
+        $suspendedArticles = DB::first(
+            "SELECT COUNT(*) AS cnt FROM articles WHERE status = 'suspended'"
+        )['cnt'] ?? 0;
+
+        $premiumUsers      = DB::first(
+            "SELECT COUNT(*) AS cnt FROM users WHERE role = 'premium'"
+        )['cnt'] ?? 0;
+
+        $suspended         = DB::first(
+            'SELECT COUNT(*) AS cnt FROM users WHERE is_suspended = 1'
+        )['cnt'] ?? 0;
+
+        return compact(
+            'totalArticles', 'totalUsers', 'totalCategories',
+            'flaggedArticles', 'suspendedArticles', 'premiumUsers', 'suspended'
+        );
+    }
+
+    // ─────────────────────────────────────────────
+    // AUDIT LOG
+    // ─────────────────────────────────────────────
+
+    // Record an admin action into audit_log.
+    public function logAction(
+        int    $adminId,
+        string $action,
+        string $targetType,
+        ?int   $targetId,
+        string $details
+    ): void {
+        DB::execute(
+            'INSERT INTO audit_log (admin_id, action, target_type, target_id, details)
+             VALUES (?, ?, ?, ?, ?)',
+            [$adminId, $action, $targetType, $targetId, $details]
+        );
+    }
+
+    // Fetch audit log entries, newest first, with the admin's name joined.
+    // Optional $filterAction limits results to a specific action type (e.g. 'suspend_user').
+    public function getAuditLog(int $limit = 50, int $offset = 0, ?string $filterAction = null): array {
+        if ($filterAction) {
+            return DB::query(
+                'SELECT al.*, u.full_name AS admin_name
+                 FROM audit_log al
+                 JOIN users u ON u.id = al.admin_id
+                 WHERE al.action = ?
+                 ORDER BY al.created_at DESC
+                 LIMIT ? OFFSET ?',
+                [$filterAction, $limit, $offset]
+            );
+        }
+        return DB::query(
+            'SELECT al.*, u.full_name AS admin_name
+             FROM audit_log al
+             JOIN users u ON u.id = al.admin_id
+             ORDER BY al.created_at DESC
+             LIMIT ? OFFSET ?',
+            [$limit, $offset]
+        );
+    }
+
+    // Total count of audit log rows. Optional $filterAction scopes the count.
+    public function getAuditLogCount(?string $filterAction = null): int {
+        if ($filterAction) {
+            return (int)(DB::first(
+                'SELECT COUNT(*) AS cnt FROM audit_log WHERE action = ?',
+                [$filterAction]
+            )['cnt'] ?? 0);
+        }
+        return (int)(DB::first('SELECT COUNT(*) AS cnt FROM audit_log')['cnt'] ?? 0);
+    }
 }
