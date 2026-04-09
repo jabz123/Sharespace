@@ -5,14 +5,14 @@ This folder contains a starter `n8n` workflow for the article verification panel
 ## What it does
 
 - Receives article data from `POST /api/ai-verify.php`
-- Sends the article to Groq through an OpenAI-compatible chat completion request
+- Sends the article to OpenAI using `gpt-5-mini`
 - Returns structured verification data for the right-hand AI panel
 
-## Expected local setup
+## Expected setup
 
-1. Run `n8n` locally so the webhook is available at `http://127.0.0.1:5678/webhook/sharedspace-ai-verify`
+1. Run `n8n` locally or on Hostinger so the webhook is available publicly
 2. Import `ai-verification-workflow.json`
-3. In `n8n`, set the `GROQ_API_KEY` environment variable or replace it in the HTTP Request node
+3. In `n8n`, set the `OPENAI_API_KEY` environment variable or replace it in the HTTP Request node
 4. Open the write page and click `AI Fact Check`
 
 ## Example source link

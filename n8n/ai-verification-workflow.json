@@ -33,17 +33,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "url": "https://api.openai.com/v1/chat/completions",
         "sendHeaders": true,
         "specifyHeaders": "json",
-        "jsonHeaders": "{\n  \"Authorization\": \"Bearer {{$env.GROQ_API_KEY}}\",\n  \"Content-Type\": \"application/json\"\n}",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer {{$env.OPENAI_API_KEY}}\",\n  \"Content-Type\": \"application/json\"\n}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.2,\n  \"max_tokens\": 900,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{$json.prompt.toJsonString()}}\n    }\n  ]\n}",
+        "jsonBody": "{\n  \"model\": \"gpt-5-mini\",\n  \"temperature\": 0.2,\n  \"max_completion_tokens\": 900,\n  \"response_format\": {\n    \"type\": \"json_object\"\n  },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a strict editorial verification assistant. Always return valid JSON only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{$json.prompt.toJsonString()}}\n    }\n  ]\n}",
         "options": {}
       },
       "id": "a9b8c3a2-0001-4d80-8f52-000000000003",
-      "name": "Call Groq",
+      "name": "Call OpenAI",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -96,14 +96,14 @@
       "main": [
         [
           {
-            "node": "Call Groq",
+            "node": "Call OpenAI",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Call Groq": {
+    "Call OpenAI": {
       "main": [
         [
           {

@@ -54,7 +54,7 @@ if ($webhookUrl === '') {
     $webhookUrl = trim((string)(getenv('N8N_VERIFY_WEBHOOK_URL') ?: ''));
 }
 if ($webhookUrl === '') {
-    $webhookUrl = 'http://127.0.0.1:5678/webhook/sharedspace-ai-verify';
+    $webhookUrl = 'https://n8n.srv1502312.hstgr.cloud/webhook/sharedspace-ai-verify';
 }
 
 $payload = [
