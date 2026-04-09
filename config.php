@@ -31,6 +31,8 @@ define('SMTP_PORT', 587);
 define('SMTP_SECURE', 'tls');
 define('SMTP_FROM_NAME', 'SharedSpace');
 
+//jerel's API key for n8n workflow
+define('N8N_SHARED_SECRET', 'X9a7QwLm2Zp4RtVb6Yc8HsJd0Nk3UfEi');
 
 // Backup account below for sending of email:
 // define('SMTP_USER', 'marcuskhongg@gmail.com');
