@@ -7,7 +7,9 @@ require_once __DIR__ . '/controllers/ArticleController.php';
 require_once __DIR__ . '/controllers/CommentController.php';
 require_once __DIR__ . '/textlimit.php';
 
-function page_head(string $title): void { ?>
+function page_head(string $title): void {
+    $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title), '-'));
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +21,7 @@ function page_head(string $title): void { ?>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/public/css/app.css" />
 </head>
-<body>
+<body class="page-<?= htmlspecialchars($slug) ?>">
 <?php }
 
 function page_foot(): void { ?>
@@ -232,6 +234,16 @@ function article_card(Article $article, User $user): void {
         ?>
     </p>
 
+    <div class="card-credibility">
+        <div class="card-credibility-row">
+            <span class="card-verified-pill">Verified</span>
+            <span class="card-score-copy"><?= (int)$article->trustScore ?>% credibility</span>
+        </div>
+        <div class="card-score-track">
+            <span style="width: <?= max(10, min(100, (int)$article->trustScore)) ?>%"></span>
+        </div>
+    </div>
+
     <div class="card-footer">
         <div class="footer-left">
             <div class="author-avatar">
@@ -258,11 +270,6 @@ function article_card(Article $article, User $user): void {
             <div class="meta-item">
                 <span class="meta-label">Views</span>
                 <span class="meta-count"><?= $article->viewCount ?></span>
-            </div>
-
-            <div class="meta-item">
-                <span class="meta-label">Flags</span>
-                <span class="meta-count"><?= $article->flagCount ?></span>
             </div>
         </div>
     </div>

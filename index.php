@@ -77,9 +77,8 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
         <div class="nav-links" id="nav-links">
             <a href="#recent-articles">Recent Articles</a>
-            <a href="#features">Features</a>
+            <a href="#features">Fact Checking</a>
             <a href="#how-it-works">How It Works</a>
-            <a href="#testimonials">Testimonials</a>
             <a href="#pricing">Pricing</a>
         </div>
 
@@ -130,16 +129,16 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="container hero-inner">
         <div class="hero-badge fade-in">
             <span class="hero-badge-dot" aria-hidden="true"></span>
-            <?= htmlspecialchars($hero['badge'] ?? '') ?>
+            AI-powered verification intelligence
         </div>
 
         <h1 class="hero-title slide-up">
-            <?= htmlspecialchars($hero['title'] ?? '') ?><br>
-            <span class="gradient-text"><?= htmlspecialchars($hero['title_highlight'] ?? '') ?></span>
+            Uncover the<br>
+            <span class="gradient-text">Truth in Every Headline</span>
         </h1>
 
         <p class="hero-sub slide-up" style="animation-delay:.1s">
-            <?= htmlspecialchars($hero['subtitle'] ?? '') ?>
+            SharedSpace analyzes developing stories for credibility, consistency, and source quality before they reach your audience.
         </p>
 
         <div class="hero-cta slide-up" style="animation-delay:.1s">
@@ -156,8 +155,9 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
             </div>
 
             <div class="preview-header">
-                <h2>Recent Articles</h2>
-                <p>See what readers are discovering on SharedSpace.</p>
+                <span class="preview-kicker">Editorial content</span>
+                <h2>Articles Reviewed &amp; Fact-Checked</h2>
+                <p>See what our AI has verified on SharedSpace.</p>
             </div>
 
             <div class="preview-cards">
@@ -223,6 +223,10 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                         </div>
                     <?php endfor; ?>
                 <?php endif; ?>
+            </div>
+
+            <div class="preview-window-cta">
+                <a href="/login.php" class="preview-window-link">See All Verified News</a>
             </div>
         </div>
     </div>
