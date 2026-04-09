@@ -2891,7 +2891,7 @@ margin:0 auto;
 }
 
 body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--bg);
     color: var(--fg);
 }
@@ -2936,8 +2936,8 @@ a {
 }
 
 .role-badge {
-    font-family: 'Rajdhani', sans-serif;
-    letter-spacing: 0.12em;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     border-radius: 4px;
 }
@@ -2962,9 +2962,9 @@ a {
 .nav-link {
     color: #506080;
     border-radius: 0;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
     padding: 12px 14px;
     position: relative;
 }
@@ -3209,20 +3209,20 @@ label {
 
 .meta-label {
     font-size: 10px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .category-tag {
     display: inline-flex;
     align-items: center;
     border-radius: 4px;
-    padding: 4px 8px;
-    font-family: 'Rajdhani', sans-serif;
+    padding: 5px 10px;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     border: 1px solid rgba(245,166,35,0.35);
     color: var(--primary);
@@ -3270,10 +3270,10 @@ label {
     background: rgba(46,223,154,0.12);
     border: 1px solid rgba(46,223,154,0.3);
     border-radius: 4px;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
@@ -3402,7 +3402,7 @@ label {
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
     color: #c8d8f8;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     font-weight: 500;
     text-decoration: none;
@@ -3428,17 +3428,17 @@ label {
 
 .sort-filters > span {
     color: var(--secondary-text);
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
 }
 
 /* Final readability polish */
 .sidebar-brand .sharedspace-brand-image {
-    width: 212px;
-    max-width: none;
+    width: 168px;
+    max-width: 100%;
     filter: brightness(1.2) contrast(1.15);
 }
 
@@ -3454,7 +3454,7 @@ label {
 .nav-link.logout {
     color: #d6e2fb;
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .nav-link:hover,
@@ -3578,4 +3578,94 @@ label {
     color: #ffffff;
     border-bottom: 1px solid rgba(255,255,255,0.12);
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+
+button,
+input,
+select,
+textarea,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-danger {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.nav-icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    opacity: 1;
+}
+
+.nav-icon-home { background: var(--primary); box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.12); }
+.nav-icon-browse { background: #4db8ff; box-shadow: 0 0 0 4px rgba(77, 184, 255, 0.12); }
+.nav-icon-articles { background: #2edf9a; box-shadow: 0 0 0 4px rgba(46, 223, 154, 0.12); }
+.nav-icon-compose { background: #ffb830; box-shadow: 0 0 0 4px rgba(255, 184, 48, 0.12); }
+.nav-icon-profile { background: #b080ff; box-shadow: 0 0 0 4px rgba(176, 128, 255, 0.12); }
+.nav-icon-saved { background: #7ecbff; box-shadow: 0 0 0 4px rgba(126, 203, 255, 0.12); }
+.nav-icon-membership { background: #f5a623; box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.12); }
+.nav-icon-library,
+.nav-icon-writers,
+.nav-icon-alerts,
+.nav-icon-landing,
+.nav-icon-logout {
+    background: #8ea7cc;
+    box-shadow: 0 0 0 4px rgba(142, 167, 204, 0.12);
+}
+
+/* Typography refinement */
+body,
+button,
+input,
+select,
+textarea,
+.nav-link,
+.nav-link.logout,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-danger,
+.category-filters a,
+.sort-btn,
+.card-excerpt,
+.article-body p,
+.article-body li,
+.article-body blockquote {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.role-badge,
+.meta-label,
+.category-tag,
+.trust-badge,
+.sort-filters > span {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.nav-link,
+.nav-link.logout {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.role-badge,
+.meta-label,
+.sort-filters > span,
+.trust-badge {
+    letter-spacing: 0.08em;
+}
+
+.category-tag {
+    padding: 5px 9px;
+    letter-spacing: 0.09em;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.card-excerpt {
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.75;
 }

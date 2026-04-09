@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Sign In – SharedSpace</title>
     <link rel="stylesheet" href="/public/css/app.css"/>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
     <!-- css is here for now, will update later -->
     <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         --success:     #2edf9a;
     }
 
-    html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', -apple-system, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
     body { display: flex; }
 
     /* ══ LEFT PANEL — 40% ══ */
@@ -195,16 +195,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .live-badge { display: flex; align-items: center; gap: 8px; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.2); animation: pulse-red 1.8s infinite; }
     @keyframes pulse-red { 0%,100% { box-shadow: 0 0 0 3px rgba(248,113,113,0.2); } 50% { box-shadow: 0 0 0 6px rgba(248,113,113,0.05); } }
-    .live-text { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #f87171; }
+    .live-text { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #f87171; }
     .r-stats { display: flex; align-items: center; gap: 20px; }
     .r-stat { text-align: right; }
     .r-stat-val { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); line-height: 1; }
-    .r-stat-lbl { font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .r-stat-lbl { font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 2px; }
     .r-divider { width: 1px; height: 28px; background: var(--card-border); }
 
     .r-feed { flex: 1; position: relative; z-index: 5; padding: 24px 36px 0; display: flex; flex-direction: column; gap: 11px; overflow: hidden; }
     .feed-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-    .feed-lbl { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+    .feed-lbl { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
     .feed-chips { display: flex; gap: 6px; }
     .chip { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.32); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px 10px; cursor: pointer; transition: all 0.15s; }
     .chip.active { color: var(--amber); background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
@@ -218,31 +218,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .a-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
     .a-body { flex: 1; min-width: 0; }
     .a-meta { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
-    .a-cat { font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
+    .a-cat { font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
     .a-sep { font-size: 10px; color: rgba(255,255,255,0.18); }
     .a-time { font-size: 10px; color: rgba(255,255,255,0.27); }
     .a-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.82); line-height: 1.45; letter-spacing: -0.1px; }
     .a-src { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 4px; }
     .a-right { flex-shrink: 0; }
-    .trust { display: flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; }
+    .trust { display: flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 4px; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; }
     .trust.hi  { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
     .trust.mid { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
 
     .r-hero { position: relative; z-index: 5; padding: 24px 36px; border-top: 1px solid var(--card-border); display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
     .hero-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
     .hero-line { width: 22px; height: 2px; background: var(--amber); border-radius: 2px; }
-    .hero-eyebrow-lbl { font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--amber); }
+    .hero-eyebrow-lbl { font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); }
     .hero-copy h2 { font-family: 'DM Serif Display', Georgia, serif; font-size: 28px; font-weight: 400; color: #fff; line-height: 1.2; letter-spacing: -0.4px; margin-bottom: 7px; }
     .hero-copy h2 em { font-style: italic; color: rgba(255,255,255,0.52); }
     .hero-copy p { font-size: 13px; color: rgba(255,255,255,0.36); line-height: 1.6; max-width: 290px; }
     .hero-stats { display: flex; gap: 26px; flex-shrink: 0; }
     .hs { text-align: right; }
     .hs-n { font-family: 'DM Serif Display', Georgia, serif; font-size: 24px; color: #fff; line-height: 1; letter-spacing: -0.4px; }
-    .hs-n sup { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--amber); vertical-align: super; }
-    .hs-l { font-family: 'Rajdhani', sans-serif; font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.24); margin-top: 3px; }
+    .hs-n sup { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--amber); vertical-align: super; }
+    .hs-l { font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.24); margin-top: 3px; }
 
     .r-ticker { position: relative; z-index: 5; background: rgba(0,0,0,0.32); border-top: 1px solid var(--card-border); height: 36px; padding: 0 20px; display: flex; align-items: center; gap: 14px; overflow: hidden; }
-    .ticker-badge { font-family: 'Rajdhani', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #06090f; flex-shrink: 0; background: var(--amber); border: 1px solid transparent; padding: 2px 8px; border-radius: 4px; }
+    .ticker-badge { font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #06090f; flex-shrink: 0; background: var(--amber); border: 1px solid transparent; padding: 2px 8px; border-radius: 4px; }
     .ticker-track { display: flex; gap: 44px; animation: ticker-anim 32s linear infinite; white-space: nowrap; }
     @keyframes ticker-anim { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     .ticker-item { font-size: 11.5px; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px; }
