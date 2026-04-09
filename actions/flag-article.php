@@ -46,6 +46,41 @@ DB::execute(
     [$userId, $articleId, $reason, $details]
 );
 
+// ===== CALL N8N FOR AI TRIAGE =====
+$payload = [
+    'reporter' => ['user_id' => $userId],
+    'article'  => [
+        'id' => $articleId,
+        // ideally include title/content/category too (see note below)
+    ],
+    'flag' => [
+        'reason'  => $reason,
+        'details' => $details,
+    ],
+];
+
+$ch = curl_init(N8N_FLAG_WEBHOOK_URL);
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        'Content-Type: application/json',
+        'x-ss-secret: ' . N8N_SHARED_SECRET,
+    ],
+    CURLOPT_POSTFIELDS => json_encode($payload),
+    CURLOPT_TIMEOUT => 15,
+]);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+if ($response === false) {
+    // Optional: log curl_error($ch)
+}
+curl_close($ch);
+
+// Optional: if you want to hard-fail when n8n rejects:
+// if ($httpCode >= 400) { echo $response; exit; }
 
 // ===== SUCCESS =====
 echo json_encode(['ok' => true]);

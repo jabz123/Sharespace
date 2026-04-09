@@ -13,6 +13,7 @@ date_default_timezone_set('Asia/Singapore');
 if (!defined('N8N_SHARED_SECRET')) {
     define('N8N_SHARED_SECRET', 'X9a7QwLm2Zp4RtVb6Yc8HsJd0Nk3UfEi');
 }
+define('N8N_FLAG_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud/webhook/flag-triage');
 
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
 define('GROQ_API_KEY', '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');
