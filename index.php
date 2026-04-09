@@ -72,7 +72,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 <nav class="navbar" id="navbar">
     <div class="container nav-inner">
         <a href="/" class="nav-logo">
-            <img src="/public/icons/sharedspace-logo-dark.svg" alt="SharedSpace" class="nav-logo-image">
+            <img src="/public/icons/sharedspace-logo-light.svg" alt="SharedSpace" class="nav-logo-image">
         </a>
 
         <div class="nav-links" id="nav-links">
@@ -368,7 +368,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="container footer-inner">
         <div class="footer-brand">
             <a href="/" class="footer-logo">
-                <img src="/public/icons/sharedspace-logo-dark.svg" alt="SharedSpace" class="footer-logo-image">
+                    <img src="/public/icons/sharedspace-logo-light.svg" alt="SharedSpace" class="footer-logo-image">
             </a>
             <p>The trusted platform for verified news. AI-powered fact-checking for the modern age.</p>
         </div>
