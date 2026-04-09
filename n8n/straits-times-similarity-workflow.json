@@ -1,0 +1,137 @@
+{
+  "name": "SharedSpace ST Similarity Verification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sharedspace-ai-verify",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b1a2c3d4-0001-4d80-8f52-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\nconst title = String(input.title || '').trim();\nconst excerpt = String(input.excerpt || '').trim();\nconst content = String(input.content || '').trim();\nconst category = String(input.category || '').trim();\nconst sourceUrl = String(input.source_url || '').trim();\n\nconst prompt = [\n  'You are an editorial verification assistant for SharedSpace.',\n  'Search The Straits Times for recent or relevant stories that are similar to the draft below.',\n  'Compare the draft against the matched Straits Times reporting and judge reliability based on corroboration, consistency, sourcing strength, tone, and completeness.',\n  '',\n  'Scoring guidance:',\n  '- factual_accuracy: higher when core claims align with matched Straits Times reporting.',\n  '- source_quality: higher when several relevant Straits Times matches are found and used.',\n  '- bias_detection: higher when the draft remains balanced and avoids exaggeration.',\n  '- logical_consistency: higher when the draft is internally coherent and consistent with matched stories.',\n  '- completeness: higher when the draft covers the main who/what/when/where/why details supported by the matched stories.',\n  '',\n  'If no strong Straits Times match is found, lower source_quality and mention that clearly in the summary and verdict.',\n  '',\n  `Draft title: ${title}`,\n  `Draft category: ${category}`,\n  `Draft summary: ${excerpt}`,\n  `Reference URL supplied by user: ${sourceUrl || 'None'}`,\n  '',\n  'Draft content:',\n  content\n].join('\\n');\n\nreturn [{ json: { ...input, prompt } }];"
+      },
+      "id": "b1a2c3d4-0001-4d80-8f52-000000000002",
+      "name": "Build ST Search Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer REPLACE_WITH_YOUR_OPENAI_API_KEY\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({\n  model: 'gpt-5-mini',\n  reasoning: { effort: 'low' },\n  tools: [\n    {\n      type: 'web_search',\n      filters: {\n        allowed_domains: ['straitstimes.com', 'www.straitstimes.com']\n      }\n    }\n  ],\n  tool_choice: 'auto',\n  text: {\n    format: {\n      type: 'json_schema',\n      name: 'sharedspace_st_similarity',\n      strict: true,\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          trust_score: { type: 'integer' },\n          summary: { type: 'string' },\n          verdict: { type: 'string' },\n          metrics: {\n            type: 'object',\n            additionalProperties: false,\n            properties: {\n              factual_accuracy: { type: 'integer' },\n              source_quality: { type: 'integer' },\n              bias_detection: { type: 'integer' },\n              logical_consistency: { type: 'integer' },\n              completeness: { type: 'integer' }\n            },\n            required: ['factual_accuracy', 'source_quality', 'bias_detection', 'logical_consistency', 'completeness']\n          },\n          source_label: { type: 'string' },\n          matched_articles: {\n            type: 'array',\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                title: { type: 'string' },\n                url: { type: 'string' },\n                relevance_note: { type: 'string' }\n              },\n              required: ['title', 'url', 'relevance_note']\n            }\n          }\n        },\n        required: ['trust_score', 'summary', 'verdict', 'metrics', 'source_label', 'matched_articles']\n      }\n    }\n  },\n  input: [\n    {\n      role: 'system',\n      content: 'Return JSON only. Search Straits Times for similar stories, compare them with the user draft, and score reliability from 0 to 100.'\n    },\n    {\n      role: 'user',\n      content: $json.prompt\n    }\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "b1a2c3d4-0001-4d80-8f52-000000000003",
+      "name": "Search ST With OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output_text || $json.output?.find((item) => item.type === 'message')?.content?.find((part) => part.type === 'output_text')?.text || '{}';\nconst cleaned = String(raw).replace(/```json|```/gi, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (error) {\n  return [{\n    json: {\n      trust_score: 0,\n      summary: 'AI returned invalid JSON.',\n      verdict: 'Verification failed. Check the OpenAI response in n8n.',\n      metrics: {\n        factual_accuracy: 0,\n        source_quality: 0,\n        bias_detection: 0,\n        logical_consistency: 0,\n        completeness: 0\n      },\n      source_label: 'Invalid AI response',\n      matched_articles: []\n    }\n  }];\n}\n\nconst clamp = (value) => Math.max(0, Math.min(100, parseInt(value ?? 0, 10) || 0));\nconst metrics = parsed.metrics || {};\nconst factual = clamp(metrics.factual_accuracy);\nconst source = clamp(metrics.source_quality);\nconst bias = clamp(metrics.bias_detection);\nconst logical = clamp(metrics.logical_consistency);\nconst completeness = clamp(metrics.completeness);\n\nlet trust = clamp(parsed.trust_score);\nif (!trust) {\n  trust = Math.round((factual + source + bias + logical + completeness) / 5);\n}\n\nconst matchedArticles = Array.isArray(parsed.matched_articles)\n  ? parsed.matched_articles.slice(0, 5).map((article) => ({\n      title: String(article.title || ''),\n      url: String(article.url || ''),\n      relevance_note: String(article.relevance_note || '')\n    }))\n  : [];\n\nreturn [{\n  json: {\n    trust_score: trust,\n    summary: String(parsed.summary || 'Verification completed.'),\n    verdict: String(\n      parsed.verdict ||\n      (trust >= 60\n        ? 'Trust score is above 60%. Article can be published.'\n        : 'Trust score is below 60%. Revise the article and run verification again.')\n    ),\n    metrics: {\n      factual_accuracy: factual,\n      source_quality: source,\n      bias_detection: bias,\n      logical_consistency: logical,\n      completeness\n    },\n    source_label: String(parsed.source_label || 'Compared against Straits Times search results.'),\n    matched_articles: matchedArticles\n  }\n}];"
+      },
+      "id": "b1a2c3d4-0001-4d80-8f52-000000000004",
+      "name": "Normalize ST Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}",
+        "options": {}
+      },
+      "id": "b1a2c3d4-0001-4d80-8f52-000000000005",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build ST Search Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build ST Search Prompt": {
+      "main": [
+        [
+          {
+            "node": "Search ST With OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search ST With OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Normalize ST Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize ST Result": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {},
+  "active": false,
+  "versionId": "b1a2c3d4-0001-4d80-8f52-000000000006",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
