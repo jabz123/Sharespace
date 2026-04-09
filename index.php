@@ -24,27 +24,6 @@ $steps = DB::query("SELECT * FROM landing_steps ORDER BY display_order ASC");
 $plans = DB::query("SELECT * FROM landing_pricing_plans ORDER BY display_order ASC");
 $pricingFeatures = DB::query("SELECT * FROM landing_pricing_features ORDER BY display_order ASC");
 
-$previewCount = is_array($previewArticles) ? count($previewArticles) : 0;
-$avgTrust = 0;
-$categorySummary = [];
-
-if ($previewCount > 0) {
-    $trustTotal = 0;
-    foreach ($previewArticles as $previewArticle) {
-        $trustTotal += (int)($previewArticle->trustScore ?? 0);
-        if (!empty($previewArticle->categoryName)) {
-            $categorySummary[] = $previewArticle->categoryName;
-        }
-    }
-    $avgTrust = (int) round($trustTotal / $previewCount);
-}
-
-$categorySummary = array_values(array_unique(array_filter($categorySummary)));
-$heroTickerItems = array_slice(array_merge(
-    $categorySummary,
-    ['Verified newsroom', 'Reader-first publishing', 'Source-aware reporting']
-), 0, 5);
-
 function score_class(int $score): string
 {
     if ($score >= 80) return 'score-high';
@@ -132,6 +111,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="starfield starfield-back" aria-hidden="true"></div>
     <div class="starfield starfield-mid" aria-hidden="true"></div>
     <div class="starfield starfield-front" aria-hidden="true"></div>
+    <div class="hero-galaxy" aria-hidden="true"></div>
     <div class="hero-aura" aria-hidden="true"></div>
     <div class="blob blob-right"></div>
     <div class="blob blob-left"></div>
@@ -154,37 +134,6 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
         <div class="hero-cta slide-up" style="animation-delay:.1s">
             <a href="/register.php" class="btn-hero-lg">Start Publishing Free</a>
             <a href="#video" class="btn-outline-lg">View Demo</a>
-        </div>
-
-        <div class="hero-live-band slide-up" style="animation-delay:.16s">
-            <div class="hero-live-pill">
-                <span class="hero-live-dot" aria-hidden="true"></span>
-                Live editorial pulse
-            </div>
-
-            <div class="hero-live-track" aria-hidden="true">
-                <?php foreach ($heroTickerItems as $tickerItem): ?>
-                    <span><?= htmlspecialchars($tickerItem) ?></span>
-                <?php endforeach; ?>
-                <?php foreach ($heroTickerItems as $tickerItem): ?>
-                    <span><?= htmlspecialchars($tickerItem) ?></span>
-                <?php endforeach; ?>
-            </div>
-        </div>
-
-        <div class="hero-metrics slide-up" style="animation-delay:.2s">
-            <div class="hero-metric-card">
-                <span class="hero-metric-label">Preview stories</span>
-                <strong class="hero-metric-value"><?= $previewCount ?></strong>
-            </div>
-            <div class="hero-metric-card">
-                <span class="hero-metric-label">Average trust</span>
-                <strong class="hero-metric-value"><?= $avgTrust ?>%</strong>
-            </div>
-            <div class="hero-metric-card">
-                <span class="hero-metric-label">Top beat</span>
-                <strong class="hero-metric-value"><?= htmlspecialchars($heroTickerItems[0] ?? 'Verified news') ?></strong>
-            </div>
         </div>
 
         <div id="recent-articles" class="preview-window slide-up" style="animation-delay:.1s">
