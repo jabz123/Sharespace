@@ -2029,7 +2029,8 @@ h4,
 
 .preview-card {
     background:
-        linear-gradient(180deg, rgba(12,19,34,0.98) 0%, rgba(6,10,19,0.98) 100%);
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 26%),
+        linear-gradient(180deg, rgba(18,24,38,0.98) 0%, rgba(8,12,22,0.98) 100%);
     border: 1px solid rgba(255,255,255,0.12);
 }
 
@@ -2048,6 +2049,27 @@ h4,
 
 .preview-card:nth-child(3)::before {
     border-top-color: rgba(199,214,239,0.45);
+}
+
+.preview-card:nth-child(1) {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.12), transparent 24%),
+        radial-gradient(circle at 22% 20%, rgba(255,210,138,0.05), transparent 20%),
+        linear-gradient(180deg, rgba(20,23,34,0.98) 0%, rgba(8,11,20,0.98) 100%);
+}
+
+.preview-card:nth-child(2) {
+    background:
+        radial-gradient(circle at top right, rgba(46,223,154,0.1), transparent 24%),
+        radial-gradient(circle at 18% 24%, rgba(122,255,210,0.05), transparent 18%),
+        linear-gradient(180deg, rgba(16,26,34,0.98) 0%, rgba(8,15,20,0.98) 100%);
+}
+
+.preview-card:nth-child(3) {
+    background:
+        radial-gradient(circle at top right, rgba(132,176,255,0.12), transparent 24%),
+        radial-gradient(circle at 24% 18%, rgba(210,226,255,0.05), transparent 18%),
+        linear-gradient(180deg, rgba(18,24,38,0.98) 0%, rgba(9,13,24,0.98) 100%);
 }
 
 .preview-card:hover {
@@ -2076,6 +2098,14 @@ h4,
 
 .preview-cat {
     color: #f6c46d;
+}
+
+.preview-card:nth-child(2) .preview-cat {
+    color: #8ee7c1;
+}
+
+.preview-card:nth-child(3) .preview-cat {
+    color: #b9d2ff;
 }
 
 .preview-score {
