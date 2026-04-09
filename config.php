@@ -13,6 +13,9 @@ date_default_timezone_set('Asia/Singapore');
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
 define('GROQ_API_KEY', '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');
 
+//Jerel's API for n8n workflow
+define('N8N_SHARED_SECRET', 'X9a7QwLm2Zp4RtVb6Yc8HsJd0Nk3UfEi');
+
 //stripe shit
 define('STRIPE_PUBLIC_KEY',  'pk_test_51TJAljQbEqKAvs55VRP6eLrnKdPbJymWgZ0B5oWgzl8N4DHOJ8muCR8Mr25vSsNKjB702hyrCOWEAZCW9x6GktlA00nf9EAGSS');
 define('STRIPE_SECRET_KEY',  'sk_test_51TJAljQbEqKAvs55YlyGnED9kz3uETBPejDDOEkbCz8xFW9a3u0Y3ETY6mU09ldBaH9uGzfm0ji1HsVKtI1ll3Uz00Yhjud6uw');
