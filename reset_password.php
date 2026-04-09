@@ -1,9 +1,4 @@
 <?php
-// displays the reset password page after user clicks the email reset link
-// verifies the reset token from the url and checks if it is still valid
-// allows the user to enter and confirm a new password
-// updates the user password in the database and clears the reset token
-// redirects the user back to the login page after successful reset
 
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
@@ -18,22 +13,20 @@ $user = DB::first(
 );
 
 if (!$user) {
-    die("Invalid or expired password reset link.");
+    die('Invalid or expired password reset link.');
 }
 
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $password = $_POST['password'] ?? '';
-    $confirm  = $_POST['confirm_password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
 
     if ($password !== $confirm) {
-        $error = "Passwords do not match.";
+        $error = 'Passwords do not match.';
     } elseif (strlen($password) < 6) {
-        $error = "Password must be at least 6 characters.";
+        $error = 'Password must be at least 6 characters.';
     } else {
-
         DB::execute(
             "UPDATE users
              SET password = ?, reset_token = NULL, reset_expires = NULL
@@ -44,141 +37,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/login.php', null, 'Password updated successfully.');
     }
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-    <title>Reset Password – SharedSpace</title>
-
+    <title>Reset Password - SharedSpace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/public/css/app.css">
-
-    <style>
-        body {
-            background: hsl(213, 56%, 10%);
-        }
-    </style>
-
 </head>
-
 <body>
+<div class="auth-wrap">
+    <div class="auth-form-side">
+        <div class="auth-box">
+            <a href="/" class="auth-logo auth-inline-logo">
+                <img src="/public/icons/sharedspace-logo-dark.svg" alt="SharedSpace" class="sharedspace-brand-image">
+            </a>
 
-    <div class="auth-wrap">
+            <h1>Reset your password</h1>
+            <p class="sub">Set a new password to restore access to your account.</p>
 
-        <!-- LEFT SIDE -->
-        <div class="auth-form-side">
+            <?php if ($error): ?>
+                <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
 
-            <div class="auth-box">
-
-                <a href="/" class="auth-logo">
-                    <span style="font-size:24px">📰</span>
-                    <span>SharedSpace</span>
-                </a>
-
-                <h1>Reset Your Password</h1>
-                <p class="sub">Enter your new password below</p>
-
-                <?php if ($error): ?>
-                    <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-                <?php endif; ?>
-
-                <form method="POST">
-
-                    <div class="form-group">
-                        <label for="password">Password</label>
-
-                        <div class="input-icon" style="position:relative">
-
-                            <span class="icon">🔒</span>
-
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="••••••••"
-                                required
-                                style="padding-right:44px">
-
-                            <button
-                                type="button"
-                                data-toggle-password="password"
-                                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">
-                                👁
-                            </button>
-
-                        </div>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="password">New password</label>
+                    <div class="input-icon" style="position:relative">
+                        <input type="password" id="password" name="password" placeholder="Create a new password" required style="padding-right:64px">
+                        <button type="button" data-toggle-password="password" class="password-toggle">Show</button>
                     </div>
+                </div>
 
-
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm New Password</label>
-
-                        <div class="input-icon" style="position:relative">
-
-                            <span class="icon">🔒</span>
-
-                            <input
-                                type="password"
-                                id="confirm_password"
-                                name="confirm_password"
-                                placeholder="••••••••"
-                                required
-                                style="padding-right:44px">
-
-                            <button
-                                type="button"
-                                data-toggle-password="confirm_password"
-                                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">
-                                👁
-                            </button>
-
-                        </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm new password</label>
+                    <div class="input-icon" style="position:relative">
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat your password" required style="padding-right:64px">
+                        <button type="button" data-toggle-password="confirm_password" class="password-toggle">Show</button>
                     </div>
+                </div>
 
+                <button type="submit" class="btn btn-hero btn-full">Continue</button>
+            </form>
 
-                    <button type="submit" class="btn btn-hero btn-full">
-                        Continue
-                    </button>
-
-                </form>
-
-                <p class="text-sm text-muted" style="text-align:center;margin-top:20px">
-                    <a href="/login.php">← Back to login</a>
-                </p>
-
-            </div>
+            <p class="text-sm text-muted" style="text-align:center;margin-top:20px">
+                <a href="/login.php">Back to login</a>
+            </p>
         </div>
-
-
-        <!-- RIGHT SIDE -->
-        <div class="auth-brand-side">
-
-            <div class="brand-body">
-
-                <div class="brand-rule"></div>
-
-                <h2>Truth in Every<br>Headline.</h2>
-
-                <p>
-                    Join thousands of journalists and readers who trust SharedSpace
-                    for verified, fact-checked news. Our AI-powered platform ensures
-                    every article meets the highest standards of accuracy.
-                </p>
-
-            </div>
-
-        </div>
-
     </div>
 
-    <script src="/public/js/app.js"></script>
-
+    <div class="auth-brand-side">
+        <div class="auth-brand-shell">
+            <img src="/public/icons/sharedspace-logo-light.svg" alt="SharedSpace" class="sharedspace-brand-image" style="width:240px;margin-bottom:32px">
+            <div class="brand-rule"></div>
+            <h2>Return to trusted reading.</h2>
+            <p>Once your password is updated, you can continue writing, reading, and reviewing articles in the same premium environment.</p>
+        </div>
+    </div>
+</div>
+<script src="/public/js/app.js"></script>
 </body>
-
 </html>

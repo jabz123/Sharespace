@@ -1,6 +1,8 @@
 body{
-background:#ffffff;
+background:transparent;
 margin:0;
+font-family:'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+color:#0b1628;
 }
 
 /* main container */
@@ -26,17 +28,23 @@ margin:20px auto;
 width:70px;
 }
 
+.brand-logo-wordmark{
+width:220px;
+margin:0 auto 26px;
+}
+
 .onboard-title{
 text-align:center;
-font-size:30px;
-font-weight:700;
+font-size:40px;
+font-weight:400;
+font-family:'Instrument Serif', Georgia, serif;
 margin-top:10px;
 margin-bottom:8px;
 }
 
 .onboard-subtitle{
 text-align:center;
-color:#6b7280;
+color:#5f6f89;
 margin-bottom:35px;
 font-size:15px;
 }
@@ -97,7 +105,7 @@ color:#6b7280;
 border:none;
 background:none;
 font-size:14px;
-color:#4f7a5a;
+color:#24345e;
 cursor:pointer;
 }
 
@@ -131,9 +139,9 @@ display:none;
 }
 
 .interest-chip.active{
-background:#5c7f62;
+background:#0b1628;
 color:white;
-border-color:#5c7f62;
+border-color:#0b1628;
 }
 
 
@@ -172,13 +180,13 @@ text-decoration:none;
 }
 
 .btn-primary{
-background:#5c7f62;
+background:linear-gradient(135deg, #0b1628 0%, #24345e 100%);
 color:white;
 border:none;
 }
 
 .btn-primary:hover{
-background:#4f6e55;
+background:linear-gradient(135deg, #0b1628 0%, #24345e 100%);
 }
 .btn-secondary{
 background:white;

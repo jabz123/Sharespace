@@ -264,8 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="left-inner">
 
         <a href="/" class="auth-logo">
-            <div class="brand-mark"></div>
-            <span class="brand-name">SharedSpace</span>
+            <img src="/public/icons/sharedspace-logo-dark.svg" alt="SharedSpace" class="sharedspace-brand-image" style="width:188px">
         </a>
 
         <div class="auth-box">

@@ -52,13 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="onboard-container">
 
-        <h2 class="brand-name">SharedSpace</h2>
-
-        <img src="/public/icons/clearicon.png" class="brand-logo" alt="logo">
+        <img src="/public/icons/sharedspace-logo-dark.svg" class="brand-logo brand-logo-wordmark" alt="SharedSpace">
 
         <h1 class="onboard-title">Tell us more about you.</h1>
 
-        <p class="onboard-sub">
+        <p class="onboard-subtitle">
             Choose 3 topics you're interested in to continue
         </p>
 
