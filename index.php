@@ -114,6 +114,14 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="cosmos-haze" aria-hidden="true"></div>
     <div class="planet planet-large" aria-hidden="true"></div>
     <div class="planet planet-small" aria-hidden="true"></div>
+    <div class="signal-satellite" aria-hidden="true">
+        <span class="satellite-core"></span>
+        <span class="satellite-panel satellite-panel-left"></span>
+        <span class="satellite-panel satellite-panel-right"></span>
+        <span class="satellite-dish"></span>
+        <span class="satellite-beam satellite-beam-one"></span>
+        <span class="satellite-beam satellite-beam-two"></span>
+    </div>
     <div class="hero-galaxy" aria-hidden="true"></div>
     <div class="hero-aura" aria-hidden="true"></div>
     <div class="blob blob-right"></div>
