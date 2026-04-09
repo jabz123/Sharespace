@@ -3434,3 +3434,130 @@ label {
     letter-spacing: 0.16em;
     text-transform: uppercase;
 }
+
+/* Final readability polish */
+.sidebar-brand .sharedspace-brand-image {
+    width: 212px;
+    max-width: none;
+    filter: brightness(1.2) contrast(1.15);
+}
+
+.user-name {
+    font-size: 20px;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #ffffff;
+}
+
+.nav-link,
+.nav-link.logout {
+    color: #d6e2fb;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.nav-link:hover,
+.nav-link.logout:hover {
+    color: #ffffff;
+}
+
+.nav-link.active {
+    color: var(--primary);
+    background: rgba(245,166,35,0.12);
+}
+
+.btn-primary,
+.btn-hero,
+.btn-publish,
+.btn-ai,
+.btn-hero-nav,
+.btn-hero-lg,
+.btn-hero-full {
+    background: var(--primary);
+    color: #06090f;
+    border: none;
+}
+
+.btn-primary:hover,
+.btn-hero:hover,
+.btn-publish:hover,
+.btn-ai:hover,
+.btn-hero-nav:hover,
+.btn-hero-lg:hover,
+.btn-hero-full:hover {
+    background: var(--primary-mid);
+    color: #06090f;
+}
+
+.btn-secondary,
+.btn-ghost,
+.btn-draft,
+.tts-btn.stop {
+    background: rgba(77, 184, 255, 0.12);
+    border: 1px solid rgba(77, 184, 255, 0.28);
+    color: #edf4ff;
+}
+
+.btn-secondary:hover,
+.btn-ghost:hover,
+.btn-draft:hover,
+.tts-btn.stop:hover {
+    background: rgba(77, 184, 255, 0.2);
+    border-color: rgba(77, 184, 255, 0.42);
+    color: #ffffff;
+}
+
+.dash-title,
+.mb-10 h2,
+.card-title,
+.article-detail h1,
+.article-content-title,
+.summary-title {
+    color: #ffffff;
+}
+
+.card-title {
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.card-excerpt,
+.my-article-excerpt,
+.card-time,
+.text-muted,
+.meta-item,
+.summary-text,
+.article-body p,
+.article-body li,
+.article-body blockquote {
+    color: #dbe7ff;
+}
+
+.meta-label {
+    color: #8ea7cc;
+}
+
+.article-body {
+    font-size: 16px;
+    line-height: 1.95;
+}
+
+.article-body strong,
+.article-body b,
+.article-body h2,
+.article-body h3,
+.article-body h4,
+.article-body a {
+    color: #ffffff;
+}
+
+.article-body a {
+    text-decoration: underline;
+    text-decoration-color: rgba(245,166,35,0.5);
+}
+
+.sort-filters > span,
+.dash-subtitle {
+    color: #8ea7cc;
+}
