@@ -121,14 +121,14 @@ page_head('Admin Dashboard');
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px">
         <?php
         $cards = [
-            ['📰', 'Total Articles', $stats['totalArticles']],
-            ['👥', 'Total Users',    $stats['totalUsers']],
-            ['⭐', 'Premium Users',  $stats['premiumUsers']],
-            ['🚫', 'Suspended',      $stats['suspended']],
+            ['Articles', 'Total Articles', $stats['totalArticles']],
+            ['Users', 'Total Users',    $stats['totalUsers']],
+            ['Premium', 'Premium Users',  $stats['premiumUsers']],
+            ['Review', 'Suspended',      $stats['suspended']],
         ];
         foreach ($cards as [$icon, $label, $val]): ?>
         <div class="card" style="padding:20px 24px;text-align:center">
-            <div style="font-size:28px;margin-bottom:6px"><?= $icon ?></div>
+            <div style="font-size:11px;margin-bottom:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700"><?= $icon ?></div>
             <div style="font-size:24px;font-weight:800;color:var(--primary)"><?= $val ?></div>
             <div style="font-size:12px;color:var(--muted);margin-top:2px"><?= $label ?></div>
         </div>
@@ -139,19 +139,19 @@ page_head('Admin Dashboard');
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
         <a href="/pages/admin-dashboard.php?tab=articles"
            class="btn <?= $tab === 'articles'   ? 'btn-primary' : 'btn-ghost' ?>">
-            📰 Manage Articles
+            Manage Articles
         </a>
         <a href="/pages/admin-dashboard.php?tab=users"
            class="btn <?= $tab === 'users'      ? 'btn-primary' : 'btn-ghost' ?>">
-            👥 Manage Users
+            Manage Users
         </a>
         <a href="/pages/admin-dashboard.php?tab=categories"
            class="btn <?= $tab === 'categories' ? 'btn-primary' : 'btn-ghost' ?>">
-            📋 Manage Categories
+            Manage Categories
         </a>
         <a href="/pages/admin-dashboard.php?tab=experts"
            class="btn <?= $tab === 'experts'    ? 'btn-primary' : 'btn-ghost' ?>">
-            🎓 Manage Category Experts
+            Manage Category Experts
         </a>
     </div>
 
@@ -210,7 +210,7 @@ page_head('Admin Dashboard');
                             </td>
                             <td style="padding:12px 8px;text-align:right;white-space:nowrap">
                                 <a href="/pages/article.php?id=<?= $article->id ?>" target="_blank"
-                                   class="btn btn-ghost btn-sm">👁 View</a>
+                                   class="btn btn-ghost btn-sm">View</a>
 
                                 <?php if ($isSuspended): ?>
                                 <form method="POST" style="display:inline;margin:0">
@@ -388,14 +388,14 @@ page_head('Admin Dashboard');
                                             <?= $cat['id'] ?>,
                                             '<?= htmlspecialchars(addslashes($cat['name'])) ?>',
                                             '<?= htmlspecialchars(addslashes($cat['description'] ?? '')) ?>'
-                                        )">✏️ Edit</button>
+                                        )">Edit</button>
                                 <form method="POST" style="display:inline;margin:0">
                                     <input type="hidden" name="action"      value="delete_category">
                                     <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
                                     <button type="submit" class="btn btn-ghost btn-sm"
                                             style="color:var(--danger)"
                                             onclick="return confirm('Delete \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?\nThis will fail if articles still use this category.')">
-                                        🗑 Delete
+                                        Delete
                                     </button>
                                 </form>
                             </td>
@@ -468,7 +468,7 @@ page_head('Admin Dashboard');
         <div class="card" style="padding:24px">
             <div style="margin-bottom:20px">
                 <h2 style="font-size:17px;font-weight:700;margin-bottom:6px">
-                    🎓 Manage Category Experts
+                    Manage Category Experts
                 </h2>
                 <p style="font-size:13px;color:var(--muted)">
                     Assign one expert per category. Experts get the <strong style="font-weight:600">Category Admin</strong> role

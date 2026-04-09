@@ -27,8 +27,6 @@ $offset = ($page - 1) * $perPage;
 $totalArticles = $articleCtrl->countByCategory($category, $search);
 $totalPages = ceil($totalArticles / $perPage);
 $articles = $articleCtrl->getByCategory($category, $sort, $search, $perPage, $offset);
-
-// $articles = $articleCtrl->getByCategory($category, $sort, $search);
 $allCategories = $categoryCtrl->getAll();
 
 page_head('Browse Articles');
@@ -40,8 +38,6 @@ page_head('Browse Articles');
 
     <main>
 
-
-        <!-- page header -->
         <?php dash_header('Browse Articles', 'Explore all articles'); ?>
 
         <div class="page-content">
@@ -61,9 +57,7 @@ page_head('Browse Articles');
                 </div>
 
                 <form method="GET" class="search-bar">
-
                     <div class="search-input-wrapper">
-
                         <input
                             type="text"
                             id="searchInput"
@@ -72,21 +66,17 @@ page_head('Browse Articles');
                             value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
 
                         <button type="button" id="clearSearch" class="clear-btn"><img src="/public/icons/clearicon.png" alt="Clear"></button>
-
                     </div>
 
                     <input type="hidden" name="category" value="<?= $category ?>">
                     <input type="hidden" name="sort" value="<?= $sort ?>">
 
-                    <button type="submit" class="search-btn"> <img src="/public/icons/searchicon.png" alt="Search"></button>
-
+                    <button type="submit" class="search-btn"><img src="/public/icons/searchicon.png" alt="Search"></button>
                 </form>
 
             </div>
 
-
             <div class="sort-filters">
-
                 <span>Sort By:</span>
 
                 <a href="?category=<?= $category ?>&sort=recent&search=<?= $search ?>"
@@ -96,55 +86,43 @@ page_head('Browse Articles');
                 <a href="?category=<?= $category ?>&sort=trusted&search=<?= $search ?>"
                     class="sort-btn <?= $sort == 'trusted' ? 'active-filter' : '' ?>">Most Trusted
                 </a>
-
             </div>
 
-
-
             <div class="article-grid">
-
                 <?php if (empty($articles)): ?>
-
                     <p>No articles found.</p>
-
                 <?php else: ?>
-
                     <?php foreach ($articles as $article): ?>
-
                         <?php article_card($article, $user); ?>
-
                     <?php endforeach; ?>
-
                 <?php endif; ?>
-
             </div>
 
         </div>
-            <div class="pagination">
 
-               <!-- ⏮ FIRST PAGE -->
-                <a href="<?= $page > 1 
-                    ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=1'
-                    : '#' ?>"
-                class="page-btn <?= $page == 1 ? 'disabled' : '' ?>">
-                ⏮
-                </a>
+        <div class="pagination">
 
-                <!-- ◀ PREVIOUS -->
-                <a href="<?= $page > 1 
-                    ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=' . ($page - 1)
-                    : '#' ?>"
-                class="page-btn <?= $page == 1 ? 'disabled' : '' ?>">
-                ◀
-                </a>
-                <form method="GET" class="page-form">
-                <!-- PAGE INPUT -->
-                <input 
-                    type="number" 
+            <a href="<?= $page > 1
+                ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=1'
+                : '#' ?>"
+            class="page-btn <?= $page == 1 ? 'disabled' : '' ?>">
+            First
+            </a>
+
+            <a href="<?= $page > 1
+                ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=' . ($page - 1)
+                : '#' ?>"
+            class="page-btn <?= $page == 1 ? 'disabled' : '' ?>">
+            Previous
+            </a>
+
+            <form method="GET" class="page-form">
+                <input
+                    type="number"
                     id="pageInput"
-                    name="page" 
-                    value="<?= $page ?>" 
-                    min="1" 
+                    name="page"
+                    value="<?= $page ?>"
+                    min="1"
                     max="<?= $totalPages ?>"
                     class="page-input">
 
@@ -152,24 +130,23 @@ page_head('Browse Articles');
                 <input type="hidden" name="category" value="<?= $category ?>">
                 <input type="hidden" name="sort" value="<?= $sort ?>">
                 <input type="hidden" name="search" value="<?= $search ?>">
-                    </form>
-               <!-- ▶ NEXT -->
-            <a href="<?= $page < $totalPages 
+            </form>
+
+            <a href="<?= $page < $totalPages
                 ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=' . ($page + 1)
                 : '#' ?>"
             class="page-btn <?= $page == $totalPages ? 'disabled' : '' ?>">
-            ▶
+            Next
             </a>
 
-            <!-- ⏭ LAST -->
-            <a href="<?= $page < $totalPages 
+            <a href="<?= $page < $totalPages
                 ? '?category=' . urlencode($category) . '&sort=' . urlencode($sort) . '&search=' . urlencode($search) . '&page=' . $totalPages
                 : '#' ?>"
             class="page-btn <?= $page == $totalPages ? 'disabled' : '' ?>">
-            ⏭
+            Last
             </a>
 
-            </div>
+        </div>
 
     </main>
 

@@ -27,7 +27,7 @@ page_head('Edit Password');
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
             <div style="margin-top:20px">
-                <a href="/pages/profile.php">← Back to Profile</a>
+                <a href="/pages/profile.php">Back to Profile</a>
             </div>
         </div>
     </main>

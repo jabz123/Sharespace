@@ -16,7 +16,7 @@ function page_head(string $title): void { ?>
 <title><?= htmlspecialchars($title) ?> - SharedSpace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/public/css/app.css" />
 </head>
 <body>
@@ -158,6 +158,17 @@ function flash_messages(): void {
     if ($ok): ?><div class="alert alert-success"><?= htmlspecialchars($ok) ?></div><?php endif;
 }
 
+function category_theme_class(string $name): string {
+    return match (strtolower(trim($name))) {
+        'politics' => 'category-politics',
+        'health' => 'category-health',
+        'economy', 'business', 'finance' => 'category-economy',
+        'sports' => 'category-sports',
+        'games', 'gaming', 'technology', 'tech' => 'category-games',
+        default => 'category-default',
+    };
+}
+
 function trust_badge(int $score): string {
     $cls = $score >= 80 ? 'high' : ($score >= 60 ? 'mid' : 'low');
     return "<span class=\"trust-badge trust-{$cls}\">{$score}%</span>";
@@ -188,7 +199,7 @@ function article_card(Article $article, User $user): void {
 <a href="<?= $url ?>" class="article-card-link">
 <div class="article-card">
     <div class="card-top">
-        <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
+        <span class="category-tag <?= category_theme_class($article->categoryName) ?>"><?= htmlspecialchars($article->categoryName) ?></span>
         <?= trust_badge($article->trustScore) ?>
     </div>
 

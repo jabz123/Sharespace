@@ -1,7 +1,4 @@
 <?php
-// retrieves a few recent articles from ArticleController to show preview cards
-// displays marketing sections like features, how it works, testimonials, and pricing
-// landing page
 
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
@@ -11,48 +8,22 @@ require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/textlimit.php';
 require_once __DIR__ . '/includes/db.php';
 
-$auth        = new AuthController();
+$auth = new AuthController();
 $articleCtrl = new ArticleController();
 
-// skip landing page if logged in
 if ($auth->currentUser()) {
     header('Location: /dashboard.php');
     exit;
 }
 
-// fetch 3 most recent articles for preview cards
 $previewArticles = $articleCtrl->getPreview(3);
+$hero = DB::first("SELECT * FROM landing_sections WHERE section_key = 'hero'");
+$demoVideo = DB::first("SELECT * FROM landing_sections WHERE section_key = 'demo_video'");
+$features = DB::query("SELECT * FROM landing_features ORDER BY display_order ASC");
+$steps = DB::query("SELECT * FROM landing_steps ORDER BY display_order ASC");
+$plans = DB::query("SELECT * FROM landing_pricing_plans ORDER BY display_order ASC");
+$pricingFeatures = DB::query("SELECT * FROM landing_pricing_features ORDER BY display_order ASC");
 
-// fetch landing page content
-$hero = DB::first(
-    "SELECT * FROM landing_sections WHERE section_key = 'hero'"
-);
-
-$demoVideo = DB::first(
-    "SELECT * FROM landing_sections WHERE section_key = 'demo_video'"
-);
-
-$features = DB::query(
-    "SELECT * FROM landing_features
-     ORDER BY display_order ASC"
-);
-
-$steps = DB::query(
-    "SELECT * FROM landing_steps
-     ORDER BY display_order ASC"
-);
-
-$plans = DB::query(
-    "SELECT * FROM landing_pricing_plans
-     ORDER BY display_order ASC"
-);
-
-$pricingFeatures = DB::query(
-    "SELECT * FROM landing_pricing_features
-     ORDER BY display_order ASC"
-);
-
-// assigns css class based on trust score, only visual
 function score_class(int $score): string
 {
     if ($score >= 80) return 'score-high';
@@ -60,7 +31,6 @@ function score_class(int $score): string
     return 'score-low';
 }
 
-// convert various YouTube URLs into embed URL
 function youtubeEmbedUrl(?string $url): string
 {
     $url = trim((string)$url);
@@ -85,16 +55,16 @@ function youtubeEmbedUrl(?string $url): string
 }
 
 $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SharedSpace – Truth in Every Headline</title>
+    <title>SharedSpace - Truth in Every Headline</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/public/css/landing.css" />
 </head>
 <body>
@@ -102,8 +72,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 <nav class="navbar" id="navbar">
     <div class="container nav-inner">
         <a href="/" class="nav-logo">
-            <div class="logo-icon-box">📰</div>
-            <span>SharedSpace</span>
+            <img src="/public/icons/sharedspace-logo-dark.svg" alt="SharedSpace" class="nav-logo-image">
         </a>
 
         <div class="nav-links" id="nav-links">
@@ -111,7 +80,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
             <a href="#features">Features</a>
             <a href="#how-it-works">How It Works</a>
             <a href="#testimonials">Testimonials</a>
-            <a href="#pricing">Pricings</a>
+            <a href="#pricing">Pricing</a>
         </div>
 
         <div class="nav-auth">
@@ -144,7 +113,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
     <div class="container hero-inner">
         <div class="hero-badge fade-in">
-            <span>🛡</span>
+            <span class="hero-badge-dot" aria-hidden="true"></span>
             <?= htmlspecialchars($hero['badge'] ?? '') ?>
         </div>
 
@@ -158,18 +127,11 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
         </p>
 
         <div class="hero-cta slide-up" style="animation-delay:.1s">
-            <a href="/register.php" class="btn-hero-lg">
-                Start Publishing Free
-            </a>
-
-            <a href="#video" class="btn-outline-lg">
-                <span class="play-icon">▶</span>
-                Watch Demo
-            </a>
+            <a href="/register.php" class="btn-hero-lg">Start Publishing Free</a>
+            <a href="#video" class="btn-outline-lg">View Demo</a>
         </div>
 
-        <!-- ARTICLE PREVIEW -->
-        <div id= "recent-articles" class="preview-window slide-up" style="animation-delay:.1s">
+        <div id="recent-articles" class="preview-window slide-up" style="animation-delay:.1s">
             <div class="preview-header">
                 <h2>Recent Articles</h2>
                 <p>See what readers are discovering on SharedSpace.</p>
@@ -180,12 +142,8 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                     <?php foreach ($previewArticles as $article): ?>
                         <a href="/login.php" class="preview-card">
                             <div class="preview-meta">
-                                <span class="preview-cat">
-                                    <?= htmlspecialchars($article->categoryName) ?>
-                                </span>
-                                <span class="preview-score <?= score_class($article->trustScore) ?>">
-                                    <?= $article->trustScore ?>%
-                                </span>
+                                <span class="preview-cat"><?= htmlspecialchars($article->categoryName) ?></span>
+                                <span class="preview-score <?= score_class($article->trustScore) ?>"><?= $article->trustScore ?>%</span>
                             </div>
 
                             <?php if (!empty($article->imagePath)): ?>
@@ -194,9 +152,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                                 </div>
                             <?php endif; ?>
 
-                            <h3 class="preview-title">
-                                <?= htmlspecialchars(limit_words($article->title, 8)) ?>
-                            </h3>
+                            <h3 class="preview-title"><?= htmlspecialchars(limit_words($article->title, 8)) ?></h3>
 
                             <p class="preview-excerpt">
                                 <?php
@@ -211,16 +167,10 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
                             <div class="preview-footer">
                                 <div class="preview-author">
-                                    <div class="author-avatar">
-                                        <?= htmlspecialchars($article->authorInitial()) ?>
-                                    </div>
+                                    <div class="author-avatar"><?= htmlspecialchars($article->authorInitial()) ?></div>
                                     <div class="author-info">
-                                        <span class="author-name">
-                                            <?= htmlspecialchars($article->authorName) ?>
-                                        </span>
-                                        <span class="author-time">
-                                            <?= relative_time($article->publishedAt) ?>
-                                        </span>
+                                        <span class="author-name"><?= htmlspecialchars($article->authorName) ?></span>
+                                        <span class="author-time"><?= relative_time($article->publishedAt) ?></span>
                                     </div>
                                 </div>
 
@@ -230,9 +180,9 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                                 ?>
 
                                 <div class="preview-stats">
-                                    <span>👁 <?= $article->viewCount ?? 0 ?></span>
-                                    <span>💬 <?= $commentCount ?></span>
-                                    <span>🚩 <?= $article->flagCount ?></span>
+                                    <span>Views <?= $article->viewCount ?? 0 ?></span>
+                                    <span>Comments <?= $commentCount ?></span>
+                                    <span>Flags <?= $article->flagCount ?></span>
                                 </div>
                             </div>
                         </a>
@@ -296,10 +246,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                                 <img src="/<?= htmlspecialchars($step['icon_path']) ?>" alt="">
                             <?php endif; ?>
                         </div>
-
-                        <div class="step-num">
-                            <?= htmlspecialchars($step['step_number']) ?>
-                        </div>
+                        <div class="step-num"><?= htmlspecialchars($step['step_number']) ?></div>
                     </div>
 
                     <h3><?= htmlspecialchars($step['title']) ?></h3>
@@ -347,10 +294,10 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
         <div class="reviews-grid">
             <?php foreach ([
-                ['SC', 'Sarah Chen',     'Investigative Journalist', 'SharedSpace has completely changed how I verify stories before publication. The AI catches sourcing gaps my team might miss, and readers can see the trust score upfront — that transparency builds real credibility.', 5],
-                ['MT', 'Michael Torres', 'Tech Writer',              'Writing about fast-moving technology topics means I need to be accurate fast. The AI fact-checker gives me confidence before I hit publish, and the trust score has genuinely improved how readers engage with my work.', 5],
-                ['EW', 'Emily Watson',   'Regular Reader',           'I was tired of not knowing whether what I was reading was reliable. SharedSpace puts the credibility score right on every article. It sounds simple but it changes everything about how you consume news.', 5],
-                ['DK', 'David Kim',      'Freelance Writer',         'The feedback from the AI verification is specific and actionable — it tells me which claims need stronger sourcing, not just a vague score. My articles go out faster and with a much higher trust rating than before.', 5],
+                ['SC', 'Sarah Chen', 'Investigative Journalist', 'SharedSpace has completely changed how I verify stories before publication. The AI catches sourcing gaps my team might miss, and readers can see the trust score upfront - that transparency builds real credibility.', 5],
+                ['MT', 'Michael Torres', 'Tech Writer', 'Writing about fast-moving technology topics means I need to be accurate fast. The AI fact-checker gives me confidence before I hit publish, and the trust score has genuinely improved how readers engage with my work.', 5],
+                ['EW', 'Emily Watson', 'Regular Reader', 'I was tired of not knowing whether what I was reading was reliable. SharedSpace puts the credibility score right on every article. It sounds simple but it changes everything about how you consume news.', 5],
+                ['DK', 'David Kim', 'Freelance Writer', 'The feedback from the AI verification is specific and actionable - it tells me which claims need stronger sourcing, not just a vague score. My articles go out faster and with a much higher trust rating than before.', 5],
             ] as [$av, $name, $role, $content, $rating]): ?>
                 <div class="review-card">
                     <div class="review-top">
@@ -365,9 +312,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                     <p class="review-excerpt">"<?= $content ?>"</p>
 
                     <div class="review-footer">
-                        <div class="review-stars">
-                            <?php for ($s = 0; $s < $rating; $s++) echo '★'; ?>
-                        </div>
+                        <div class="review-stars"><?= $rating ?>/5 rating</div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -410,8 +355,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                         <?php endforeach; ?>
                     </ul>
 
-                    <a href="<?= htmlspecialchars($plan['button_link']) ?>"
-                       class="<?= $plan['is_popular'] ? 'btn-hero-full' : 'btn-outline-full' ?>">
+                    <a href="<?= htmlspecialchars($plan['button_link']) ?>" class="<?= $plan['is_popular'] ? 'btn-hero-full' : 'btn-outline-full' ?>">
                         <?= htmlspecialchars($plan['button_text']) ?>
                     </a>
                 </div>
@@ -424,8 +368,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="container footer-inner">
         <div class="footer-brand">
             <a href="/" class="footer-logo">
-                <div class="logo-icon-box small">📰</div>
-                <span>SharedSpace</span>
+                <img src="/public/icons/sharedspace-logo-dark.svg" alt="SharedSpace" class="footer-logo-image">
             </a>
             <p>The trusted platform for verified news. AI-powered fact-checking for the modern age.</p>
         </div>
@@ -460,8 +403,8 @@ document.getElementById('hamburger').addEventListener('click', function () {
     this.classList.toggle('open');
 });
 
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
+document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
         const t = document.querySelector(a.getAttribute('href'));
         if (t) {
             e.preventDefault();

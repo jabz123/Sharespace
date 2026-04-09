@@ -1,37 +1,29 @@
 <?php
-// flagged articles page for category_admin users
-// lists all flagged articles from their assigned category
-// clicking an article shows its flag reports with dismiss / confirm actions
-
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 require_once __DIR__ . '/../includes/db.php';
 
-$auth      = new AuthController();
+$auth = new AuthController();
 $adminCtrl = new AdminController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
 
-// only category_admin users may access this page
 if ($user->role !== 'category_admin') {
     header('Location: /dashboard.php');
     exit;
 }
 
-// get the category this admin is assigned to
 $assignedCategory = DB::first(
     'SELECT id, name FROM categories WHERE admin_user_id = ?',
     [$user->id]
 );
 
-// handle POST actions (dismiss / confirm)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
-    $action    = $_POST['action']     ?? '';
+    $action = $_POST['action'] ?? '';
     $articleId = (int)($_POST['article_id'] ?? 0);
 
-    // verify the article belongs to this admin's category before acting
     $belongs = $articleId ? DB::first(
         'SELECT id FROM articles WHERE id = ? AND category_id = ?',
         [$articleId, (int)$assignedCategory['id']]
@@ -66,26 +58,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     }
 }
 
-// detail view: ?id=X shows the flag reports for a specific article
-$detailId      = (int)($_GET['id'] ?? 0);
+$detailId = (int)($_GET['id'] ?? 0);
 $detailArticle = null;
-$flagReports   = [];
+$flagReports = [];
 
 if ($detailId && $assignedCategory) {
     $detailArticle = $adminCtrl->getArticleById($detailId);
 
-    // ensure it belongs to this admin's category and has flags
-    if (
-        !$detailArticle ||
-        $detailArticle->categoryId !== (int)$assignedCategory['id']
-    ) {
+    if (!$detailArticle || $detailArticle->categoryId !== (int)$assignedCategory['id']) {
         $detailArticle = null;
     } else {
         $flagReports = $adminCtrl->getFlagsByArticle($detailId);
     }
 }
 
-// list view data
 $flaggedArticles = $assignedCategory
     ? $adminCtrl->getFlaggedArticlesByCategory((int)$assignedCategory['id'])
     : [];
@@ -101,20 +87,18 @@ page_head('Flagged Articles');
 <?php if ($detailArticle): ?>
 
     <?php
-    $subtitle = htmlspecialchars($assignedCategory['name']) . ' – flag reports';
+    $subtitle = htmlspecialchars($assignedCategory['name']) . ' - flag reports';
     dash_header(htmlspecialchars($detailArticle->title), $subtitle);
     ?>
 
     <div class="page-content">
-
         <div class="flex gap-2 mb-6">
-            <a href="/pages/flagged-articles.php" class="btn btn-ghost btn-sm">← Back to Flagged Articles</a>
+            <a href="/pages/flagged-articles.php" class="btn btn-ghost btn-sm">Back to Flagged Articles</a>
         </div>
 
-        <!-- article summary -->
         <div class="card mb-6" style="padding:20px 24px">
             <div class="flex items-center justify-between mb-2">
-                <span class="category-tag"><?= htmlspecialchars($detailArticle->categoryName) ?></span>
+                <span class="category-tag <?= category_theme_class($detailArticle->categoryName) ?>"><?= htmlspecialchars($detailArticle->categoryName) ?></span>
                 <?= trust_badge($detailArticle->trustScore) ?>
             </div>
             <h2 style="font-size:22px;font-weight:700;font-family:Georgia,serif;margin-bottom:8px">
@@ -122,31 +106,31 @@ page_head('Flagged Articles');
             </h2>
             <p class="text-muted" style="font-size:13px;margin-bottom:4px">
                 By <strong><?= htmlspecialchars($detailArticle->authorName) ?></strong>
-                &nbsp;·&nbsp; <?= date('F j, Y', strtotime($detailArticle->publishedAt)) ?>
-                &nbsp;·&nbsp; <?= count($flagReports) ?> flag<?= count($flagReports) !== 1 ? 's' : '' ?>
-                &nbsp;·&nbsp; Status: <strong><?= htmlspecialchars($detailArticle->status) ?></strong>
+                &nbsp; / &nbsp; <?= date('F j, Y', strtotime($detailArticle->publishedAt)) ?>
+                &nbsp; / &nbsp; <?= count($flagReports) ?> flag<?= count($flagReports) !== 1 ? 's' : '' ?>
+                &nbsp; / &nbsp; Status: <strong><?= htmlspecialchars($detailArticle->status) ?></strong>
             </p>
             <p style="font-size:14px;margin-top:8px"><?= htmlspecialchars($detailArticle->excerpt) ?></p>
 
             <div class="flex items-center gap-3 mt-6">
                 <a href="/pages/article.php?id=<?= $detailArticle->id ?>&return=<?= urlencode('/pages/flagged-articles.php?id=' . $detailArticle->id) ?>"
                    class="btn btn-ghost btn-sm" target="_blank">
-                    👁 View Article
+                    View Article
                 </a>
 
                 <?php if ($detailArticle->status === 'published'): ?>
                     <form method="POST" style="margin:0"
                           onsubmit="return confirm('Dismiss all flags? The article will remain published.')">
-                        <input type="hidden" name="action"     value="dismiss_flags">
+                        <input type="hidden" name="action" value="dismiss_flags">
                         <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
-                        <button type="submit" class="btn btn-secondary btn-sm">✅ Dismiss Flags</button>
+                        <button type="submit" class="btn btn-secondary btn-sm">Dismiss Flags</button>
                     </form>
 
                     <form method="POST" style="margin:0"
                           onsubmit="return confirm('Confirm flag? This will hide the article from the public.')">
-                        <input type="hidden" name="action"     value="confirm_flag">
+                        <input type="hidden" name="action" value="confirm_flag">
                         <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
-                        <button type="submit" class="btn btn-danger btn-sm" style="white-space:nowrap">🚫 Confirm Flag (Hide Article)</button>
+                        <button type="submit" class="btn btn-danger btn-sm" style="white-space:nowrap">Confirm Flag and Hide Article</button>
                     </form>
                 <?php else: ?>
                     <span class="alert alert-error" style="display:inline-block;padding:6px 14px;font-size:13px">
@@ -155,15 +139,14 @@ page_head('Flagged Articles');
 
                     <form method="POST" style="margin:0"
                           onsubmit="return confirm('Dismiss all flags and restore the article to published?')">
-                        <input type="hidden" name="action"     value="restore_and_dismiss">
+                        <input type="hidden" name="action" value="restore_and_dismiss">
                         <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
-                        <button type="submit" class="btn btn-secondary btn-sm">✅ Dismiss Flags &amp; Restore</button>
+                        <button type="submit" class="btn btn-secondary btn-sm">Dismiss Flags and Restore</button>
                     </form>
                 <?php endif; ?>
             </div>
         </div>
 
-        <!-- flag reports -->
         <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Flag Reports (<?= count($flagReports) ?>)</h3>
 
         <?php if (empty($flagReports)): ?>
@@ -200,7 +183,7 @@ page_head('Flagged Articles');
 
     <?php
     $subtitle = $assignedCategory
-        ? htmlspecialchars($assignedCategory['name']) . ' – flagged articles requiring review'
+        ? htmlspecialchars($assignedCategory['name']) . ' - flagged articles requiring review'
         : '';
     dash_header('Flagged Articles', $subtitle);
     ?>
@@ -225,7 +208,7 @@ page_head('Flagged Articles');
 
                             <div style="flex:1;min-width:0">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
+                                    <span class="category-tag <?= category_theme_class($article->categoryName) ?>"><?= htmlspecialchars($article->categoryName) ?></span>
                                     <?= trust_badge($article->trustScore) ?>
                                     <?php if ($article->status === 'suspended'): ?>
                                         <span class="role-badge" style="background:var(--danger);color:#fff;font-size:11px">Hidden</span>
@@ -236,15 +219,14 @@ page_head('Flagged Articles');
                                 </h3>
                                 <p class="text-muted" style="font-size:13px">
                                     By <?= htmlspecialchars($article->authorName) ?>
-                                    &nbsp;·&nbsp; <?= relative_time($article->publishedAt) ?>
-                                    &nbsp;·&nbsp; <span style="color:var(--danger);font-weight:600">🚩 <?= $article->flagCount ?> flag<?= $article->flagCount !== 1 ? 's' : '' ?></span>
+                                    &nbsp; / &nbsp; <?= relative_time($article->publishedAt) ?>
+                                    &nbsp; / &nbsp; <span style="color:var(--danger);font-weight:600"><?= $article->flagCount ?> flag<?= $article->flagCount !== 1 ? 's' : '' ?></span>
                                 </p>
                             </div>
 
                             <div class="flex gap-2" style="flex-shrink:0">
-                                <a href="/pages/flagged-articles.php?id=<?= $article->id ?>"
-                                   class="btn btn-ghost btn-sm">
-                                    Review →
+                                <a href="/pages/flagged-articles.php?id=<?= $article->id ?>" class="btn btn-ghost btn-sm">
+                                    Review
                                 </a>
                             </div>
 

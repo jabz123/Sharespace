@@ -66,28 +66,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Sign In – SharedSpace</title>
     <link rel="stylesheet" href="/public/css/app.css"/>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet"/>
     <!-- css is here for now, will update later -->
     <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-        --ink:         #0a0f1e;
-        --ink-muted:   #3d4f6e;
-        --slate:       #64748b;
-        --silver:      #94a3b8;
+        --ink:         #060c1a;
+        --ink-muted:   #506080;
+        --slate:       #6888b0;
+        --silver:      #506080;
         --fog:         #e2e8f0;
         --snow:        #f8fafc;
         --white:       #ffffff;
-        --amber:       #f59e0b;
-        --amber-d:     #d97706;
-        --amber-glow:  rgba(245,158,11,0.15);
-        --navy:        #0b1628;
+        --amber:       #f5a623;
+        --amber-d:     #ffc040;
+        --amber-glow:  rgba(245,166,35,0.15);
+        --navy:        #060c1a;
         --card-border: rgba(255,255,255,0.065);
-        --success:     #10b981;
+        --success:     #2edf9a;
     }
 
-    html, body { height: 100%; overflow: hidden; font-family: 'Geist', -apple-system, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+    html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', -apple-system, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
     body { display: flex; }
 
     /* ══ LEFT PANEL — 40% ══ */
@@ -119,9 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             linear-gradient(135deg, rgba(255,255,255,0.2) 0 50%, transparent 50%) bottom left / 10px 10px no-repeat,
             linear-gradient(135deg, transparent 0 50%, var(--amber) 50%) bottom right / 10px 10px no-repeat;
     }
-    .brand-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 18px; color: var(--ink); letter-spacing: -0.2px; }
+    .brand-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 18px; color: var(--ink); letter-spacing: -0.2px; }
 
-    .auth-box h1 { font-family: 'Instrument Serif', Georgia, serif; font-size: 32px; font-weight: 400; color: var(--ink); letter-spacing: -0.7px; line-height: 1.15; margin-bottom: 5px; }
+    .auth-box h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: 32px; font-weight: 400; color: var(--ink); letter-spacing: -0.7px; line-height: 1.15; margin-bottom: 5px; }
     .auth-box p.sub { font-size: 13.5px; color: var(--slate); margin-bottom: 28px; line-height: 1.5; }
 
     .alert { display: flex; align-items: flex-start; gap: 9px; border-radius: 9px; padding: 11px 13px; margin-bottom: 18px; font-size: 13px; line-height: 1.45; border: 1px solid; }
@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .input-shell input[type=text] {
         width: 100%; height: 46px; padding: 0 44px;
         border: 1.5px solid var(--fog) !important; border-radius: 10px;
-        font-size: 14px; font-family: 'Geist', sans-serif;
+        font-size: 14px; font-family: 'DM Sans', sans-serif;
         color: var(--ink) !important; background: var(--snow) !important;
         outline: none; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
     }
@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .btn-hero {
         width: 100%; height: 48px; border: none; border-radius: 10px;
         background: var(--ink) !important; color: var(--white) !important;
-        font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.02em;
+        font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.02em;
         cursor: pointer; margin-top: 8px; position: relative; overflow: hidden;
         display: flex; align-items: center; justify-content: center; gap: 8px;
         transition: transform 0.15s, box-shadow 0.15s; padding: 0 !important;
@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .or-divider span { font-size: 11.5px; color: var(--silver); font-weight: 500; letter-spacing: 0.04em; }
 
     .sso-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn-sso { height: 42px; border: 1.5px solid var(--fog); border-radius: 9px; background: var(--white); font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+    .btn-sso { height: 42px; border: 1.5px solid var(--fog); border-radius: 9px; background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
     .btn-sso:hover { border-color: #c8d4e3; background: var(--snow); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
     .left-footer { padding: 22px 48px; border-top: 1px solid var(--fog); display: flex; align-items: center; justify-content: space-between; }
@@ -195,16 +195,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .live-badge { display: flex; align-items: center; gap: 8px; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.2); animation: pulse-red 1.8s infinite; }
     @keyframes pulse-red { 0%,100% { box-shadow: 0 0 0 3px rgba(248,113,113,0.2); } 50% { box-shadow: 0 0 0 6px rgba(248,113,113,0.05); } }
-    .live-text { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #f87171; }
+    .live-text { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #f87171; }
     .r-stats { display: flex; align-items: center; gap: 20px; }
     .r-stat { text-align: right; }
     .r-stat-val { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); line-height: 1; }
-    .r-stat-lbl { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .r-stat-lbl { font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 2px; }
     .r-divider { width: 1px; height: 28px; background: var(--card-border); }
 
     .r-feed { flex: 1; position: relative; z-index: 5; padding: 24px 36px 0; display: flex; flex-direction: column; gap: 11px; overflow: hidden; }
     .feed-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-    .feed-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+    .feed-lbl { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
     .feed-chips { display: flex; gap: 6px; }
     .chip { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.32); background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px 10px; cursor: pointer; transition: all 0.15s; }
     .chip.active { color: var(--amber); background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
@@ -218,31 +218,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .a-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
     .a-body { flex: 1; min-width: 0; }
     .a-meta { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
-    .a-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; }
+    .a-cat { font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
     .a-sep { font-size: 10px; color: rgba(255,255,255,0.18); }
     .a-time { font-size: 10px; color: rgba(255,255,255,0.27); }
     .a-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.82); line-height: 1.45; letter-spacing: -0.1px; }
     .a-src { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 4px; }
     .a-right { flex-shrink: 0; }
-    .trust { display: flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .trust { display: flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; }
     .trust.hi  { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
     .trust.mid { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
 
     .r-hero { position: relative; z-index: 5; padding: 24px 36px; border-top: 1px solid var(--card-border); display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
     .hero-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
     .hero-line { width: 22px; height: 2px; background: var(--amber); border-radius: 2px; }
-    .hero-eyebrow-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); }
-    .hero-copy h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 28px; font-weight: 400; color: #fff; line-height: 1.2; letter-spacing: -0.4px; margin-bottom: 7px; }
+    .hero-eyebrow-lbl { font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--amber); }
+    .hero-copy h2 { font-family: 'DM Serif Display', Georgia, serif; font-size: 28px; font-weight: 400; color: #fff; line-height: 1.2; letter-spacing: -0.4px; margin-bottom: 7px; }
     .hero-copy h2 em { font-style: italic; color: rgba(255,255,255,0.52); }
     .hero-copy p { font-size: 13px; color: rgba(255,255,255,0.36); line-height: 1.6; max-width: 290px; }
     .hero-stats { display: flex; gap: 26px; flex-shrink: 0; }
     .hs { text-align: right; }
-    .hs-n { font-family: 'Instrument Serif', Georgia, serif; font-size: 24px; color: #fff; line-height: 1; letter-spacing: -0.4px; }
-    .hs-n sup { font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 600; color: var(--amber); vertical-align: super; }
-    .hs-l { font-size: 9.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255,255,255,0.24); margin-top: 3px; }
+    .hs-n { font-family: 'DM Serif Display', Georgia, serif; font-size: 24px; color: #fff; line-height: 1; letter-spacing: -0.4px; }
+    .hs-n sup { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--amber); vertical-align: super; }
+    .hs-l { font-family: 'Rajdhani', sans-serif; font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.24); margin-top: 3px; }
 
     .r-ticker { position: relative; z-index: 5; background: rgba(0,0,0,0.32); border-top: 1px solid var(--card-border); height: 36px; padding: 0 20px; display: flex; align-items: center; gap: 14px; overflow: hidden; }
-    .ticker-badge { font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); flex-shrink: 0; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.22); padding: 2px 8px; border-radius: 3px; }
+    .ticker-badge { font-family: 'Rajdhani', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #06090f; flex-shrink: 0; background: var(--amber); border: 1px solid transparent; padding: 2px 8px; border-radius: 4px; }
     .ticker-track { display: flex; gap: 44px; animation: ticker-anim 32s linear infinite; white-space: nowrap; }
     @keyframes ticker-anim { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     .ticker-item { font-size: 11.5px; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px; }
@@ -362,11 +362,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="chip">Tech</span>
             </div>
         </div>
-        <div class="a-card"><span class="a-dot d-world"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-world">World</span><span class="a-sep">·</span><span class="a-time">2 min ago</span></div><div class="a-title">Global Leaders Reach Historic Climate Agreement at Summit in Geneva</div><div class="a-src">Reuters · International Affairs</div></div><div class="a-right"><div class="trust hi">✓ 94%</div></div></div>
-        <div class="a-card"><span class="a-dot d-tech"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-tech">Technology</span><span class="a-sep">·</span><span class="a-time">14 min ago</span></div><div class="a-title">AI Breakthrough Enables Real-Time Medical Diagnosis at Hospital Scale</div><div class="a-src">Tech Review · Health & AI</div></div><div class="a-right"><div class="trust hi">✓ 89%</div></div></div>
-        <div class="a-card"><span class="a-dot d-econ"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-econ">Economics</span><span class="a-sep">·</span><span class="a-time">1 hr ago</span></div><div class="a-title">Central Banks Signal Coordinated Rate Cuts as Inflation Eases</div><div class="a-src">Financial Times · Monetary Policy</div></div><div class="a-right"><div class="trust hi">✓ 91%</div></div></div>
-        <div class="a-card"><span class="a-dot d-sci"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-sci">Science</span><span class="a-sep">·</span><span class="a-time">3 hr ago</span></div><div class="a-title">NASA Confirms Substantial Water Ice Deposits on Lunar South Pole</div><div class="a-src">NASA · Space Exploration</div></div><div class="a-right"><div class="trust hi">✓ 97%</div></div></div>
-        <div class="a-card"><span class="a-dot d-geo"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-geo">Geopolitics</span><span class="a-sep">·</span><span class="a-time">5 hr ago</span></div><div class="a-title">Infrastructure Bill Passes Senate With Bipartisan Support</div><div class="a-src">AP News · US Politics</div></div><div class="a-right"><div class="trust mid">✓ 86%</div></div></div>
+        <div class="a-card"><span class="a-dot d-world"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-world">World</span><span class="a-sep">/</span><span class="a-time">2 min ago</span></div><div class="a-title">Global Leaders Reach Historic Climate Agreement at Summit in Geneva</div><div class="a-src">Reuters / International Affairs</div></div><div class="a-right"><div class="trust hi">94%</div></div></div>
+        <div class="a-card"><span class="a-dot d-tech"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-tech">Technology</span><span class="a-sep">/</span><span class="a-time">14 min ago</span></div><div class="a-title">AI Breakthrough Enables Real-Time Medical Diagnosis at Hospital Scale</div><div class="a-src">Tech Review / Health & AI</div></div><div class="a-right"><div class="trust hi">89%</div></div></div>
+        <div class="a-card"><span class="a-dot d-econ"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-econ">Economics</span><span class="a-sep">/</span><span class="a-time">1 hr ago</span></div><div class="a-title">Central Banks Signal Coordinated Rate Cuts as Inflation Eases</div><div class="a-src">Financial Times / Monetary Policy</div></div><div class="a-right"><div class="trust hi">91%</div></div></div>
+        <div class="a-card"><span class="a-dot d-sci"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-sci">Science</span><span class="a-sep">/</span><span class="a-time">3 hr ago</span></div><div class="a-title">NASA Confirms Substantial Water Ice Deposits on Lunar South Pole</div><div class="a-src">NASA / Space Exploration</div></div><div class="a-right"><div class="trust hi">97%</div></div></div>
+        <div class="a-card"><span class="a-dot d-geo"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-geo">Geopolitics</span><span class="a-sep">/</span><span class="a-time">5 hr ago</span></div><div class="a-title">Infrastructure Bill Passes Senate With Bipartisan Support</div><div class="a-src">AP News / US Politics</div></div><div class="a-right"><div class="trust mid">86%</div></div></div>
     </div>
 
     <div class="r-hero">

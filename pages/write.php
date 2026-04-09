@@ -1,49 +1,34 @@
 <?php
-// performs writing and editing article function for this file
-// if an article id is provided, loads the article for editing and checks if the user is the author
-// handles publishing a new article or updating an existing article through ArticleController
-// premium users can upload an image for the article
-// displays the article form and pre-fills data when editing
 
-// boundary page for writing and editing article
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
-$auth        = new AuthController();
+$auth = new AuthController();
 $articleCtrl = new ArticleController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
 $canUploadImage = ($user->role === 'premium' || $user->role === 'category_admin');
 
-//load categories for dropdown
 $categories = $articleCtrl->getAllCategories();
 
-//check if editing existing article
-$editId  = (int)($_GET['id'] ?? 0);
+$editId = (int)($_GET['id'] ?? 0);
 $article = null;
-$isEdit  = false;
+$isEdit = false;
 
 if ($editId) {
     $article = $articleCtrl->getByIdForAuthor($editId, $user->id);
-    // only the author can edit own article
     if (!$article || $article->authorId !== $user->id) {
         redirect('/pages/my-articles.php', 'Article not found or permission denied.');
     }
     $isEdit = true;
 }
 
-
-//   HANDLE BOTH DRAFT + PUBLISH
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $action = $_POST['action'] ?? 'publish'; // ⭐ NEW
-
+    $action = $_POST['action'] ?? 'publish';
     $imagePath = $article->imagePath ?? null;
 
-    // remove image logic
     if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1') {
         if (!empty($article->imagePath)) {
             $filePath = __DIR__ . '/../public/' . $article->imagePath;
@@ -54,9 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imagePath = null;
     }
 
-    // handle image upload for premium users
     if ($canUploadImage && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
-
         $uploadDir = __DIR__ . '/../public/uploads/articles/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
@@ -70,44 +53,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // add image path into POST data
     $_POST['image_path'] = $imagePath;
 
-    
-    // SAVE AS DRAFT
-    
     if ($action === 'draft') {
-
-        $_POST['status'] = 'draft'; // future usage
+        $_POST['status'] = 'draft';
 
         if ($isEdit) {
             $result = $articleCtrl->update($editId, $user->id, $_POST);
         } else {
-            $result = $articleCtrl->saveDraft($user->id, $_POST); // ⭐ NEW FUNCTION
+            $result = $articleCtrl->saveDraft($user->id, $_POST);
         }
 
         if (isset($result['ok'])) {
             redirect('/pages/my-articles.php', null, 'Draft saved!');
         }
-
-    } 
-    
-    // EXISTING PUBLISH (UNCHANGED)
-    
-    else {
-
-    //  PUBLISH ACTION
-    $_POST['status'] = 'published';
-
-    if ($isEdit) {
-        $result = $articleCtrl->update($editId, $user->id, $_POST);
-        if (isset($result['ok'])) {
-            redirect('/pages/my-articles.php', null, 'Article published!');
-        }
     } else {
-        $result = $articleCtrl->publish($user->id, $_POST);
-        if (isset($result['ok'])) {
-            redirect('/pages/my-articles.php', null, 'Article published!');
+        $_POST['status'] = 'published';
+
+        if ($isEdit) {
+            $result = $articleCtrl->update($editId, $user->id, $_POST);
+            if (isset($result['ok'])) {
+                redirect('/pages/my-articles.php', null, 'Article published!');
+            }
+        } else {
+            $result = $articleCtrl->publish($user->id, $_POST);
+            if (isset($result['ok'])) {
+                redirect('/pages/my-articles.php', null, 'Article published!');
             }
         }
     }
@@ -115,17 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     flash_set('flash_error', $result['error']);
 }
 
-//shows what user submitted if validation fail
 $val = [
-    'title'       => $_POST['title']       ?? ($article?->title      ?? ''),
-    'excerpt'     => $_POST['excerpt']     ?? ($article?->excerpt     ?? ''),
-    'content'     => $_POST['content']     ?? ($article?->content     ?? ''),
-    'category_id' => $_POST['category_id'] ?? ($article?->categoryId  ?? 0),
-    'source_url'  => $_POST['source_url']  ?? '',
+    'title' => $_POST['title'] ?? ($article?->title ?? ''),
+    'excerpt' => $_POST['excerpt'] ?? ($article?->excerpt ?? ''),
+    'content' => $_POST['content'] ?? ($article?->content ?? ''),
+    'category_id' => $_POST['category_id'] ?? ($article?->categoryId ?? 0),
+    'source_url' => $_POST['source_url'] ?? '',
     'trust_score' => (int)($_POST['trust_score'] ?? ($article?->trustScore ?? 80)),
 ];
 
-//render form
 page_head($isEdit ? 'Edit Article' : 'Write Article');
 ?>
 
@@ -138,12 +107,8 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         ); ?>
         <?php flash_messages(); ?>
 
-        <!--  FLEX LAYOUT -->
         <div class="page-content write-layout">
-
-            <!-- ================= LEFT SIDE ================= -->
             <form method="POST" id="write-form" enctype="multipart/form-data" style="flex:2">
-
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
                 <input type="hidden" name="trust_score" id="trustScoreInput" value="<?= (int)$val['trust_score'] ?>">
 
@@ -151,7 +116,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 <div class="image-upload-container">
                     <div class="image-preview" id="imagePreview">
                     <?php if ($isEdit && !empty($article->imagePath)): ?>
-                        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>">
+                        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="">
                     <?php else: ?>
                         <span>No image selected</span>
                     <?php endif; ?>
@@ -205,102 +170,85 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 </div>
 
                 <div class="write-actions">
-                <!-- AI BUTTON -->
-                <button type="button" onclick="runAICheck()" class="btn-ai" style="flex:1">
-                    🤖 AI Fact Check
-                </button>
-                <!-- NEW BUTTONS -->
-                <div class="write-actions-row">
+                    <button type="button" onclick="runAICheck()" class="btn-ai" style="flex:1">AI Fact Check</button>
+                    <div class="write-actions-row">
+                        <?php if (!$isEdit || ($article->status ?? '') === 'draft'): ?>
+                            <button type="submit" name="action" value="draft" class="btn-draft" style="flex:1">
+                                <?= $isEdit ? 'Update Draft' : 'Save Draft' ?>
+                            </button>
+                        <?php endif; ?>
 
-
-                <!-- SAVE DRAFT (only for draft or new) -->
-                <?php if (!$isEdit || ($article->status ?? '') === 'draft'): ?>
-                    <button type="submit" name="action" value="draft" class="btn-draft" style="flex:1">
-                        <?= $isEdit ? '💾 Update Draft' : '💾 Save Draft' ?>
-                    </button>
-                <?php endif; ?>
-
-                <button type="submit" name="action" value="publish" class="btn-publish" style="flex:1">
-                <?php
-                    $isDraft = !$isEdit || ($article->status === 'draft');
-                    echo $isDraft ? '🚀 Publish Article' : '💾 Save Changes';
-                    ?>
-                 </button>
-
-            </div>
-            </div>
-
+                        <button type="submit" name="action" value="publish" class="btn-publish" style="flex:1">
+                            <?php
+                            $isDraft = !$isEdit || ($article->status === 'draft');
+                            echo $isDraft ? 'Publish Article' : 'Save Changes';
+                            ?>
+                        </button>
+                    </div>
+                </div>
             </form>
 
-            <!-- ================= RIGHT SIDE (AI PANEL) ================= -->
             <div class="ai-panel">
-            <div class="card">
+                <div class="card">
+                    <h3>AI Verification</h3>
 
-            <h3>🛡 AI Verification</h3>
+                    <div id="ai-empty">
+                        <p class="text-muted" style="margin-top:10px;">
+                            Click "AI Fact Check" to analyze your article's credibility before publishing.
+                        </p>
+                        <p class="text-muted" style="font-size:13px;">
+                            You can include a reference link such as a The Straits Times article URL for extra context.
+                        </p>
+                    </div>
 
-            <!-- STATE 1 (DEFAULT) -->
-            <div id="ai-empty">
-                <p class="text-muted" style="margin-top:10px;">
-                    Click "AI Fact Check" to analyze your article's credibility before publishing.
-                </p>
-                <p class="text-muted" style="font-size:13px;">
-                    You can include a reference link such as `The Straits Times` article URL for extra context.
-                </p>
+                    <div id="ai-loading" style="display:none;">
+                        <p class="text-muted" style="margin-top:10px;">
+                            Running n8n verification workflow...
+                        </p>
+                    </div>
+
+                    <div id="ai-error" style="display:none;">
+                        <div class="alert alert-error" id="aiErrorMessage" style="margin-top:14px;"></div>
+                    </div>
+
+                    <div id="ai-result" style="display:none;">
+                        <div style="text-align:center; margin:20px 0;">
+                            <h2 id="aiTrustScore" style="font-size:28px; font-weight:700;"><?= (int)$val['trust_score'] ?>%</h2>
+                            <p class="text-muted">Trust Score</p>
+                        </div>
+
+                        <p id="aiSummary" style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
+                            Run AI Fact Check to see a real verification summary from n8n.
+                        </p>
+
+                        <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:none;"></p>
+
+                        <p>Factual Accuracy</p>
+                        <div class="progress-bar"><div id="metricFactualAccuracy" style="width:0%"></div></div>
+
+                        <p>Source Quality</p>
+                        <div class="progress-bar"><div id="metricSourceQuality" style="width:0%"></div></div>
+
+                        <p>Bias Detection</p>
+                        <div class="progress-bar"><div id="metricBiasDetection" style="width:0%"></div></div>
+
+                        <p>Logical Consistency</p>
+                        <div class="progress-bar"><div id="metricLogicalConsistency" style="width:0%"></div></div>
+
+                        <p>Completeness</p>
+                        <div class="progress-bar"><div id="metricCompleteness" style="width:0%"></div></div>
+
+                        <div class="ai-success-box" id="aiVerdictBox">
+                            Waiting for verification.
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div id="ai-loading" style="display:none;">
-                <p class="text-muted" style="margin-top:10px;">
-                    Running n8n verification workflow...
-                </p>
-            </div>
-
-            <div id="ai-error" style="display:none;">
-                <div class="alert alert-error" id="aiErrorMessage" style="margin-top:14px;"></div>
-            </div>
-
-            <!-- STATE 2 (HIDDEN INITIALLY) -->
-            <div id="ai-result" style="display:none;">
-
-    <!-- SCORE -->
-    <div style="text-align:center; margin:20px 0;">
-        <h2 id="aiTrustScore" style="font-size:28px; font-weight:700;"><?= (int)$val['trust_score'] ?>%</h2>
-        <p class="text-muted">Trust Score</p>
-    </div>
-
-    <!--  DESCRIPTION TEXT -->
-    <p id="aiSummary" style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
-        Run AI Fact Check to see a real verification summary from n8n.
-    </p>
-
-            <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:none;"></p>
-
-            <!-- PROGRESS BARS -->
-            <p>Factual Accuracy</p>
-            <div class="progress-bar"><div id="metricFactualAccuracy" style="width:0%"></div></div>
-
-            <p>Source Quality</p>
-            <div class="progress-bar"><div id="metricSourceQuality" style="width:0%"></div></div>
-
-            <p>Bias Detection</p>
-            <div class="progress-bar"><div id="metricBiasDetection" style="width:0%"></div></div>
-
-            <p>Logical Consistency</p>
-            <div class="progress-bar"><div id="metricLogicalConsistency" style="width:0%"></div></div>
-
-            <p>Completeness</p>
-            <div class="progress-bar"><div id="metricCompleteness" style="width:0%"></div></div>
-
-            <!-- SUCCESS BOX -->
-            <div class="ai-success-box" id="aiVerdictBox">
-                 Waiting for verification.
-            </div>
-
         </div>
     </main>
 </div>
 
 <script>
-// image preview logic (UNCHANGED)
 function selectImage() {
     document.getElementById('articleImageInput').click();
 }
@@ -312,15 +260,15 @@ document.getElementById('articleImageInput').addEventListener('change', function
 
     const reader = new FileReader();
     reader.onload = function(event) {
-        preview.innerHTML = `<img src="${event.target.result}">`;
-    }
+        preview.innerHTML = `<img src="${event.target.result}" alt="">`;
+    };
     reader.readAsDataURL(file);
 });
 
 function removeImage() {
     document.getElementById('articleImageInput').value = '';
     document.getElementById('imagePreview').innerHTML = '<span>No image selected</span>';
-    document.getElementById('removeImageFlag').value = "1";
+    document.getElementById('removeImageFlag').value = '1';
 }
 
 function escapeHtml(value) {
@@ -424,7 +372,7 @@ async function runAICheck() {
         showAIError(error.message || 'AI verification failed.');
     } finally {
         button.disabled = false;
-        button.textContent = '🤖 AI Fact Check';
+        button.textContent = 'AI Fact Check';
     }
 }
 </script>
