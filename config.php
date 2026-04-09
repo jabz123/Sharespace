@@ -9,6 +9,10 @@ define('DB_USER', 'shareduser');
 define('DB_PASS', 'password123'); 
 date_default_timezone_set('Asia/Singapore');
 
+//jerel's API key for n8n workflow
+if (!defined('N8N_SHARED_SECRET')) {
+    define('N8N_SHARED_SECRET', 'X9a7QwLm2Zp4RtVb6Yc8HsJd0Nk3UfEi');
+}
 
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
 define('GROQ_API_KEY', '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');
