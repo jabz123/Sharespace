@@ -132,6 +132,13 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
         </div>
 
         <div id="recent-articles" class="preview-window slide-up" style="animation-delay:.1s">
+            <div class="orbital-swimmer" aria-hidden="true">
+                <span class="swimmer-trail"></span>
+                <span class="swimmer-helmet"></span>
+                <span class="swimmer-body"></span>
+                <span class="swimmer-fin"></span>
+            </div>
+
             <div class="preview-header">
                 <h2>Recent Articles</h2>
                 <p>See what readers are discovering on SharedSpace.</p>
