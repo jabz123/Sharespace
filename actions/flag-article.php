@@ -79,6 +79,15 @@ if ($response === false) {
 }
 curl_close($ch);
 
+$response = curl_exec($ch);
+$err = curl_error($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+error_log("n8n httpCode=" . $httpCode);
+error_log("n8n curlErr=" . $err);
+error_log("n8n response=" . $response);
+
 // Optional: if you want to hard-fail when n8n rejects:
 // if ($httpCode >= 400) { echo $response; exit; }
 
