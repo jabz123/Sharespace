@@ -1911,9 +1911,10 @@ h4,
 /* Contrast boost for landing editorial deck */
 .hero {
     background:
-        radial-gradient(circle at top right, rgba(245,166,35,0.12), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(132,162,210,0.08), transparent 26%),
-        linear-gradient(180deg, #08111f 0%, #050c18 100%);
+        radial-gradient(circle at 82% 14%, rgba(122, 168, 255, 0.16), transparent 18%),
+        radial-gradient(circle at 14% 82%, rgba(73, 115, 214, 0.14), transparent 22%),
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 24%),
+        linear-gradient(180deg, #07111f 0%, #040b16 48%, #020712 100%);
 }
 
 .preview-window {
@@ -1980,8 +1981,10 @@ h4,
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.03), transparent 22%),
-        linear-gradient(180deg, rgba(5, 11, 22, 0.02) 0%, rgba(5, 11, 22, 0.18) 100%);
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.035), transparent 20%),
+        radial-gradient(circle at 24% 28%, rgba(255,255,255,0.02), transparent 12%),
+        radial-gradient(circle at 74% 32%, rgba(255,255,255,0.02), transparent 14%),
+        linear-gradient(180deg, rgba(5, 11, 22, 0.02) 0%, rgba(5, 11, 22, 0.22) 100%);
     pointer-events: none;
 }
 
@@ -1995,9 +1998,10 @@ h4,
 
 .preview-window {
     background:
-        radial-gradient(circle at top right, rgba(245,166,35,0.12), transparent 22%),
-        radial-gradient(circle at 15% 14%, rgba(132,162,210,0.08), transparent 16%),
-        linear-gradient(180deg, #141d2c 0%, #0c1422 100%);
+        radial-gradient(circle at 88% 10%, rgba(116,160,255,0.14), transparent 14%),
+        radial-gradient(circle at 10% 18%, rgba(173, 203, 255, 0.06), transparent 12%),
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 22%),
+        linear-gradient(180deg, #162235 0%, #0b1424 100%);
     border: 1px solid rgba(255,255,255,0.14);
 }
 
@@ -2025,7 +2029,7 @@ h4,
 
 .preview-card {
     background:
-        linear-gradient(180deg, rgba(9,14,25,0.98) 0%, rgba(6,10,19,0.98) 100%);
+        linear-gradient(180deg, rgba(12,19,34,0.98) 0%, rgba(6,10,19,0.98) 100%);
     border: 1px solid rgba(255,255,255,0.12);
 }
 
@@ -2085,7 +2089,7 @@ h4,
 }
 
 .swimmer-trail {
-    background: linear-gradient(90deg, rgba(132,162,210,0), rgba(132,162,210,0.18), rgba(245,166,35,0.06));
+    background: linear-gradient(90deg, rgba(132,162,210,0), rgba(132,162,210,0.22), rgba(245,166,35,0.05));
 }
 
 .swimmer-helmet {
@@ -2095,4 +2099,14 @@ h4,
 .swimmer-fin {
     border-left-color: rgba(245,166,35,0.76);
     filter: drop-shadow(0 0 8px rgba(245,166,35,0.1));
+}
+
+.hero-badge {
+    background: rgba(123, 164, 255, 0.08);
+    border-color: rgba(123, 164, 255, 0.16);
+    color: #dce7fb;
+}
+
+.hero-sub {
+    color: #d7e3f7;
 }
