@@ -1,0 +1,228 @@
+{
+  "name": "J workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "flag-triage",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5eb4d6e8-bcfb-4ed0-9110-35346f90d31c",
+      "name": "Webhook",
+      "webhookId": "57d85950-35e9-43b9-97f3-1aae489604fb"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst secret = $headers['x-ss-secret'];\nconst EXPECTED = 'PASTE_YOUR_SECRET_HERE';\n\nfunction badRequest(message, httpCode = 400) {\n  return [{\n    ok: false,\n    httpCode,\n    error: message,\n  }];\n}\n\nif (!secret || secret !== EXPECTED) {\n  return badRequest('Unauthorized', 401);\n}\n\nconst body = $json;\n\nconst reason = body?.flag?.reason;\nconst article = body?.article;\n\nif (!article?.id || !article?.title || !article?.content || !reason) {\n  return badRequest('Missing required fields: article.id/title/content and flag.reason');\n}\n\nconst allowedReasons = [\n  'INAPPROPRIATE_LANGUAGE',\n  'MISINFORMATION',\n  'HATE_SPEECH',\n  'VIOLENCE',\n  'ADVERTISING',\n  'WRONG_CATEGORY',\n];\n\nif (!allowedReasons.includes(reason)) {\n  return badRequest('Invalid reason');\n}\n\n// Truncate to control cost/limits\nconst MAX_CHARS = 15000;\nconst content = String(article.content);\nconst trimmedContent = content.length > MAX_CHARS ? content.slice(0, MAX_CHARS) : content;\n\nconst out = {\n  ok: true,\n  reporter: { user_id: body?.reporter?.user_id ?? null },\n  article: {\n    id: Number(article.id),\n    title: String(article.title),\n    excerpt: String(article.excerpt ?? ''),\n    content: trimmedContent,\n    category_id: Number(article.category_id ?? 0),\n    category_name: String(article.category_name ?? ''),\n  },\n  category: {\n    id: Number(body?.category?.id ?? article.category_id ?? 0),\n    name: String(body?.category?.name ?? article.category_name ?? ''),\n    description: String(body?.category?.description ?? ''),\n  },\n  flag: {\n    id: body?.flag?.id ?? null,\n    reason,\n    details: String(body?.flag?.details ?? ''),\n    suggested_category_id: body?.flag?.suggested_category_id ?? null,\n    suggested_category_name: String(body?.flag?.suggested_category_name ?? ''),\n  },\n};\n\nif (reason === 'WRONG_CATEGORY' && !out.flag.suggested_category_id) {\n  return badRequest('WRONG_CATEGORY requires flag.suggested_category_id');\n}\n\nreturn [out];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e2a4f68f-30e0-490f-8940-86113b9b48a9",
+      "name": "Validate Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e4dc434f-aeb0-48ca-b7d7-345eb4906f0e",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "395c93c7-8184-4cdd-90fc-a0747abf76b5",
+      "name": "Is Valid?"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a moderation triage assistant for article flag reports.\n\nAllowed reasons:\nINAPPROPRIATE_LANGUAGE, MISINFORMATION, HATE_SPEECH, VIOLENCE, ADVERTISING, WRONG_CATEGORY.\n\nReturn ONLY valid JSON (no markdown, no extra text) with schema:\n{\n  \"decision\": \"accept\" | \"reject\" | \"needs_human\",\n  \"confidence\": number,\n  \"reason_codes\": string[],\n  \"user_message\": string,\n  \"admin_notes\": string\n}\n\nRules:\n- Accept only if the article clearly matches the selected reason.\n- If ambiguous or evidence is weak, return needs_human.\n- For WRONG_CATEGORY: accept only if article clearly fits suggested category better than current category. If plausible but not clear, needs_human. If current category fits, reject.\n- confidence must be between 0 and 1.\n- Keep user_message short and neutral."
+            },
+            {
+              "content": "=Flag:\n{{ JSON.stringify($json.flag) }}\n\nCurrent category:\n{{ JSON.stringify($json.category) }}\n\nArticle:\n{{ JSON.stringify($json.article) }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        -112
+      ],
+      "id": "eaeedf4b-4cb7-4a89-9bc9-a8661474b544",
+      "name": "AI Triage",
+      "credentials": {
+        "openAiApi": {
+          "id": "Yd3TRDfqlvrdsTE4",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfunction clamp01(x) {\n  if (Number.isNaN(x)) return null;\n  if (x < 0) return 0;\n  if (x > 1) return 1;\n  return x;\n}\n\n// Depending on n8n version/node, the AI text may be in different places.\n// We'll try several common ones:\nconst raw = $json;\n\nconst text =\n  raw?.message?.content ??\n  raw?.choices?.[0]?.message?.content ??\n  raw?.text ??\n  raw?.data ??\n  raw?.content;\n\nlet obj;\ntry {\n  obj = typeof text === 'string' ? JSON.parse(text) : text;\n} catch (e) {\n  obj = null;\n}\n\nif (!obj || typeof obj !== 'object') {\n  return [{\n    decision: 'needs_human',\n    confidence: 0,\n    reason_codes: ['AI_INVALID_JSON'],\n    user_message: 'Submitted for admin review.',\n    admin_notes: 'AI returned invalid JSON.',\n  }];\n}\n\nlet decision = String(obj.decision ?? 'needs_human');\nlet confidence = clamp01(Number(obj.confidence));\nlet reason_codes = Array.isArray(obj.reason_codes) ? obj.reason_codes.map(String) : [];\nlet user_message = String(obj.user_message ?? 'Submitted.');\nlet admin_notes = String(obj.admin_notes ?? '');\n\nif (!['accept', 'reject', 'needs_human'].includes(decision)) {\n  decision = 'needs_human';\n  reason_codes.push('AI_INVALID_DECISION');\n}\n\nif (confidence === null) confidence = 0.0;\n\n// Threshold tuning (edit later)\nif (decision === 'accept' && confidence < 0.75) decision = 'needs_human';\nif (decision === 'reject' && confidence > 0.40) decision = 'needs_human';\n\nreturn [{\n  decision,\n  confidence,\n  reason_codes,\n  user_message,\n  admin_notes,\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -112
+      ],
+      "id": "5ccc7fa1-bd71-4424-8c2e-a9341eddd4dd",
+      "name": "Guardrails"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1072,
+        -112
+      ],
+      "id": "efec72cc-0643-4dbe-85eb-8a8a2b7aec9b",
+      "name": "Respond to Webhook (Success)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"ok\": false,\n  \"error\": \"={{json.error}}\" \n}",
+        "options": {
+          "responseCode": "={{$json.httpCode || 400}}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        608,
+        144
+      ],
+      "id": "e5459e14-51ac-425b-9166-f93e42662ffb",
+      "name": "Respond to Webhook (Error)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Request": {
+      "main": [
+        [
+          {
+            "node": "Is Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid?": {
+      "main": [
+        [
+          {
+            "node": "AI Triage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook (Error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Triage": {
+      "main": [
+        [
+          {
+            "node": "Guardrails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardrails": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook (Success)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4777b1eb-dca2-4be7-90bb-60095a0e4f92",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6eaf351a0f0b3e7bc4fedc6ca67569093b65851c7921c00e4c2e026b2fa91c84"
+  },
+  "id": "zzzyxUVkUBaHNCAf",
+  "tags": []
+}
