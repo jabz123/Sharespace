@@ -72,15 +72,7 @@ curl_setopt_array($ch, [
 ]);
 
 $response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-if ($response === false) {
-    // Optional: log curl_error($ch)
-}
-curl_close($ch);
-
-$response = curl_exec($ch);
-$err = curl_error($ch);
+$err      = curl_error($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
