@@ -111,6 +111,9 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="starfield starfield-back" aria-hidden="true"></div>
     <div class="starfield starfield-mid" aria-hidden="true"></div>
     <div class="starfield starfield-front" aria-hidden="true"></div>
+    <div class="cosmos-haze" aria-hidden="true"></div>
+    <div class="planet planet-large" aria-hidden="true"></div>
+    <div class="planet planet-small" aria-hidden="true"></div>
     <div class="hero-galaxy" aria-hidden="true"></div>
     <div class="hero-aura" aria-hidden="true"></div>
     <div class="blob blob-right"></div>
