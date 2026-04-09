@@ -48,10 +48,11 @@ function sidebar(User $user): void {
 
     if ($user->role === 'system_admin') {
         $links = [
-            ['href' => '/pages/admin-dashboard.php', 'key' => 'home', 'label' => 'Admin Dashboard'],
-            ['href' => '/pages/browse.php', 'key' => 'browse', 'label' => 'Browse Articles'],
-            ['href' => '/pages/admin-landing.php', 'key' => 'landing', 'label' => 'Manage Landing Page'],
-            ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
+            ['href' => '/pages/admin-dashboard.php', 'key' => 'home',    'label' => 'Admin Dashboard'],
+            ['href' => '/pages/browse.php',           'key' => 'browse',  'label' => 'Browse Articles'],
+            ['href' => '/pages/admin-landing.php',    'key' => 'landing', 'label' => 'Manage Landing Page'],
+            ['href' => '/pages/admin-audit-log.php',  'key' => 'audit',   'label' => 'Audit Log'],
+            ['href' => '/pages/profile.php',          'key' => 'profile', 'label' => 'Profile'],
         ];
     } elseif ($user->role === 'category_admin') {
         $links = [
