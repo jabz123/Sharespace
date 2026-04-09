@@ -1911,8 +1911,8 @@ h4,
 /* Contrast boost for landing editorial deck */
 .hero {
     background:
-        radial-gradient(circle at top right, rgba(245,166,35,0.16), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(77,184,255,0.1), transparent 26%),
+        radial-gradient(circle at top right, rgba(245,166,35,0.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(132,162,210,0.08), transparent 26%),
         linear-gradient(180deg, #08111f 0%, #050c18 100%);
 }
 
@@ -1995,9 +1995,9 @@ h4,
 
 .preview-window {
     background:
-        radial-gradient(circle at top right, rgba(245,166,35,0.18), transparent 24%),
-        radial-gradient(circle at 15% 14%, rgba(77,184,255,0.14), transparent 14%),
-        linear-gradient(180deg, #172133 0%, #0d1627 100%);
+        radial-gradient(circle at top right, rgba(245,166,35,0.12), transparent 22%),
+        radial-gradient(circle at 15% 14%, rgba(132,162,210,0.08), transparent 16%),
+        linear-gradient(180deg, #141d2c 0%, #0c1422 100%);
     border: 1px solid rgba(255,255,255,0.14);
 }
 
@@ -2033,17 +2033,17 @@ h4,
     content: '';
     position: absolute;
     inset: 0;
-    border-top: 3px solid rgba(245,166,35,0.82);
-    opacity: 0.92;
+    border-top: 3px solid rgba(245,166,35,0.78);
+    opacity: 0.88;
     pointer-events: none;
 }
 
 .preview-card:nth-child(2)::before {
-    border-top-color: rgba(46,223,154,0.9);
+    border-top-color: rgba(245,166,35,0.58);
 }
 
 .preview-card:nth-child(3)::before {
-    border-top-color: rgba(77,184,255,0.9);
+    border-top-color: rgba(199,214,239,0.45);
 }
 
 .preview-card:hover {
@@ -2068,4 +2068,31 @@ h4,
 .preview-stats,
 .preview-stats span {
     color: #cfdbf1;
+}
+
+.preview-cat {
+    color: #f6c46d;
+}
+
+.preview-score {
+    color: #aef0d3;
+    background: rgba(46,223,154,0.08);
+    border-color: rgba(46,223,154,0.24);
+}
+
+.orbital-swimmer {
+    opacity: 0.42;
+}
+
+.swimmer-trail {
+    background: linear-gradient(90deg, rgba(132,162,210,0), rgba(132,162,210,0.18), rgba(245,166,35,0.06));
+}
+
+.swimmer-helmet {
+    box-shadow: 0 0 24px rgba(132,162,210,0.08);
+}
+
+.swimmer-fin {
+    border-left-color: rgba(245,166,35,0.76);
+    filter: drop-shadow(0 0 8px rgba(245,166,35,0.1));
 }
