@@ -127,26 +127,28 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="blob blob-left"></div>
 
     <div class="container hero-inner">
-        <div class="hero-badge fade-in">
-            <span class="hero-badge-dot" aria-hidden="true"></span>
-            AI-powered verification intelligence
+        <div class="hero-copy">
+            <div class="hero-badge fade-in">
+                <span class="hero-badge-dot" aria-hidden="true"></span>
+                AI-powered fact checking
+            </div>
+
+            <h1 class="hero-title slide-up">
+                Uncover the<br>
+                Truth in <span class="gradient-text">Headline</span>
+            </h1>
+
+            <p class="hero-sub slide-up" style="animation-delay:.1s">
+                Join the platform built for finding and sharing trustworthy news. Our AI analyzes each story for accuracy before it reaches you.
+            </p>
+
+            <div class="hero-cta slide-up" style="animation-delay:.1s">
+                <a href="/register.php" class="btn-hero-lg">Start Publishing Free</a>
+                <a href="#video" class="btn-outline-lg">View Demo</a>
+            </div>
         </div>
 
-        <h1 class="hero-title slide-up">
-            Uncover the<br>
-            <span class="gradient-text">Truth in Every Headline</span>
-        </h1>
-
-        <p class="hero-sub slide-up" style="animation-delay:.1s">
-            SharedSpace analyzes developing stories for credibility, consistency, and source quality before they reach your audience.
-        </p>
-
-        <div class="hero-cta slide-up" style="animation-delay:.1s">
-            <a href="/register.php" class="btn-hero-lg">Start Publishing Free</a>
-            <a href="#video" class="btn-outline-lg">View Demo</a>
-        </div>
-
-        <div id="recent-articles" class="preview-window slide-up" style="animation-delay:.1s">
+        <div id="recent-articles" class="preview-window slide-up" style="animation-delay:.18s">
             <div class="orbital-swimmer" aria-hidden="true">
                 <span class="swimmer-trail"></span>
                 <span class="swimmer-helmet"></span>
@@ -163,16 +165,14 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
             <div class="preview-cards">
                 <?php if (!empty($previewArticles)): ?>
                     <?php foreach ($previewArticles as $index => $article): ?>
-                        <?php $isFeatured = $index === 1; ?>
-                        <a href="/login.php" class="preview-card<?= $isFeatured ? ' preview-card-featured' : '' ?>">
+                        <?php
+                        $statusLabel = $article->trustScore >= 80 ? 'Verified' : ($article->trustScore >= 60 ? 'Reviewed' : 'Watchlist');
+                        ?>
+                        <a href="/login.php" class="preview-card">
                             <div class="preview-meta">
                                 <span class="preview-cat"><?= htmlspecialchars($article->categoryName) ?></span>
                                 <span class="preview-score <?= score_class($article->trustScore) ?>"><?= $article->trustScore ?>%</span>
                             </div>
-
-                            <?php if ($isFeatured): ?>
-                                <div class="preview-featured-label">Featured Story</div>
-                            <?php endif; ?>
 
                             <?php if (!empty($article->imagePath)): ?>
                                 <div class="preview-thumb">
@@ -201,14 +201,8 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                                         <span class="author-time"><?= relative_time($article->publishedAt) ?></span>
                                     </div>
                                 </div>
-
-                                <?php
-                                $commentCtrl = new CommentController();
-                                $commentCount = $commentCtrl->countByArticle($article->id);
-                                ?>
-
                                 <div class="preview-stats">
-                                    <span><?= $commentCount ?> comments</span>
+                                    <span><?= $statusLabel ?></span>
                                 </div>
                             </div>
                         </a>

@@ -3228,3 +3228,195 @@ body {
 .footer-inner {
     border-top: 1px solid rgba(255,255,255,0.08);
 }
+
+/* Landing direction lock: match approved concept */
+.hero-inner {
+    max-width: 1280px;
+    padding-top: 86px;
+    padding-bottom: 72px;
+}
+
+.hero-copy {
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.hero-title {
+    max-width: 720px;
+    margin: 0 auto 20px;
+    font-size: clamp(64px, 8vw, 98px);
+    line-height: 0.96;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #ffde8a 0%, #f5a623 46%, #d48f14 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-sub {
+    max-width: 760px;
+    margin: 0 auto 28px;
+    font-size: 19px;
+}
+
+.hero-cta {
+    justify-content: center;
+    margin-bottom: 34px;
+}
+
+.hero::after {
+    left: 50%;
+    bottom: 31%;
+    width: 520px;
+    height: 84px;
+}
+
+.preview-window {
+    max-width: 1080px;
+    margin-top: 14px;
+    padding: 28px 24px 28px;
+    border-radius: 26px;
+    background:
+        linear-gradient(180deg, rgba(43,58,92,0.82) 0%, rgba(20,30,50,0.9) 100%);
+    border: 1px solid rgba(245,166,35,0.26);
+}
+
+.preview-window::before {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), transparent 28%);
+}
+
+.preview-header {
+    max-width: 720px;
+    margin-bottom: 22px;
+}
+
+.preview-header h2 {
+    font-size: clamp(44px, 5vw, 62px);
+    line-height: 1.02;
+}
+
+.preview-header p {
+    font-size: 17px;
+}
+
+.preview-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.preview-card,
+.preview-card:nth-child(1),
+.preview-card:nth-child(2),
+.preview-card:nth-child(3),
+.preview-card-featured,
+.preview-card-featured:hover {
+    min-height: 0;
+    transform: none;
+    background:
+        linear-gradient(180deg, rgba(18,20,29,0.96) 0%, rgba(14,16,24,0.98) 100%);
+    border: 1px solid rgba(245,166,35,0.26);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.26);
+}
+
+.preview-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(245,166,35,0.38);
+    box-shadow: 0 26px 42px rgba(0,0,0,0.32), 0 0 0 1px rgba(245,166,35,0.08) inset;
+}
+
+.preview-card::before,
+.preview-card:nth-child(2)::before,
+.preview-card:nth-child(3)::before {
+    border-top-width: 2px;
+    border-top-color: rgba(245,166,35,0.74);
+}
+
+.preview-thumb,
+.preview-card-featured .preview-thumb {
+    height: 144px;
+    margin-top: 12px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    background: #0b1018;
+    overflow: hidden;
+}
+
+.preview-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-title,
+.preview-title a,
+.preview-card-featured .preview-title,
+.preview-card-featured .preview-title a {
+    font-size: 18px;
+    line-height: 1.32;
+}
+
+.preview-excerpt,
+.preview-card-featured .preview-excerpt {
+    font-size: 14px;
+    line-height: 1.65;
+    min-height: 72px;
+}
+
+.preview-footer {
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-stats {
+    margin-left: auto;
+}
+
+.preview-stats span {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(118,196,99,0.12);
+    border: 1px solid rgba(118,196,99,0.22);
+    color: #a7e28d;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.preview-window-cta {
+    margin-top: 22px;
+}
+
+.preview-window-link {
+    min-width: 360px;
+    min-height: 64px;
+    border-radius: 14px;
+    background: rgba(18,21,30,0.92);
+    border: 1px solid rgba(245,166,35,0.24);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    color: #f8f4ed;
+}
+
+.preview-window-link:hover {
+    background: rgba(26,30,42,0.96);
+    color: #ffffff;
+}
+
+@media (max-width: 1100px) {
+    .preview-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .preview-window-link {
+        min-width: 0;
+        width: 100%;
+    }
+}
