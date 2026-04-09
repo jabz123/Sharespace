@@ -146,12 +146,17 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
             <div class="preview-cards">
                 <?php if (!empty($previewArticles)): ?>
-                    <?php foreach ($previewArticles as $article): ?>
-                        <a href="/login.php" class="preview-card">
+                    <?php foreach ($previewArticles as $index => $article): ?>
+                        <?php $isFeatured = $index === 1; ?>
+                        <a href="/login.php" class="preview-card<?= $isFeatured ? ' preview-card-featured' : '' ?>">
                             <div class="preview-meta">
                                 <span class="preview-cat"><?= htmlspecialchars($article->categoryName) ?></span>
                                 <span class="preview-score <?= score_class($article->trustScore) ?>"><?= $article->trustScore ?>%</span>
                             </div>
+
+                            <?php if ($isFeatured): ?>
+                                <div class="preview-featured-label">Featured Story</div>
+                            <?php endif; ?>
 
                             <?php if (!empty($article->imagePath)): ?>
                                 <div class="preview-thumb">
@@ -187,9 +192,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                                 ?>
 
                                 <div class="preview-stats">
-                                    <span>Views <?= $article->viewCount ?? 0 ?></span>
-                                    <span>Comments <?= $commentCount ?></span>
-                                    <span>Flags <?= $article->flagCount ?></span>
+                                    <span><?= $commentCount ?> comments</span>
                                 </div>
                             </div>
                         </a>
