@@ -3669,3 +3669,76 @@ textarea,
     font-size: 13px;
     line-height: 1.75;
 }
+
+.card-title,
+.card-title a {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.02em;
+    color: #f8fbff;
+    text-shadow: none;
+}
+
+.mb-10 h2,
+.section-title,
+.dash-section-title {
+    color: #ffffff;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.22);
+}
+
+/* Global visibility pass */
+.dash-subtitle,
+.sort-filters > span,
+.card-time,
+.text-muted,
+.meta-item,
+.meta-label,
+.summary-text,
+.my-article-excerpt,
+.preview-stats,
+.author-time,
+.sub-price-suffix,
+.sub-price-desc,
+.sub-features-sub,
+.ai-badge-muted,
+.article-meta,
+.article-meta *,
+.card-footer,
+.card-footer *,
+.author-name {
+    color: #d7e3f7 !important;
+}
+
+.meta-label,
+.sort-filters > span,
+.card-time,
+.text-muted,
+.meta-item {
+    opacity: 0.95;
+}
+
+.summary-text,
+.my-article-excerpt,
+.card-excerpt,
+.article-summary,
+.article-meta,
+.article-body,
+.article-content,
+.article-content p {
+    color: #ffffff !important;
+}
+
+.category-filters a,
+.sort-btn,
+.chip {
+    color: #eef4ff;
+    border-color: rgba(255,255,255,0.12);
+}
+
+.category-filters a:hover,
+.sort-btn:hover,
+.chip:hover {
+    color: #ffffff;
+}
