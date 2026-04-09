@@ -47,11 +47,29 @@ DB::execute(
 );
 
 // ===== CALL N8N FOR AI TRIAGE =====
+$articleRow = DB::first(
+    "SELECT a.id, a.title, a.excerpt, a.content, a.category_id,
+            c.name AS category_name, c.description AS category_description
+     FROM articles a
+     LEFT JOIN categories c ON c.id = a.category_id
+     WHERE a.id = ?",
+    [$articleId]
+);
+
 $payload = [
     'reporter' => ['user_id' => $userId],
     'article'  => [
-        'id' => $articleId,
-        // ideally include title/content/category too (see note below)
+        'id'          => $articleId,
+        'title'       => $articleRow['title']   ?? '',
+        'excerpt'     => $articleRow['excerpt'] ?? '',
+        'content'     => $articleRow['content'] ?? '',
+        'category_id' => $articleRow['category_id'] ?? 0,
+        'category_name' => $articleRow['category_name'] ?? '',
+    ],
+    'category' => [
+        'id'          => $articleRow['category_id']          ?? 0,
+        'name'        => $articleRow['category_name']        ?? '',
+        'description' => $articleRow['category_description'] ?? '',
     ],
     'flag' => [
         'reason'  => $reason,
