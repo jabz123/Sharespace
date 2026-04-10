@@ -64,7 +64,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <title>SharedSpace - Truth in Every Headline</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/public/css/landing.css" />
 </head>
 <body>
@@ -94,7 +94,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
     <div class="mobile-menu" id="mobile-menu">
         <a href="#recent-articles">Recent Articles</a>
-        <a href="#features">Features</a>
+        <a href="#features">Fact Checking</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#testimonials">Testimonials</a>
         <a href="#pricing">Pricing</a>
@@ -135,7 +135,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
             <h1 class="hero-title slide-up">
                 Uncover the<br>
-                Truth in <span class="gradient-text">Headline</span>
+                Truth in <span class="gradient-text">Every Headline</span>
             </h1>
 
             <p class="hero-sub slide-up" style="animation-delay:.1s">
