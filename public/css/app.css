@@ -4599,26 +4599,36 @@ textarea,
     
 }
 
-/* ===== Profile page: feedback column ===== */
+/* ===== Profile page layout fix ===== */
 
-.profile-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 28px;
-    align-items: start;
+.page-content {
+    width: 100%;
 }
 
-.profile-main,
-.feedback-panel {
+.profile-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    width: 100%;
+}
+
+.profile-main {
+    flex: 1 1 auto;
     min-width: 0;
 }
 
+.feedback-panel {
+    width: 340px;
+    flex: 0 0 340px;
+}
+
 .profile {
-    background: linear-gradient(180deg, rgba(3, 11, 27, 0.96), rgba(4, 13, 32, 0.98));
-    border: 1px solid rgba(255, 191, 71, 0.10);
-    border-radius: 22px;
-    padding: 28px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
 }
 
 .profile-header h2 {
@@ -4648,6 +4658,7 @@ textarea,
     padding: 14px 16px;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    box-sizing: border-box;
 }
 
 .profile input[type="text"]:focus,
@@ -4663,26 +4674,32 @@ textarea,
     resize: vertical;
 }
 
+.image-upload-container {
+    margin-bottom: 20px;
+}
+
 .profile-avatar-preview {
-    width: 100px;
-    height: 100px;
+    width: 96px;
+    height: 96px;
     border-radius: 50%;
-    background: var(--gradient-hero);
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
-    font-weight: 700;
+    background: linear-gradient(135deg, #1c2d5a, #0c1733);
     color: #fff;
-    overflow: hidden;
-    margin-bottom: 12px;
-    flex-shrink: 0;
+    font-size: 34px;
+    font-weight: 700;
     border: 2px solid rgba(255, 191, 71, 0.18);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    margin-bottom: 12px;
 }
 
-.image-upload-container {
-    margin-bottom: 20px;
+.profile-avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .image-buttons {
@@ -4698,23 +4715,16 @@ textarea,
     padding: 10px 16px;
     font-weight: 700;
     cursor: pointer;
-    transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
 }
 
 .btn-dark {
     background: #2a2d35;
     color: #fff;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
 }
 
 .btn-light {
     background: #d9d9d9;
     color: #222;
-}
-
-.btn-dark:hover,
-.btn-light:hover {
-    transform: translateY(-1px);
 }
 
 .profile-upload-note {
@@ -4738,7 +4748,6 @@ textarea,
     background: linear-gradient(135deg, #f5a623, #ffbf47);
     color: #081224;
     font-weight: 800;
-    box-shadow: 0 10px 24px rgba(245, 166, 35, 0.20);
 }
 
 .profile-password-btn {
@@ -4747,16 +4756,17 @@ textarea,
     background: transparent;
     color: #e3ecfa;
     border: 1px solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
 }
 
 .feedback-card {
     background: linear-gradient(180deg, rgba(10, 18, 38, 0.96), rgba(7, 14, 30, 0.96));
     border: 1px solid rgba(245, 166, 35, 0.18);
     border-radius: 22px;
-    padding: 28px 22px;
+    padding: 24px 20px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
     position: sticky;
-    top: 28px;
+    top: 24px;
 }
 
 .feedback-card h3 {
@@ -4768,7 +4778,7 @@ textarea,
 }
 
 .feedback-subtitle {
-    margin: 0 0 22px;
+    margin: 0 0 20px;
     font-size: 14px;
     line-height: 1.7;
     color: #93a4c3;
@@ -4784,20 +4794,14 @@ textarea,
 
 .feedback-form textarea {
     width: 100%;
+    min-height: 120px;
     resize: vertical;
-    min-height: 130px;
     padding: 14px 16px;
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.03);
     color: #ffffff;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.feedback-form textarea:focus {
-    border-color: rgba(245, 166, 35, 0.55);
-    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.10);
+    box-sizing: border-box;
 }
 
 .feedback-form textarea::placeholder {
@@ -4820,21 +4824,12 @@ textarea,
     color: #081224;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 10px 24px rgba(245, 166, 35, 0.22);
-}
-
-.feedback-submit-btn:hover {
-    transform: translateY(-1px);
 }
 
 .feedback-divider {
     height: 1px;
-    margin: 26px 0 18px;
+    margin: 24px 0 16px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
-}
-
-.community-rating-block {
-    margin-top: 4px;
 }
 
 .community-rating-title {
@@ -4863,7 +4858,7 @@ textarea,
     flex-direction: row-reverse;
     justify-content: flex-end;
     gap: 6px;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
 .rating-stars input {
@@ -4871,44 +4866,29 @@ textarea,
 }
 
 .rating-stars label {
-    font-size: 34px;
+    font-size: 30px;
     line-height: 1;
-    color: rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.2);
     cursor: pointer;
-    transition: transform 0.18s ease, color 0.18s ease;
 }
 
 .rating-stars label:hover,
 .rating-stars label:hover ~ label,
 .rating-stars input:checked ~ label {
     color: #f5a623;
-    transform: scale(1.05);
 }
 
 @media (max-width: 1100px) {
     .profile-layout {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .feedback-panel {
+        width: 100%;
+        flex: none;
     }
 
     .feedback-card {
         position: static;
-    }
-}
-
-@media (max-width: 640px) {
-    .profile {
-        padding: 20px;
-    }
-
-    .feedback-card {
-        padding: 22px 18px;
-    }
-
-    .profile-header h2 {
-        font-size: 28px;
-    }
-
-    .feedback-card h3 {
-        font-size: 24px;
     }
 }
