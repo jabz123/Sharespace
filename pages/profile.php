@@ -53,7 +53,6 @@ page_head('Profile');
                                             id="avatarImg"
                                             src="/public/<?= htmlspecialchars($user->avatarUrl) ?>"
                                             alt="Profile picture"
-                                            style="width:100%;height:100%;object-fit:cover"
                                         >
                                     <?php else: ?>
                                         <span id="avatarInitial"><?= htmlspecialchars($user->initial()) ?></span>
@@ -199,7 +198,7 @@ document.getElementById('avatarInput').addEventListener('change', function () {
     const reader = new FileReader();
     reader.onload = function (e) {
         const preview = document.getElementById('avatarPreview');
-        preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover">';
+        preview.innerHTML = '<img src="' + e.target.result + '" alt="Profile picture">';
         document.getElementById('removeAvatarBtn').style.display = '';
         document.getElementById('removeAvatarFlag').value = '0';
     };
