@@ -4601,8 +4601,8 @@ textarea,
 }
 
 .feedback-panel {
-    width: 340px;
-    flex: 0 0 340px;
+    width: 320px;
+    flex: 0 0 320px;
 }
 
 .profile {
@@ -4861,13 +4861,14 @@ textarea,
     color: #f5a623;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 860px) {
     .profile-layout {
         flex-direction: column;
     }
 
     .feedback-panel {
         width: 100%;
+        min-width: 0;
         flex: none;
     }
 
