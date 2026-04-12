@@ -2851,8 +2851,9 @@ margin:0 auto;
     display: flex; flex-direction: column; gap: 12px; }
 .btn-upgrade { width: 100%; padding: 14px; font-size: 15px; font-weight: 600; }
 
-/* SharedSpace style guide alignment */
-:root {
+/* SharedSpace style guide alignment — dark theme variables scoped to dark shells only */
+.user-dashboard-shell,
+.browse-page-shell {
     --bg: #060c1a;
     --fg: #e0eaff;
     --body-copy: #c8d7ee;
@@ -2873,34 +2874,45 @@ margin:0 auto;
     --radius: 12px;
 }
 
-body {
+.user-dashboard-shell body,
+.browse-page-shell body,
+body:has(.user-dashboard-shell),
+body:has(.browse-page-shell) {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--bg);
     color: var(--fg);
 }
 
-a {
+.user-dashboard-shell a,
+.browse-page-shell a {
     color: var(--fg);
 }
 
-.dashboard-layout main {
+.user-dashboard-shell .dashboard-layout main,
+.browse-page-shell .dashboard-layout main {
     background: linear-gradient(180deg, rgba(8, 14, 28, 0.98) 0%, rgba(6, 12, 26, 1) 100%);
 }
 
-.sidebar {
+.user-dashboard-shell .sidebar,
+.browse-page-shell .sidebar {
     background: #040810;
     border-right: 2px solid rgba(245, 166, 35, 0.15);
     box-shadow: none;
 }
 
-.sidebar-logo,
-.sidebar-user,
-.sidebar-footer,
-.dash-header {
+.user-dashboard-shell .sidebar-logo,
+.user-dashboard-shell .sidebar-user,
+.user-dashboard-shell .sidebar-footer,
+.user-dashboard-shell .dash-header,
+.browse-page-shell .sidebar-logo,
+.browse-page-shell .sidebar-user,
+.browse-page-shell .sidebar-footer,
+.browse-page-shell .dash-header {
     border-color: rgba(255,255,255,0.07);
 }
 
-.sidebar-user {
+.user-dashboard-shell .sidebar-user,
+.browse-page-shell .sidebar-user {
     margin: 14px 14px 0;
     padding: 14px;
     border: 1.5px solid rgba(245,166,35,0.22);
@@ -2908,41 +2920,50 @@ a {
     background: rgba(14, 24, 44, 0.72);
 }
 
-.user-avatar {
+.user-dashboard-shell .user-avatar,
+.browse-page-shell .user-avatar {
     border: 2px solid var(--primary);
     background: #0e1e3a;
     color: var(--primary);
 }
 
-.user-name {
+.user-dashboard-shell .user-name,
+.browse-page-shell .user-name {
     color: #ffffff;
 }
 
-.role-badge {
+.user-dashboard-shell .role-badge,
+.browse-page-shell .role-badge {
     font-family: 'Space Grotesk', sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     border-radius: 4px;
 }
 
-.role-badge.premium {
+.user-dashboard-shell .role-badge.premium,
+.browse-page-shell .role-badge.premium {
     background: var(--primary);
     color: #06090f;
 }
 
-.role-badge.free {
+.user-dashboard-shell .role-badge.free,
+.browse-page-shell .role-badge.free {
     background: rgba(255,255,255,0.06);
     color: #7f93b6;
 }
 
-.role-badge.system-admin,
-.role-badge.category-admin,
-.role-badge.category-name {
+.user-dashboard-shell .role-badge.system-admin,
+.user-dashboard-shell .role-badge.category-admin,
+.user-dashboard-shell .role-badge.category-name,
+.browse-page-shell .role-badge.system-admin,
+.browse-page-shell .role-badge.category-admin,
+.browse-page-shell .role-badge.category-name {
     background: rgba(255,255,255,0.08);
     color: #c8d8f8;
 }
 
-.nav-link {
+.user-dashboard-shell .nav-link,
+.browse-page-shell .nav-link {
     color: #506080;
     border-radius: 0;
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -2952,15 +2973,28 @@ a {
     position: relative;
 }
 
-.nav-link::before {
-    content: '';
-    position: absolute;
-    left: -12px;
-    top: 10px;
-    bottom: 10px;
-    width: 3px;
-    border-radius: 999px;
-    background: transparent;
+.user-dashboard-shell .nav-link:hover,
+.browse-page-shell .nav-link:hover {
+    background: rgba(245,166,35,0.06);
+    color: #c8d8f8;
+    text-decoration: none;
+}
+
+.user-dashboard-shell .nav-link.active,
+.browse-page-shell .nav-link.active {
+    background: rgba(245,166,35,0.08);
+    color: var(--primary);
+}
+
+.user-dashboard-shell .nav-link.active::before,
+.browse-page-shell .nav-link.active::before {
+    background: var(--primary);
+}
+
+.user-dashboard-shell .nav-link.logout:hover,
+.browse-page-shell .nav-link.logout:hover {
+    color: var(--primary-mid);
+    background: rgba(245,166,35,0.06);
 }
 
 .nav-link:hover {
@@ -4614,7 +4648,7 @@ textarea,
     font-family: 'DM Serif Display', serif;
     font-size: 32px;
     line-height: 1.1;
-    color: #f8fbff;
+    color: #16233f;
     margin-bottom: 18px;
 }
 
@@ -4623,29 +4657,30 @@ textarea,
     margin: 18px 0 8px;
     font-size: 14px;
     font-weight: 700;
-    color: #dfe8f7;
+    color: #314766;
 }
 
 .profile input[type="text"],
 .profile input[type="email"],
 .profile textarea {
     width: 100%;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
-    color: #ffffff;
-    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #c8d8ee;
+    background: #f7faff;
+    color: #16233f;
+    padding: 12px 16px;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     box-sizing: border-box;
+    font-size: 14px;
 }
 
 .profile input[type="text"]:focus,
 .profile input[type="email"]:focus,
 .profile textarea:focus {
-    border-color: rgba(255, 191, 71, 0.55);
-    box-shadow: 0 0 0 3px rgba(255, 191, 71, 0.10);
-    background: rgba(255, 255, 255, 0.03);
+    border-color: hsl(213, 56%, 40%);
+    box-shadow: 0 0 0 3px hsl(213 56% 24% / .10);
+    background: #ffffff;
 }
 
 .profile textarea {
@@ -4688,25 +4723,31 @@ textarea,
 }
 
 .btn-dark {
-    background: #333;
-    color: white;
+    background: #1c2d4f;
+    color: #ffffff;
     padding: 8px 14px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .btn-light {
-    background: #ddd;
-    color: #222;
+    background: #edf3fb;
+    color: #314766;
     padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
+    border: 1px solid #c8d8ee;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .profile-upload-note {
     font-size: 12px;
     margin-top: 8px;
-    color: #8ea3c7;
+    color: #5a7090;
 }
 
 .profile-actions {
@@ -4718,12 +4759,14 @@ textarea,
 }
 
 .profile-password-btn {
-    border-radius: 14px;
-    padding: 12px 18px;
-    background: transparent;
-    color: #e3ecfa;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 10px 18px;
+    background: #edf3fb;
+    color: #314766;
+    border: 1px solid #c8d8ee;
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .feedback-card {
@@ -4860,3 +4903,1719 @@ textarea,
     }
 }
 
+/* ================================================================
+   LIGHT THEME PAGES — Admin Dashboard, Audit Log, Manage Landing
+   These pages use a clean white/light-blue theme.
+   All rules use !important to override the dark global styles above.
+   ================================================================ */
+
+/* --- Page & main background --- */
+body.page-admin-dashboard,
+body.page-audit-log,
+body.page-manage-landing-page {
+    background: #edf3fb !important;
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard .dashboard-layout main,
+body.page-audit-log .dashboard-layout main,
+body.page-manage-landing-page .dashboard-layout main {
+    background: #f0f5fc !important;
+}
+
+/* --- Sidebar --- */
+body.page-admin-dashboard .sidebar,
+body.page-audit-log .sidebar,
+body.page-manage-landing-page .sidebar {
+    background: #1c2d4f !important;
+    border-right: 1px solid #162440 !important;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.15) !important;
+}
+
+/* Logo area */
+body.page-admin-dashboard .sidebar-logo,
+body.page-audit-log .sidebar-logo,
+body.page-manage-landing-page .sidebar-logo {
+    background: #1c2d4f !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+    padding: 20px 18px !important;
+}
+
+body.page-admin-dashboard .logo-text,
+body.page-audit-log .logo-text,
+body.page-manage-landing-page .logo-text {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+body.page-admin-dashboard .logo-link,
+body.page-audit-log .logo-link,
+body.page-manage-landing-page .logo-link {
+    color: #ffffff !important;
+}
+
+/* User info block in sidebar */
+body.page-admin-dashboard .sidebar-user,
+body.page-audit-log .sidebar-user,
+body.page-manage-landing-page .sidebar-user {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    border-radius: 10px !important;
+    margin: 12px 12px 0 !important;
+}
+
+body.page-admin-dashboard .user-name,
+body.page-audit-log .user-name,
+body.page-manage-landing-page .user-name {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+body.page-admin-dashboard .role-badge,
+body.page-audit-log .role-badge,
+body.page-manage-landing-page .role-badge {
+    background: rgba(255,255,255,0.12) !important;
+    color: #c8d8f8 !important;
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+}
+
+body.page-admin-dashboard .user-avatar,
+body.page-audit-log .user-avatar,
+body.page-manage-landing-page .user-avatar {
+    background: hsl(213, 56%, 36%) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255,255,255,0.2) !important;
+}
+
+/* Nav links */
+body.page-admin-dashboard .nav-link,
+body.page-audit-log .nav-link,
+body.page-manage-landing-page .nav-link {
+    color: #a8bdd8 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+body.page-admin-dashboard .nav-link:hover,
+body.page-audit-log .nav-link:hover,
+body.page-manage-landing-page .nav-link:hover {
+    background: rgba(255,255,255,0.09) !important;
+    color: #ffffff !important;
+}
+
+body.page-admin-dashboard .nav-link.active,
+body.page-audit-log .nav-link.active,
+body.page-manage-landing-page .nav-link.active {
+    background: rgba(255,255,255,0.14) !important;
+    color: #ffffff !important;
+}
+
+body.page-admin-dashboard .nav-link.active::before,
+body.page-audit-log .nav-link.active::before,
+body.page-manage-landing-page .nav-link.active::before {
+    background: #f5a623 !important;
+}
+
+body.page-admin-dashboard .nav-link.logout,
+body.page-audit-log .nav-link.logout,
+body.page-manage-landing-page .nav-link.logout {
+    color: #7a8ea8 !important;
+}
+
+body.page-admin-dashboard .nav-link.logout:hover,
+body.page-audit-log .nav-link.logout:hover,
+body.page-manage-landing-page .nav-link.logout:hover {
+    color: #ff8fa3 !important;
+    background: rgba(255,107,138,0.12) !important;
+}
+
+/* Sidebar footer */
+body.page-admin-dashboard .sidebar-footer,
+body.page-audit-log .sidebar-footer,
+body.page-manage-landing-page .sidebar-footer {
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+/* Nav dot icons */
+body.page-admin-dashboard .nav-icon,
+body.page-audit-log .nav-icon,
+body.page-manage-landing-page .nav-icon {
+    opacity: 0.7 !important;
+}
+
+/* --- Dash header (top bar) --- */
+body.page-admin-dashboard .dash-header,
+body.page-audit-log .dash-header,
+body.page-manage-landing-page .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+    backdrop-filter: none !important;
+}
+
+body.page-admin-dashboard .dash-title,
+body.page-audit-log .dash-title,
+body.page-manage-landing-page .dash-title {
+    color: #16233f !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+}
+
+body.page-admin-dashboard .dash-subtitle,
+body.page-audit-log .dash-subtitle,
+body.page-manage-landing-page .dash-subtitle {
+    color: #5a7090 !important;
+}
+
+/* --- Cards and panels --- */
+body.page-admin-dashboard .card,
+body.page-audit-log .card,
+body.page-manage-landing-page .card {
+    background: #ffffff !important;
+    border: 1px solid #dce8f4 !important;
+    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard .card h2,
+body.page-admin-dashboard .card h3,
+body.page-audit-log .card h2,
+body.page-audit-log .card h3,
+body.page-manage-landing-page .card h2,
+body.page-manage-landing-page .card h3 {
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard .card p,
+body.page-audit-log .card p,
+body.page-manage-landing-page .card p {
+    color: #4a6080 !important;
+}
+
+/* --- Stats bar: change from amber/orange to steel-blue --- */
+body.page-admin-dashboard [style*="background:var(--primary)"],
+body.page-admin-dashboard [style*="background: var(--primary)"] {
+    background: #1c2d4f !important;
+}
+
+/* Numbers in stats bar (inline color:#1a1a1a — invisible on dark) */
+body.page-admin-dashboard [style*="color:#1a1a1a"],
+body.page-audit-log [style*="color:#1a1a1a"],
+body.page-manage-landing-page [style*="color:#1a1a1a"] {
+    color: #ffffff !important;
+}
+
+/* Labels in stats bar (inline color:#3d2e00 — invisible on dark) */
+body.page-admin-dashboard [style*="color:#3d2e00"],
+body.page-audit-log [style*="color:#3d2e00"],
+body.page-manage-landing-page [style*="color:#3d2e00"] {
+    color: #93b4d8 !important;
+}
+
+/* Dividers between stat cells */
+body.page-admin-dashboard [style*="border-right:1px solid rgba(0,0,0,0.12)"],
+body.page-admin-dashboard [style*="border-right: 1px solid rgba(0,0,0,0.12)"] {
+    border-right-color: rgba(255,255,255,0.08) !important;
+}
+
+/* --- Tab buttons (Manage Articles / Users / Categories / Experts) --- */
+body.page-admin-dashboard .btn-ghost,
+body.page-audit-log .btn-ghost,
+body.page-manage-landing-page .btn-ghost {
+    background: #ffffff !important;
+    color: #314766 !important;
+    border: 1px solid #c4d4e8 !important;
+}
+
+body.page-admin-dashboard .btn-ghost:hover,
+body.page-audit-log .btn-ghost:hover,
+body.page-manage-landing-page .btn-ghost:hover {
+    background: #edf3fb !important;
+    color: #16233f !important;
+    border-color: #4a6ba8 !important;
+}
+
+/* Active tab (btn-primary) */
+body.page-admin-dashboard .btn-primary,
+body.page-audit-log .btn-primary,
+body.page-manage-landing-page .btn-primary {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+body.page-admin-dashboard .btn-primary:hover,
+body.page-audit-log .btn-primary:hover,
+body.page-manage-landing-page .btn-primary:hover {
+    background: #253c68 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* --- Tables --- */
+body.page-admin-dashboard table,
+body.page-audit-log table,
+body.page-manage-landing-page table {
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard thead th,
+body.page-audit-log thead th,
+body.page-manage-landing-page thead th {
+    color: #5a7090 !important;
+    border-bottom-color: #dce8f4 !important;
+}
+
+body.page-admin-dashboard tbody td,
+body.page-audit-log tbody td,
+body.page-manage-landing-page tbody td {
+    color: #16233f !important;
+    border-bottom-color: #edf3fb !important;
+}
+
+body.page-admin-dashboard [style*="color:var(--muted)"],
+body.page-audit-log [style*="color:var(--muted)"],
+body.page-manage-landing-page [style*="color:var(--muted)"] {
+    color: #5a7090 !important;
+}
+
+/* --- Forms — inputs, labels, textareas (Manage Landing Page) --- */
+body.page-admin-dashboard input[type=text],
+body.page-admin-dashboard input[type=email],
+body.page-admin-dashboard input[type=password],
+body.page-admin-dashboard select,
+body.page-admin-dashboard textarea,
+body.page-audit-log input[type=text],
+body.page-audit-log input[type=email],
+body.page-audit-log select,
+body.page-audit-log textarea,
+body.page-manage-landing-page input[type=text],
+body.page-manage-landing-page input[type=email],
+body.page-manage-landing-page input[type=password],
+body.page-manage-landing-page select,
+body.page-manage-landing-page textarea {
+    background: #f7faff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard input::placeholder,
+body.page-admin-dashboard textarea::placeholder,
+body.page-audit-log input::placeholder,
+body.page-audit-log textarea::placeholder,
+body.page-manage-landing-page input::placeholder,
+body.page-manage-landing-page textarea::placeholder {
+    color: #7a9ab8 !important;
+    opacity: 1 !important;
+}
+
+body.page-admin-dashboard label,
+body.page-audit-log label,
+body.page-manage-landing-page label {
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard .form-label,
+body.page-audit-log .form-label,
+body.page-manage-landing-page .form-label {
+    color: #314766 !important;
+    font-weight: 600 !important;
+}
+
+/* Audit log dropdown — make it readable */
+body.page-audit-log select,
+body.page-admin-dashboard select {
+    background: #ffffff !important;
+    color: #16233f !important;
+    border: 1px solid #c8d8ee !important;
+}
+
+body.page-audit-log select option,
+body.page-admin-dashboard select option {
+    background: #ffffff !important;
+    color: #16233f !important;
+}
+
+/* --- Misc text elements --- */
+body.page-admin-dashboard h1,
+body.page-admin-dashboard h2,
+body.page-admin-dashboard h3,
+body.page-admin-dashboard h4,
+body.page-audit-log h1,
+body.page-audit-log h2,
+body.page-audit-log h3,
+body.page-audit-log h4,
+body.page-manage-landing-page h1,
+body.page-manage-landing-page h2,
+body.page-manage-landing-page h3,
+body.page-manage-landing-page h4 {
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard p,
+body.page-audit-log p,
+body.page-manage-landing-page p {
+    color: #4a6080 !important;
+}
+
+body.page-admin-dashboard strong,
+body.page-audit-log strong,
+body.page-manage-landing-page strong {
+    color: #16233f !important;
+}
+
+/* Text-muted in light pages */
+body.page-admin-dashboard .text-muted,
+body.page-audit-log .text-muted,
+body.page-manage-landing-page .text-muted {
+    color: #5a7090 !important;
+}
+
+/* Alert styles for light pages */
+body.page-admin-dashboard .alert,
+body.page-audit-log .alert,
+body.page-manage-landing-page .alert {
+    background: #f7faff !important;
+    border-color: #c8d8ee !important;
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard .alert-error,
+body.page-audit-log .alert-error,
+body.page-manage-landing-page .alert-error {
+    background: #fff0f2 !important;
+    border-color: #fcc !important;
+    color: #8b1a2a !important;
+}
+
+body.page-admin-dashboard .alert-success,
+body.page-audit-log .alert-success,
+body.page-manage-landing-page .alert-success {
+    background: #f0fff6 !important;
+    border-color: #a3e6c0 !important;
+    color: #1a6040 !important;
+}
+
+/* Modal background */
+body.page-admin-dashboard .card[style*="max-width:500px"],
+body.page-manage-landing-page .card[style*="max-width:500px"] {
+    background: #ffffff !important;
+    color: #16233f !important;
+}
+
+/* Border colors inside table rows on admin pages */
+body.page-admin-dashboard [style*="border-bottom:1px solid var(--border)"],
+body.page-audit-log [style*="border-bottom:1px solid var(--border)"],
+body.page-manage-landing-page [style*="border-bottom:1px solid var(--border)"] {
+    border-bottom-color: #e8f0f8 !important;
+}
+
+body.page-admin-dashboard [style*="border-bottom:2px solid var(--border)"],
+body.page-audit-log [style*="border-bottom:2px solid var(--border)"],
+body.page-manage-landing-page [style*="border-bottom:2px solid var(--border)"] {
+    border-bottom-color: #c8d8ee !important;
+}
+
+/* ================================================================
+   CRITICAL: Reset CSS custom properties for light admin pages.
+   The global dark :root block sets --fg, --muted, --border etc to
+   dark values. We reset them here so inline styles using var(--fg),
+   var(--muted) etc resolve to light readable values on these pages.
+   ================================================================ */
+body.page-admin-dashboard,
+body.page-audit-log,
+body.page-manage-landing-page {
+    --fg:             #16233f;
+    --muted:          #5a7090;
+    --border:         #dce8f4;
+    --card:           #ffffff;
+    --bg:             #f0f5fc;
+    --secondary:      #edf3fb;
+    --primary:        hsl(213, 56%, 24%);
+    --primary-mid:    hsl(220, 60%, 35%);
+    --primary-lt:     hsl(213, 56%, 95%);
+    --success:        hsl(142, 71%, 45%);
+    --warning:        hsl(38, 92%, 50%);
+    --danger:         hsl(0, 72%, 51%);
+    --surface-alt:    #f7faff;
+    --secondary-text: #5a7090;
+}
+
+/* Also reset body text/background using the new variable values */
+body.page-admin-dashboard,
+body.page-audit-log,
+body.page-manage-landing-page {
+    background: #f0f5fc !important;
+    color: #16233f !important;
+}
+
+/* Inline style using background:#f9fafb / #fff on landing page — keep as-is (they're already light) */
+/* Inline style using color:#6b7280 — override to match our palette */
+body.page-manage-landing-page [style*="color: #6b7280"],
+body.page-manage-landing-page [style*="color:#6b7280"],
+body.page-audit-log [style*="color: #6b7280"],
+body.page-audit-log [style*="color:#6b7280"] {
+    color: #5a7090 !important;
+}
+
+/* Audit log summary bar text */
+body.page-audit-log [style*="color:var(--muted)"],
+body.page-audit-log [style*="color: var(--muted)"] {
+    color: #5a7090 !important;
+}
+
+body.page-audit-log [style*="color:var(--fg)"],
+body.page-audit-log [style*="color: var(--fg)"] {
+    color: #16233f !important;
+}
+
+/* Audit log table header background */
+body.page-audit-log [style*="background:var(--surface-alt"],
+body.page-audit-log [style*="background: var(--surface"] {
+    background: #f7faff !important;
+}
+
+/* Audit log card (the log table wrapper) */
+body.page-audit-log .card {
+    background: #ffffff !important;
+    border: 1px solid #dce8f4 !important;
+}
+
+/* Audit log "no entries" / error messages */
+body.page-audit-log [style*="color:var(--muted)"] {
+    color: #5a7090 !important;
+}
+
+/* Pagination on audit log */
+body.page-audit-log .btn-ghost {
+    background: #ffffff !important;
+    color: #314766 !important;
+    border: 1px solid #c4d4e8 !important;
+}
+
+body.page-audit-log .btn-primary {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+}
+
+/* Manage landing page — inline #f9fafb boxes (already light, just ensure text inside is dark) */
+body.page-manage-landing-page [style*="background: #f9fafb"],
+body.page-manage-landing-page [style*="background:#f9fafb"] {
+    background: #f7faff !important;
+    border-color: #dce8f4 !important;
+    color: #16233f !important;
+}
+
+body.page-manage-landing-page [style*="background: #f9fafb"] *,
+body.page-manage-landing-page [style*="background:#f9fafb"] * {
+    color: #16233f !important;
+}
+
+/* Manage landing page tables with hardcoded #fff background */
+body.page-manage-landing-page table[style*="background: #fff"],
+body.page-manage-landing-page table[style*="background:#fff"] {
+    background: #ffffff !important;
+    color: #16233f !important;
+}
+
+body.page-manage-landing-page table[style*="background: #fff"] th,
+body.page-manage-landing-page table[style*="background:#fff"] th,
+body.page-manage-landing-page table[style*="background: #fff"] td,
+body.page-manage-landing-page table[style*="background:#fff"] td {
+    color: #16233f !important;
+}
+
+body.page-manage-landing-page thead[style*="background: #f9fafb"],
+body.page-manage-landing-page thead[style*="background:#f9fafb"] {
+    background: #f0f5fc !important;
+}
+
+body.page-manage-landing-page thead th,
+body.page-manage-landing-page table th {
+    color: #314766 !important;
+}
+
+body.page-manage-landing-page tbody td,
+body.page-manage-landing-page table td {
+    color: #16233f !important;
+}
+
+/* hr separator on landing page */
+body.page-manage-landing-page hr {
+    border-color: #dce8f4 !important;
+}
+
+/* ================================================================
+   PROFILE PAGE — light theme override
+   profile.php calls page_head('Profile') → body.page-profile
+   The dark global styles bleed in; reset everything here.
+   ================================================================ */
+body.page-profile {
+    --fg:             #16233f;
+    --muted:          #5a7090;
+    --border:         #dce8f4;
+    --card:           #ffffff;
+    --bg:             #f0f5fc;
+    --secondary:      #edf3fb;
+    --primary:        hsl(213, 56%, 24%);
+    background: #f0f5fc !important;
+    color: #16233f !important;
+}
+
+body.page-profile .dashboard-layout main {
+    background: #f0f5fc !important;
+}
+
+/* Sidebar — match admin dark navy sidebar for consistency */
+body.page-profile .sidebar {
+    background: #1c2d4f !important;
+    border-right: 1px solid #162440 !important;
+}
+
+body.page-profile .sidebar-logo {
+    background: #1c2d4f !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+body.page-profile .logo-text,
+body.page-profile .logo-link {
+    color: #ffffff !important;
+}
+
+body.page-profile .sidebar-user {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    border-radius: 10px !important;
+    margin: 12px 12px 0 !important;
+}
+
+body.page-profile .user-name {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+body.page-profile .role-badge {
+    background: rgba(255,255,255,0.12) !important;
+    color: #c8d8f8 !important;
+    font-size: 10px !important;
+}
+
+body.page-profile .user-avatar {
+    background: hsl(213, 56%, 36%) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255,255,255,0.2) !important;
+}
+
+body.page-profile .nav-link {
+    color: #a8bdd8 !important;
+    border-radius: 8px !important;
+}
+
+body.page-profile .nav-link:hover {
+    background: rgba(255,255,255,0.09) !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .nav-link.active {
+    background: rgba(255,255,255,0.14) !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .nav-link.logout {
+    color: #7a8ea8 !important;
+}
+
+body.page-profile .nav-link.logout:hover {
+    color: #ff8fa3 !important;
+    background: rgba(255,107,138,0.12) !important;
+}
+
+body.page-profile .sidebar-footer {
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+/* Dash header */
+body.page-profile .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+    backdrop-filter: none !important;
+}
+
+body.page-profile .dash-title {
+    color: #16233f !important;
+    font-size: 22px !important;
+}
+
+body.page-profile .dash-subtitle {
+    color: #5a7090 !important;
+}
+
+/* Profile form elements */
+body.page-profile .profile-header h2 {
+    color: #16233f !important;
+}
+
+body.page-profile .profile label {
+    color: #314766 !important;
+}
+
+body.page-profile .profile input[type="text"],
+body.page-profile .profile input[type="email"],
+body.page-profile .profile textarea {
+    background: #f7faff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+}
+
+body.page-profile .profile-upload-note {
+    color: #5a7090 !important;
+}
+
+/* Save Changes button */
+body.page-profile .btn.btn-primary {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .btn.btn-primary:hover {
+    background: #253c68 !important;
+}
+
+/* Profile avatar */
+body.page-profile .profile-avatar-preview {
+    background: linear-gradient(135deg, #1c2d5a, #253c68) !important;
+    border: 2px solid #c8d8ee !important;
+    box-shadow: 0 4px 16px rgba(28, 45, 79, 0.15) !important;
+}
+
+/* Page content area */
+body.page-profile .page-content {
+    background: transparent !important;
+}
+
+/* ================================================================
+   BROWSE ARTICLES sidebar — nav links were too dark (#506080)
+   on the very dark sidebar (#040810). Brighten them up.
+   ================================================================ */
+.browse-page-shell .nav-link {
+    color: #8fadd4 !important;
+}
+
+.browse-page-shell .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.07) !important;
+}
+
+.browse-page-shell .nav-link.active {
+    color: #f5a623 !important;
+    background: rgba(245,166,35,0.10) !important;
+}
+
+.browse-page-shell .nav-link.logout {
+    color: #6a7f9a !important;
+}
+
+.browse-page-shell .nav-link.logout:hover {
+    color: #f5a623 !important;
+}
+
+/* Also fix user-dashboard-shell (home dashboard) nav links same way */
+.user-dashboard-shell .nav-link {
+    color: #8fadd4 !important;
+}
+
+.user-dashboard-shell .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.07) !important;
+}
+
+.user-dashboard-shell .nav-link.active {
+    color: #f5a623 !important;
+    background: rgba(245,166,35,0.10) !important;
+}
+
+/* ================================================================
+   SYSTEM ADMIN BROWSE PAGE - align with updated light admin pages
+   ================================================================ */
+.browse-admin-shell {
+    --fg: #16233f;
+    --muted: #5a7090;
+    --border: #dce8f4;
+    --card: #ffffff;
+    --bg: #f0f5fc;
+    --secondary: #edf3fb;
+    --primary: #1c2d4f;
+    --primary-mid: #253c68;
+    --primary-lt: #f4f7fc;
+    --secondary-text: #5a7090;
+    background: #f0f5fc !important;
+    color: #16233f !important;
+}
+
+.browse-admin-shell main {
+    background: #f0f5fc !important;
+}
+
+.browse-admin-shell .sidebar {
+    background: #1c2d4f !important;
+    border-right: 1px solid #162440 !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.browse-admin-shell .sidebar-logo {
+    background: #1c2d4f !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+    padding: 20px 18px !important;
+}
+
+.browse-admin-shell .sidebar-user {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    border-radius: 10px !important;
+    margin: 12px 12px 0 !important;
+}
+
+.browse-admin-shell .user-name {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+.browse-admin-shell .role-badge {
+    background: rgba(255,255,255,0.12) !important;
+    color: #c8d8f8 !important;
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+}
+
+.browse-admin-shell .user-avatar {
+    background: hsl(213, 56%, 36%) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255,255,255,0.2) !important;
+}
+
+.browse-admin-shell .nav-link {
+    color: #a8bdd8 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+.browse-admin-shell .nav-link:hover {
+    background: rgba(255,255,255,0.09) !important;
+    color: #ffffff !important;
+}
+
+.browse-admin-shell .nav-link.active {
+    background: rgba(255,255,255,0.14) !important;
+    color: #ffffff !important;
+}
+
+.browse-admin-shell .nav-link.active::before {
+    background: #f5a623 !important;
+}
+
+.browse-admin-shell .nav-link.logout {
+    color: #7a8ea8 !important;
+}
+
+.browse-admin-shell .nav-link.logout:hover {
+    color: #ff8fa3 !important;
+    background: rgba(255,107,138,0.12) !important;
+}
+
+.browse-admin-shell .sidebar-footer {
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.browse-admin-shell .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+    backdrop-filter: none !important;
+}
+
+.browse-admin-shell .dash-title {
+    color: #16233f !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+}
+
+.browse-admin-shell .dash-subtitle,
+.browse-admin-shell .text-muted {
+    color: #5a7090 !important;
+}
+
+.browse-admin-shell .page-content {
+    padding-top: 24px !important;
+}
+
+.browse-admin-shell .card,
+.browse-admin-shell .article-card {
+    background: #ffffff !important;
+    border: 1px solid #dce8f4 !important;
+    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
+    color: #16233f !important;
+}
+
+.browse-admin-shell .browse-overview-card,
+.browse-admin-shell .browse-controls-card,
+.browse-admin-shell .browse-featured-card {
+    padding: 24px !important;
+    border-radius: 16px !important;
+    margin-bottom: 24px;
+}
+
+.browse-admin-shell .browse-featured-card {
+    display: block !important;
+}
+
+.browse-admin-shell .browse-overview-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.browse-admin-shell .browse-overview-kicker,
+.browse-admin-shell .browse-section-kicker {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #edf3fb;
+    border: 1px solid #d6e3f2;
+    color: #314766 !important;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.browse-admin-shell .browse-overview-title,
+.browse-admin-shell .browse-featured-title,
+.browse-admin-shell .browse-results-head h3,
+.browse-admin-shell .browse-controls-head h3,
+.browse-admin-shell .browse-empty-state h3,
+.browse-admin-shell .browse-featured-head h3 {
+    color: #16233f !important;
+}
+
+.browse-admin-shell .browse-overview-title {
+    margin: 14px 0 10px;
+    font-size: 34px;
+    line-height: 1.08;
+}
+
+.browse-admin-shell .browse-overview-text,
+.browse-admin-shell .browse-controls-head p,
+.browse-admin-shell .browse-results-head p,
+.browse-admin-shell .browse-empty-state p,
+.browse-admin-shell .browse-featured-head p,
+.browse-admin-shell .browse-featured-excerpt,
+.browse-admin-shell .card-excerpt {
+    color: #4a6080 !important;
+}
+
+.browse-admin-shell .browse-search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.browse-admin-shell .browse-search-form .search-input-wrapper {
+    flex: 1;
+}
+
+.browse-admin-shell input[type="text"],
+.browse-admin-shell input[type="email"],
+.browse-admin-shell input[type="password"],
+.browse-admin-shell select,
+.browse-admin-shell textarea,
+.browse-admin-shell .search-input-wrapper input,
+.browse-admin-shell .page-input {
+    background: #f7faff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+}
+
+.browse-admin-shell input::placeholder,
+.browse-admin-shell textarea::placeholder {
+    color: #7a9ab8 !important;
+    opacity: 1 !important;
+}
+
+.browse-admin-shell .search-input-wrapper input {
+    width: 100%;
+    padding: 12px 42px 12px 14px;
+}
+
+.browse-admin-shell .clear-btn {
+    right: 10px;
+}
+
+.browse-admin-shell .search-btn,
+.browse-admin-shell .btn-primary {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+    border: none !important;
+    min-height: 44px;
+    padding: 0 16px;
+}
+
+.browse-admin-shell .search-btn:hover,
+.browse-admin-shell .btn-primary:hover {
+    background: #253c68 !important;
+    color: #ffffff !important;
+}
+
+.browse-admin-shell .browse-overview-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.browse-admin-shell .browse-overview-stat {
+    padding: 16px;
+    border: 1px solid #dce8f4;
+    border-radius: 12px;
+    background: #f7faff;
+}
+
+.browse-admin-shell .browse-overview-stat strong {
+    display: block;
+    color: #16233f !important;
+    font-size: 18px;
+    line-height: 1.3;
+}
+
+.browse-admin-shell .browse-overview-stat span {
+    display: block;
+    color: #5a7090 !important;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.browse-admin-shell .browse-controls-head {
+    margin-bottom: 18px;
+}
+
+.browse-admin-shell .browse-filter-row {
+    margin-bottom: 18px;
+}
+
+.browse-admin-shell .category-filters {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.browse-admin-shell .category-filters a,
+.browse-admin-shell .sort-btn {
+    background: #ffffff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #314766 !important;
+    border-radius: 999px !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+}
+
+.browse-admin-shell .category-filters a:hover,
+.browse-admin-shell .sort-btn:hover {
+    background: #edf3fb !important;
+    border-color: #8fa9ca !important;
+    color: #16233f !important;
+}
+
+.browse-admin-shell .active-filter,
+.browse-admin-shell .category-filters a.active-filter,
+.browse-admin-shell .sort-btn.active-filter {
+    background: #1c2d4f !important;
+    border-color: #1c2d4f !important;
+    color: #ffffff !important;
+}
+
+.browse-admin-shell .sort-filters > span {
+    color: #5a7090 !important;
+}
+
+.browse-admin-shell .browse-featured-head,
+.browse-admin-shell .browse-results-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-end;
+    margin-bottom: 18px;
+}
+
+.browse-admin-shell .browse-results-section {
+    margin-bottom: 24px;
+}
+
+.browse-admin-shell .browse-featured-story {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid #dce8f4;
+    background: #f7faff;
+}
+
+.browse-admin-shell .browse-featured-media {
+    min-height: 360px;
+    background: linear-gradient(135deg, #dfe9f7, #eef3fb);
+}
+
+.browse-admin-shell .browse-featured-overlay {
+    background: linear-gradient(180deg, rgba(28,45,79,0.06), rgba(28,45,79,0.28));
+}
+
+.browse-admin-shell .browse-featured-tag {
+    background: rgba(28,45,79,0.85);
+    border: none;
+    color: #ffffff;
+}
+
+.browse-admin-shell .browse-featured-score {
+    background: rgba(26,96,64,0.92);
+    border: none;
+    color: #ffffff;
+}
+
+.browse-admin-shell .browse-featured-body {
+    padding: 24px;
+}
+
+.browse-admin-shell .browse-verified-pill,
+.browse-admin-shell .card-verified-pill {
+    background: #fff4d8 !important;
+    border: 1px solid #f6d580 !important;
+    color: #8b5a00 !important;
+}
+
+.browse-admin-shell .browse-featured-track,
+.browse-admin-shell .card-score-track {
+    background: #dfe9f5 !important;
+}
+
+.browse-admin-shell .browse-featured-track span,
+.browse-admin-shell .card-score-track span {
+    background: linear-gradient(90deg, #f0c45a 0%, #d39a1e 100%) !important;
+    box-shadow: none !important;
+}
+
+.browse-admin-shell .browse-featured-footer {
+    border-top: 1px solid #dce8f4;
+}
+
+.browse-admin-shell .browse-featured-stats span {
+    background: #ffffff;
+    border: 1px solid #dce8f4;
+    color: #5a7090 !important;
+}
+
+.browse-admin-shell .browse-article-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.browse-admin-shell .article-card {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.browse-admin-shell .card-top {
+    border-bottom: 1px solid #e8f0f8 !important;
+}
+
+.browse-admin-shell .card-title,
+.browse-admin-shell .card-title a,
+.browse-admin-shell .author-name {
+    color: #16233f !important;
+}
+
+.browse-admin-shell .card-time,
+.browse-admin-shell .card-footer,
+.browse-admin-shell .card-footer *,
+.browse-admin-shell .meta-item,
+.browse-admin-shell .meta-label {
+    color: #5a7090 !important;
+}
+
+.browse-admin-shell .card-image {
+    background: #edf3fb !important;
+}
+
+.browse-admin-shell .author-avatar {
+    background: #edf3fb !important;
+    border: 2px solid #c8d8ee !important;
+    color: #1c2d4f !important;
+}
+
+.browse-admin-shell .trust-badge {
+    background: #eaf9f0 !important;
+    border: 1px solid #bfe5cf !important;
+    color: #166534 !important;
+}
+
+.browse-admin-shell .trust-badge.trust-mid {
+    background: #fff6de !important;
+    border-color: #f2d58a !important;
+    color: #8b5a00 !important;
+}
+
+.browse-admin-shell .trust-badge.trust-low {
+    background: #fff1f2 !important;
+    border-color: #f4c7ce !important;
+    color: #9f1239 !important;
+}
+
+.browse-admin-shell .category-tag {
+    border-radius: 999px;
+}
+
+.browse-admin-shell .category-politics {
+    background: #fdf0f4 !important;
+    color: #b4235b !important;
+    border-color: #f2bfd0 !important;
+}
+
+.browse-admin-shell .category-health {
+    background: #edf9f2 !important;
+    color: #166534 !important;
+    border-color: #bfe5cf !important;
+}
+
+.browse-admin-shell .category-economy {
+    background: #fff8e8 !important;
+    color: #8b5a00 !important;
+    border-color: #efd48f !important;
+}
+
+.browse-admin-shell .category-sports {
+    background: #eef6ff !important;
+    color: #1d4ed8 !important;
+    border-color: #c4d8f7 !important;
+}
+
+.browse-admin-shell .category-games,
+.browse-admin-shell .category-default {
+    background: #f3efff !important;
+    color: #6d3fd1 !important;
+    border-color: #d6c6f7 !important;
+}
+
+.browse-admin-shell .browse-empty-state {
+    text-align: center;
+    padding: 28px !important;
+}
+
+.browse-admin-shell .browse-empty-inline {
+    grid-column: 1 / -1;
+}
+
+.browse-admin-shell .browse-pagination {
+    margin: 0 32px 32px;
+    padding: 18px 20px;
+    border: 1px solid #dce8f4;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.browse-admin-shell .pagination .page-btn,
+.browse-admin-shell .pagination .page-input {
+    background: #ffffff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #314766 !important;
+}
+
+.browse-admin-shell .pagination .page-btn:not(.disabled):hover {
+    background: #edf3fb !important;
+    border-color: #8fa9ca !important;
+    color: #16233f !important;
+}
+
+.browse-admin-shell .browse-side-panel {
+    display: none !important;
+}
+
+@media (max-width: 1100px) {
+    .browse-admin-shell .browse-overview-card,
+    .browse-admin-shell .browse-featured-story {
+        grid-template-columns: 1fr;
+    }
+
+    .browse-admin-shell .browse-overview-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .browse-admin-shell .browse-article-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .browse-admin-shell .browse-featured-head,
+    .browse-admin-shell .browse-results-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .browse-admin-shell .browse-article-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .browse-admin-shell .browse-pagination {
+        margin: 0 18px 24px;
+    }
+}
+
+/* ================================================================
+   SYSTEM ADMIN ONLY contrast fixes
+   ================================================================ */
+.browse-admin-shell .browse-featured-title,
+.browse-admin-shell .browse-featured-title a {
+    color: #16233f !important;
+    text-shadow: none !important;
+}
+
+.browse-admin-shell .browse-featured-excerpt,
+.browse-admin-shell .browse-featured-footer,
+.browse-admin-shell .browse-featured-footer *,
+.browse-admin-shell .browse-featured-body {
+    color: #4a6080 !important;
+}
+
+.browse-admin-shell .browse-featured-cred-head,
+.browse-admin-shell .browse-featured-cred-head span {
+    color: #5a7090 !important;
+}
+
+.browse-admin-shell .browse-featured-cred-head span:last-child,
+.browse-admin-shell .author-name {
+    color: #16233f !important;
+}
+
+.article-admin-shell {
+    --fg: #16233f;
+    --muted: #5a7090;
+    --border: #dce8f4;
+    --card: #ffffff;
+    --bg: #f0f5fc;
+    --secondary: #edf3fb;
+    --primary: #1c2d4f;
+    --primary-mid: #253c68;
+}
+
+.article-admin-shell main {
+    background: #f0f5fc !important;
+}
+
+.article-admin-shell .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+    backdrop-filter: none !important;
+}
+
+.article-admin-shell .dash-title,
+.article-admin-shell .dash-subtitle,
+.article-admin-shell .article-detail h1,
+.article-admin-shell .article-content-title,
+.article-admin-shell .summary-title,
+.article-admin-shell .ai-overview-title h3,
+.article-admin-shell h2,
+.article-admin-shell h3,
+.article-admin-shell h4 {
+    color: #16233f !important;
+    text-shadow: none !important;
+}
+
+.article-admin-shell .article-meta,
+.article-admin-shell .article-meta *,
+.article-admin-shell .summary-text,
+.article-admin-shell .article-body,
+.article-admin-shell .article-body p,
+.article-admin-shell .article-body li,
+.article-admin-shell .article-body blockquote,
+.article-admin-shell .article-body strong,
+.article-admin-shell .article-body b,
+.article-admin-shell .article-body h2,
+.article-admin-shell .article-body h3,
+.article-admin-shell .article-body h4,
+.article-admin-shell .article-body a,
+.article-admin-shell .ai-section p,
+.article-admin-shell .ai-section ul,
+.article-admin-shell .ai-section li,
+.article-admin-shell .ai-loading,
+.article-admin-shell .text-muted {
+    color: #4a6080 !important;
+}
+
+.article-admin-shell .article-detail {
+    background: transparent !important;
+}
+
+.article-admin-shell .article-summary,
+.article-admin-shell .ai-overview-panel {
+    background: #ffffff !important;
+    border: 1px solid #dce8f4 !important;
+    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
+}
+
+.article-admin-shell .article-content-title,
+.article-admin-shell .article-detail h1,
+.article-admin-shell .summary-title,
+.article-admin-shell .article-body strong,
+.article-admin-shell .article-body b,
+.article-admin-shell .article-body h2,
+.article-admin-shell .article-body h3,
+.article-admin-shell .article-body h4,
+.article-admin-shell .article-body a,
+.article-admin-shell .article-meta p:first-child {
+    color: #16233f !important;
+}
+
+.article-admin-shell .btn-ghost,
+.article-admin-shell .btn-secondary,
+.article-admin-shell .tts-btn.stop {
+    background: #ffffff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #314766 !important;
+}
+
+.article-admin-shell .btn-ghost:hover,
+.article-admin-shell .btn-secondary:hover,
+.article-admin-shell .tts-btn.stop:hover {
+    background: #edf3fb !important;
+    color: #16233f !important;
+    border-color: #8fa9ca !important;
+}
+
+.article-admin-shell .tts-btn.play {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+}
+
+.article-admin-shell .tts-btn.play:hover {
+    background: #253c68 !important;
+}
+
+/* Restore original browse experience for non-admin users */
+.browse-page-shell {
+    --bg: #060c1a;
+    --fg: #e0eaff;
+    --body-copy: #c8d7ee;
+    --secondary-text: #8ea7cc;
+    --muted: #445060;
+    --border: rgba(255,255,255,0.08);
+    --card: #090f1e;
+    --secondary: #060c1a;
+    --primary: #f5a623;
+    --primary-mid: #ffc040;
+}
+
+.browse-page-shell main {
+    background:
+        radial-gradient(circle at 78% 12%, rgba(245,166,35,0.08), transparent 18%),
+        radial-gradient(circle at 18% 72%, rgba(74,108,186,0.12), transparent 20%),
+        linear-gradient(180deg, #060c1a 0%, #07101f 48%, #081220 100%) !important;
+}
+
+.browse-page-shell .sidebar {
+    background: #040810 !important;
+    border-right: 2px solid rgba(245, 166, 35, 0.15) !important;
+}
+
+.browse-page-shell .sidebar-user {
+    border: 1.5px solid rgba(245,166,35,0.22) !important;
+    background: rgba(14, 24, 44, 0.72) !important;
+}
+
+.browse-page-shell .nav-link {
+    color: #8fadd4 !important;
+}
+
+.browse-page-shell .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.07) !important;
+}
+
+.browse-page-shell .nav-link.active {
+    color: #f5a623 !important;
+    background: rgba(245,166,35,0.10) !important;
+}
+
+.browse-page-shell .dash-header {
+    background: linear-gradient(180deg, rgba(4,8,16,0.94) 0%, rgba(6,12,22,0.9) 100%) !important;
+    border-bottom: 1px solid rgba(245,166,35,0.1) !important;
+}
+
+.browse-page-shell .dash-title,
+.browse-page-shell .browse-hero-title,
+.browse-page-shell .browse-featured-title,
+.browse-page-shell .browse-featured-title a,
+.browse-page-shell .card-title,
+.browse-page-shell .card-title a {
+    color: #ffffff !important;
+}
+
+.browse-page-shell .dash-subtitle,
+.browse-page-shell .browse-hero-text,
+.browse-page-shell .browse-featured-excerpt,
+.browse-page-shell .card-excerpt,
+.browse-page-shell .card-time,
+.browse-page-shell .card-footer,
+.browse-page-shell .card-footer *,
+.browse-page-shell .browse-featured-footer,
+.browse-page-shell .browse-featured-footer *,
+.browse-page-shell .text-muted,
+.browse-page-shell .meta-item,
+.browse-page-shell .meta-label {
+    color: #d7e3f7 !important;
+}
+
+.browse-page-shell .card,
+.browse-page-shell .article-card,
+.browse-page-shell .browse-featured-card {
+    background: #090f1e !important;
+    border: 1.5px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22) !important;
+}
+
+.browse-page-shell .browse-hero-panel {
+    background:
+        radial-gradient(circle at 82% 22%, rgba(245,166,35,0.12), transparent 18%),
+        radial-gradient(circle at 18% 16%, rgba(90,125,205,0.12), transparent 20%),
+        linear-gradient(180deg, rgba(9,15,30,0.94) 0%, rgba(8,13,25,0.98) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.browse-page-shell .browse-kicker,
+.browse-page-shell .browse-featured-tag,
+.browse-page-shell .browse-verified-pill,
+.browse-page-shell .card-verified-pill {
+    color: #f7cc75 !important;
+    background: rgba(245,166,35,0.12) !important;
+    border: 1px solid rgba(245,166,35,0.25) !important;
+}
+
+.browse-page-shell .browse-featured-score {
+    background: rgba(17,52,35,0.8) !important;
+    border: 1px solid rgba(46,223,154,0.25) !important;
+    color: #9af1c7 !important;
+}
+
+.browse-page-shell .browse-featured-story {
+    background: linear-gradient(180deg, rgba(13,18,31,0.96), rgba(11,15,25,0.99)) !important;
+    border: 1px solid rgba(245,166,35,0.18) !important;
+}
+
+.browse-page-shell .browse-featured-track,
+.browse-page-shell .card-score-track {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.browse-page-shell .browse-featured-track span,
+.browse-page-shell .card-score-track span {
+    background: linear-gradient(90deg, #f8d174 0%, #f5a623 50%, #d89415 100%) !important;
+}
+
+.browse-page-shell .category-filters a,
+.browse-page-shell .sort-btn,
+.browse-page-shell .pagination .page-btn,
+.browse-page-shell .pagination .page-input {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #c8d8f8 !important;
+}
+
+.browse-page-shell .category-filters a:hover,
+.browse-page-shell .sort-btn:hover,
+.browse-page-shell .pagination .page-btn:not(.disabled):hover {
+    background: rgba(245,166,35,0.08) !important;
+    border-color: rgba(245,166,35,0.28) !important;
+    color: #ffffff !important;
+}
+
+.browse-page-shell .active-filter,
+.browse-page-shell .category-filters a.active-filter,
+.browse-page-shell .sort-btn.active-filter {
+    background: var(--primary) !important;
+    border-color: transparent !important;
+    color: #06090f !important;
+}
+
+.browse-page-shell .page-form {
+    background: rgba(255,255,255,0.02) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #c8d8f8 !important;
+}
+
+/* Restore dark profile layout for non-system-admin pages */
+body.page-profile .user-dashboard-shell main {
+    background:
+        radial-gradient(circle at 78% 12%, rgba(245,166,35,0.08), transparent 18%),
+        radial-gradient(circle at 18% 72%, rgba(74,108,186,0.12), transparent 20%),
+        linear-gradient(180deg, #060c1a 0%, #07101f 48%, #081220 100%) !important;
+}
+
+body.page-profile .user-dashboard-shell .sidebar {
+    background: #040810 !important;
+    border-right: 2px solid rgba(245, 166, 35, 0.15) !important;
+    box-shadow: none !important;
+}
+
+body.page-profile .user-dashboard-shell .sidebar-logo,
+body.page-profile .user-dashboard-shell .sidebar-user,
+body.page-profile .user-dashboard-shell .sidebar-footer {
+    border-color: rgba(255,255,255,0.07) !important;
+}
+
+body.page-profile .user-dashboard-shell .sidebar-user {
+    margin: 14px 14px 0 !important;
+    padding: 14px !important;
+    border: 1.5px solid rgba(245,166,35,0.22) !important;
+    border-radius: 12px !important;
+    background: rgba(14, 24, 44, 0.72) !important;
+}
+
+body.page-profile .user-dashboard-shell .user-name,
+body.page-profile .user-dashboard-shell .dash-title,
+body.page-profile .user-dashboard-shell .profile-header h2,
+body.page-profile .user-dashboard-shell .profile label {
+    color: #f8fbff !important;
+}
+
+body.page-profile .user-dashboard-shell .role-badge {
+    background: rgba(255,255,255,0.08) !important;
+    color: #c8d8f8 !important;
+}
+
+body.page-profile .user-dashboard-shell .user-avatar {
+    background: #0e1e3a !important;
+    color: #f5a623 !important;
+    border: 2px solid #f5a623 !important;
+}
+
+body.page-profile .user-dashboard-shell .dash-header {
+    background: linear-gradient(180deg, rgba(4,8,16,0.94) 0%, rgba(6,12,22,0.9) 100%) !important;
+    border-bottom: 1px solid rgba(245,166,35,0.1) !important;
+    backdrop-filter: blur(14px) !important;
+}
+
+body.page-profile .user-dashboard-shell .dash-title {
+    font-size: 28px !important;
+}
+
+body.page-profile .user-dashboard-shell .dash-subtitle,
+body.page-profile .user-dashboard-shell .profile-upload-note {
+    color: #8ea7cc !important;
+}
+
+body.page-profile .user-dashboard-shell .profile input[type="text"],
+body.page-profile .user-dashboard-shell .profile input[type="email"],
+body.page-profile .user-dashboard-shell .profile textarea {
+    background: rgba(255,255,255,0.02) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .user-dashboard-shell .profile input[type="text"]::placeholder,
+body.page-profile .user-dashboard-shell .profile input[type="email"]::placeholder,
+body.page-profile .user-dashboard-shell .profile textarea::placeholder {
+    color: #7f93b5 !important;
+}
+
+body.page-profile .user-dashboard-shell .btn.btn-primary {
+    background: #f5a623 !important;
+    color: #06090f !important;
+}
+
+body.page-profile .user-dashboard-shell .btn.btn-primary:hover {
+    background: #ffc040 !important;
+    color: #06090f !important;
+}
+
+body.page-profile .user-dashboard-shell .profile-password-btn {
+    background: rgba(255,255,255,0.02) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #edf4ff !important;
+}
+
+body.page-profile .user-dashboard-shell .profile-password-btn:hover {
+    background: rgba(77, 184, 255, 0.12) !important;
+    border-color: rgba(77, 184, 255, 0.28) !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .user-dashboard-shell .profile-avatar-preview {
+    background: linear-gradient(135deg, #1c2d5a, #0c1733) !important;
+    border: 2px solid rgba(255, 191, 71, 0.18) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* System admin profile uses the light admin page language only */
+body.page-profile .profile-admin-shell {
+    --fg: #16233f;
+    --muted: #5a7090;
+    --border: #dce8f4;
+    --card: #ffffff;
+    --bg: #f0f5fc;
+    --secondary: #edf3fb;
+    --primary: #1c2d4f;
+    --primary-mid: #253c68;
+    background: #f0f5fc !important;
+    color: #16233f !important;
+}
+
+body.page-profile .profile-admin-shell main {
+    background: #f0f5fc !important;
+}
+
+body.page-profile .profile-admin-shell .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+    backdrop-filter: none !important;
+}
+
+body.page-profile .profile-admin-shell .dash-title,
+body.page-profile .profile-admin-shell .profile-header h2,
+body.page-profile .profile-admin-shell .profile label {
+    color: #16233f !important;
+}
+
+body.page-profile .profile-admin-shell .dash-subtitle,
+body.page-profile .profile-admin-shell .profile-upload-note,
+body.page-profile .profile-admin-shell .text-muted {
+    color: #5a7090 !important;
+}
+
+body.page-profile .profile-admin-shell .profile input[type="text"],
+body.page-profile .profile-admin-shell .profile input[type="email"],
+body.page-profile .profile-admin-shell .profile textarea {
+    background: #f7faff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+}
+
+body.page-profile .profile-admin-shell .profile-password-btn {
+    background: #edf3fb !important;
+    border: 1px solid #c8d8ee !important;
+    color: #314766 !important;
+}
+
+body.page-profile .profile-admin-shell .profile-password-btn:hover {
+    background: #e2ebf7 !important;
+    color: #16233f !important;
+}
+
+body.page-profile .profile-admin-shell .btn-dark {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .profile-admin-shell .btn-light {
+    background: #edf3fb !important;
+    color: #314766 !important;
+    border: 1px solid #c8d8ee !important;
+}
