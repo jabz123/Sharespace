@@ -83,6 +83,27 @@ function validate_article_flag_language(string $details): ?string
     return null;
 }
 
+function article_flag_hate_speech_patterns(): array
+{
+    return [
+        '/\bi\s+hate\s+(black|white|asian|indian|chinese|malay|muslim|christian|jewish|jews|gay|lesbian|trans|transgender)\b/i',
+        '/\b(black|white|asian|indian|chinese|malay|muslim|christian|jewish|jews|gay|lesbian|trans|transgender)\s+(people\s+)?(are|is)\s+(disgusting|gross|dirty|evil|inferior|stupid|animals?)\b/i',
+        '/\b(kill|hate|attack|eliminate|get\s+rid\s+of)\s+(all\s+)?(black|white|asian|indian|chinese|malay|muslim|christian|jewish|jews|gay|lesbian|trans|transgender)\b/i',
+        '/\b(black|white|asian|indian|chinese|malay|muslim|christian|jewish|jews|gay|lesbian|trans|transgender)\s+(should\s+die|do\s+not\s+belong|should\s+not\s+exist)\b/i',
+    ];
+}
+
+function validate_article_flag_hate_speech(string $details): ?string
+{
+    foreach (article_flag_hate_speech_patterns() as $pattern) {
+        if (preg_match($pattern, $details)) {
+            return 'Details contain hateful or discriminatory language. Please rewrite the report respectfully.';
+        }
+    }
+
+    return null;
+}
+
 function article_flag_word_is_known(string $word): bool
 {
     $commonWords = article_flag_common_words();
@@ -226,6 +247,11 @@ function validate_article_flag_details(string $details, int $minLen = 20, int $m
     $languageError = validate_article_flag_language($trimmed);
     if ($languageError !== null) {
         return $languageError;
+    }
+
+    $hateSpeechError = validate_article_flag_hate_speech($trimmed);
+    if ($hateSpeechError !== null) {
+        return $hateSpeechError;
     }
 
     $spellingError = validate_article_flag_spelling($trimmed);
