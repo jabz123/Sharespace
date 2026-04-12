@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/layout.php';
+require_once __DIR__ . '/../includes/article_flag_rules.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 require_once __DIR__ . '/../includes/controllers/CommentController.php';
@@ -71,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $comments = $commentCtrl->getForArticle($article->id);
 $isAuthor = $user->id === $article->authorId;
+$flagReasonOptions = article_flag_reason_options();
 
 $returnUrl = $_GET['return'] ?? '';
 if ($returnUrl && !str_starts_with($returnUrl, '/')) {
@@ -271,13 +273,16 @@ page_head($article->title);
 
             <div class="form-group">
                 <label>Select a reason</label>
-                <label><input type="radio" name="reason" value="Inappropriate language" required> Inappropriate language</label>
-                <label><input type="radio" name="reason" value="Misinformation"> Misinformation</label>
-                <label><input type="radio" name="reason" value="Hate speech"> Hate speech</label>
-                <label><input type="radio" name="reason" value="Violence"> Violence</label>
-                <label><input type="radio" name="reason" value="Advertising"> Advertising</label>
-                <label><input type="radio" name="reason" value="Wrong category"> Wrong category</label>
-                <label><input type="radio" name="reason" value="Other"> Other</label>
+                <?php foreach ($flagReasonOptions as $index => $flagReason): ?>
+                    <label>
+                        <input
+                            type="radio"
+                            name="reason"
+                            value="<?= htmlspecialchars($flagReason) ?>"
+                            <?= $index === 0 ? 'required' : '' ?>>
+                        <?= htmlspecialchars($flagReason) ?>
+                    </label>
+                <?php endforeach; ?>
             </div>
 
             <div class="form-group">
@@ -286,10 +291,11 @@ page_head($article->title);
                     name="details"
                     id="flagDetails"
                     rows="3"
-                    placeholder="Provide more details..."
+                    placeholder="Please explain clearly what is wrong with this article."
                     maxlength="100"
                     required></textarea>
                 <small id="charCount">0/100</small>
+                <small>Use at least 20 characters and avoid vague text like "test" or symbols only.</small>
             </div>
 
             <div class="modal-actions">
