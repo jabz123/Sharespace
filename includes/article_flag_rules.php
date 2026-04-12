@@ -72,10 +72,20 @@ function article_flag_banned_terms(): array
 function validate_article_flag_language(string $details): ?string
 {
     $normalized = strtolower($details);
+    $lettersOnly = preg_replace('/[^a-z]+/i', '', $normalized) ?? '';
 
     foreach (article_flag_banned_terms() as $term) {
         $pattern = '/\b' . preg_quote($term, '/') . '\b/i';
         if (preg_match($pattern, $normalized)) {
+            return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
+        }
+
+        $collapsedPattern = '/' . implode('\s*', str_split(preg_quote($term, '/'))) . '/i';
+        if (preg_match($collapsedPattern, $normalized)) {
+            return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
+        }
+
+        if ($term !== '' && str_contains($lettersOnly, $term)) {
             return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
         }
     }
