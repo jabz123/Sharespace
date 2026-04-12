@@ -89,7 +89,7 @@ if (overlay && flagModal) {
 
 const detailsInput = document.getElementById('flagDetails');
 const charCount = document.getElementById('charCount');
-const maxLength = 100;
+const maxLength = 400;
 const minFlagDetailsLength = 20;
 
 if (detailsInput && charCount) {

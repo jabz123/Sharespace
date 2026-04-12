@@ -292,10 +292,10 @@ page_head($article->title);
                     id="flagDetails"
                     rows="3"
                     placeholder="Please explain clearly what is wrong with this article."
-                    maxlength="100"
+                    maxlength="400"
                     required></textarea>
-                <small id="charCount">0/100</small>
-                <small>Use at least 20 characters and avoid vague text like "test" or symbols only.</small>
+                <small id="charCount">0/400</small>
+                <small>Use 20 to 400 characters and avoid vague, heavily misspelled, or symbol-only text.</small>
             </div>
 
             <div class="modal-actions">
