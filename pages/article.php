@@ -11,6 +11,7 @@ $commentCtrl = new CommentController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
+$isSystemAdmin = $user->role === 'system_admin';
 
 $id = (int)($_GET['id'] ?? 0);
 $article = $id ? $articleCtrl->getById($id) : null;
@@ -87,7 +88,7 @@ if (!$returnUrl) {
 
 page_head($article->title);
 ?>
-<div class="dashboard-layout">
+<div class="dashboard-layout<?= $isSystemAdmin ? ' article-admin-shell' : '' ?>">
     <?php sidebar($user); ?>
     <main>
         <?php dash_header(htmlspecialchars($article->categoryName), 'Article'); ?>
