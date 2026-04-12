@@ -152,24 +152,28 @@ function article_flag_word_looks_like_typo(string $word): bool
     return false;
 }
 
-function validate_article_flag_spelling(string $details, int $maxInvalidWords = 1): ?string
+function validate_article_flag_spelling(string $details, int $maxMisspelledWords = 1): ?string
 {
     preg_match_all("/[a-zA-Z']+/u", strtolower($details), $matches);
     $tokens = $matches[0] ?? [];
-    $invalidWords = [];
+    $misspelledWords = [];
 
     foreach ($tokens as $word) {
         if (strlen($word) < 4) {
             continue;
         }
 
-        if (article_flag_word_looks_like_gibberish($word) || article_flag_word_looks_like_typo($word)) {
-            $invalidWords[$word] = true;
+        if (article_flag_word_looks_like_gibberish($word)) {
+            return 'Details contain gibberish or invalid words. Please rewrite the report clearly.';
+        }
+
+        if (article_flag_word_looks_like_typo($word)) {
+            $misspelledWords[$word] = true;
         }
     }
 
-    if (count($invalidWords) > $maxInvalidWords) {
-        return 'Details contain too many misspelled or invalid words. Please correct the wording and try again.';
+    if (count($misspelledWords) > $maxMisspelledWords) {
+        return 'Details contain too many misspelled words. Please correct the wording and try again.';
     }
 
     return null;
