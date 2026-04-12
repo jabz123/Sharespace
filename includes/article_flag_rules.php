@@ -57,12 +57,13 @@ function article_flag_banned_terms(): array
     }
 
     $terms = [
-        'asshole', 'bastard', 'bitch', 'blowjob', 'boner', 'boob', 'boobs', 'bullshit',
+        'ass', 'asshole', 'bastard', 'bitch', 'blowjob', 'boner', 'boob', 'boobs', 'bullshit',
         'cock', 'cocksucker', 'cum', 'cunt', 'damn', 'dick', 'dildo', 'dumbass',
-        'fag', 'faggot', 'fck', 'fucker', 'fucking', 'fuck', 'hell', 'horny',
-        'jerkoff', 'motherfucker', 'nazi', 'nigga', 'nigger', 'orgasm', 'penis',
-        'porn', 'pussy', 'rape', 'rapist', 'retard', 'sex', 'sexual', 'shit',
-        'slut', 'spic', 'tit', 'tits', 'twat', 'vagina', 'whore',
+        'fag', 'faggot', 'fck', 'fucker', 'fucking', 'fuck', 'gook', 'hell', 'honky', 'horny',
+        'injun', 'jerkoff', 'jigaboo', 'kike', 'motherfucker', 'nazi', 'negro', 'nigga', 'nigger',
+        'orgasm', 'penis', 'pikey', 'porn', 'pussy', 'raghead', 'rape', 'rapist', 'redskin',
+        'retard', 'sex', 'sexual', 'shit', 'slant', 'slut', 'spic', 'squaw', 'tit', 'tits',
+        'twat', 'vagina', 'wetback', 'whore', 'wog',
     ];
 
     return $terms;
@@ -70,17 +71,11 @@ function article_flag_banned_terms(): array
 
 function validate_article_flag_language(string $details): ?string
 {
-    preg_match_all("/[a-zA-Z']+/u", strtolower($details), $matches);
-    $tokens = $matches[0] ?? [];
+    $normalized = strtolower($details);
 
-    if (empty($tokens)) {
-        return null;
-    }
-
-    $bannedSet = array_fill_keys(article_flag_banned_terms(), true);
-
-    foreach ($tokens as $token) {
-        if (isset($bannedSet[$token])) {
+    foreach (article_flag_banned_terms() as $term) {
+        $pattern = '/\b' . preg_quote($term, '/') . '\b/i';
+        if (preg_match($pattern, $normalized)) {
             return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
         }
     }
