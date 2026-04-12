@@ -6251,6 +6251,66 @@ body.page-profile .page-content {
     color: #4a6080 !important;
 }
 
+.article-admin-shell .article-body,
+.article-admin-shell .article-body p,
+.article-admin-shell .article-body li,
+.article-admin-shell .article-body blockquote,
+.article-admin-shell .summary-text,
+.article-admin-shell .ai-section p,
+.article-admin-shell .ai-section ul,
+.article-admin-shell .ai-section li,
+.article-admin-shell .ai-loading,
+.article-admin-shell .text-sm.text-muted,
+.article-admin-shell .article-meta .text-muted,
+.article-admin-shell .article-meta p:last-child {
+    color: #314766 !important;
+}
+
+.article-admin-shell .article-summary,
+.article-admin-shell .ai-overview-panel,
+.article-admin-shell #comments .card {
+    color: #16233f !important;
+}
+
+.article-admin-shell .article-summary {
+    background: #fff8ea !important;
+    border-left: 4px solid #d39a1e !important;
+}
+
+.article-admin-shell .article-content-title {
+    border-bottom: 1px solid #dce8f4 !important;
+}
+
+.article-admin-shell .article-body {
+    font-size: 16px;
+    line-height: 1.9;
+}
+
+.article-admin-shell .article-body a {
+    color: #1d4ed8 !important;
+    text-decoration-color: rgba(29, 78, 216, 0.35) !important;
+}
+
+.article-admin-shell .article-banner img {
+    border: 1px solid #dce8f4;
+}
+
+.article-admin-shell textarea,
+.article-admin-shell input[type="text"],
+.article-admin-shell input[type="email"],
+.article-admin-shell input[type="password"],
+.article-admin-shell select {
+    background: #f7faff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+}
+
+.article-admin-shell textarea::placeholder,
+.article-admin-shell input::placeholder {
+    color: #7a9ab8 !important;
+    opacity: 1 !important;
+}
+
 .article-admin-shell .article-detail {
     background: transparent !important;
 }
