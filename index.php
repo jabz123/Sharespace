@@ -24,6 +24,14 @@ $steps = DB::query("SELECT * FROM landing_steps ORDER BY display_order ASC");
 $plans = DB::query("SELECT * FROM landing_pricing_plans ORDER BY display_order ASC");
 $pricingFeatures = DB::query("SELECT * FROM landing_pricing_features ORDER BY display_order ASC");
 
+$testimonials = DB::query("
+    SELECT id, user_id, name, role, rating, content, created_at
+    FROM site_feedback
+    WHERE is_approved = 1
+    ORDER BY created_at DESC
+    LIMIT 4
+");
+
 function score_class(int $score): string
 {
     if ($score >= 80) return 'score-high';
@@ -52,6 +60,30 @@ function youtubeEmbedUrl(?string $url): string
     }
 
     return $url;
+}
+
+function initials(string $name): string
+{
+    $name = trim($name);
+
+    if ($name === '') {
+        return 'U';
+    }
+
+    $parts = preg_split('/\s+/', $name);
+    $letters = '';
+
+    foreach ($parts as $part) {
+        if ($part !== '') {
+            $letters .= mb_strtoupper(mb_substr($part, 0, 1));
+        }
+
+        if (mb_strlen($letters) >= 2) {
+            break;
+        }
+    }
+
+    return $letters !== '' ? $letters : 'U';
 }
 
 $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
@@ -317,29 +349,49 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
         </div>
 
         <div class="reviews-grid">
-            <?php foreach ([
-                ['SC', 'Sarah Chen', 'Investigative Journalist', 'SharedSpace has completely changed how I verify stories before publication. The AI catches sourcing gaps my team might miss, and readers can see the trust score upfront - that transparency builds real credibility.', 5],
-                ['MT', 'Michael Torres', 'Tech Writer', 'Writing about fast-moving technology topics means I need to be accurate fast. The AI fact-checker gives me confidence before I hit publish, and the trust score has genuinely improved how readers engage with my work.', 5],
-                ['EW', 'Emily Watson', 'Regular Reader', 'I was tired of not knowing whether what I was reading was reliable. SharedSpace puts the credibility score right on every article. It sounds simple but it changes everything about how you consume news.', 5],
-                ['DK', 'David Kim', 'Freelance Writer', 'The feedback from the AI verification is specific and actionable - it tells me which claims need stronger sourcing, not just a vague score. My articles go out faster and with a much higher trust rating than before.', 5],
-            ] as [$av, $name, $role, $content, $rating]): ?>
+            <?php if (!empty($testimonials)): ?>
+                <?php foreach ($testimonials as $testimonial): ?>
+                    <div class="review-card">
+                        <div class="review-top">
+                            <div class="review-author-avatar">
+                                <?= htmlspecialchars(initials($testimonial['name'])) ?>
+                            </div>
+                            <div class="review-author-info">
+                                <strong><?= htmlspecialchars($testimonial['name']) ?></strong>
+                                <span><?= htmlspecialchars($testimonial['role']) ?></span>
+                            </div>
+                            <span class="review-quote-icon">"</span>
+                        </div>
+
+                        <p class="review-excerpt">
+                            "<?= htmlspecialchars($testimonial['content']) ?>"
+                        </p>
+
+                        <div class="review-footer">
+                            <div class="review-stars"><?= (int)$testimonial['rating'] ?>/5 rating</div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
                 <div class="review-card">
                     <div class="review-top">
-                        <div class="review-author-avatar"><?= $av ?></div>
+                        <div class="review-author-avatar">SS</div>
                         <div class="review-author-info">
-                            <strong><?= $name ?></strong>
-                            <span><?= $role ?></span>
+                            <strong>SharedSpace User</strong>
+                            <span>No testimonials yet</span>
                         </div>
                         <span class="review-quote-icon">"</span>
                     </div>
 
-                    <p class="review-excerpt">"<?= $content ?>"</p>
+                    <p class="review-excerpt">
+                        "Approved testimonials from the database will appear here."
+                    </p>
 
                     <div class="review-footer">
-                        <div class="review-stars"><?= $rating ?>/5 rating</div>
+                        <div class="review-stars">0/5 rating</div>
                     </div>
                 </div>
-            <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -392,7 +444,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
     <div class="container footer-inner">
         <div class="footer-brand">
             <a href="/" class="footer-logo">
-                    <img src="/public/icons/sharedspace-logo-light.svg" alt="SharedSpace" class="footer-logo-image">
+                <img src="/public/icons/sharedspace-logo-light.svg" alt="SharedSpace" class="footer-logo-image">
             </a>
             <p>The trusted platform for verified news. AI-powered fact-checking for the modern age.</p>
         </div>
