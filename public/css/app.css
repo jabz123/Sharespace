@@ -6040,6 +6040,80 @@ body.page-edit-article .alert-error {
     }
 }
 
+/* Final high-priority overrides for write/edit page contrast */
+body.page-write-article .page-content.write-layout.write-editor-shell,
+body.page-edit-article .page-content.write-layout.write-editor-shell {
+    background: transparent !important;
+}
+
+body.page-write-article .write-layout form.write-editor-form,
+body.page-edit-article .write-layout form.write-editor-form {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 26px !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+body.page-write-article .ai-panel .card,
+body.page-edit-article .ai-panel .card,
+body.page-write-article .ai-panel .card.ai-verification-card,
+body.page-edit-article .ai-panel .card.ai-verification-card {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.07), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+body.page-write-article .write-layout .form-group label,
+body.page-edit-article .write-layout .form-group label,
+body.page-write-article .write-layout .ai-panel h3,
+body.page-edit-article .write-layout .ai-panel h3,
+body.page-write-article .write-layout .ai-panel p,
+body.page-edit-article .write-layout .ai-panel p {
+    color: #dbe6f6 !important;
+}
+
+body.page-write-article .write-layout input[type=text],
+body.page-write-article .write-layout input[type=url],
+body.page-write-article .write-layout select,
+body.page-write-article .write-layout textarea,
+body.page-edit-article .write-layout input[type=text],
+body.page-edit-article .write-layout input[type=url],
+body.page-edit-article .write-layout select,
+body.page-edit-article .write-layout textarea {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #f5f8ff !important;
+}
+
+body.page-write-article .write-layout select option,
+body.page-edit-article .write-layout select option {
+    color: #0b1628;
+}
+
+body.page-write-article .write-layout .btn-ai,
+body.page-edit-article .write-layout .btn-ai {
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%) !important;
+    color: #08111f !important;
+}
+
+body.page-write-article .write-layout .btn-draft,
+body.page-edit-article .write-layout .btn-draft {
+    background: rgba(255,255,255,0.05) !important;
+    color: #dbe6f6 !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+body.page-write-article .write-layout .btn-publish,
+body.page-edit-article .write-layout .btn-publish {
+    background: linear-gradient(135deg, #203a67 0%, #2f4d83 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(146,176,230,0.20) !important;
+}
+
 .browse-admin-shell .dash-subtitle,
 .browse-admin-shell .text-muted {
     color: #5a7090 !important;

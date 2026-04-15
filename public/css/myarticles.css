@@ -294,3 +294,66 @@ body.page-my-articles .my-article-actions .btn:hover {
         margin-left: 0;
     }
 }
+
+/* Final high-priority overrides for My Articles page contrast */
+body.page-my-articles .page-content.my-articles-shell {
+    background: transparent !important;
+}
+
+body.page-my-articles .my-article-card.card,
+body.page-my-articles .my-article-card {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+body.page-my-articles .my-articles-empty-card.card,
+body.page-my-articles .my-articles-empty-card {
+    background: linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+body.page-my-articles .my-article-title,
+body.page-my-articles .my-article-link,
+body.page-my-articles .my-articles-empty-title {
+    color: #f6f8ff !important;
+}
+
+body.page-my-articles .my-article-excerpt,
+body.page-my-articles .my-article-time,
+body.page-my-articles .my-articles-empty-copy,
+body.page-my-articles .dash-subtitle,
+body.page-my-articles .text-muted {
+    color: #9caeca !important;
+}
+
+body.page-my-articles .article-toggle .toggle-btn {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #a4b7d1 !important;
+}
+
+body.page-my-articles .article-toggle .toggle-btn.active {
+    background: linear-gradient(135deg, rgba(245,166,35,0.18), rgba(245,166,35,0.1)) !important;
+    border-color: rgba(245,166,35,0.24) !important;
+    color: #ffd37a !important;
+}
+
+body.page-my-articles .my-articles-create-btn {
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%) !important;
+    color: #08111f !important;
+}
+
+body.page-my-articles .my-article-actions .btn {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #d7e3f6 !important;
+}
+
+body.page-my-articles .my-article-actions .my-article-delete-btn {
+    color: #ff959d !important;
+    border-color: rgba(255,118,132,0.26) !important;
+}
