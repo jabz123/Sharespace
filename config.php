@@ -9,6 +9,10 @@ define('DB_USER', 'shareduser');
 define('DB_PASS', 'password123'); 
 date_default_timezone_set('Asia/Singapore');
 
+define('APP_BASE_URL', 'http://localhost');
+define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', '');
+define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'replace-with-a-long-random-secret');
+
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
 define('GROQ_API_KEY', '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');
 
