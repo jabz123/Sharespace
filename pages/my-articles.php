@@ -24,6 +24,122 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 
 page_head('My Articles');
 ?>
+<style>
+body.page-my-articles {
+    background:
+        radial-gradient(circle at top left, rgba(245,166,35,0.08), transparent 24%),
+        linear-gradient(180deg, #060b14 0%, #09111d 100%) !important;
+    color: #f5f8ff !important;
+}
+
+body.page-my-articles .dashboard-layout main,
+body.page-my-articles .page-content {
+    background: transparent !important;
+}
+
+body.page-my-articles .dash-header {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 22%),
+        linear-gradient(180deg, rgba(8,14,26,0.94) 0%, rgba(8,14,26,0.84) 100%) !important;
+    border-bottom: 1px solid rgba(245,166,35,0.14) !important;
+}
+
+body.page-my-articles .dash-title,
+body.page-my-articles .dash-subtitle,
+body.page-my-articles .text-muted {
+    color: #dbe6f6 !important;
+}
+
+.my-articles-shell {
+    max-width: 1380px;
+    padding: 30px 32px 42px !important;
+}
+
+.my-articles-toolbar {
+    display: flex;
+    margin-bottom: 22px;
+}
+
+.my-articles-create-btn {
+    min-height: 46px;
+    padding: 0 20px !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(245,166,35,0.18) !important;
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%) !important;
+    color: #08111f !important;
+    font-weight: 700 !important;
+}
+
+.article-toggle {
+    margin-bottom: 24px !important;
+}
+
+.article-toggle .toggle-btn {
+    min-height: 42px;
+    padding: 0 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.04) !important;
+    color: #a4b7d1 !important;
+}
+
+.article-toggle .toggle-btn.active {
+    background: linear-gradient(135deg, rgba(245,166,35,0.18), rgba(245,166,35,0.1)) !important;
+    border-color: rgba(245,166,35,0.24) !important;
+    color: #ffd37a !important;
+}
+
+.my-article-card {
+    padding: 22px 24px !important;
+    border-radius: 22px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+.my-article-title,
+.my-article-link {
+    color: #f6f8ff !important;
+}
+
+.my-article-excerpt,
+.my-article-time {
+    color: #9caeca !important;
+}
+
+.my-article-actions .btn {
+    min-height: 40px;
+    padding: 0 14px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    background: rgba(255,255,255,0.04) !important;
+    color: #d7e3f6 !important;
+}
+
+.my-article-actions .my-article-delete-btn {
+    color: #ff959d !important;
+    border-color: rgba(255,118,132,0.26) !important;
+}
+
+.my-articles-empty-card {
+    border-radius: 24px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background: linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+.my-articles-empty-title {
+    color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+    .my-articles-shell {
+        padding: 22px 18px 32px !important;
+    }
+}
+</style>
 <div class="dashboard-layout">
 <?php sidebar($user); ?>
 <main>

@@ -97,6 +97,180 @@ $val = [
 
 page_head($isEdit ? 'Edit Article' : 'Write Article');
 ?>
+<style>
+body.page-write-article,
+body.page-edit-article {
+    background:
+        radial-gradient(circle at top left, rgba(245,166,35,0.08), transparent 24%),
+        linear-gradient(180deg, #060b14 0%, #09111d 100%) !important;
+    color: #f5f8ff !important;
+}
+
+body.page-write-article .dashboard-layout main,
+body.page-edit-article .dashboard-layout main,
+body.page-write-article .page-content,
+body.page-edit-article .page-content {
+    background: transparent !important;
+}
+
+body.page-write-article .dash-header,
+body.page-edit-article .dash-header {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 22%),
+        linear-gradient(180deg, rgba(8,14,26,0.94) 0%, rgba(8,14,26,0.84) 100%) !important;
+    border-bottom: 1px solid rgba(245,166,35,0.14) !important;
+}
+
+body.page-write-article .dash-title,
+body.page-edit-article .dash-title,
+body.page-write-article .dash-subtitle,
+body.page-edit-article .dash-subtitle,
+body.page-write-article .form-group label,
+body.page-edit-article .form-group label,
+body.page-write-article .ai-panel h3,
+body.page-edit-article .ai-panel h3,
+body.page-write-article .ai-panel p,
+body.page-edit-article .ai-panel p,
+body.page-write-article .text-muted,
+body.page-edit-article .text-muted {
+    color: #dbe6f6 !important;
+}
+
+.write-editor-shell {
+    max-width: 1380px;
+    padding: 30px 32px 42px !important;
+    display: flex !important;
+    gap: 28px !important;
+    align-items: flex-start !important;
+}
+
+.write-editor-form {
+    flex: 1 1 0;
+    max-width: 920px;
+    min-width: 0;
+    padding: 28px !important;
+    border-radius: 26px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+body.page-write-article .write-editor-form input[type=text],
+body.page-write-article .write-editor-form input[type=url],
+body.page-write-article .write-editor-form select,
+body.page-write-article .write-editor-form textarea,
+body.page-edit-article .write-editor-form input[type=text],
+body.page-edit-article .write-editor-form input[type=url],
+body.page-edit-article .write-editor-form select,
+body.page-edit-article .write-editor-form textarea {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #f5f8ff !important;
+}
+
+body.page-write-article .write-editor-form input::placeholder,
+body.page-write-article .write-editor-form textarea::placeholder,
+body.page-edit-article .write-editor-form input::placeholder,
+body.page-edit-article .write-editor-form textarea::placeholder {
+    color: #7f93b2 !important;
+}
+
+body.page-write-article .write-editor-form select option,
+body.page-edit-article .write-editor-form select option {
+    color: #0b1628;
+}
+
+.write-content-input {
+    min-height: 340px !important;
+}
+
+.write-editor-shell .image-preview {
+    min-height: 220px;
+    border-radius: 18px !important;
+    border: 1px dashed rgba(255,255,255,0.16) !important;
+    background: rgba(255,255,255,0.03) !important;
+    color: #dbe6f6 !important;
+}
+
+.write-editor-shell .image-preview img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.write-editor-shell .ai-panel {
+    flex: 0 0 360px !important;
+    max-width: 360px !important;
+}
+
+.write-editor-shell .ai-verification-card {
+    position: sticky;
+    top: 24px;
+    width: 100%;
+    min-height: 700px;
+    padding: 24px !important;
+    border-radius: 26px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.07), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+.write-editor-shell .btn-ai,
+.write-editor-shell .btn-draft,
+.write-editor-shell .btn-publish {
+    min-height: 48px;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+}
+
+.write-editor-shell .btn-ai {
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%) !important;
+    color: #08111f !important;
+}
+
+.write-editor-shell .btn-draft {
+    background: rgba(255,255,255,0.05) !important;
+    color: #dbe6f6 !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+.write-editor-shell .btn-publish {
+    background: linear-gradient(135deg, #203a67 0%, #2f4d83 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(146,176,230,0.20) !important;
+}
+
+.write-editor-shell .progress-bar {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.write-editor-shell .progress-bar > div {
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%) !important;
+}
+
+@media (max-width: 1100px) {
+    .write-editor-shell {
+        flex-direction: column !important;
+        padding: 22px 18px 32px !important;
+    }
+
+    .write-editor-form,
+    .write-editor-shell .ai-panel {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .write-editor-shell .ai-verification-card {
+        position: static;
+        min-height: auto;
+    }
+}
+</style>
 
 <div class="dashboard-layout">
     <?php sidebar($user); ?>
