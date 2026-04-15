@@ -137,6 +137,13 @@ body.page-my-articles .text-muted {
     color: #f6f8ff !important;
 }
 
+.my-article-meta .category-tag {
+    color: #ffcf72 !important;
+    background: rgba(245,166,35,0.10) !important;
+    border: 1px solid rgba(245,166,35,0.28) !important;
+    text-shadow: none !important;
+}
+
 .my-article-title {
     margin: 0 0 10px;
     font-size: 31px;
