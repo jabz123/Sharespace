@@ -5741,6 +5741,305 @@ body.page-profile .page-content {
     font-weight: 700 !important;
 }
 
+/* ================================================================
+   WRITE / EDIT ARTICLE — dark editorial shell to match profile page
+   ================================================================ */
+body.page-write-article,
+body.page-edit-article {
+    background:
+        radial-gradient(circle at top left, rgba(245,166,35,0.08), transparent 24%),
+        linear-gradient(180deg, #060b14 0%, #09111d 100%);
+    color: #f5f8ff;
+}
+
+body.page-write-article .dashboard-layout main,
+body.page-edit-article .dashboard-layout main,
+body.page-write-article .page-content,
+body.page-edit-article .page-content {
+    background: transparent !important;
+}
+
+body.page-write-article .sidebar,
+body.page-edit-article .sidebar {
+    background: linear-gradient(180deg, #121d31 0%, #0f1828 100%);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 2px 0 24px rgba(0, 0, 0, 0.26);
+}
+
+body.page-write-article .sidebar-logo,
+body.page-edit-article .sidebar-logo,
+body.page-write-article .sidebar-footer,
+body.page-edit-article .sidebar-footer,
+body.page-write-article .sidebar-user,
+body.page-edit-article .sidebar-user {
+    border-color: rgba(255,255,255,0.08);
+}
+
+body.page-write-article .logo-text,
+body.page-edit-article .logo-text,
+body.page-write-article .user-name,
+body.page-edit-article .user-name,
+body.page-write-article .dash-title,
+body.page-edit-article .dash-title {
+    color: #ffffff;
+}
+
+body.page-write-article .nav-link,
+body.page-edit-article .nav-link {
+    color: #8fadd4;
+}
+
+body.page-write-article .nav-link:hover,
+body.page-edit-article .nav-link:hover {
+    color: #ffffff;
+    background: rgba(255,255,255,0.07);
+}
+
+body.page-write-article .nav-link.active,
+body.page-edit-article .nav-link.active {
+    color: #f5a623;
+    background: rgba(245,166,35,0.10);
+}
+
+body.page-write-article .nav-link.logout,
+body.page-edit-article .nav-link.logout {
+    color: #6f86a6;
+}
+
+body.page-write-article .nav-link.logout:hover,
+body.page-edit-article .nav-link.logout:hover {
+    color: #ffffff;
+}
+
+body.page-write-article .dash-header,
+body.page-edit-article .dash-header {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 22%),
+        linear-gradient(180deg, rgba(8,14,26,0.94) 0%, rgba(8,14,26,0.84) 100%);
+    border-bottom: 1px solid rgba(245,166,35,0.14);
+}
+
+body.page-write-article .dash-subtitle,
+body.page-edit-article .dash-subtitle,
+body.page-write-article .text-muted,
+body.page-edit-article .text-muted {
+    color: #9caeca !important;
+}
+
+.write-editor-shell {
+    max-width: 1380px;
+    padding: 30px 32px 42px;
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+.write-editor-form {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 920px;
+    padding: 28px;
+    border-radius: 26px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.96) 0%, rgba(9,14,25,0.98) 100%);
+    box-shadow: 0 22px 48px rgba(0,0,0,0.18);
+}
+
+body.page-write-article .write-editor-form label,
+body.page-edit-article .write-editor-form label {
+    color: #dbe6f6;
+    font-weight: 600;
+}
+
+body.page-write-article .write-editor-form input[type=text],
+body.page-write-article .write-editor-form input[type=url],
+body.page-write-article .write-editor-form select,
+body.page-write-article .write-editor-form textarea,
+body.page-edit-article .write-editor-form input[type=text],
+body.page-edit-article .write-editor-form input[type=url],
+body.page-edit-article .write-editor-form select,
+body.page-edit-article .write-editor-form textarea {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: #f5f8ff;
+}
+
+body.page-write-article .write-editor-form input::placeholder,
+body.page-write-article .write-editor-form textarea::placeholder,
+body.page-edit-article .write-editor-form input::placeholder,
+body.page-edit-article .write-editor-form textarea::placeholder {
+    color: #7084a4;
+}
+
+body.page-write-article .write-editor-form input:focus,
+body.page-write-article .write-editor-form select:focus,
+body.page-write-article .write-editor-form textarea:focus,
+body.page-edit-article .write-editor-form input:focus,
+body.page-edit-article .write-editor-form select:focus,
+body.page-edit-article .write-editor-form textarea:focus {
+    border-color: rgba(245,166,35,0.42);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.10);
+}
+
+.write-content-input {
+    min-height: 340px !important;
+}
+
+.write-editor-shell .image-upload-container {
+    margin-bottom: 24px;
+}
+
+.write-editor-shell .image-preview {
+    min-height: 220px;
+    border-radius: 18px;
+    border: 1px dashed rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.03);
+    color: #9caeca;
+}
+
+.write-editor-shell .image-preview img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.write-editor-shell .image-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.write-editor-shell .image-buttons .btn {
+    min-height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.05);
+    color: #dbe6f6;
+}
+
+.write-editor-shell .image-buttons .btn:hover {
+    background: rgba(255,255,255,0.09);
+    text-decoration: none;
+}
+
+.write-editor-shell .btn-ai,
+.write-editor-shell .btn-draft,
+.write-editor-shell .btn-publish {
+    min-height: 48px;
+    border-radius: 14px;
+    font-weight: 700;
+}
+
+.write-editor-shell .btn-ai {
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%);
+    color: #08111f;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+}
+
+.write-editor-shell .btn-ai:hover {
+    transform: translateY(-1px);
+    color: #08111f;
+}
+
+.write-editor-shell .btn-draft {
+    background: rgba(255,255,255,0.05);
+    color: #dbe6f6;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.write-editor-shell .btn-draft:hover {
+    background: rgba(255,255,255,0.09);
+}
+
+.write-editor-shell .btn-publish {
+    background: linear-gradient(135deg, #203a67 0%, #2f4d83 100%);
+    color: #ffffff;
+    border: 1px solid rgba(146,176,230,0.20);
+}
+
+.write-editor-shell .btn-publish:hover {
+    background: linear-gradient(135deg, #274677 0%, #355891 100%);
+}
+
+body.page-write-article .ai-panel,
+body.page-edit-article .ai-panel {
+    flex: 0 0 360px;
+    max-width: 360px;
+}
+
+.ai-verification-card {
+    width: 100%;
+    position: sticky;
+    top: 24px;
+    padding: 24px !important;
+    border-radius: 26px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.07), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,0.98) 100%) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.18);
+}
+
+body.page-write-article .ai-verification-card h3,
+body.page-edit-article .ai-verification-card h3,
+body.page-write-article #aiTrustScore,
+body.page-edit-article #aiTrustScore {
+    color: #ffffff !important;
+}
+
+body.page-write-article #aiSummary,
+body.page-edit-article #aiSummary {
+    color: #c3d1e4 !important;
+}
+
+body.page-write-article .progress-bar,
+body.page-edit-article .progress-bar {
+    background: rgba(255,255,255,0.08);
+}
+
+body.page-write-article .progress-bar > div,
+body.page-edit-article .progress-bar > div {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%);
+}
+
+body.page-write-article .ai-success-box,
+body.page-edit-article .ai-success-box {
+    background: rgba(255,255,255,0.05);
+    color: #e3edf9;
+    border: 1px solid rgba(255,255,255,0.10);
+}
+
+body.page-write-article .alert-error,
+body.page-edit-article .alert-error {
+    background: rgba(255,118,132,0.12);
+    border-color: rgba(255,118,132,0.26);
+    color: #ffd3d7;
+}
+
+@media (max-width: 1100px) {
+    .write-editor-shell {
+        flex-direction: column;
+        padding: 22px 18px 32px;
+    }
+
+    .write-editor-form,
+    body.page-write-article .ai-panel,
+    body.page-edit-article .ai-panel {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .ai-verification-card {
+        position: static;
+    }
+}
+
 .browse-admin-shell .dash-subtitle,
 .browse-admin-shell .text-muted {
     color: #5a7090 !important;

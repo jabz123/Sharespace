@@ -29,9 +29,9 @@ page_head('My Articles');
 <main>
 <?php dash_header('My Articles', 'All articles you have published'); ?>
 <?php flash_messages(); ?>
-<div class="page-content">
-    <div class="flex gap-2 mb-6">
-        <a href="/pages/write.php" class="btn btn-primary">Write New Article</a>
+<div class="page-content my-articles-shell">
+    <div class="my-articles-toolbar">
+        <a href="/pages/write.php" class="btn btn-primary my-articles-create-btn">Write New Article</a>
     </div>
 
     <div class="article-toggle">
@@ -40,14 +40,14 @@ page_head('My Articles');
     </div>
 
     <?php if (empty($articles)): ?>
-        <div class="card" style="text-align:center;padding:48px 32px">
-            <h3 style="font-size:18px;font-weight:700;margin-bottom:8px">
+        <div class="card card-empty my-articles-empty-card">
+            <h3 class="my-articles-empty-title">
                 <?= $filter === 'draft' ? 'No drafts yet' : 'No published articles yet' ?>
             </h3>
-            <p class="text-muted" style="margin-bottom:24px">
+            <p class="text-muted my-articles-empty-copy">
                 You have not published anything yet. Write your first article.
             </p>
-            <a href="/pages/write.php" class="btn btn-primary">Write Article</a>
+            <a href="/pages/write.php" class="btn btn-primary my-articles-create-btn">Write Article</a>
         </div>
     <?php else: ?>
         <div class="my-articles-list">
@@ -77,8 +77,7 @@ page_head('My Articles');
                                 <input type="hidden" name="article_id" value="<?= $article->id ?>">
                                 <button
                                     type="submit"
-                                    class="btn btn-ghost btn-sm"
-                                    style="color:var(--danger, #e53e3e)"
+                                    class="btn btn-ghost btn-sm my-article-delete-btn"
                                     onclick="return confirm('Delete \'<?= htmlspecialchars(addslashes($article->title)) ?>\'? This cannot be undone.')">
                                     Delete
                                 </button>

@@ -107,8 +107,8 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         ); ?>
         <?php flash_messages(); ?>
 
-        <div class="page-content write-layout">
-            <form method="POST" id="write-form" enctype="multipart/form-data" style="flex:2">
+        <div class="page-content write-layout write-editor-shell">
+            <form method="POST" id="write-form" enctype="multipart/form-data" class="write-editor-form">
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
                 <input type="hidden" name="trust_score" id="trustScoreInput" value="<?= (int)$val['trust_score'] ?>">
 
@@ -166,19 +166,19 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                 <div class="form-group">
                     <label>Content</label>
-                    <textarea name="content" style="min-height:300px" required><?= htmlspecialchars($val['content']) ?></textarea>
+                    <textarea name="content" class="write-content-input" required><?= htmlspecialchars($val['content']) ?></textarea>
                 </div>
 
                 <div class="write-actions">
-                    <button type="button" onclick="runAICheck()" class="btn-ai" style="flex:1">AI Fact Check</button>
+                    <button type="button" onclick="runAICheck()" class="btn-ai">AI Fact Check</button>
                     <div class="write-actions-row">
                         <?php if (!$isEdit || ($article->status ?? '') === 'draft'): ?>
-                            <button type="submit" name="action" value="draft" class="btn-draft" style="flex:1">
+                            <button type="submit" name="action" value="draft" class="btn-draft">
                                 <?= $isEdit ? 'Update Draft' : 'Save Draft' ?>
                             </button>
                         <?php endif; ?>
 
-                        <button type="submit" name="action" value="publish" class="btn-publish" style="flex:1">
+                        <button type="submit" name="action" value="publish" class="btn-publish">
                             <?php
                             $isDraft = !$isEdit || ($article->status === 'draft');
                             echo $isDraft ? 'Publish Article' : 'Save Changes';
@@ -189,7 +189,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             </form>
 
             <div class="ai-panel">
-                <div class="card">
+                <div class="card ai-verification-card">
                     <h3>AI Verification</h3>
 
                     <div id="ai-empty">
