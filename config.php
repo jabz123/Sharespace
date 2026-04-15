@@ -9,8 +9,8 @@ define('DB_USER', 'shareduser');
 define('DB_PASS', 'password123'); 
 date_default_timezone_set('Asia/Singapore');
 
-define('APP_BASE_URL', 'http://localhost');
-define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', '');
+define('APP_BASE_URL', 'https://sharedspace.srv1502312.hstgr.cloud');
+define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud/webhook/sharedspace-feedback-sentiment');
 define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'replace-with-a-long-random-secret');
 
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
