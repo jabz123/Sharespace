@@ -11,7 +11,7 @@ date_default_timezone_set('Asia/Singapore');
 
 define('APP_BASE_URL', 'https://sharedspace.srv1502312.hstgr.cloud');
 define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud/webhook/sharedspace-feedback-sentiment');
-define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'replace-with-a-long-random-secret');
+define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'ss_feedback_cb_2026_4uH9mQ2pL7xKc8Rv');
 
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
 define('GROQ_API_KEY', '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');
