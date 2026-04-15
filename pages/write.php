@@ -138,9 +138,9 @@ body.page-edit-article .text-muted {
 
 .write-editor-shell {
     max-width: 1380px;
-    padding: 30px 32px 42px !important;
+    padding: 34px 28px 48px !important;
     display: flex !important;
-    gap: 28px !important;
+    gap: 26px !important;
     align-items: flex-start !important;
 }
 
@@ -148,13 +148,17 @@ body.page-edit-article .text-muted {
     flex: 1 1 0;
     max-width: 920px;
     min-width: 0;
-    padding: 28px !important;
-    border-radius: 26px !important;
+    padding: 30px !important;
+    border-radius: 28px !important;
     border: 1px solid rgba(255,255,255,0.08) !important;
     background:
         radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
         linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
     box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+.write-editor-form .form-group {
+    margin-bottom: 24px !important;
 }
 
 body.page-write-article .write-editor-form input[type=text],
@@ -168,6 +172,9 @@ body.page-edit-article .write-editor-form textarea {
     background: rgba(255,255,255,0.03) !important;
     border: 1px solid rgba(255,255,255,0.10) !important;
     color: #f5f8ff !important;
+    border-radius: 14px !important;
+    padding: 14px 16px !important;
+    font-size: 15px !important;
 }
 
 body.page-write-article .write-editor-form input::placeholder,
@@ -183,7 +190,8 @@ body.page-edit-article .write-editor-form select option {
 }
 
 .write-content-input {
-    min-height: 340px !important;
+    min-height: 380px !important;
+    line-height: 1.75 !important;
 }
 
 .write-editor-shell .image-preview {
@@ -210,7 +218,7 @@ body.page-edit-article .write-editor-form select option {
     position: sticky;
     top: 24px;
     width: 100%;
-    min-height: 700px;
+    min-height: 720px;
     padding: 24px !important;
     border-radius: 26px !important;
     border: 1px solid rgba(255,255,255,0.08) !important;
@@ -223,9 +231,10 @@ body.page-edit-article .write-editor-form select option {
 .write-editor-shell .btn-ai,
 .write-editor-shell .btn-draft,
 .write-editor-shell .btn-publish {
-    min-height: 48px;
+    min-height: 50px;
     border-radius: 14px !important;
     font-weight: 700 !important;
+    font-size: 15px !important;
 }
 
 .write-editor-shell .btn-ai {
@@ -253,6 +262,17 @@ body.page-edit-article .write-editor-form select option {
     background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%) !important;
 }
 
+.write-editor-shell .write-actions {
+    margin-top: 24px !important;
+    gap: 12px !important;
+}
+
+.write-editor-shell .write-actions-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
 @media (max-width: 1100px) {
     .write-editor-shell {
         flex-direction: column !important;
@@ -268,6 +288,10 @@ body.page-edit-article .write-editor-form select option {
     .write-editor-shell .ai-verification-card {
         position: static;
         min-height: auto;
+    }
+
+    .write-editor-shell .write-actions-row {
+        grid-template-columns: 1fr;
     }
 }
 </style>

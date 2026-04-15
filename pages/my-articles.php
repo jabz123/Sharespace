@@ -52,12 +52,12 @@ body.page-my-articles .text-muted {
 
 .my-articles-shell {
     max-width: 1380px;
-    padding: 30px 32px 42px !important;
+    padding: 34px 28px 48px !important;
 }
 
 .my-articles-toolbar {
     display: flex;
-    margin-bottom: 22px;
+    margin-bottom: 24px;
 }
 
 .my-articles-create-btn {
@@ -71,7 +71,9 @@ body.page-my-articles .text-muted {
 }
 
 .article-toggle {
-    margin-bottom: 24px !important;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px !important;
 }
 
 .article-toggle .toggle-btn {
@@ -90,8 +92,8 @@ body.page-my-articles .text-muted {
 }
 
 .my-article-card {
-    padding: 22px 24px !important;
-    border-radius: 22px !important;
+    padding: 24px 22px !important;
+    border-radius: 24px !important;
     border: 1px solid rgba(255,255,255,0.08) !important;
     background:
         radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
@@ -99,14 +101,60 @@ body.page-my-articles .text-muted {
     box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
 }
 
+.my-articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.my-article-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 28px;
+    align-items: center;
+}
+
+.my-article-info {
+    min-width: 0;
+}
+
+.my-article-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.my-article-time {
+    margin-left: auto;
+    font-size: 13px;
+    color: #a9bad2 !important;
+}
+
 .my-article-title,
 .my-article-link {
     color: #f6f8ff !important;
 }
 
+.my-article-title {
+    margin: 0 0 10px;
+    font-size: 31px;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    font-family: 'DM Serif Display', serif;
+}
+
 .my-article-excerpt,
 .my-article-time {
     color: #9caeca !important;
+}
+
+.my-article-excerpt {
+    margin: 0;
+    max-width: 72ch;
+    font-size: 16px;
+    line-height: 1.7;
 }
 
 .my-article-actions .btn {
@@ -116,6 +164,16 @@ body.page-my-articles .text-muted {
     border: 1px solid rgba(255,255,255,0.10) !important;
     background: rgba(255,255,255,0.04) !important;
     color: #d7e3f6 !important;
+}
+
+.my-article-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.my-article-actions form {
+    margin: 0;
 }
 
 .my-article-actions .my-article-delete-btn {
@@ -137,6 +195,23 @@ body.page-my-articles .text-muted {
 @media (max-width: 768px) {
     .my-articles-shell {
         padding: 22px 18px 32px !important;
+    }
+
+    .my-article-row {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .my-article-time {
+        margin-left: 0;
+    }
+
+    .my-article-title {
+        font-size: 24px;
+    }
+
+    .my-article-excerpt {
+        font-size: 15px;
     }
 }
 </style>
