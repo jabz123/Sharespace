@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/article_flag_rules.php';
+require_once __DIR__ . '/../includes/AuditLogger.php';
 
 header('Content-Type: application/json');
 
@@ -67,6 +68,8 @@ DB::execute(
      VALUES (?, ?, ?, ?, NOW())",
     [$userId, $articleId, $reason, $details]
 );
+
+AuditLogger::log($userId, 'flag_article', 'Article', $articleId, 'Flagged article: ' . $reason);
 
 // ===== SUCCESS =====
 echo json_encode(['ok' => true]);

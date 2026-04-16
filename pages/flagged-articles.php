@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     if ($action === 'dismiss_flags') {
         $result = $adminCtrl->dismissFlags($articleId);
         if (isset($result['ok'])) {
+            $adminCtrl->logAction($user->id, 'review_category_content', 'Article', $articleId, 'Dismissed flags for category article ID ' . $articleId);
             redirect('/pages/flagged-articles.php', null, 'Flags dismissed. Article remains published.');
         }
         redirect('/pages/flagged-articles.php', $result['error']);
@@ -44,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     if ($action === 'confirm_flag') {
         $result = $adminCtrl->confirmFlag($articleId);
         if (isset($result['ok'])) {
+            $adminCtrl->logAction($user->id, 'review_category_content', 'Article', $articleId, 'Confirmed flag and hid category article ID ' . $articleId);
             redirect('/pages/flagged-articles.php', null, 'Article has been hidden from public.');
         }
         redirect('/pages/flagged-articles.php', $result['error']);
@@ -52,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     if ($action === 'restore_and_dismiss') {
         $result = $adminCtrl->restoreAndDismissFlags($articleId);
         if (isset($result['ok'])) {
+            $adminCtrl->logAction($user->id, 'review_category_content', 'Article', $articleId, 'Restored category article and dismissed flags for ID ' . $articleId);
             redirect('/pages/flagged-articles.php', null, 'Flags dismissed. Article has been restored to published.');
         }
         redirect('/pages/flagged-articles.php', $result['error']);

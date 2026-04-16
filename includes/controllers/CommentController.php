@@ -9,6 +9,7 @@
 
 
 require_once __DIR__ . '/../entities/Comment.php';
+require_once __DIR__ . '/../AuditLogger.php';
 
 class CommentController {
 
@@ -49,11 +50,18 @@ class CommentController {
             [$articleId, $userId, $body]
         );
 
+        AuditLogger::log($userId, 'post_comment', 'Article', $articleId, 'Posted comment on article ID ' . $articleId);
+
         return ['ok' => true];
     }
 
     //delete comment from article. only can delete own comment
     public function delete(int $commentId, int $requestingUserId): array {
+        $comment = DB::first(
+            'SELECT article_id FROM comments WHERE id = ? AND user_id = ?',
+            [$commentId, $requestingUserId]
+        );
+
         $affected = DB::execute(
             'DELETE FROM comments WHERE id = ? AND user_id = ?',
             [$commentId, $requestingUserId]
@@ -62,6 +70,8 @@ class CommentController {
         if ($affected === 0) {
             return ['error' => 'Comment not found or permission denied.'];
         }
+
+        AuditLogger::log($requestingUserId, 'delete_comment', 'Comment', $commentId, 'Deleted comment on article ID ' . ($comment['article_id'] ?? 'unknown'));
 
         return ['ok' => true];
     }
