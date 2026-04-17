@@ -14,7 +14,7 @@ define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud
 define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'ss_feedback_cb_2026_4uH9mQ2pL7xKc8Rv');
 
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
-define('GROQ_API_KEY', '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');
+define('GROQ_API_KEY', getenv('GROQ_API_KEY'));
 
 //stripe shit
 define('STRIPE_PUBLIC_KEY',  'pk_test_51TJAljQbEqKAvs55VRP6eLrnKdPbJymWgZ0B5oWgzl8N4DHOJ8muCR8Mr25vSsNKjB702hyrCOWEAZCW9x6GktlA00nf9EAGSS');
