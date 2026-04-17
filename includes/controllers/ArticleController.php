@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/../entities/Article.php';
 require_once __DIR__ . '/../entities/Category.php';
+require_once __DIR__ . '/../AuditLogger.php';
 
 class ArticleController {
     private function resolveTrustScore(array $input): int {
@@ -139,7 +140,7 @@ class ArticleController {
         $imagePath = $input['image_path'] ?? null;
 
         //  GET CURRENT STATUS FROM DB
-        $current = DB::first('SELECT status FROM articles WHERE id = ?', [$articleId]);
+        $current = DB::first('SELECT status, title FROM articles WHERE id = ?', [$articleId]);
 
         $status = $input['status'] ?? null;
 
@@ -156,12 +157,20 @@ class ArticleController {
             [$title, $excerpt, $content, $categoryId, $trustScore, $imagePath, $status, $articleId, $authorId]
         );
 
+        $action = $status === 'draft' ? 'save_draft' : (($current['status'] ?? '') === 'draft' ? 'submit_content' : 'update_content');
+        AuditLogger::log($authorId, $action, 'Article', $articleId, 'Updated article: ' . ($current['title'] ?? $title));
+
         return ['ok' => true];
     }
 
     //delete article, only author ownself can delete. comments also will all delete
     //also return ['ok' => true] or ['error' => '...']
     public function delete(int $articleId, int $authorId): array {
+        $article = DB::first(
+            'SELECT title FROM articles WHERE id = ? AND author_id = ?',
+            [$articleId, $authorId]
+        );
+
         $affected = DB::execute(
             'DELETE FROM articles WHERE id = ? AND author_id = ?',
             [$articleId, $authorId]
@@ -169,6 +178,8 @@ class ArticleController {
         if ($affected === 0) {
             return ['error' => 'Article not found or permission denied.'];
         }
+
+        AuditLogger::log($authorId, 'delete_content', 'Article', $articleId, 'Deleted article: ' . ($article['title'] ?? ('ID ' . $articleId)));
 
         return ['ok' => true];
     }
@@ -197,7 +208,10 @@ class ArticleController {
         [$title, $excerpt, $content, $authorId, $categoryId, $trustScore, $imagePath, 'published']
          );
 
-        return ['ok' => true, 'id' => DB::lastId()];
+        $articleId = DB::lastId();
+        AuditLogger::log($authorId, 'submit_content', 'Article', $articleId, 'Published article: ' . $title);
+
+        return ['ok' => true, 'id' => $articleId];
     }
 
     public function getByCategory($category = null, $sort = 'recent', $search = null, $limit = 12, $offset = 0): array {
@@ -338,6 +352,8 @@ class ArticleController {
         ]
     );
 
+    AuditLogger::log($authorId, 'save_draft', 'Article', DB::lastId(), 'Saved draft: ' . ($input['title'] ?? 'Untitled draft'));
+
     return ['ok' => true];
 }
     // save article function
@@ -353,6 +369,7 @@ class ArticleController {
                 "DELETE FROM saved_articles WHERE user_id = ? AND article_id = ?",
                 [$userId, $articleId]
             );
+            AuditLogger::log($userId, 'remove_bookmark', 'Article', $articleId, 'Removed bookmark for article ID ' . $articleId);
             return false; // now unsaved
         }
 
@@ -360,6 +377,8 @@ class ArticleController {
             "INSERT INTO saved_articles (user_id, article_id) VALUES (?, ?)",
             [$userId, $articleId]
         );
+
+        AuditLogger::log($userId, 'save_bookmark', 'Article', $articleId, 'Saved bookmark for article ID ' . $articleId);
 
         return true; // now saved
     }

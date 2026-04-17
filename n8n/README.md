@@ -42,3 +42,22 @@ The workflow returns JSON like this:
   "source_label": "Straits Times reference supplied"
 }
 ```
+
+## Feedback sentiment workflow
+
+This folder also contains `feedback-sentiment-workflow.json` for AI review of user feedback submitted from the profile page.
+
+What it does:
+
+- Receives `feedback_id`, `rating`, and `content` from `pages/submit-feedback.php`
+- Uses AI to check whether the written comment matches the star rating
+- Calls back into `/api/feedback-sentiment-callback.php`
+- Updates `site_feedback.sentiment_label`, `sentiment_score`, `sentiment_status`, and `is_approved`
+
+Required app config:
+
+- `APP_BASE_URL`
+- `N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL`
+- `FEEDBACK_SENTIMENT_CALLBACK_SECRET`
+
+The callback secret should match the header sent by the workflow in `X-SharedSpace-Secret`.

@@ -40,8 +40,18 @@ $role = trim((string)($user->role ?? 'free'));
 $roleLabel = ucfirst(str_replace('_', ' ', $role));
 
 DB::execute(
-    "INSERT INTO site_feedback (user_id, name, role, rating, content, is_approved, created_at)
-     VALUES (?, ?, ?, ?, ?, 0, NOW())",
+    "INSERT INTO site_feedback (
+        user_id,
+        name,
+        role,
+        rating,
+        content,
+        sentiment_label,
+        sentiment_score,
+        sentiment_status,
+        is_approved,
+        created_at
+     ) VALUES (?, ?, ?, ?, ?, NULL, NULL, 'pending', 0, NOW())",
     [
         $user->id,
         $name,
@@ -51,4 +61,45 @@ DB::execute(
     ]
 );
 
-redirect('/pages/profile.php', null, 'Feedback submitted successfully! It will appear after approval.');
+$feedbackId = DB::lastId();
+
+$webhookUrl = '';
+if (defined('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL')) {
+    $webhookUrl = trim((string) N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL);
+}
+if ($webhookUrl === '') {
+    $webhookUrl = trim((string) (getenv('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL') ?: ''));
+}
+
+if ($webhookUrl !== '') {
+    $payload = [
+        'feedback_id' => $feedbackId,
+        'rating' => $rating,
+        'content' => $content,
+        'name' => $name,
+        'role' => $roleLabel,
+        'submitted_by' => [
+            'id' => $user->id,
+            'role' => $user->role,
+            'email' => $user->email,
+        ],
+        'callback' => [
+            'url' => (defined('APP_BASE_URL') ? rtrim((string) APP_BASE_URL, '/') : '') . '/api/feedback-sentiment-callback.php',
+            'secret' => defined('FEEDBACK_SENTIMENT_CALLBACK_SECRET') ? FEEDBACK_SENTIMENT_CALLBACK_SECRET : '',
+        ],
+    ];
+
+    $ch = curl_init($webhookUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_TIMEOUT => 8,
+    ]);
+
+    curl_exec($ch);
+    curl_close($ch);
+}
+
+redirect('/pages/profile.php', null, 'Feedback submitted successfully! It is now pending sentiment review and approval.');

@@ -344,6 +344,9 @@ CREATE TABLE `site_feedback` (
   `role` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `rating` tinyint NOT NULL DEFAULT '5',
   `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sentiment_label` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sentiment_score` decimal(4,3) DEFAULT NULL,
+  `sentiment_status` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `is_approved` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

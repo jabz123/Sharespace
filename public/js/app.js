@@ -89,7 +89,8 @@ if (overlay && flagModal) {
 
 const detailsInput = document.getElementById('flagDetails');
 const charCount = document.getElementById('charCount');
-const maxLength = 100;
+const maxLength = 400;
+const minFlagDetailsLength = 20;
 
 if (detailsInput && charCount) {
     detailsInput.addEventListener('input', () => {
@@ -120,6 +121,14 @@ const flagForm = document.getElementById('flagForm');
 if (flagForm && flagBtn && flagModal) {
     flagForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const detailsValue = (detailsInput?.value || '').trim();
+
+        if (detailsValue.length < minFlagDetailsLength) {
+            alert(`Please enter at least ${minFlagDetailsLength} characters so we can review the report properly.`);
+            if (detailsInput) detailsInput.focus();
+            return;
+        }
 
         const formData = new FormData(flagForm);
 

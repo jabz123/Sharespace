@@ -1,0 +1,169 @@
+{
+  "name": "SharedSpace Feedback Sentiment Review",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sharedspace-feedback-sentiment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fb-sentiment-001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json.body ?? $json;\n\nconst feedbackId = parseInt(payload.feedback_id ?? 0, 10) || 0;\nconst rating = parseInt(payload.rating ?? 0, 10) || 0;\nconst content = String(payload.content || '').trim();\nconst callback = payload.callback || {};\n\nconst prompt = [\n  'You are reviewing user feedback for SharedSpace.',\n  'Your task is to classify the written sentiment and decide whether the text matches the star rating.',\n  '',\n  'Rules:',\n  '- 4 or 5 stars usually align with positive feedback.',\n  '- 3 stars usually align with mixed or neutral feedback.',\n  '- 1 or 2 stars usually align with negative feedback.',\n  '- If the comment tone clearly conflicts with the rating, mark sentiment_status as contradiction.',\n  '- If the comment is unclear or too short, mark sentiment_status as unclear.',\n  '- Only use these sentiment_label values: positive, neutral, negative, mixed, unclear.',\n  '- Only use these sentiment_status values: aligned, mixed, contradiction, unclear.',\n  '- sentiment_score must be a number from -1 to 1.',\n  '',\n  `Rating: ${rating}/5`,\n  `Comment: ${content || '[empty]'}`\n].join('\\n');\n\nreturn [{\n  json: {\n    feedback_id: feedbackId,\n    rating,\n    content,\n    callback_url: String(callback.url || ''),\n    callback_secret: String(callback.secret || ''),\n    ai_request: {\n      model: 'openai/gpt-oss-20b',\n      messages: [\n        {\n          role: 'system',\n          content: 'Return valid JSON only.'\n        },\n        {\n          role: 'user',\n          content: prompt\n        }\n      ],\n      response_format: {\n        type: 'json_object'\n      },\n      temperature: 0,\n      max_completion_tokens: 300\n    }\n  }\n}];"
+      },
+      "id": "fb-sentiment-002",
+      "name": "Build Sentiment Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer REPLACE_WITH_YOUR_GROQ_API_KEY\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.ai_request}}",
+        "options": {}
+      },
+      "id": "fb-sentiment-003",
+      "name": "Analyze Feedback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const upstream = $items('Build Sentiment Request', 0, 0)?.json || {};\nconst raw = $json.choices?.[0]?.message?.content || '{}';\nconst cleaned = String(raw).replace(/```json|```/gi, '').trim();\n\nlet parsed = {};\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (error) {\n  parsed = {\n    sentiment_label: 'unclear',\n    sentiment_score: 0,\n    sentiment_status: 'unclear'\n  };\n}\n\nconst allowedLabels = new Set(['positive', 'neutral', 'negative', 'mixed', 'unclear']);\nconst allowedStatuses = new Set(['aligned', 'mixed', 'contradiction', 'unclear']);\n\nconst label = allowedLabels.has(parsed.sentiment_label) ? parsed.sentiment_label : 'unclear';\nconst status = allowedStatuses.has(parsed.sentiment_status) ? parsed.sentiment_status : 'unclear';\nconst score = Math.max(-1, Math.min(1, Number(parsed.sentiment_score ?? 0) || 0));\nconst approval = status === 'aligned' ? 1 : 0;\n\nreturn [{\n  json: {\n    feedback_id: upstream.feedback_id,\n    callback_url: upstream.callback_url,\n    callback_secret: upstream.callback_secret,\n    callback_payload: {\n      feedback_id: upstream.feedback_id,\n      sentiment_label: label,\n      sentiment_score: score,\n      sentiment_status: status,\n      is_approved: approval\n    }\n  }\n}];"
+      },
+      "id": "fb-sentiment-004",
+      "name": "Build Callback Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$json.callback_url}}",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ { \"Content-Type\": \"application/json\", \"X-SharedSpace-Secret\": $json.callback_secret } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.callback_payload}}",
+        "options": {}
+      },
+      "id": "fb-sentiment-005",
+      "name": "Send Callback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"feedback_id\": $json.feedback_id } }}",
+        "options": {}
+      },
+      "id": "fb-sentiment-006",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Sentiment Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Sentiment Request": {
+      "main": [
+        [
+          {
+            "node": "Analyze Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Feedback": {
+      "main": [
+        [
+          {
+            "node": "Build Callback Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Callback Payload": {
+      "main": [
+        [
+          {
+            "node": "Send Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Callback": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {},
+  "active": false,
+  "versionId": "fb-sentiment-007",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

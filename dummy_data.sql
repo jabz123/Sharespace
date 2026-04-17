@@ -96,6 +96,9 @@ CREATE TABLE site_feedback (
     role        VARCHAR(255) NOT NULL DEFAULT '',
     rating      TINYINT      NOT NULL DEFAULT 5,
     content     TEXT         NOT NULL,
+    sentiment_label  VARCHAR(32) DEFAULT NULL,
+    sentiment_score  DECIMAL(4,3) DEFAULT NULL,
+    sentiment_status VARCHAR(32) NOT NULL DEFAULT 'pending',
     is_approved TINYINT(1)   NOT NULL DEFAULT 0,
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL

@@ -12,6 +12,7 @@ require_once __DIR__ . '/../entities/Article.php';
 require_once __DIR__ . '/../entities/Category.php';
 require_once __DIR__ . '/../entities/User.php';
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../AuditLogger.php';
 
 class AdminController {
 
@@ -429,53 +430,33 @@ class AdminController {
     // AUDIT LOG
     // ─────────────────────────────────────────────
 
-    // Record an admin action into audit_log.
+    // Record an actor action into audit_log. Older callers still pass the admin id here.
     public function logAction(
-        int    $adminId,
+        ?int   $actorId,
         string $action,
         string $targetType,
         ?int   $targetId,
-        string $details
+        string $details,
+        ?string $actorRole = null,
+        ?string $actorName = null,
+        ?string $actorEmail = null
     ): void {
-        DB::execute(
-            'INSERT INTO audit_log (admin_id, action, target_type, target_id, details)
-             VALUES (?, ?, ?, ?, ?)',
-            [$adminId, $action, $targetType, $targetId, $details]
-        );
+        AuditLogger::log($actorId, $action, $targetType, $targetId, $details, $actorRole, $actorName, $actorEmail);
     }
 
-    // Fetch audit log entries, newest first, with the admin's name joined.
+    // Fetch audit log entries, newest first, with the actor's name joined.
     // Optional $filterAction limits results to a specific action type (e.g. 'suspend_user').
-    public function getAuditLog(int $limit = 50, int $offset = 0, ?string $filterAction = null): array {
-        if ($filterAction) {
-            return DB::query(
-                'SELECT al.*, u.full_name AS admin_name
-                 FROM audit_log al
-                 JOIN users u ON u.id = al.admin_id
-                 WHERE al.action = ?
-                 ORDER BY al.created_at DESC
-                 LIMIT ? OFFSET ?',
-                [$filterAction, $limit, $offset]
-            );
-        }
-        return DB::query(
-            'SELECT al.*, u.full_name AS admin_name
-             FROM audit_log al
-             JOIN users u ON u.id = al.admin_id
-             ORDER BY al.created_at DESC
-             LIMIT ? OFFSET ?',
-            [$limit, $offset]
-        );
+    public function getAuditLog(
+        int $limit = 50,
+        int $offset = 0,
+        ?string $filterAction = null,
+        ?string $filterRole = null
+    ): array {
+        return AuditLogger::entries($limit, $offset, $filterAction, $filterRole);
     }
 
     // Total count of audit log rows. Optional $filterAction scopes the count.
-    public function getAuditLogCount(?string $filterAction = null): int {
-        if ($filterAction) {
-            return (int)(DB::first(
-                'SELECT COUNT(*) AS cnt FROM audit_log WHERE action = ?',
-                [$filterAction]
-            )['cnt'] ?? 0);
-        }
-        return (int)(DB::first('SELECT COUNT(*) AS cnt FROM audit_log')['cnt'] ?? 0);
+    public function getAuditLogCount(?string $filterAction = null, ?string $filterRole = null): int {
+        return AuditLogger::count($filterAction, $filterRole);
     }
 }

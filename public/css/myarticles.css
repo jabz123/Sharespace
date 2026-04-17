@@ -2,6 +2,102 @@
    MY ARTICLES PAGE
 ========================= */
 
+body.page-my-articles {
+    background:
+        radial-gradient(circle at top left, rgba(245,166,35,0.08), transparent 24%),
+        linear-gradient(180deg, #060b14 0%, #09111d 100%);
+    color: #f5f8ff;
+}
+
+body.page-my-articles .dashboard-layout main,
+body.page-my-articles .page-content {
+    background: transparent !important;
+}
+
+body.page-my-articles .sidebar {
+    background: linear-gradient(180deg, #121d31 0%, #0f1828 100%);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 2px 0 24px rgba(0, 0, 0, 0.26);
+}
+
+body.page-my-articles .sidebar-logo,
+body.page-my-articles .sidebar-footer {
+    border-color: rgba(255,255,255,0.08);
+}
+
+body.page-my-articles .sidebar-user {
+    border-color: rgba(255,255,255,0.08);
+}
+
+body.page-my-articles .user-name,
+body.page-my-articles .logo-text,
+body.page-my-articles .dash-title {
+    color: #ffffff;
+}
+
+body.page-my-articles .nav-link {
+    color: #8fadd4;
+}
+
+body.page-my-articles .nav-link:hover {
+    color: #ffffff;
+    background: rgba(255,255,255,0.07);
+}
+
+body.page-my-articles .nav-link.active {
+    color: #f5a623;
+    background: rgba(245,166,35,0.10);
+}
+
+body.page-my-articles .nav-link.logout {
+    color: #6f86a6;
+}
+
+body.page-my-articles .nav-link.logout:hover {
+    color: #ffffff;
+}
+
+body.page-my-articles .dash-header {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 22%),
+        linear-gradient(180deg, rgba(8,14,26,0.94) 0%, rgba(8,14,26,0.84) 100%);
+    border-bottom: 1px solid rgba(245,166,35,0.14);
+}
+
+body.page-my-articles .dash-subtitle,
+body.page-my-articles .text-muted,
+body.page-my-articles .my-article-excerpt {
+    color: #9caeca !important;
+}
+
+.my-articles-shell {
+    max-width: 1380px;
+    padding: 30px 32px 42px;
+}
+
+.my-articles-toolbar {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 22px;
+}
+
+.my-articles-create-btn {
+    min-height: 46px;
+    padding: 0 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(245,166,35,0.18);
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%);
+    color: #08111f !important;
+    font-weight: 700;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+}
+
+.my-articles-create-btn:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.22);
+}
+
 /* container spacing */
 .my-articles-list {
     display: flex;
@@ -11,8 +107,13 @@
 
 /* each article card */
 .my-article-card {
-    padding: 18px 22px;
-    border-radius: 10px;
+    padding: 22px 24px;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.96) 0%, rgba(9,14,25,0.98) 100%);
+    box-shadow: 0 22px 48px rgba(0,0,0,0.18);
 }
 
 /* row layout */
@@ -34,21 +135,24 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
 /* time align right */
 .my-article-time {
     margin-left: auto;
     font-size: 12px;
+    color: #88a0c2 !important;
 }
 
 /* title */
 .my-article-title {
-    font-size: 16px;
+    font-size: 23px;
     font-weight: 700;
-    margin-bottom: 4px;
-    max-width: 520px;
+    margin-bottom: 8px;
+    max-width: 760px;
+    font-family: 'DM Serif Display', serif;
 
     white-space: nowrap;
     overflow: hidden;
@@ -57,19 +161,19 @@
 
 /* link styling */
 .my-article-link {
-    color: inherit;
+    color: #f6f8ff;
     text-decoration: none;
 }
 
 .my-article-link:hover {
-    text-decoration: underline;
+    color: #ffd37a;
+    text-decoration: none;
 }
 
 /* excerpt */
 .my-article-excerpt {
-    font-size: 13px;
-    color: #666;
-    max-width: 520px;
+    font-size: 14px;
+    max-width: 780px;
 
     white-space: nowrap;
     overflow: hidden;
@@ -84,30 +188,60 @@
     flex-shrink: 0;
 }
 
+body.page-my-articles .my-article-actions .btn {
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.04);
+    color: #d7e3f6;
+}
+
+body.page-my-articles .my-article-actions .btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.my-article-delete-btn {
+    color: #ff959d !important;
+    border-color: rgba(255,118,132,0.26) !important;
+}
+
+.my-article-delete-btn:hover {
+    background: rgba(255,118,132,0.14) !important;
+    color: #ffd6db !important;
+}
+
 /* toggle buttons */
 .article-toggle {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .toggle-btn {
-    padding: 8px 14px;
-    border-radius: 6px;
-    background: #eee;
-    color: #333;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    color: #a4b7d1;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     transition: 0.2s ease;
 }
 
 .toggle-btn:hover {
-    background: #ddd;
+    background: rgba(255,255,255,0.08);
+    color: #ffffff;
+    text-decoration: none;
 }
 
 .toggle-btn.active {
-    background: #111;
-    color: #fff;
+    border-color: rgba(245,166,35,0.24);
+    background: linear-gradient(135deg, rgba(245,166,35,0.18), rgba(245,166,35,0.1));
+    color: #ffd37a;
 }
 
 /* empty state spacing */
@@ -116,8 +250,30 @@
     padding: 48px 32px;
 }
 
+.my-articles-empty-card {
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(180deg, rgba(11,17,31,0.96) 0%, rgba(9,14,25,0.98) 100%);
+    box-shadow: 0 22px 48px rgba(0,0,0,0.18);
+}
+
+.my-articles-empty-title {
+    font-size: 24px;
+    font-family: 'DM Serif Display', serif;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.my-articles-empty-copy {
+    margin-bottom: 24px;
+}
+
 /* optional: better button spacing on small screens */
 @media (max-width: 768px) {
+    .my-articles-shell {
+        padding: 22px 18px 32px;
+    }
+
     .my-article-row {
         flex-direction: column;
         align-items: flex-start;
@@ -125,11 +281,79 @@
 
     .my-article-actions {
         width: 100%;
-        justify-content: flex-end;
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
 
     .my-article-title,
     .my-article-excerpt {
         max-width: 100%;
     }
+
+    .my-article-time {
+        margin-left: 0;
+    }
+}
+
+/* Final high-priority overrides for My Articles page contrast */
+body.page-my-articles .page-content.my-articles-shell {
+    background: transparent !important;
+}
+
+body.page-my-articles .my-article-card.card,
+body.page-my-articles .my-article-card {
+    background:
+        radial-gradient(circle at top right, rgba(245,166,35,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+body.page-my-articles .my-articles-empty-card.card,
+body.page-my-articles .my-articles-empty-card {
+    background: linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 22px 48px rgba(0,0,0,0.22) !important;
+}
+
+body.page-my-articles .my-article-title,
+body.page-my-articles .my-article-link,
+body.page-my-articles .my-articles-empty-title {
+    color: #f6f8ff !important;
+}
+
+body.page-my-articles .my-article-excerpt,
+body.page-my-articles .my-article-time,
+body.page-my-articles .my-articles-empty-copy,
+body.page-my-articles .dash-subtitle,
+body.page-my-articles .text-muted {
+    color: #9caeca !important;
+}
+
+body.page-my-articles .article-toggle .toggle-btn {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #a4b7d1 !important;
+}
+
+body.page-my-articles .article-toggle .toggle-btn.active {
+    background: linear-gradient(135deg, rgba(245,166,35,0.18), rgba(245,166,35,0.1)) !important;
+    border-color: rgba(245,166,35,0.24) !important;
+    color: #ffd37a !important;
+}
+
+body.page-my-articles .my-articles-create-btn {
+    background: linear-gradient(135deg, #f4a321 0%, #ffca61 100%) !important;
+    color: #08111f !important;
+}
+
+body.page-my-articles .my-article-actions .btn {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #d7e3f6 !important;
+}
+
+body.page-my-articles .my-article-actions .my-article-delete-btn {
+    color: #ff959d !important;
+    border-color: rgba(255,118,132,0.26) !important;
 }

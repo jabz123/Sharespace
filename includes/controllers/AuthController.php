@@ -18,6 +18,7 @@ use PHPMailer\PHPMailer\Exception;
 //returns onl data or redirects.
 
 require_once __DIR__ . '/../entities/User.php';
+require_once __DIR__ . '/../AuditLogger.php';
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/OnboardingController.php';
 class AuthController {
@@ -27,12 +28,44 @@ class AuthController {
     //if success store userid in session
     //if fail return error
     public function login(string $email, string $password): array {
+        $email = strtolower(trim($email));
         $row = DB::first(
             'SELECT * FROM users WHERE email = ?',
-            [strtolower(trim($email))]
+            [$email]
         );
 
         if (!$row || !password_verify($password, $row['password'])) {
+            if ($row) {
+                $userId = (int)$row['id'];
+                AuditLogger::log(
+                    $userId,
+                    'failed_login',
+                    'User',
+                    $userId,
+                    'Failed login attempt for ' . $email,
+                    $row['role'] ?? null,
+                    $row['full_name'] ?? null,
+                    $row['email'] ?? null
+                );
+
+                $failures = AuditLogger::countRecentForTarget('failed_login', 'User', $userId);
+                $recentAlert = AuditLogger::countRecentForTarget('failed_login_5_times', 'User', $userId);
+                if ($failures >= 5 && $recentAlert === 0) {
+                    AuditLogger::log(
+                        $userId,
+                        'failed_login_5_times',
+                        'User',
+                        $userId,
+                        'User reached 5 failed login attempts in 15 minutes',
+                        $row['role'] ?? null,
+                        $row['full_name'] ?? null,
+                        $row['email'] ?? null
+                    );
+                }
+            } else {
+                AuditLogger::log(null, 'failed_login', 'User', null, 'Failed login attempt for unknown email ' . $email, null, 'Unknown user', $email);
+            }
+
             return ['error' => 'Invalid email or password.'];
         }
         if ($row['is_suspended']) {
@@ -44,6 +77,17 @@ class AuthController {
 
         $_SESSION['user_id'] = $row['id'];
         session_regenerate_id(true);
+
+        AuditLogger::log(
+            (int)$row['id'],
+            'login',
+            'Auth',
+            (int)$row['id'],
+            'Logged in',
+            $row['role'] ?? null,
+            $row['full_name'] ?? null,
+            $row['email'] ?? null
+        );
 
         return ['ok' => true];
     }
@@ -108,6 +152,9 @@ class AuthController {
             VALUES (?, ?, ?, ?, 0, ?)',
             [$email, password_hash($password, PASSWORD_BCRYPT), $name, 'free', $token]
         );
+        $newUserId = DB::lastId();
+        AuditLogger::log($newUserId, 'register', 'User', $newUserId, 'Registered new free account: ' . $email, 'free', $name, $email);
+
         // detect whether the website is using http or https
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
 
@@ -247,6 +294,11 @@ class AuthController {
 
     //logout, destroy session
     public function logout(): void {
+        $user = $this->currentUser();
+        if ($user) {
+            AuditLogger::log($user->id, 'logout', 'Auth', $user->id, 'Logged out', $user->role, $user->fullName, $user->email);
+        }
+
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $p = session_get_cookie_params();
@@ -375,6 +427,8 @@ class AuthController {
         static $cache = [];
         unset($cache[$userId]);
 
+        AuditLogger::log($userId, 'update_profile', 'User', $userId, 'Updated profile details');
+
         return ['ok' => true];
     }
 
@@ -407,6 +461,8 @@ class AuthController {
             'UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?',
             [password_hash($new, PASSWORD_BCRYPT), $userId]
         );
+
+        AuditLogger::log($userId, 'change_password', 'User', $userId, 'Changed password');
 
         return ['ok' => true];
     }

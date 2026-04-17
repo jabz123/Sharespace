@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/article_flag_rules.php';
+require_once __DIR__ . '/../includes/AuditLogger.php';
 
 header('Content-Type: application/json');
 
@@ -13,16 +15,37 @@ $userId    = $_SESSION['user_id'];
 $articleId = (int)($_POST['article_id'] ?? 0);
 $reason    = trim($_POST['reason'] ?? '');
 $details   = trim($_POST['details'] ?? '');
-
+$allowedReasons = article_flag_reason_options();
 
 // ===== VALIDATION =====
-if (!$articleId || !$reason || !$details) {
-    echo json_encode(['error' => 'All fields are required']);
+if (!$articleId) {
+    echo json_encode(['error' => 'Invalid article']);
     exit;
 }
 
-if (strlen($details) > 100) {
-    echo json_encode(['error' => 'Details too long']);
+if ($reason === '' || $details === '') {
+    echo json_encode(['error' => 'Reason and details are required']);
+    exit;
+}
+
+if (!in_array($reason, $allowedReasons, true)) {
+    echo json_encode(['error' => 'Invalid report reason']);
+    exit;
+}
+
+$articleExists = DB::first(
+    "SELECT id FROM articles WHERE id = ? AND status = 'published'",
+    [$articleId]
+);
+
+if (!$articleExists) {
+    echo json_encode(['error' => 'Article not found']);
+    exit;
+}
+
+$detailsError = validate_article_flag_details($details);
+if ($detailsError !== null) {
+    echo json_encode(['error' => $detailsError]);
     exit;
 }
 
@@ -46,60 +69,7 @@ DB::execute(
     [$userId, $articleId, $reason, $details]
 );
 
-// ===== CALL N8N FOR AI TRIAGE =====
-$articleRow = DB::first(
-    "SELECT a.id, a.title, a.excerpt, a.content, a.category_id,
-            c.name AS category_name, c.description AS category_description
-     FROM articles a
-     LEFT JOIN categories c ON c.id = a.category_id
-     WHERE a.id = ?",
-    [$articleId]
-);
-
-$payload = [
-    'reporter' => ['user_id' => $userId],
-    'article'  => [
-        'id'          => $articleId,
-        'title'       => $articleRow['title']   ?? '',
-        'excerpt'     => $articleRow['excerpt'] ?? '',
-        'content'     => $articleRow['content'] ?? '',
-        'category_id' => $articleRow['category_id'] ?? 0,
-        'category_name' => $articleRow['category_name'] ?? '',
-    ],
-    'category' => [
-        'id'          => $articleRow['category_id']          ?? 0,
-        'name'        => $articleRow['category_name']        ?? '',
-        'description' => $articleRow['category_description'] ?? '',
-    ],
-    'flag' => [
-        'reason'  => $reason,
-        'details' => $details,
-    ],
-];
-
-$ch = curl_init(N8N_FLAG_WEBHOOK_URL);
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'x-ss-secret: ' . N8N_SHARED_SECRET,
-    ],
-    CURLOPT_POSTFIELDS => json_encode($payload),
-    CURLOPT_TIMEOUT => 15,
-]);
-
-$response = curl_exec($ch);
-$err      = curl_error($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-error_log("n8n httpCode=" . $httpCode);
-error_log("n8n curlErr=" . $err);
-error_log("n8n response=" . $response);
-
-// Optional: if you want to hard-fail when n8n rejects:
-// if ($httpCode >= 400) { echo $response; exit; }
+AuditLogger::log($userId, 'flag_article', 'Article', $articleId, 'Flagged article: ' . $reason);
 
 // ===== SUCCESS =====
 echo json_encode(['ok' => true]);

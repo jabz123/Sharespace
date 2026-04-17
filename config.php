@@ -9,14 +9,12 @@ define('DB_USER', 'shareduser');
 define('DB_PASS', 'password123'); 
 date_default_timezone_set('Asia/Singapore');
 
-//jerel's API key for n8n workflow
-if (!defined('N8N_SHARED_SECRET')) {
-    define('N8N_SHARED_SECRET', 'X9a7QwLm2Zp4RtVb6Yc8HsJd0Nk3UfEi');
-}
-define('N8N_FLAG_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud/webhook/flag-triage');
+define('APP_BASE_URL', 'https://sharedspace.srv1502312.hstgr.cloud');
+define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud/webhook/sharedspace-feedback-sentiment');
+define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'ss_feedback_cb_2026_4uH9mQ2pL7xKc8Rv');
 
 //dylan's groq api key, for article shit, changed from gemini cos i am a jew and this is free.
-define('GROQ_API_KEY', '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');
+define('GROQ_API_KEY', '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');
 
 //stripe shit
 define('STRIPE_PUBLIC_KEY',  'pk_test_51TJAljQbEqKAvs55VRP6eLrnKdPbJymWgZ0B5oWgzl8N4DHOJ8muCR8Mr25vSsNKjB702hyrCOWEAZCW9x6GktlA00nf9EAGSS');
