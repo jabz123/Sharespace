@@ -331,6 +331,10 @@ class AuthController {
         // get current user
         $user = $this->currentUser();
 
+        if ($user && $user->role === 'ai_trainer') {
+            return;
+        }
+
         // check if onboarding completed
         $onboardCtrl = new OnboardingController();
         if (!$onboardCtrl->isCompleted($user->id)) {

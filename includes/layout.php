@@ -56,6 +56,16 @@ function sidebar(User $user): void {
             ['href' => '/pages/admin-audit-log.php',  'key' => 'audit',   'label' => 'Audit Log'],
             ['href' => '/pages/profile.php',          'key' => 'profile', 'label' => 'Profile'],
         ];
+    } elseif ($user->role === 'ai_trainer') {
+        $links = [
+            ['href' => '/pages/ai-trainer-home.php', 'key' => 'home', 'label' => 'Home'],
+            ['href' => '/pages/browse.php', 'key' => 'browse', 'label' => 'Browse Articles'],
+            ['href' => '/pages/ai-trainer-dashboard.php', 'key' => 'ai', 'label' => 'AI Dashboard'],
+            ['href' => '/pages/ai-trainer-datasets.php', 'key' => 'library', 'label' => 'Datasets'],
+            ['href' => '/pages/ai-trainer-accuracy.php', 'key' => 'metrics', 'label' => 'Accuracy Metrics'],
+            ['href' => '/pages/ai-trainer-calibration.php', 'key' => 'settings', 'label' => 'Calibration'],
+            ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
+        ];
     } elseif ($user->role === 'category_admin') {
         $links = [
             ['href' => '/pages/category-admin-dashboard.php', 'key' => 'home', 'label' => 'Home'],
@@ -82,7 +92,7 @@ function sidebar(User $user): void {
 <aside class="sidebar">
     <div class="sidebar-logo">
         <?php sharedspace_brand(
-            $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php'),
+            $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'ai_trainer' ? '/pages/ai-trainer-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php')),
             'light',
             'sidebar-brand'
         ); ?>
@@ -105,6 +115,8 @@ function sidebar(User $user): void {
                 <span class="role-badge premium">Premium</span>
             <?php elseif ($user->role === 'system_admin'): ?>
                 <span class="role-badge system-admin">System Admin</span>
+            <?php elseif ($user->role === 'ai_trainer'): ?>
+                <span class="role-badge ai-trainer">AI Trainer</span>
             <?php elseif ($user->role === 'category_admin'): ?>
                 <span class="role-badge category-admin">Category Expert</span>
                 <?php

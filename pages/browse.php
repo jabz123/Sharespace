@@ -20,6 +20,7 @@ $commentCtrl = new CommentController();
 $auth->requireAuth();
 $user = $auth->currentUser();
 $isSystemAdmin = $user->role === 'system_admin';
+$isTrainer = $user->role === 'ai_trainer';
 
 $category = $_GET['category'] ?? null;
 $sort = $_GET['sort'] ?? 'recent';
@@ -39,7 +40,7 @@ $activeSortLabel = $sort === 'trusted' ? 'Most trusted first' : 'Newest first';
 page_head('Browse Articles');
 ?>
 
-<?php if ($isSystemAdmin): ?>
+<?php if ($isSystemAdmin || $isTrainer): ?>
 <div class="dashboard-layout browse-admin-shell">
 
     <?php sidebar($user); ?>

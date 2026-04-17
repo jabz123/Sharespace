@@ -54,6 +54,31 @@ CREATE TABLE articles (
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE ai_trainer_analyses (
+    id               INT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    article_id       INT      NOT NULL,
+    trust_score      TINYINT  NOT NULL DEFAULT 80,
+    factual_accuracy TINYINT  NOT NULL DEFAULT 80,
+    source_quality   TINYINT  NOT NULL DEFAULT 80,
+    bias_detection   TINYINT  NOT NULL DEFAULT 80,
+    analysed_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes            TEXT,
+    UNIQUE KEY uq_ai_trainer_article (article_id),
+    INDEX idx_ai_trainer_trust_score (trust_score),
+    INDEX idx_ai_trainer_analysed_at (analysed_at),
+    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE ai_trainer_calibration_settings (
+    id            INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    setting_key   VARCHAR(100) NOT NULL,
+    setting_value VARCHAR(255) NOT NULL,
+    updated_by    INT,
+    updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_ai_trainer_setting (setting_key),
+    INDEX idx_ai_trainer_setting_updated_by (updated_by)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE comments (
     id         INT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
     article_id INT      NOT NULL,
@@ -137,7 +162,8 @@ INSERT INTO users (email, password, full_name, bio, role, is_premium, created_at
 ('alex.morgan@example.com',   '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Alex Morgan',   'Technology and business journalist covering emerging markets.',  'free', 0, '2024-03-01 08:00:00'),
 ('priya.sharma@example.com',  '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Priya Sharma',  'Freelance writer covering health, wellness, and nutrition.',     'free', 0, '2024-03-03 09:00:00'),
 ('lucas.ford@example.com',    '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'Lucas Ford',    'Independent journalist covering science and the environment.',  'free', 0, '2024-03-05 10:00:00'),
-('reader@example.com',        '$2y$12$gxbVunjvFtZxnQCMc58fHej3sEpCV4rMb5TbKhxjjXAOn99Pjvg8e', 'Jamie Lee',     'Avid reader interested in science and technology news.',         'free', 0, '2024-04-01 08:00:00');
+('reader@example.com',        '$2y$12$gxbVunjvFtZxnQCMc58fHej3sEpCV4rMb5TbKhxjjXAOn99Pjvg8e', 'Jamie Lee',     'Avid reader interested in science and technology news.',         'free', 0, '2024-04-01 08:00:00'),
+('ai.trainer@example.com',    '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu', 'AI Trainer',    'Model trainer account for reviewing AI trust analysis.',         'ai_trainer', 0, '2024-04-02 08:00:00');
 
 
 
@@ -218,4 +244,21 @@ INSERT INTO comments (article_id, user_id, content, created_at) VALUES
 (9, 4, 'Ireland have been extraordinary to watch this tournament. Crowley stepping into Sexton''s boots seamlessly is remarkable.', '2025-03-17 09:00:00'),
 (11, 2, 'The cardiovascular outcomes data from SELECT is genuinely impressive. Good to see approvals based on endpoints beyond weight loss.', '2025-01-26 10:00:00');
 
+INSERT INTO ai_trainer_calibration_settings (setting_key, setting_value) VALUES
+('publishing_threshold', '60'),
+('factual_accuracy_weight', '60'),
+('source_quality_weight', '60'),
+('bias_detection_weight', '60'),
+('strict_mode', '0');
+
+INSERT INTO ai_trainer_analyses
+    (article_id, trust_score, factual_accuracy, source_quality, bias_detection, analysed_at)
+SELECT
+    id,
+    trust_score,
+    LEAST(100, trust_score + 4),
+    GREATEST(0, trust_score - 2),
+    GREATEST(0, trust_score - 6),
+    NOW()
+FROM articles;
 
