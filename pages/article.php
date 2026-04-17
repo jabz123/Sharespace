@@ -105,7 +105,7 @@ page_head($article->title);
                     </div>
 
                     <?php if ($user->role !== 'system_admin'): ?>
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-4" style="position: relative;">
                             <button class="icon-btn" id="saveBtn" title="Save">
                                 <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/Bookmark.png' ?>"
                                     data-default="/public/icons/Bookmark.png"
@@ -117,11 +117,20 @@ page_head($article->title);
                                 <?= $alreadyFlagged ? 'disabled' : '' ?> title="<?= $alreadyFlagged ? 'Already flagged' : 'Flag' ?>">
                                 <img src="/public/icons/flag.png" alt="Flag article">
                             </button>
-
+                            <div style="position: relative;">
                             <button class="icon-btn" id="shareBtn" title="Share">
                                 <img src="/public/icons/share.png" alt="Share article">
                             </button>
-                        </div>
+                            </div>  
+                            <div id="shareMenu" class="share-menu hidden">
+                            <button class="share-option" data-platform="whatsapp">WhatsApp</button>
+                            <button class="share-option" data-platform="telegram">Telegram</button>
+                            <button class="share-option" data-platform="twitter">Twitter</button>
+                            <button class="share-option" data-platform="email">Email</button>
+                            <button class="share-option" data-platform="print">Print</button>
+                            <button class="share-option" data-platform="copy">Copy Link</button>
+                            </div>
+                                                </div>
                     <?php endif; ?>
                 </div>
 
