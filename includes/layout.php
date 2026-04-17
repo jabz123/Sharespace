@@ -19,7 +19,37 @@ function page_head(string $title): void {
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/public/css/app.css" />
+<link rel="stylesheet" href="/public/css/app.css?v=<?= filemtime(__DIR__ . '/../public/css/app.css') ?>" />
+<style>
+body.page-ai-trainer-dashboard .alert-success,
+body.page-ai-trainer-datasets .alert-success,
+body.page-ai-trainer-accuracy-metrics .alert-success,
+body.page-ai-trainer-calibration .alert-success,
+body.page-ai-trainer-home .alert-success {
+    background: #f0fff6 !important;
+    border: 1px solid #a3e6c0 !important;
+    color: #1a6040 !important;
+    font-weight: 700 !important;
+}
+body.page-ai-trainer-dashboard .alert-error,
+body.page-ai-trainer-datasets .alert-error,
+body.page-ai-trainer-accuracy-metrics .alert-error,
+body.page-ai-trainer-calibration .alert-error,
+body.page-ai-trainer-home .alert-error {
+    background: #fff0f2 !important;
+    border: 1px solid #fcc !important;
+    color: #8b1a2a !important;
+    font-weight: 700 !important;
+}
+body.page-ai-trainer-dashboard .alert,
+body.page-ai-trainer-datasets .alert,
+body.page-ai-trainer-accuracy-metrics .alert,
+body.page-ai-trainer-calibration .alert,
+body.page-ai-trainer-home .alert {
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+</style>
 </head>
 <body class="page-<?= htmlspecialchars($slug) ?>">
 <?php }

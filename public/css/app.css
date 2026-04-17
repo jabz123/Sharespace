@@ -7157,6 +7157,62 @@ body.page-ai-trainer-home {
     color: #5a7090 !important;
 }
 
+.ai-trainer-shell .alert {
+    background: #f7faff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+}
+
+.ai-trainer-shell .alert-success {
+    background: #f0fff6 !important;
+    border-color: #a3e6c0 !important;
+    color: #1a6040 !important;
+    font-weight: 700 !important;
+}
+
+.ai-trainer-shell .alert-error {
+    background: #fff0f2 !important;
+    border-color: #fcc !important;
+    color: #8b1a2a !important;
+    font-weight: 700 !important;
+}
+
+.ai-trainer-shell .alert *,
+.ai-trainer-shell .modal *,
+body.page-ai-trainer-dashboard .toast *,
+body.page-ai-trainer-datasets .toast *,
+body.page-ai-trainer-accuracy-metrics .toast *,
+body.page-ai-trainer-calibration .toast *,
+body.page-ai-trainer-home .toast * {
+    color: inherit !important;
+}
+
+body.page-ai-trainer-dashboard .toast,
+body.page-ai-trainer-datasets .toast,
+body.page-ai-trainer-accuracy-metrics .toast,
+body.page-ai-trainer-calibration .toast,
+body.page-ai-trainer-home .toast {
+    background: #ffffff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+    box-shadow: 0 18px 40px rgba(28, 45, 79, 0.18) !important;
+}
+
+body.page-ai-trainer-dashboard .toast button,
+body.page-ai-trainer-datasets .toast button,
+body.page-ai-trainer-accuracy-metrics .toast button,
+body.page-ai-trainer-calibration .toast button,
+body.page-ai-trainer-home .toast button {
+    color: #16233f !important;
+}
+
+.ai-trainer-shell .modal-content,
+.ai-trainer-shell .card[style*="max-width"] {
+    background: #ffffff !important;
+    color: #16233f !important;
+    border: 1px solid #dce8f4 !important;
+}
+
 .nav-icon-ai { background: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.16); }
 .nav-icon-metrics { background: #22c55e; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16); }
 .nav-icon-settings { background: #f87171; box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16); }
