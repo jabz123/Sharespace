@@ -16,7 +16,7 @@ class UserController {
                 u.avatar_url, 
                 u.role, 
                 u.bio,  
-                COUNT(a.id) AS article_count
+                SUM(a.status = 'published') AS article_count
             FROM users u
             LEFT JOIN articles a ON a.author_id = u.id
             WHERE u.onboarding_completed = 1
@@ -77,7 +77,7 @@ class UserController {
                 u.avatar_url,
                 u.role,
                 u.bio,
-                COUNT(a.id) AS article_count
+                SUM(a.status = 'published') AS article_count
             FROM users u
             LEFT JOIN articles a ON a.author_id = u.id
             WHERE u.id = ?

@@ -14,7 +14,7 @@ $search = $_GET['search'] ?? null;
 
 // pagination ready (same style as browse page)
 $page = max(1, (int)($_GET['page'] ?? 1));
-$perPage = 24;
+$perPage = 20;
 $offset = ($page - 1) * $perPage;
 
 $totalUsers = $userCtrl->countUsers($search, $user->id);
