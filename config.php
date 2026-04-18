@@ -14,8 +14,9 @@ define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud
 define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'ss_feedback_cb_2026_4uH9mQ2pL7xKc8Rv');
 
 //dylan's api key, for article shit, changed from gemini cos i am a jew and this is free. 
-//openrouter api key.
-define('SUMMARY_API_KEY', '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');
+//openrouter api key. Hidden inside repo secrets.
+define('SUMMARY_API_KEY', getenv('SUMMARY_API_KEY') ?: '');
+//define('SUMMARY_API_KEY', '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');
 //define('SUMMARY_API_KEY', 'AIzaSyBUvEUMvHFbh1RfcbP8U1KDLisajM9SVKc');
 
 //stripe shit
