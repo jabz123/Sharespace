@@ -638,6 +638,7 @@ textarea {
 
 .page-content {
     padding: 32px;
+    background-color: rgb(31, 31, 31);
 }
 
 
@@ -3040,7 +3041,7 @@ body:has(.browse-page-shell) {
 }
 
 .dash-header {
-    background: transparent;
+    background: black;
     padding: 26px 32px 22px;
 }
 
@@ -3395,8 +3396,8 @@ label {
 }
 
 .tts-btn.play {
-    background: var(--primary);
-    color: #06090f;
+    background: black;
+    color: white;
     border: none;
 }
 

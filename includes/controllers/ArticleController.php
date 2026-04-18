@@ -421,5 +421,40 @@ class ArticleController {
 
     return (int)$row['total'];
 }
+    // use for user-profile pagination
+    public function countByAuthor(int $authorId): int {
+        $result = DB::first(
+            "SELECT COUNT(*) as total FROM articles WHERE author_id = ?",
+            [$authorId]
+        );
+
+        return (int)($result['total'] ?? 0);
+    }
+
+    // use for user-profile pagination
+    public function getByAuthorPaginated(int $authorId, int $limit, int $offset): array {
+
+        $rows = DB::query(
+            "SELECT 
+                a.*,
+                u.full_name AS author_name,
+                c.name AS category_name,
+                COUNT(DISTINCT v.id) AS view_count,
+                COUNT(DISTINCT f.id) AS flag_count
+            FROM articles a
+            JOIN users u ON u.id = a.author_id
+            JOIN categories c ON c.id = a.category_id
+            LEFT JOIN article_views v ON v.article_id = a.id
+            LEFT JOIN article_flags f ON f.article_id = a.id
+            WHERE a.author_id = ?
+            AND a.status = 'published'
+            GROUP BY a.id
+            ORDER BY view_count DESC, a.published_at DESC
+            LIMIT ? OFFSET ?",
+            [$authorId, $limit, $offset]
+        );
+
+        return array_map(fn($r) => new Article($r), $rows);
+    }
 
  }

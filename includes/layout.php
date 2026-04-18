@@ -85,6 +85,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/admin-landing.php',    'key' => 'landing', 'label' => 'Manage Landing Page'],
             ['href' => '/pages/admin-audit-log.php',  'key' => 'audit',   'label' => 'Audit Log'],
             ['href' => '/pages/profile.php',          'key' => 'profile', 'label' => 'Profile'],
+            
         ];
     } elseif ($user->role === 'ai_trainer') {
         $links = [
@@ -95,6 +96,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/ai-trainer-accuracy.php', 'key' => 'metrics', 'label' => 'Accuracy Metrics'],
             ['href' => '/pages/ai-trainer-calibration.php', 'key' => 'settings', 'label' => 'Calibration'],
             ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
+
         ];
     } elseif ($user->role === 'category_admin') {
         $links = [
@@ -106,6 +108,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/my-articles.php', 'key' => 'articles', 'label' => 'My Articles'],
             ['href' => '/pages/write.php', 'key' => 'compose', 'label' => 'Write Article'],
             ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
+            ['href' => '/pages/users.php', 'key' => 'users', 'label' => 'Discover Users'],
         ];
     } else {
         $links = [
@@ -116,6 +119,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
             ['href' => '/pages/savedarticles.php', 'key' => 'saved', 'label' => 'Saved Articles'],
             ['href' => '/pages/subscription.php', 'key' => 'membership', 'label' => $user->role === 'premium' ? 'Subscription' : 'Upgrade'],
+            ['href' => '/pages/users.php', 'key' => 'users', 'label' => 'Discover Users'],
         ];
     }
     ?>
