@@ -3,8 +3,9 @@
 /**
  * BOUNDARY — AI Article Overview endpoint (api/ai-overview.php)
  * Accessible to any logged-in user.
- * Accepts article_id via POST JSON, calls Groq, returns structured overview.
- * this is for the AI overview for the articles
+
+ * accepts article_id via POST JSON, calls OpenRouter, returns structured overview.
+ * some of the logic here is to reduce 429 rate-limit errors.
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
@@ -37,7 +38,7 @@ if (!$articleId) {
     exit;
 }
 
-// fetch article — any published article can do the AI summary
+// fetch article — any published/suspended article can do the AI summary
 $article = DB::first(
     "SELECT a.title, a.excerpt, a.content, a.trust_score,
             u.full_name AS author_name, c.name AS category_name
@@ -54,24 +55,56 @@ if (!$article) {
     exit;
 }
 
-$apiKey = GROQ_API_KEY;  // Change from GEMINI_API_KEY to use Groq, cos its free
+$apiKey = defined('SUMMARY_API_KEY') ? SUMMARY_API_KEY : '';
 if (!$apiKey) {
     http_response_code(500);
-    echo json_encode(['error' => 'Groq API key not configured.']);
+    echo json_encode(['error' => 'OpenRouter API key not configured.']);
     exit;
 }
 
-//this is for the ai overview, can change this if need be.
-//maybe can make it so that admin can edit this in the page? idk
+/**
+ * =========================
+ * File cache (no DB needed)
+ * =========================
+ */
+$cacheDir = dirname(__DIR__) . '/tmp';
+if (!is_dir($cacheDir)) {
+    @mkdir($cacheDir, 0775, true);
+}
+$cacheFile = $cacheDir . '/ai_overview_' . $articleId . '.json';
+$cacheTtlSeconds = 1800; // 30 minutes
+
+if (is_file($cacheFile)) {
+    $cachedRaw = @file_get_contents($cacheFile);
+    $cached = json_decode((string)$cachedRaw, true);
+
+    if (
+        is_array($cached) &&
+        isset($cached['created_at'], $cached['data']) &&
+        (time() - (int)$cached['created_at'] <= $cacheTtlSeconds)
+    ) {
+        echo json_encode($cached['data']);
+        exit;
+    }
+}
+
+// cap excerpt size to reduce token usage and rate limit pressure
+//should reduce error 429 shit
+$excerptRaw = (string)($article['excerpt'] ?? '');
+$safeExcerpt = function_exists('mb_substr')
+    ? mb_substr($excerptRaw, 0, 700)
+    : substr($excerptRaw, 0, 700);
+
+// prompt for ai
 $prompt = <<<PROMPT
 You are an editorial assistant for SharedSpace, a news platform.
 Give the reader a quick, helpful AI overview of the following article.
- 
+
 Title: {$article['title']}
 Category: {$article['category_name']}
 Author: {$article['author_name']}
-Excerpt: {$article['excerpt']}
- 
+Excerpt: {$safeExcerpt}
+
 Respond ONLY with valid JSON, no markdown, no code fences:
 {
   "summary": "<3-4 sentence plain-language summary>",
@@ -81,59 +114,126 @@ Respond ONLY with valid JSON, no markdown, no code fences:
 }
 PROMPT;
 
-// new groq shit, replaces old gemini shit
-$url = 'https://api.groq.com/openai/v1/chat/completions';
+$url = 'https://openrouter.ai/api/v1/chat/completions';
 
-$payload = [
-    'model' => 'llama-3.3-70b-versatile',
-    'messages' => [
-        ['role' => 'user', 'content' => $prompt]
-    ],
-    'temperature' => 0.3,
-    'max_tokens' => 1000,
+// model fallback chain
+$models = [
+    'google/gemma-3-12b-it:free',
+    'meta-llama/llama-3.1-8b-instruct:free',
 ];
 
-$ch = curl_init($url);
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => json_encode($payload),
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $apiKey
-    ],
-    CURLOPT_TIMEOUT => 30,
-]);
+$finalResponse = null;
+$finalHttpCode = 0;
+$lastErrorBody = null;
 
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+foreach ($models as $model) {
+    // retry each model up to 3 times for transient errors
+    for ($attempt = 1; $attempt <= 3; $attempt++) {
+        $payload = [
+            'model' => $model,
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ],
+            'temperature' => 0.2,
+            'max_tokens' => 260,
+        ];
 
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+                'HTTP-Referer: https://sharedspace.srv1502312.hstgr.cloud',
+                'X-Title: SharedSpace'
+            ],
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_TIMEOUT => 30,
+        ]);
 
-if (!$response || $httpCode !== 200) {
-    error_log('Groq API Response: ' . $response);
-    error_log('Groq API Code: ' . $httpCode);
-    http_response_code(500);
-    echo json_encode(['error' => 'Groq API error. Code: ' . $httpCode, 'details' => json_decode($response, true)]);
+        $response = curl_exec($ch);
+        $curlErr = curl_error($ch);
+        $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $finalResponse = $response;
+        $finalHttpCode = $httpCode;
+        $lastErrorBody = json_decode((string)$response, true);
+
+        if ($curlErr) {
+            error_log("OpenRouter cURL error [{$model} attempt {$attempt}]: {$curlErr}");
+            continue;
+        }
+
+        if ($response && $httpCode === 200) {
+            break 2; // success across both loops
+        }
+
+        // Retry transient statuses
+        if (in_array($httpCode, [429, 500, 502, 503, 504], true)) {
+            // exponential-ish backoff: 1.5s, 3s, 6s
+            $sleepMicros = (int)(pow(2, $attempt) * 750000);
+            usleep($sleepMicros);
+            continue;
+        }
+
+        // non-retryable -> next model
+        break;
+    }
+}
+
+if (!$finalResponse || $finalHttpCode !== 200) {
+    if ($finalHttpCode === 429) {
+        http_response_code(429);
+        echo json_encode(['error' => 'AI is busy right now. Please retry in 30-60 seconds.']);
+        exit;
+    }
+
+    error_log('OpenRouter API HTTP code: ' . $finalHttpCode);
+    error_log('OpenRouter API response: ' . (string)$finalResponse);
+
+    http_response_code(502);
+    echo json_encode([
+        'error' => 'AI provider is unavailable right now. Please try again later.',
+        'code' => $finalHttpCode,
+        'details' => $lastErrorBody
+    ]);
     exit;
 }
 
-if (!$response || $httpCode !== 200) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Groq API error. Code: ' . $httpCode]);
-    exit;
-}
-
-// Parse response (Groq returns OpenAI format)
-$data = json_decode($response, true);
+// Parse response
+$data = json_decode((string)$finalResponse, true);
 $rawText = $data['choices'][0]['message']['content'] ?? '';
-$rawText = trim(preg_replace('/```json|```/i', '', $rawText));
+$rawText = trim((string)$rawText);
+
+// strip possible code fences
+$rawText = preg_replace('/^```json\s*/i', '', $rawText);
+$rawText = preg_replace('/^```\s*/i', '', $rawText);
+$rawText = preg_replace('/\s*```$/', '', $rawText);
+
 $result = json_decode($rawText, true);
 
 if (!$result || !isset($result['summary'])) {
+    error_log('AI invalid JSON payload: ' . $rawText);
     http_response_code(500);
     echo json_encode(['error' => 'AI did not return a valid response. Try again.']);
     exit;
 }
 
-echo json_encode($result);
+// normalize output
+$out = [
+    'summary' => (string)($result['summary'] ?? ''),
+    'key_points' => is_array($result['key_points'] ?? null) ? $result['key_points'] : [],
+    'tone' => (string)($result['tone'] ?? 'Informative'),
+    'read_time' => (string)($result['read_time'] ?? '3 min read'),
+];
+
+// cache result (best effort)
+@file_put_contents($cacheFile, json_encode([
+    'created_at' => time(),
+    'data' => $out
+]), LOCK_EX);
+
+echo json_encode($out);
