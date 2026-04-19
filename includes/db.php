@@ -50,6 +50,20 @@ class DB {
         return (int)self::get()->lastInsertId();
     }
 
+    private static function columnExists(string $table, string $column): bool {
+        $row = self::first(
+            'SELECT 1
+             FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = ?
+               AND TABLE_NAME = ?
+               AND COLUMN_NAME = ?
+             LIMIT 1',
+            [DB_NAME, $table, $column]
+        );
+
+        return $row !== null;
+    }
+
     public static function ensureCategoryExpertsTable(): void {
         if (self::$categoryExpertsReady) {
             return;
@@ -105,14 +119,18 @@ class DB {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
 
-        self::execute(
-            'ALTER TABLE articles
-             ADD COLUMN IF NOT EXISTS review_notice TEXT DEFAULT NULL'
-        );
-        self::execute(
-            'ALTER TABLE articles
-             ADD COLUMN IF NOT EXISTS review_notice_pending TINYINT(1) NOT NULL DEFAULT 0'
-        );
+        if (!self::columnExists('articles', 'review_notice')) {
+            self::execute(
+                'ALTER TABLE articles
+                 ADD COLUMN review_notice TEXT DEFAULT NULL'
+            );
+        }
+        if (!self::columnExists('articles', 'review_notice_pending')) {
+            self::execute(
+                'ALTER TABLE articles
+                 ADD COLUMN review_notice_pending TINYINT(1) NOT NULL DEFAULT 0'
+            );
+        }
 
         self::$articleReviewWorkflowReady = true;
     }

@@ -21,6 +21,7 @@ class Article {
     public bool   $hasMedia;
     public bool   $isPremiumOnly;
     public string $publishedAt;
+    public string $updatedAt;
     public int $viewCount;
     public string $status;
     public ?string $imagePath;
@@ -41,6 +42,7 @@ class Article {
         $this->hasMedia      = (bool)($row['has_media']       ?? false);
         $this->isPremiumOnly = (bool)($row['is_premium_only'] ?? false);
         $this->publishedAt   = $row['published_at'] ?? '';
+        $this->updatedAt     = $row['updated_at'] ?? $this->publishedAt;
         $this->imagePath = $row['image_path'] ?? null;
         $this->viewCount = $row['view_count'] ?? 0;
         $this->status = $row['status'] ?? 'published';
