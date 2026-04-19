@@ -8,6 +8,8 @@ require_once __DIR__ . '/../config.php';
 
 class DB {
     private static ?PDO $pdo = null;
+    private static bool $categoryExpertsReady = false;
+    private static bool $articleReviewWorkflowReady = false;
 
     public static function get(): PDO { //returns db connection using PDO
         if (self::$pdo === null) {
@@ -46,5 +48,72 @@ class DB {
     //return last inserted row
     public static function lastId(): int {
         return (int)self::get()->lastInsertId();
+    }
+
+    public static function ensureCategoryExpertsTable(): void {
+        if (self::$categoryExpertsReady) {
+            return;
+        }
+
+        self::execute(
+            'CREATE TABLE IF NOT EXISTS category_experts (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                category_id INT NOT NULL,
+                user_id INT NOT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_category_expert (category_id, user_id),
+                KEY idx_category_experts_user (user_id),
+                CONSTRAINT fk_category_experts_category
+                    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+                CONSTRAINT fk_category_experts_user
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+        );
+
+        self::execute(
+            'INSERT IGNORE INTO category_experts (category_id, user_id)
+             SELECT id, admin_user_id
+             FROM categories
+             WHERE admin_user_id IS NOT NULL'
+        );
+
+        self::$categoryExpertsReady = true;
+    }
+
+    public static function ensureArticleReviewWorkflow(): void {
+        if (self::$articleReviewWorkflowReady) {
+            return;
+        }
+
+        self::ensureCategoryExpertsTable();
+
+        self::execute(
+            'CREATE TABLE IF NOT EXISTS article_expert_reviews (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                article_id INT NOT NULL,
+                user_id INT NOT NULL,
+                status VARCHAR(20) NOT NULL DEFAULT "pending",
+                reviewed_at DATETIME DEFAULT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_article_expert_review (article_id, user_id),
+                KEY idx_article_expert_reviews_user (user_id),
+                KEY idx_article_expert_reviews_status (status),
+                CONSTRAINT fk_article_expert_reviews_article
+                    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
+                CONSTRAINT fk_article_expert_reviews_user
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+        );
+
+        self::execute(
+            'ALTER TABLE articles
+             ADD COLUMN IF NOT EXISTS review_notice TEXT DEFAULT NULL'
+        );
+        self::execute(
+            'ALTER TABLE articles
+             ADD COLUMN IF NOT EXISTS review_notice_pending TINYINT(1) NOT NULL DEFAULT 0'
+        );
+
+        self::$articleReviewWorkflowReady = true;
     }
 }

@@ -15,36 +15,8 @@ require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../AuditLogger.php';
 
 class AdminController {
-    private ?bool $categoryExpertTableReady = null;
-
     private function ensureCategoryExpertTable(): void {
-        if ($this->categoryExpertTableReady === true) {
-            return;
-        }
-
-        DB::execute(
-            'CREATE TABLE IF NOT EXISTS category_experts (
-                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                category_id INT NOT NULL,
-                user_id INT NOT NULL,
-                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY uq_category_expert (category_id, user_id),
-                KEY idx_category_experts_user (user_id),
-                CONSTRAINT fk_category_experts_category
-                    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
-                CONSTRAINT fk_category_experts_user
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
-        );
-
-        DB::execute(
-            'INSERT IGNORE INTO category_experts (category_id, user_id)
-             SELECT id, admin_user_id
-             FROM categories
-             WHERE admin_user_id IS NOT NULL'
-        );
-
-        $this->categoryExpertTableReady = true;
+        DB::ensureCategoryExpertsTable();
     }
 
     public function getAssignedCategoryForExpert(int $userId): ?array {
@@ -57,6 +29,19 @@ class AdminController {
              WHERE ce.user_id = ?
              ORDER BY c.name
              LIMIT 1',
+            [$userId]
+        );
+    }
+
+    public function getAssignedCategoriesForExpert(int $userId): array {
+        $this->ensureCategoryExpertTable();
+
+        return DB::query(
+            'SELECT c.id, c.name
+             FROM category_experts ce
+             JOIN categories c ON c.id = ce.category_id
+             WHERE ce.user_id = ?
+             ORDER BY c.name',
             [$userId]
         );
     }
@@ -437,6 +422,141 @@ class AdminController {
         );
         if (!$stillAssigned) {
             DB::execute("UPDATE users SET role = 'free' WHERE id = ?", [$userId]);
+        }
+    }
+
+    public function getUnverifiedArticlesForExpert(int $userId): array {
+        DB::ensureArticleReviewWorkflow();
+
+        return DB::query(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+                    aer.status AS reviewer_status,
+                    counts.total_reviews,
+                    counts.verified_reviews,
+                    counts.pending_reviews
+             FROM article_expert_reviews aer
+             JOIN articles a ON a.id = aer.article_id
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             JOIN (
+                 SELECT article_id,
+                        COUNT(*) AS total_reviews,
+                        SUM(CASE WHEN status = "verified" THEN 1 ELSE 0 END) AS verified_reviews,
+                        SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) AS pending_reviews
+                 FROM article_expert_reviews
+                 GROUP BY article_id
+             ) counts ON counts.article_id = a.id
+             WHERE aer.user_id = ?
+               AND aer.status = "pending"
+               AND a.status = "pending"
+             ORDER BY a.updated_at DESC, a.id DESC',
+            [$userId]
+        );
+    }
+
+    public function getUnverifiedArticleForExpert(int $userId, int $articleId): ?array {
+        DB::ensureArticleReviewWorkflow();
+
+        return DB::first(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+                    aer.status AS reviewer_status
+             FROM article_expert_reviews aer
+             JOIN articles a ON a.id = aer.article_id
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             WHERE aer.user_id = ?
+               AND aer.article_id = ?
+               AND a.status = "pending"',
+            [$userId, $articleId]
+        );
+    }
+
+    public function getExpertReviewProgress(int $articleId): array {
+        DB::ensureArticleReviewWorkflow();
+
+        return DB::query(
+            'SELECT aer.user_id, aer.status, aer.reviewed_at, u.full_name, u.email
+             FROM article_expert_reviews aer
+             JOIN users u ON u.id = aer.user_id
+             WHERE aer.article_id = ?
+             ORDER BY u.full_name',
+            [$articleId]
+        );
+    }
+
+    public function reviewPendingArticle(int $articleId, int $expertId, string $decision): array {
+        DB::ensureArticleReviewWorkflow();
+
+        $decision = $decision === 'unverified' ? 'unverified' : 'verified';
+
+        $review = DB::first(
+            'SELECT aer.id, aer.status, a.id AS article_id, a.status AS article_status, a.title
+             FROM article_expert_reviews aer
+             JOIN articles a ON a.id = aer.article_id
+             WHERE aer.article_id = ? AND aer.user_id = ?',
+            [$articleId, $expertId]
+        );
+        if (!$review) {
+            return ['error' => 'Review assignment not found for this article.'];
+        }
+        if (($review['article_status'] ?? '') !== 'pending') {
+            return ['error' => 'This article is no longer pending review.'];
+        }
+
+        $pdo = DB::get();
+        $pdo->beginTransaction();
+
+        try {
+            DB::execute(
+                'UPDATE article_expert_reviews
+                 SET status = ?, reviewed_at = NOW()
+                 WHERE article_id = ? AND user_id = ?',
+                [$decision, $articleId, $expertId]
+            );
+
+            if ($decision === 'unverified') {
+                DB::execute(
+                    'UPDATE articles
+                     SET status = ?, review_notice = ?, review_notice_pending = 1, updated_at = NOW()
+                     WHERE id = ?',
+                    ['draft', 'A category expert rejected this article during final verification. Please revise it and submit it again.', $articleId]
+                );
+                AuditLogger::log($expertId, 'reject_content', 'Article', $articleId, 'Rejected article during expert verification: ' . ($review['title'] ?? ('ID ' . $articleId)));
+            } else {
+                $summary = DB::first(
+                    'SELECT
+                        COUNT(*) AS total_reviews,
+                        SUM(CASE WHEN status = "verified" THEN 1 ELSE 0 END) AS verified_reviews,
+                        SUM(CASE WHEN status = "unverified" THEN 1 ELSE 0 END) AS unverified_reviews
+                     FROM article_expert_reviews
+                     WHERE article_id = ?',
+                    [$articleId]
+                );
+
+                $allVerified = (int)($summary['total_reviews'] ?? 0) > 0
+                    && (int)($summary['verified_reviews'] ?? 0) === (int)($summary['total_reviews'] ?? 0)
+                    && (int)($summary['unverified_reviews'] ?? 0) === 0;
+
+                if ($allVerified) {
+                    DB::execute(
+                        'UPDATE articles
+                         SET status = ?, published_at = NOW(), review_notice = NULL, review_notice_pending = 0, updated_at = NOW()
+                         WHERE id = ?',
+                        ['published', $articleId]
+                    );
+                    AuditLogger::log($expertId, 'approve_content', 'Article', $articleId, 'Completed expert verification and published article: ' . ($review['title'] ?? ('ID ' . $articleId)));
+                } else {
+                    AuditLogger::log($expertId, 'approve_content', 'Article', $articleId, 'Verified article during expert review: ' . ($review['title'] ?? ('ID ' . $articleId)));
+                }
+            }
+
+            $pdo->commit();
+            return ['ok' => true, 'title' => $review['title'] ?? 'Article'];
+        } catch (\Throwable $error) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
         }
     }
 

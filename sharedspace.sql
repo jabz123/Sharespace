@@ -41,7 +41,9 @@ CREATE TABLE `articles` (
   `published_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'published'
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'published',
+  `review_notice` text COLLATE utf8mb4_unicode_ci,
+  `review_notice_pending` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -114,6 +116,19 @@ CREATE TABLE `article_views` (
   `article_id` int NOT NULL,
   `viewed_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Table structure for table `article_expert_reviews`
+--
+
+CREATE TABLE `article_expert_reviews` (
+  `id` int NOT NULL,
+  `article_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `reviewed_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `article_views`
@@ -637,6 +652,15 @@ ALTER TABLE `article_flags`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `article_expert_reviews`
+--
+ALTER TABLE `article_expert_reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_article_expert_review` (`article_id`,`user_id`),
+  ADD KEY `idx_article_expert_reviews_user` (`user_id`),
+  ADD KEY `idx_article_expert_reviews_status` (`status`);
+
+--
 -- Indexes for table `article_views`
 --
 ALTER TABLE `article_views`
@@ -749,6 +773,12 @@ ALTER TABLE `article_flags`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `article_expert_reviews`
+--
+ALTER TABLE `article_expert_reviews`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `article_views`
 --
 ALTER TABLE `article_views`
@@ -843,6 +873,13 @@ ALTER TABLE `articles`
 ALTER TABLE `article_flags`
   ADD CONSTRAINT `article_flags_ibfk_1` FOREIGN KEY (`article_id`) REFERENCES `articles` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `article_flags_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `article_expert_reviews`
+--
+ALTER TABLE `article_expert_reviews`
+  ADD CONSTRAINT `article_expert_reviews_ibfk_1` FOREIGN KEY (`article_id`) REFERENCES `articles` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `article_expert_reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `article_views`

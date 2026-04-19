@@ -25,6 +25,8 @@ class Article {
     public string $status;
     public ?string $imagePath;
     public int $flagCount;
+    public ?string $reviewNotice;
+    public bool $reviewNoticePending;
 
     public function __construct(array $row) {
         $this->id            = (int)$row['id'];
@@ -43,6 +45,8 @@ class Article {
         $this->viewCount = $row['view_count'] ?? 0;
         $this->status = $row['status'] ?? 'published';
         $this->flagCount = (int)($row['flag_count'] ?? 0);
+        $this->reviewNotice = $row['review_notice'] ?? null;
+        $this->reviewNoticePending = (bool)($row['review_notice_pending'] ?? false);
     }
 
     //put user initial for default avatar cos no picture yyet

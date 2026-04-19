@@ -14,26 +14,7 @@ function assigned_category_for_expert(int $userId): ?array {
         return $cache[$userId];
     }
 
-    DB::execute(
-        'CREATE TABLE IF NOT EXISTS category_experts (
-            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            category_id INT NOT NULL,
-            user_id INT NOT NULL,
-            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY uq_category_expert (category_id, user_id),
-            KEY idx_category_experts_user (user_id),
-            CONSTRAINT fk_category_experts_category
-                FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
-            CONSTRAINT fk_category_experts_user
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
-    );
-    DB::execute(
-        'INSERT IGNORE INTO category_experts (category_id, user_id)
-         SELECT id, admin_user_id
-         FROM categories
-         WHERE admin_user_id IS NOT NULL'
-    );
+    DB::ensureCategoryExpertsTable();
 
     $cache[$userId] = DB::first(
         'SELECT c.id, c.name
@@ -134,6 +115,7 @@ function sidebar(User $user): void {
         $links = [
             ['href' => '/pages/category-admin-dashboard.php', 'key' => 'home', 'label' => 'Home'],
             ['href' => '/pages/browse.php', 'key' => 'browse', 'label' => 'Browse Articles'],
+            ['href' => '/pages/unverified-articles.php', 'key' => 'alerts', 'label' => 'Unverified Articles'],
             ['href' => '/pages/category-articles.php', 'key' => 'library', 'label' => 'Category Articles'],
             ['href' => '/pages/category-writers.php', 'key' => 'writers', 'label' => 'Category Writers'],
             ['href' => '/pages/flagged-articles.php', 'key' => 'alerts', 'label' => 'Flagged Articles'],

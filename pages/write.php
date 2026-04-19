@@ -39,6 +39,13 @@ if ($editId) {
     $isEdit = true;
 }
 
+$reviewNoticeToShow = null;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $isEdit && $article && $article->reviewNoticePending && !empty($article->reviewNotice)) {
+    $reviewNoticeToShow = $article->reviewNotice;
+    $articleCtrl->clearReviewNotice($editId, $user->id);
+    $article->reviewNoticePending = false;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? 'publish';
     $imagePath = $article->imagePath ?? null;
@@ -99,16 +106,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['trust_score'] = $verifiedTrustScore;
 
             if ($isEdit) {
-                $result = $articleCtrl->update($editId, $user->id, $_POST);
+                $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    redirect('/pages/my-articles.php', null, 'Article published!');
+                    redirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
                 }
             } else {
-                $result = $articleCtrl->publish($user->id, $_POST);
+                $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    redirect('/pages/my-articles.php', null, 'Article published!');
+                    redirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
                 }
             }
         }
@@ -387,6 +394,11 @@ body.page-edit-article .write-editor-form select option {
             $isEdit ? 'Update your article' : 'Share your story with the world'
         ); ?>
         <?php flash_messages(); ?>
+        <?php if ($reviewNoticeToShow): ?>
+            <div class="alert alert-error" style="margin:18px 28px 0;">
+                <?= htmlspecialchars($reviewNoticeToShow) ?>
+            </div>
+        <?php endif; ?>
 
         <div class="page-content write-layout write-editor-shell">
             <form method="POST" id="write-form" enctype="multipart/form-data" class="write-editor-form">
@@ -475,8 +487,8 @@ body.page-edit-article .write-editor-form select option {
                     </div>
                     <p class="publish-status text-muted" id="publishStatus">
                         <?= $verificationPassed
-                            ? 'AI verification passed. Publishing is unlocked.'
-                            : 'Run AI Fact Check and score at least 60% to unlock publishing.' ?>
+                            ? 'AI verification passed. Publishing will send this article to category experts for final approval.'
+                            : 'Run AI Fact Check and score at least 60% to unlock submission for category expert review.' ?>
                     </p>
                 </div>
             </form>
@@ -683,9 +695,9 @@ async function runAICheck() {
         verdictBox.style.color = trustScore >= verificationThreshold ? '#000' : '#111827';
 
         if (trustScore >= verificationThreshold) {
-            setPublishLockState(true, 'AI verification passed. Publishing is unlocked.');
+            setPublishLockState(true, 'AI verification passed. Publishing will send this article to category experts for final approval.');
         } else {
-            setPublishLockState(false, 'Trust score is below 60%. Publishing stays locked until the result is green.');
+            setPublishLockState(false, 'Trust score is below 60%. Submission stays locked until the result is green.');
         }
 
         resetAIStates();
@@ -707,8 +719,8 @@ document.querySelectorAll('input[name="title"], input[name="excerpt"], textarea[
 setPublishLockState(
     initialPublishUnlocked,
     initialPublishUnlocked
-        ? 'AI verification passed. Publishing is unlocked.'
-        : 'Run AI Fact Check and score at least 60% to unlock publishing.'
+        ? 'AI verification passed. Publishing will send this article to category experts for final approval.'
+        : 'Run AI Fact Check and score at least 60% to unlock submission for category expert review.'
 );
 </script>
 

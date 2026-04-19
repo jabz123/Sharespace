@@ -10,9 +10,56 @@ require_once __DIR__ . '/../entities/Category.php';
 require_once __DIR__ . '/../AuditLogger.php';
 
 class ArticleController {
+    private function ensureReviewWorkflow(): void {
+        DB::ensureArticleReviewWorkflow();
+    }
+
     private function resolveTrustScore(array $input): int {
         $score = (int)($input['trust_score'] ?? 80);
         return max(0, min(100, $score));
+    }
+
+    private function assignedExpertIdsForCategory(int $categoryId): array {
+        $this->ensureReviewWorkflow();
+
+        $rows = DB::query(
+            'SELECT user_id
+             FROM category_experts
+             WHERE category_id = ?
+             ORDER BY created_at, id',
+            [$categoryId]
+        );
+
+        return array_map(fn($row) => (int)$row['user_id'], $rows);
+    }
+
+    private function initializeExpertReviews(int $articleId, int $categoryId): array {
+        $expertIds = $this->assignedExpertIdsForCategory($categoryId);
+        if (empty($expertIds)) {
+            return ['error' => 'This category has no assigned experts yet. Ask an admin to assign category experts before publishing.'];
+        }
+
+        DB::execute('DELETE FROM article_expert_reviews WHERE article_id = ?', [$articleId]);
+        foreach ($expertIds as $expertId) {
+            DB::execute(
+                'INSERT INTO article_expert_reviews (article_id, user_id, status)
+                 VALUES (?, ?, ?)',
+                [$articleId, $expertId, 'pending']
+            );
+        }
+
+        return ['ok' => true];
+    }
+
+    public function clearReviewNotice(int $articleId, int $authorId): void {
+        $this->ensureReviewWorkflow();
+
+        DB::execute(
+            'UPDATE articles
+             SET review_notice_pending = 0
+             WHERE id = ? AND author_id = ?',
+            [$articleId, $authorId]
+        );
     }
 
     //returns n most recently published articles
@@ -64,6 +111,7 @@ class ArticleController {
 
     // edit articles including article draft 
     public function getByIdForAuthor(int $id, int $userId): ?Article {
+    $this->ensureReviewWorkflow();
     $row = DB::first(
             "SELECT a.*, u.full_name AS author_name, c.name AS category_name
             FROM articles a
@@ -88,6 +136,7 @@ class ArticleController {
     //returns all articles written by specific user, sort by date newest first
     //return Article[] array
     public function getByAuthor(int $authorId): array {
+        $this->ensureReviewWorkflow();
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count
@@ -105,6 +154,7 @@ class ArticleController {
     //returns all draft articles written by specific user
     //return Article[] array
     public function getDraftsByAuthor(int $authorId): array {
+        $this->ensureReviewWorkflow();
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name
             FROM articles a
@@ -117,9 +167,25 @@ class ArticleController {
         return array_map(fn($r) => new Article($r), $rows);
     }
 
+    public function getPendingByAuthor(int $authorId): array {
+        $this->ensureReviewWorkflow();
+
+        $rows = DB::query(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name
+             FROM articles a
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             WHERE a.author_id = ? AND a.status = "pending"
+             ORDER BY a.updated_at DESC',
+            [$authorId]
+        );
+        return array_map(fn($r) => new Article($r), $rows);
+    }
+
     //update existing article only author ownselfd can update
     //return ['ok' => true] or ['error' => '...']
     public function update(int $articleId, int $authorId, array $input): array {
+        $this->ensureReviewWorkflow();
         $title      = trim($input['title']       ?? '');
         $excerpt    = trim($input['excerpt']     ?? '');
         $content    = trim($input['content']     ?? '');
@@ -187,6 +253,7 @@ class ArticleController {
     //vvalidate article written by user and insert into db, returns result array with ok or error 
     
     public function publish(int $authorId, array $input): array {
+        $this->ensureReviewWorkflow();
         $title      = trim($input['title']       ?? '');
         $excerpt    = trim($input['excerpt']     ?? '');
         $content    = trim($input['content']     ?? '');
@@ -212,6 +279,102 @@ class ArticleController {
         AuditLogger::log($authorId, 'submit_content', 'Article', $articleId, 'Published article: ' . $title);
 
         return ['ok' => true, 'id' => $articleId];
+    }
+
+    public function submitForExpertReview(int $authorId, array $input): array {
+        $this->ensureReviewWorkflow();
+
+        $title      = trim($input['title'] ?? '');
+        $excerpt    = trim($input['excerpt'] ?? '');
+        $content    = trim($input['content'] ?? '');
+        $categoryId = (int)($input['category_id'] ?? 0);
+        $imagePath  = $input['image_path'] ?? null;
+        $trustScore = $this->resolveTrustScore($input);
+
+        if (!$title || !$excerpt || !$content || !$categoryId) {
+            return ['error' => 'All fields are required.'];
+        }
+        if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
+            return ['error' => 'Invalid category selected.'];
+        }
+
+        $pdo = DB::get();
+        $pdo->beginTransaction();
+
+        try {
+            DB::execute(
+                'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status, review_notice, review_notice_pending)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0)',
+                [$title, $excerpt, $content, $authorId, $categoryId, $trustScore, $imagePath, 'pending']
+            );
+            $articleId = DB::lastId();
+
+            $reviewInit = $this->initializeExpertReviews($articleId, $categoryId);
+            if (isset($reviewInit['error'])) {
+                $pdo->rollBack();
+                return $reviewInit;
+            }
+
+            AuditLogger::log($authorId, 'submit_content', 'Article', $articleId, 'Submitted article for category expert review: ' . $title);
+
+            $pdo->commit();
+            return ['ok' => true, 'id' => $articleId];
+        } catch (\Throwable $error) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
+        }
+    }
+
+    public function resubmitForExpertReview(int $articleId, int $authorId, array $input): array {
+        $this->ensureReviewWorkflow();
+
+        $title      = trim($input['title'] ?? '');
+        $excerpt    = trim($input['excerpt'] ?? '');
+        $content    = trim($input['content'] ?? '');
+        $categoryId = (int)($input['category_id'] ?? 0);
+        $trustScore = $this->resolveTrustScore($input);
+        $imagePath  = $input['image_path'] ?? null;
+
+        if (!$title || !$excerpt || !$content || !$categoryId) {
+            return ['error' => 'All fields are required.'];
+        }
+        if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
+            return ['error' => 'Invalid category selected.'];
+        }
+        if (!DB::first('SELECT id FROM articles WHERE id = ? AND author_id = ?', [$articleId, $authorId])) {
+            return ['error' => 'Article not found or permission denied.'];
+        }
+
+        $current = DB::first('SELECT title FROM articles WHERE id = ?', [$articleId]);
+        $pdo = DB::get();
+        $pdo->beginTransaction();
+
+        try {
+            DB::execute(
+                'UPDATE articles
+                 SET title = ?, excerpt = ?, content = ?, category_id = ?, trust_score = ?, image_path = ?, status = ?, review_notice = NULL, review_notice_pending = 0, updated_at = NOW()
+                 WHERE id = ? AND author_id = ?',
+                [$title, $excerpt, $content, $categoryId, $trustScore, $imagePath, 'pending', $articleId, $authorId]
+            );
+
+            $reviewInit = $this->initializeExpertReviews($articleId, $categoryId);
+            if (isset($reviewInit['error'])) {
+                $pdo->rollBack();
+                return $reviewInit;
+            }
+
+            AuditLogger::log($authorId, 'submit_content', 'Article', $articleId, 'Resubmitted article for category expert review: ' . ($current['title'] ?? $title));
+
+            $pdo->commit();
+            return ['ok' => true, 'id' => $articleId];
+        } catch (\Throwable $error) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
+        }
     }
 
     public function getByCategory($category = null, $sort = 'recent', $search = null, $limit = 12, $offset = 0): array {
@@ -334,7 +497,8 @@ class ArticleController {
         return array_map(fn($r) => new Article($r), $rows);
     }
 
-    public function saveDraft(int $authorId, array $input): array {
+public function saveDraft(int $authorId, array $input): array {
+    $this->ensureReviewWorkflow();
     $trustScore = $this->resolveTrustScore($input);
 
     DB::execute(

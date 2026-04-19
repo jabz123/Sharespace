@@ -54,15 +54,33 @@ CREATE TABLE articles (
     category_id     INT          NOT NULL,
     trust_score     TINYINT      NOT NULL DEFAULT 80,
     has_media       TINYINT(1)   NOT NULL DEFAULT 0,
+    image_path      VARCHAR(255) DEFAULT NULL,
     is_premium_only TINYINT(1)   NOT NULL DEFAULT 0,
     published_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    status          VARCHAR(20)  NOT NULL DEFAULT 'published',
+    review_notice   TEXT,
+    review_notice_pending TINYINT(1) NOT NULL DEFAULT 0,
     INDEX idx_author    (author_id),
     INDEX idx_category  (category_id),
     INDEX idx_published (published_at),
     FOREIGN KEY (author_id)   REFERENCES users(id)      ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE article_expert_reviews (
+    id          INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    article_id  INT          NOT NULL,
+    user_id     INT          NOT NULL,
+    status      VARCHAR(20)  NOT NULL DEFAULT 'pending',
+    reviewed_at DATETIME DEFAULT NULL,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_article_expert_review (article_id, user_id),
+    KEY idx_article_expert_reviews_user (user_id),
+    KEY idx_article_expert_reviews_status (status),
+    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE ai_trainer_analyses (
