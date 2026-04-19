@@ -4,6 +4,24 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
+function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
+    if ($error) {
+        flash_set('flash_error', $error);
+    }
+    if ($success) {
+        flash_set('flash_success', $success);
+    }
+
+    $escapedUrl = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
+    echo '<meta http-equiv="refresh" content="0;url=' . $escapedUrl . '">';
+    echo '<title>Redirecting...</title></head><body>';
+    echo '<script>window.top.location.href = ' . json_encode($url) . ';</script>';
+    echo '<p>Redirecting... If nothing happens, <a href="' . $escapedUrl . '">continue here</a>.</p>';
+    echo '</body></html>';
+    exit;
+}
+
 function buildArticleVerificationFingerprint(array $input, int $userId): string {
     $normalize = static function ($value): string {
         return trim(str_replace(["\r\n", "\r"], "\n", (string)$value));
@@ -38,7 +56,7 @@ $isEdit = false;
 if ($editId) {
     $article = $articleCtrl->getByIdForAuthor($editId, $user->id);
     if (!$article || $article->authorId !== $user->id) {
-        redirect('/pages/my-articles.php', 'Article not found or permission denied.');
+        pageRedirect('/pages/my-articles.php', 'Article not found or permission denied.');
     }
     $isEdit = true;
 }
@@ -90,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (isset($result['ok'])) {
-            redirect('/pages/my-articles.php', null, 'Draft saved!');
+            pageRedirect('/pages/my-articles.php', null, 'Draft saved!');
         }
     } else {
         $verification = $_SESSION['article_ai_verification'] ?? null;
@@ -113,13 +131,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    redirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
+                    pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
                 }
             } else {
                 $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    redirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
+                    pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
                 }
             }
         }
@@ -405,7 +423,7 @@ body.page-edit-article .write-editor-form select option {
         <?php endif; ?>
 
         <div class="page-content write-layout write-editor-shell">
-            <form method="POST" id="write-form" enctype="multipart/form-data" class="write-editor-form">
+            <form method="POST" action="/pages/write.php<?= $isEdit ? '?id=' . (int)$editId : '' ?>" id="write-form" enctype="multipart/form-data" class="write-editor-form">
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
                 <input type="hidden" name="trust_score" id="trustScoreInput" value="<?= (int)$val['trust_score'] ?>">
 
