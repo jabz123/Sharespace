@@ -5,7 +5,11 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
 function isAjaxRequest(): bool {
-    return strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
+    if (strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest') {
+        return true;
+    }
+
+    return isset($_POST['__ajax']) && $_POST['__ajax'] === '1';
 }
 
 function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
@@ -796,10 +800,12 @@ if (writeForm) {
         event.preventDefault();
 
         const formData = new FormData(writeForm, submitter);
+        formData.set('__ajax', '1');
         submitter.disabled = true;
 
         try {
             const response = await fetch(writeForm.action || window.location.pathname + window.location.search, {
+                credentials: 'same-origin',
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'

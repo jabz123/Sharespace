@@ -4,7 +4,11 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
 function isAjaxRequest(): bool {
-    return strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
+    if (strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest') {
+        return true;
+    }
+
+    return isset($_POST['__ajax']) && $_POST['__ajax'] === '1';
 }
 
 function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
@@ -223,11 +227,16 @@ document.querySelectorAll('form[data-review-form]').forEach((form) => {
 
         try {
             const response = await fetch(form.action || window.location.pathname, {
+                credentials: 'same-origin',
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: new FormData(form, submitter || undefined)
+                body: (() => {
+                    const formData = new FormData(form, submitter || undefined);
+                    formData.set('__ajax', '1');
+                    return formData;
+                })()
             });
 
             const data = await response.json();
