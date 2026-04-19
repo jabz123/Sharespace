@@ -84,19 +84,10 @@ function sidebar(User $user): void {
             ['href' => '/pages/browse.php',           'key' => 'browse',  'label' => 'Browse Articles'],
             ['href' => '/pages/admin-landing.php',    'key' => 'landing', 'label' => 'Manage Landing Page'],
             ['href' => '/pages/admin-audit-log.php',  'key' => 'audit',   'label' => 'Audit Log'],
+            ['href' => '/pages/admin-ai-dashboard.php', 'key' => 'ai', 'label' => 'AI Dashboard'],
+            ['href' => '/pages/admin-ai-calibration.php', 'key' => 'settings', 'label' => 'Calibration'],
             ['href' => '/pages/profile.php',          'key' => 'profile', 'label' => 'Profile'],
             
-        ];
-    } elseif ($user->role === 'ai_trainer') {
-        $links = [
-            ['href' => '/pages/ai-trainer-home.php', 'key' => 'home', 'label' => 'Home'],
-            ['href' => '/pages/browse.php', 'key' => 'browse', 'label' => 'Browse Articles'],
-            ['href' => '/pages/ai-trainer-dashboard.php', 'key' => 'ai', 'label' => 'AI Dashboard'],
-            ['href' => '/pages/ai-trainer-datasets.php', 'key' => 'library', 'label' => 'Datasets'],
-            ['href' => '/pages/ai-trainer-accuracy.php', 'key' => 'metrics', 'label' => 'Accuracy Metrics'],
-            ['href' => '/pages/ai-trainer-calibration.php', 'key' => 'settings', 'label' => 'Calibration'],
-            ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
-
         ];
     } elseif ($user->role === 'category_admin') {
         $links = [
