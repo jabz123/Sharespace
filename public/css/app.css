@@ -7885,3 +7885,346 @@ body.page-ai-trainer-home .toast button {
         display: none !important;
     }
 }
+
+/* System Admin AI pages */
+body.page-ai-dashboard,
+body.page-ai-calibration {
+    background: #edf3fb !important;
+    color: #16233f !important;
+}
+
+body.page-ai-dashboard .dashboard-layout,
+body.page-ai-calibration .dashboard-layout,
+body.page-ai-dashboard .admin-ai-shell,
+body.page-ai-calibration .admin-ai-shell {
+    background: #f0f5fc !important;
+}
+
+body.page-ai-dashboard .dashboard-layout main,
+body.page-ai-calibration .dashboard-layout main {
+    background: #f0f5fc !important;
+    min-height: 100vh !important;
+}
+
+body.page-ai-dashboard .page-content,
+body.page-ai-calibration .page-content {
+    background: #f0f5fc !important;
+}
+
+body.page-ai-dashboard .sidebar,
+body.page-ai-calibration .sidebar {
+    background: #1c2d4f !important;
+    border-right: 1px solid #162440 !important;
+}
+
+body.page-ai-dashboard .sidebar-logo,
+body.page-ai-calibration .sidebar-logo {
+    background: #1c2d4f !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+body.page-ai-dashboard .sidebar-user,
+body.page-ai-calibration .sidebar-user {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+}
+
+body.page-ai-dashboard .user-name,
+body.page-ai-calibration .user-name {
+    color: #ffffff !important;
+}
+
+body.page-ai-dashboard .role-badge,
+body.page-ai-calibration .role-badge {
+    background: rgba(255,255,255,0.12) !important;
+    color: #c8d8f8 !important;
+}
+
+body.page-ai-dashboard .nav-link,
+body.page-ai-calibration .nav-link {
+    color: #a8bdd8 !important;
+}
+
+body.page-ai-dashboard .nav-link:hover,
+body.page-ai-calibration .nav-link:hover,
+body.page-ai-dashboard .nav-link.active,
+body.page-ai-calibration .nav-link.active {
+    background: rgba(255,255,255,0.14) !important;
+    color: #ffffff !important;
+}
+
+body.page-ai-dashboard .dash-header,
+body.page-ai-calibration .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+}
+
+body.page-ai-dashboard .dash-title,
+body.page-ai-calibration .dash-title {
+    color: #16233f !important;
+}
+
+body.page-ai-dashboard .dash-subtitle,
+body.page-ai-calibration .dash-subtitle {
+    color: #5a7090 !important;
+}
+
+.admin-ai-content {
+    width: 100%;
+    max-width: none;
+    min-height: calc(100vh - 120px);
+    background: #f0f5fc !important;
+    box-sizing: border-box;
+}
+
+body.page-ai-dashboard .page-content.admin-ai-content,
+body.page-ai-calibration .page-content.admin-ai-content {
+    background: #f0f5fc !important;
+}
+
+.admin-ai-stat-grid {
+    max-width: 1320px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.admin-ai-stat-card,
+.admin-ai-card {
+    background: #ffffff !important;
+    border: 1px solid #dce8f4 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
+    color: #16233f !important;
+}
+
+.admin-ai-stat-card {
+    min-height: 116px;
+    padding: 20px 22px;
+}
+
+.admin-ai-stat-card span {
+    display: block;
+    color: #5a7090;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.admin-ai-stat-card strong {
+    color: #0f172a;
+    font-size: 30px;
+    line-height: 1;
+}
+
+.admin-ai-card {
+    max-width: 1320px;
+    padding: 24px;
+}
+
+.admin-ai-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.admin-ai-list {
+    display: grid;
+    gap: 10px;
+}
+
+.admin-ai-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid #edf3fb;
+}
+
+.admin-ai-list-row strong {
+    color: #16233f;
+}
+
+.admin-ai-list-row span {
+    color: #5a7090;
+    font-size: 12px;
+}
+
+.admin-ai-score {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-ai-score.high {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.admin-ai-score.medium {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.admin-ai-score.low {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.admin-ai-form {
+    display: grid;
+    gap: 28px;
+    max-width: 1120px;
+}
+
+.admin-ai-form h2 {
+    color: #16233f;
+    margin-bottom: 6px;
+}
+
+.admin-ai-form p {
+    color: #5a7090;
+    margin-bottom: 14px;
+}
+
+.admin-ai-form label,
+.admin-ai-weight-row output {
+    color: #16233f;
+    font-weight: 700;
+}
+
+.admin-ai-form input[type="range"] {
+    width: 100%;
+    accent-color: #1c2d4f;
+}
+
+.admin-ai-weight-row {
+    display: grid;
+    grid-template-columns: 180px minmax(180px, 1fr) 56px;
+    align-items: center;
+    gap: 16px;
+    padding-top: 18px;
+}
+
+.admin-ai-switch-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+}
+
+.admin-ai-switch-row input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-ai-switch {
+    position: relative;
+    width: 58px;
+    height: 30px;
+    border-radius: 999px;
+    background: #d1d5db;
+}
+
+.admin-ai-switch::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 5px rgba(15, 23, 42, 0.18);
+    transition: transform .15s;
+}
+
+.admin-ai-switch-row input:checked + .admin-ai-switch {
+    background: #1c2d4f;
+}
+
+.admin-ai-switch-row input:checked + .admin-ai-switch::after {
+    transform: translateX(28px);
+}
+
+body.page-ai-dashboard .btn-primary,
+body.page-ai-calibration .btn-primary {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+    border: 0 !important;
+}
+
+@media (max-width: 900px) {
+    .admin-ai-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-ai-card-head,
+    .admin-ai-list-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-ai-weight-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+/* Keep all System Admin pages on the same light surface. */
+body.page-admin-dashboard,
+body.page-manage-landing-page,
+body.page-audit-log,
+body.page-ai-dashboard,
+body.page-ai-calibration {
+    background: #edf3fb !important;
+    color: #16233f !important;
+}
+
+body.page-admin-dashboard .dashboard-layout,
+body.page-manage-landing-page .dashboard-layout,
+body.page-audit-log .dashboard-layout,
+body.page-ai-dashboard .dashboard-layout,
+body.page-ai-calibration .dashboard-layout,
+body.page-browse-articles .browse-admin-shell {
+    background: #f0f5fc !important;
+}
+
+body.page-admin-dashboard .dashboard-layout main,
+body.page-manage-landing-page .dashboard-layout main,
+body.page-audit-log .dashboard-layout main,
+body.page-ai-dashboard .dashboard-layout main,
+body.page-ai-calibration .dashboard-layout main,
+body.page-browse-articles .browse-admin-shell main {
+    min-height: 100vh !important;
+    background: #f0f5fc !important;
+}
+
+body.page-admin-dashboard .page-content,
+body.page-manage-landing-page .page-content,
+body.page-audit-log .page-content,
+body.page-ai-dashboard .page-content,
+body.page-ai-calibration .page-content,
+body.page-browse-articles .browse-admin-shell .page-content {
+    background: #f0f5fc !important;
+}
+
+body.page-admin-dashboard .dash-header,
+body.page-manage-landing-page .dash-header,
+body.page-audit-log .dash-header,
+body.page-ai-dashboard .dash-header,
+body.page-ai-calibration .dash-header,
+body.page-browse-articles .browse-admin-shell .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+}
