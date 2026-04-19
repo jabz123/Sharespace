@@ -17,11 +17,6 @@ if ($user->role === 'category_admin') {
     exit;
 }
 
-if ($user->role === 'ai_trainer') {
-    header('Location: /pages/ai-trainer-dashboard.php');
-    exit;
-}
-
 $recommended = $homeCtrl->getRecommendedByInterest($user->id);
 $ageGroupArticles = $homeCtrl->getPopularByAgeGroup($user->id);
 $genderArticles = $homeCtrl->getPopularByGender($user->id);
