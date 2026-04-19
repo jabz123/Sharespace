@@ -5,13 +5,17 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
 function buildArticleVerificationFingerprint(array $input, int $userId): string {
+    $normalize = static function ($value): string {
+        return trim(str_replace(["\r\n", "\r"], "\n", (string)$value));
+    };
+
     $payload = [
         'user_id' => $userId,
-        'title' => trim((string)($input['title'] ?? '')),
-        'excerpt' => trim((string)($input['excerpt'] ?? '')),
-        'content' => trim((string)($input['content'] ?? '')),
+        'title' => $normalize($input['title'] ?? ''),
+        'excerpt' => $normalize($input['excerpt'] ?? ''),
+        'content' => $normalize($input['content'] ?? ''),
         'category_id' => (int)($input['category_id'] ?? 0),
-        'source_url' => trim((string)($input['source_url'] ?? '')),
+        'source_url' => $normalize($input['source_url'] ?? ''),
     ];
 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
