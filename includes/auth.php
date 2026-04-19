@@ -36,9 +36,15 @@ function redirect(string $url, ?string $error = null, ?string $success = null): 
         $target = rtrim(APP_BASE_URL, '/') . $target;
     }
 
-    $statusCode = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') ? 303 : 302;
+    $isPostRedirect = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST');
+
+    if (!$isPostRedirect && !headers_sent()) {
+        header('Location: ' . $target, true, 302);
+        exit;
+    }
+
     if (!headers_sent()) {
-        header('Location: ' . $target, true, $statusCode);
+        header('Content-Type: text/html; charset=UTF-8');
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         header('Pragma: no-cache');
     }
