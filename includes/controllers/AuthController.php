@@ -332,7 +332,9 @@ class AuthController {
         $user = $this->currentUser();
 
         if ($user && $user->role === 'ai_trainer') {
-            return;
+            $this->logout();
+            header('Location: /login.php');
+            exit;
         }
 
         // check if onboarding completed
