@@ -15,10 +15,7 @@ if ($user->role !== 'category_admin') {
     exit;
 }
 
-$assignedCategory = DB::first(
-    'SELECT id, name FROM categories WHERE admin_user_id = ?',
-    [$user->id]
-);
+$assignedCategory = assigned_category_for_expert((int)$user->id);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     $action = $_POST['action'] ?? '';

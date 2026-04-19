@@ -7,6 +7,47 @@ require_once __DIR__ . '/controllers/ArticleController.php';
 require_once __DIR__ . '/controllers/CommentController.php';
 require_once __DIR__ . '/textlimit.php';
 
+function assigned_category_for_expert(int $userId): ?array {
+    static $cache = [];
+
+    if (array_key_exists($userId, $cache)) {
+        return $cache[$userId];
+    }
+
+    DB::execute(
+        'CREATE TABLE IF NOT EXISTS category_experts (
+            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            category_id INT NOT NULL,
+            user_id INT NOT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_category_expert (category_id, user_id),
+            KEY idx_category_experts_user (user_id),
+            CONSTRAINT fk_category_experts_category
+                FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+            CONSTRAINT fk_category_experts_user
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+    DB::execute(
+        'INSERT IGNORE INTO category_experts (category_id, user_id)
+         SELECT id, admin_user_id
+         FROM categories
+         WHERE admin_user_id IS NOT NULL'
+    );
+
+    $cache[$userId] = DB::first(
+        'SELECT c.id, c.name
+         FROM category_experts ce
+         JOIN categories c ON c.id = ce.category_id
+         WHERE ce.user_id = ?
+         ORDER BY c.name
+         LIMIT 1',
+        [$userId]
+    );
+
+    return $cache[$userId];
+}
+
 function page_head(string $title): void {
     $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title), '-'));
 ?>
@@ -145,10 +186,7 @@ function sidebar(User $user): void {
             <?php elseif ($user->role === 'category_admin'): ?>
                 <span class="role-badge category-admin">Category Expert</span>
                 <?php
-                $assignedCategory = DB::first(
-                    'SELECT name FROM categories WHERE admin_user_id = ?',
-                    [$user->id]
-                );
+                $assignedCategory = assigned_category_for_expert((int)$user->id);
                 if ($assignedCategory): ?>
                     <span class="role-badge category-name"><?= htmlspecialchars($assignedCategory['name']) ?></span>
                 <?php endif; ?>

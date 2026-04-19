@@ -122,10 +122,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'unassign_expert') {
         $categoryId = (int)($_POST['category_id'] ?? 0);
-        $result     = $adminCtrl->unassignExpert($categoryId);
+        $expertId   = (int)($_POST['user_id'] ?? 0);
+        $result     = $adminCtrl->unassignExpert($categoryId, $expertId);
         if (isset($result['ok'])) {
-            $adminCtrl->logAction($user->id, 'unassign_role', 'User', null,
-                "Unassigned category_admin from category (ID: {$categoryId})");
+            $adminCtrl->logAction($user->id, 'unassign_role', 'User', $expertId ?: null,
+                "Unassigned category_admin from category (category ID: {$categoryId}, user ID: {$expertId})");
             redirect('/pages/admin-dashboard.php?tab=experts', null, 'Category expert removed.');
         }
         redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
@@ -518,7 +519,7 @@ page_head('Admin Dashboard');
                     Manage Category Experts
                 </h2>
                 <p style="font-size:13px;color:var(--muted)">
-                    Assign one expert per category. Experts get the <strong style="font-weight:600">Category Admin</strong> role
+                    Assign one or more experts per category. Experts get the <strong style="font-weight:600">Category Admin</strong> role
                     and can manage articles in their assigned category.
                 </p>
             </div>
@@ -531,8 +532,8 @@ page_head('Admin Dashboard');
                     <thead>
                         <tr style="border-bottom:2px solid var(--border)">
                             <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Category</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Assigned Expert</th>
-                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Expert Email</th>
+                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Assigned Experts</th>
+                            <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600">Summary</th>
                             <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600">Actions</th>
                         </tr>
                     </thead>
@@ -543,14 +544,35 @@ page_head('Admin Dashboard');
                                 <span class="category-tag"><?= htmlspecialchars($cat['name']) ?></span>
                             </td>
                             <td style="padding:14px 8px;font-weight:600">
-                                <?php if ($cat['admin_user_id']): ?>
-                                    <?= htmlspecialchars($cat['expert_name']) ?>
-                                    <span style="font-size:10px;font-weight:500;padding:1px 7px;border-radius:99px;
-                                                 background:#ede9fe;color:#7c3aed;margin-left:6px">
-                                        Category Admin
-                                    </span>
+                                <?php if (!empty($cat['experts'])): ?>
+                                    <div style="display:flex;flex-direction:column;gap:8px">
+                                        <?php foreach ($cat['experts'] as $assignedExpert): ?>
+                                            <div>
+                                                <div style="font-weight:600">
+                                                    <?= htmlspecialchars($assignedExpert['full_name']) ?>
+                                                    <span style="font-size:10px;font-weight:500;padding:1px 7px;border-radius:99px;
+                                                                 background:#ede9fe;color:#7c3aed;margin-left:6px">
+                                                        Category Admin
+                                                    </span>
+                                                </div>
+                                                <div style="font-size:13px;color:var(--muted)">
+                                                    <?= htmlspecialchars($assignedExpert['email']) ?>
+                                                </div>
+                                                <form method="POST" style="margin-top:6px">
+                                                    <input type="hidden" name="action" value="unassign_expert">
+                                                    <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
+                                                    <input type="hidden" name="user_id" value="<?= (int)$assignedExpert['user_id'] ?>">
+                                                    <button type="submit" class="btn btn-ghost btn-sm"
+                                                            style="color:var(--danger)"
+                                                            onclick="return confirm('Remove \'<?= htmlspecialchars(addslashes($assignedExpert['full_name'])) ?>\' as expert for \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?')">
+                                                        Remove This Expert
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
                                 <?php else: ?>
-                                    <span style="color:var(--muted);font-weight:400;font-style:italic">No expert assigned</span>
+                                    <span style="color:var(--muted);font-weight:400;font-style:italic">No experts assigned</span>
                                 <?php endif; ?>
                             </td>
                             <td style="padding:14px 8px;color:var(--muted)">
@@ -580,10 +602,19 @@ page_head('Admin Dashboard');
                                                 <select name="user_id" class="form-input" style="font-size:13px" required>
                                                     <option value="">— choose a user —</option>
                                                     <?php foreach ($eligibleExperts as $expert): ?>
+                                                    <?php
+                                                    $alreadyAssigned = false;
+                                                    foreach ($cat['experts'] as $assignedExpert) {
+                                                        if ((int)$assignedExpert['user_id'] === (int)$expert['id']) {
+                                                            $alreadyAssigned = true;
+                                                            break;
+                                                        }
+                                                    }
+                                                    ?>
                                                     <option value="<?= $expert['id'] ?>"
-                                                        <?= $expert['id'] == $cat['admin_user_id'] ? 'selected' : '' ?>>
+                                                        <?= $alreadyAssigned ? 'disabled' : ($expert['id'] == $cat['admin_user_id'] ? 'selected' : '') ?>>
                                                         <?= htmlspecialchars($expert['full_name']) ?>
-                                                        (<?= htmlspecialchars($expert['email']) ?>)
+                                                        (<?= htmlspecialchars($expert['email']) ?>)<?= $alreadyAssigned ? ' - already assigned' : '' ?>
                                                     </option>
                                                     <?php endforeach; ?>
                                                 </select>

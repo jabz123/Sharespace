@@ -159,6 +159,17 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Table structure for table `category_experts`
+--
+
+CREATE TABLE `category_experts` (
+  `id` int NOT NULL,
+  `category_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Dumping data for table `categories`
 --
 
@@ -643,6 +654,14 @@ ALTER TABLE `categories`
   ADD KEY `admin_user_id` (`admin_user_id`);
 
 --
+-- Indexes for table `category_experts`
+--
+ALTER TABLE `category_experts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_category_expert` (`category_id`,`user_id`),
+  ADD KEY `idx_category_experts_user` (`user_id`);
+
+--
 -- Indexes for table `comments`
 --
 ALTER TABLE `comments`
@@ -742,6 +761,12 @@ ALTER TABLE `categories`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
+-- AUTO_INCREMENT for table `category_experts`
+--
+ALTER TABLE `category_experts`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
@@ -831,6 +856,13 @@ ALTER TABLE `article_views`
 --
 ALTER TABLE `categories`
   ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`admin_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `category_experts`
+--
+ALTER TABLE `category_experts`
+  ADD CONSTRAINT `category_experts_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `category_experts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `comments`

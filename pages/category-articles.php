@@ -23,10 +23,7 @@ if ($user->role !== 'category_admin') {
 }
 
 // get the category this admin is assigned to
-$assignedCategory = DB::first(
-    'SELECT id, name FROM categories WHERE admin_user_id = ?',
-    [$user->id]
-);
+$assignedCategory = assigned_category_for_expert((int)$user->id);
 
 $search = trim($_GET['search'] ?? '') ?: null;
 

@@ -21,10 +21,7 @@ if ($user->role !== 'category_admin') {
 }
 
 // get the category this admin is assigned to
-$assignedCategory = DB::first(
-    'SELECT id, name FROM categories WHERE admin_user_id = ?',
-    [$user->id]
-);
+$assignedCategory = assigned_category_for_expert((int)$user->id);
 
 // fetch all writers who have at least one published article in this category,
 // along with their article count for that category

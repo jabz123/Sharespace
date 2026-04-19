@@ -32,6 +32,17 @@ CREATE TABLE categories (
     FOREIGN KEY (admin_user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE category_experts (
+    id          INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    category_id INT          NOT NULL,
+    user_id     INT          NOT NULL,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_category_expert (category_id, user_id),
+    KEY idx_category_experts_user (user_id),
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- make field for images
 -- do in future
 CREATE TABLE articles (
