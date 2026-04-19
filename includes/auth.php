@@ -32,9 +32,6 @@ function redirect(string $url, ?string $error = null, ?string $success = null): 
     if ($success) $_SESSION['flash_success'] = $success;
 
     $target = $url;
-    if (!preg_match('~^https?://~i', $target) && str_starts_with($target, '/') && defined('APP_BASE_URL')) {
-        $target = rtrim(APP_BASE_URL, '/') . $target;
-    }
 
     $isPostRedirect = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST');
 
@@ -53,7 +50,7 @@ function redirect(string $url, ?string $error = null, ?string $success = null): 
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
     echo '<meta http-equiv="refresh" content="0;url=' . $escapedTarget . '">';
     echo '<title>Redirecting...</title></head><body>';
-    echo '<script>window.location.replace(' . json_encode($target) . ');</script>';
+    echo '<script>window.top.location.replace(' . json_encode($target) . ');</script>';
     echo '<p>Redirecting... If nothing happens, <a href="' . $escapedTarget . '">continue here</a>.</p>';
     echo '</body></html>';
     exit;
