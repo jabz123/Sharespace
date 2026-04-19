@@ -17,7 +17,8 @@ if ($auth->currentUser()) {
     if ($currentUser->role === 'system_admin') {
         header('Location: /pages/admin-dashboard.php');
     } elseif ($currentUser->role === 'ai_trainer') {
-        header('Location: /pages/ai-trainer-dashboard.php');
+        $auth->logout();
+        header('Location: /login.php');
     } elseif ($currentUser->role === 'category_admin') {
         header('Location: /pages/category-admin-dashboard.php');
     } else {
@@ -43,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user->role === 'system_admin') {
             header('Location: /pages/admin-dashboard.php');
         } elseif ($user->role === 'ai_trainer') {
-            header('Location: /pages/ai-trainer-dashboard.php');
+            $auth->logout();
+            header('Location: /login.php');
         } elseif ($user->role === 'category_admin') {
             // category_admin users go straight to the category admin dashboard
             header('Location: /pages/category-admin-dashboard.php');
