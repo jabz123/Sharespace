@@ -3,6 +3,10 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
+function isAjaxRequest(): bool {
+    return strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
+}
+
 function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
     if ($error) {
         flash_set('flash_error', $error);
@@ -43,9 +47,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = $decision === 'verified'
                 ? 'Article verified. It will publish automatically once every assigned category expert verifies it.'
                 : 'Article rejected. It has been moved back to draft for the author.';
+            if (isAjaxRequest()) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'ok' => true,
+                    'redirect' => '/pages/unverified-articles.php',
+                    'message' => $message,
+                ]);
+                exit;
+            }
             pageRedirect('/pages/unverified-articles.php', null, $message);
         }
 
+        if (isAjaxRequest()) {
+            header('Content-Type: application/json', true, 400);
+            echo json_encode([
+                'ok' => false,
+                'error' => $result['error'] ?? 'Unable to review article.',
+            ]);
+            exit;
+        }
         pageRedirect('/pages/unverified-articles.php', $result['error'] ?? 'Unable to review article.');
     }
 }
@@ -88,13 +109,13 @@ page_head('Unverified Articles');
             <p style="font-size:14px;margin-top:8px"><?= htmlspecialchars($detailArticle->excerpt) ?></p>
 
             <div class="flex items-center gap-3 mt-6" style="flex-wrap:wrap">
-                <form method="POST" action="/pages/unverified-articles.php" style="margin:0" onsubmit="return confirm('Verify this article? It will publish once every assigned expert verifies it.')">
+                <form method="POST" action="/pages/unverified-articles.php" data-review-form style="margin:0" onsubmit="return confirm('Verify this article? It will publish once every assigned expert verifies it.')">
                     <input type="hidden" name="action" value="verify_article">
                     <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
                     <button type="submit" class="btn btn-secondary btn-sm">Verify</button>
                 </form>
 
-                <form method="POST" action="/pages/unverified-articles.php" style="margin:0" onsubmit="return confirm('Reject this article? It will be moved back to draft for the author.')">
+                <form method="POST" action="/pages/unverified-articles.php" data-review-form style="margin:0" onsubmit="return confirm('Reject this article? It will be moved back to draft for the author.')">
                     <input type="hidden" name="action" value="unverify_article">
                     <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
                     <button type="submit" class="btn btn-danger btn-sm">Unverify</button>
@@ -189,5 +210,40 @@ page_head('Unverified Articles');
 <?php endif; ?>
 </main>
 </div>
+
+<script>
+document.querySelectorAll('form[data-review-form]').forEach((form) => {
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const submitter = event.submitter;
+        if (submitter) {
+            submitter.disabled = true;
+        }
+
+        try {
+            const response = await fetch(form.action || window.location.pathname, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new FormData(form, submitter || undefined)
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error || 'Unable to review article.');
+            }
+
+            window.location.assign(data.redirect || '/pages/unverified-articles.php');
+        } catch (error) {
+            alert(error.message || 'Unable to review article.');
+            if (submitter) {
+                submitter.disabled = false;
+            }
+        }
+    });
+});
+</script>
 
 <?php page_foot(); ?>
