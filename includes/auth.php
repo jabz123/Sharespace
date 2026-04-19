@@ -37,7 +37,19 @@ function redirect(string $url, ?string $error = null, ?string $success = null): 
     }
 
     $statusCode = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') ? 303 : 302;
-    header('Location: ' . $target, true, $statusCode);
+    if (!headers_sent()) {
+        header('Location: ' . $target, true, $statusCode);
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+    }
+
+    $escapedTarget = htmlspecialchars($target, ENT_QUOTES, 'UTF-8');
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
+    echo '<meta http-equiv="refresh" content="0;url=' . $escapedTarget . '">';
+    echo '<title>Redirecting...</title></head><body>';
+    echo '<script>window.location.replace(' . json_encode($target) . ');</script>';
+    echo '<p>Redirecting... If nothing happens, <a href="' . $escapedTarget . '">continue here</a>.</p>';
+    echo '</body></html>';
     exit;
 }
 
