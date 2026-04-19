@@ -30,7 +30,14 @@ if (session_status() === PHP_SESSION_NONE) {
 function redirect(string $url, ?string $error = null, ?string $success = null): never {
     if ($error)   $_SESSION['flash_error']   = $error;
     if ($success) $_SESSION['flash_success'] = $success;
-    header('Location: ' . $url);
+
+    $target = $url;
+    if (!preg_match('~^https?://~i', $target) && str_starts_with($target, '/') && defined('APP_BASE_URL')) {
+        $target = rtrim(APP_BASE_URL, '/') . $target;
+    }
+
+    $statusCode = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') ? 303 : 302;
+    header('Location: ' . $target, true, $statusCode);
     exit;
 }
 
