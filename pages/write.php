@@ -4,14 +4,6 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
-function isAjaxRequest(): bool {
-    if (strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest') {
-        return true;
-    }
-
-    return isset($_POST['__ajax']) && $_POST['__ajax'] === '1';
-}
-
 function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
     if ($error) {
         flash_set('flash_error', $error);
@@ -116,15 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (isset($result['ok'])) {
-            if (isAjaxRequest()) {
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'ok' => true,
-                    'redirect' => '/pages/my-articles.php',
-                    'message' => 'Draft saved!',
-                ]);
-                exit;
-            }
             pageRedirect('/pages/my-articles.php', null, 'Draft saved!');
         }
     } else {
@@ -148,43 +131,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    if (isAjaxRequest()) {
-                        header('Content-Type: application/json');
-                        echo json_encode([
-                            'ok' => true,
-                            'redirect' => '/pages/my-articles.php?filter=pending',
-                            'message' => 'Article sent to category experts for final verification.',
-                        ]);
-                        exit;
-                    }
                     pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
                 }
             } else {
                 $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    if (isAjaxRequest()) {
-                        header('Content-Type: application/json');
-                        echo json_encode([
-                            'ok' => true,
-                            'redirect' => '/pages/my-articles.php?filter=pending',
-                            'message' => 'Article sent to category experts for final verification.',
-                        ]);
-                        exit;
-                    }
                     pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
                 }
             }
         }
-    }
-
-    if (isAjaxRequest()) {
-        header('Content-Type: application/json', true, 400);
-        echo json_encode([
-            'ok' => false,
-            'error' => $result['error'] ?? 'Unable to save the article.',
-        ]);
-        exit;
     }
 
     flash_set('flash_error', $result['error']);
@@ -789,42 +745,6 @@ setPublishLockState(
         ? 'AI verification passed. Publishing will send this article to category experts for final approval.'
         : 'Run AI Fact Check and score at least 60% to unlock submission for category expert review.'
 );
-
-if (writeForm) {
-    writeForm.addEventListener('submit', async (event) => {
-        const submitter = event.submitter;
-        if (!submitter) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const formData = new FormData(writeForm, submitter);
-        formData.set('__ajax', '1');
-        submitter.disabled = true;
-
-        try {
-            const response = await fetch(writeForm.action || window.location.pathname + window.location.search, {
-                credentials: 'same-origin',
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            });
-
-            const data = await response.json();
-            if (!response.ok || !data.ok) {
-                throw new Error(data.error || 'Unable to save the article.');
-            }
-
-            window.location.assign(data.redirect || '/pages/my-articles.php');
-        } catch (error) {
-            alert(error.message || 'Unable to save the article.');
-            submitter.disabled = false;
-        }
-    });
-}
 </script>
 
 <?php page_foot(); ?>
