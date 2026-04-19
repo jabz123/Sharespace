@@ -3,24 +3,6 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
-function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
-    if ($error) {
-        flash_set('flash_error', $error);
-    }
-    if ($success) {
-        flash_set('flash_success', $success);
-    }
-
-    $escapedUrl = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
-    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
-    echo '<meta http-equiv="refresh" content="0;url=' . $escapedUrl . '">';
-    echo '<title>Redirecting...</title></head><body>';
-    echo '<script>window.top.location.href = ' . json_encode($url) . ';</script>';
-    echo '<p>Redirecting... If nothing happens, <a href="' . $escapedUrl . '">continue here</a>.</p>';
-    echo '</body></html>';
-    exit;
-}
-
 $auth = new AuthController();
 $adminCtrl = new AdminController();
 
@@ -28,26 +10,7 @@ $auth->requireAuth();
 $user = $auth->currentUser();
 
 if ($user->role !== 'category_admin') {
-    pageRedirect('/dashboard.php');
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $articleId = (int)($_POST['article_id'] ?? 0);
-
-    if (in_array($action, ['verify_article', 'unverify_article'], true) && $articleId > 0) {
-        $decision = $action === 'verify_article' ? 'verified' : 'unverified';
-        $result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision);
-
-        if (isset($result['ok'])) {
-            $message = $decision === 'verified'
-                ? 'Article verified. It will publish automatically once every assigned category expert verifies it.'
-                : 'Article rejected. It has been moved back to draft for the author.';
-            pageRedirect('/pages/unverified-articles.php', null, $message);
-        }
-
-        pageRedirect('/pages/unverified-articles.php', $result['error'] ?? 'Unable to review article.');
-    }
+    redirect('/dashboard.php');
 }
 
 $detailId = (int)($_GET['id'] ?? 0);
@@ -88,13 +51,13 @@ page_head('Unverified Articles');
             <p style="font-size:14px;margin-top:8px"><?= htmlspecialchars($detailArticle->excerpt) ?></p>
 
             <div class="flex items-center gap-3 mt-6" style="flex-wrap:wrap">
-                <form method="POST" action="/pages/unverified-articles.php" style="margin:0" onsubmit="return confirm('Verify this article? It will publish once every assigned expert verifies it.')">
+                <form method="POST" action="/actions/review-article.php" style="margin:0" onsubmit="return confirm('Verify this article? It will publish once every assigned expert verifies it.')">
                     <input type="hidden" name="action" value="verify_article">
                     <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
                     <button type="submit" class="btn btn-secondary btn-sm">Verify</button>
                 </form>
 
-                <form method="POST" action="/pages/unverified-articles.php" style="margin:0" onsubmit="return confirm('Reject this article? It will be moved back to draft for the author.')">
+                <form method="POST" action="/actions/review-article.php" style="margin:0" onsubmit="return confirm('Reject this article? It will be moved back to draft for the author.')">
                     <input type="hidden" name="action" value="unverify_article">
                     <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
                     <button type="submit" class="btn btn-danger btn-sm">Unverify</button>
