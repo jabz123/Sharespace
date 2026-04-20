@@ -112,5 +112,4 @@ page_head('My Articles');
 </div>
 </main>
 </div>
-<link rel="stylesheet" href="/public/css/myarticles.css">
 <?php page_foot(); ?>

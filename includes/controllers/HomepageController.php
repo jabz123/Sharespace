@@ -11,6 +11,8 @@ require_once __DIR__ . '/../entities/Article.php';
 class HomepageController {  
 // recommended articles based on user's chosen interests
 // shows 1 top article per category
+
+//added date as filter to only show articles from last month. rn is on 1 month onyl
     public function getRecommendedByInterest($userId) {
 
         $rows = DB::query(
@@ -24,6 +26,7 @@ class HomepageController {
         LEFT JOIN article_views v ON v.article_id = a.id
         LEFT JOIN article_flags f ON f.article_id = a.id
         WHERE ui.user_id = ? AND a.status = 'published'
+        AND a.published_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
         GROUP BY a.id
         ORDER BY view_count DESC, a.published_at DESC
         ", [$userId]);
@@ -43,6 +46,7 @@ class HomepageController {
 
 
     // articles people in same age group are reading
+    //added date as filter to only show articles from last month. rn is on 1 month onyl
     public function getPopularByAgeGroup($userId) {
        $rows = DB::query(
         "SELECT a.*, 
@@ -61,6 +65,7 @@ class HomepageController {
             SELECT age_group FROM users WHERE id = ?
         )
         AND a.status = 'published'
+        AND a.published_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
         GROUP BY a.id
         ORDER BY age_group_views DESC
         LIMIT 3
@@ -72,6 +77,7 @@ class HomepageController {
 
 
     // articles popular with same gender readers
+    //added date as filter to only show articles from last month. rn is on 1 month onyl
     public function getPopularByGender($userId) {
         $rows = DB::query(
         "SELECT a.*, 
@@ -92,6 +98,7 @@ class HomepageController {
             SELECT gender FROM users WHERE id = ?
         )
         AND a.status = 'published'
+        AND a.published_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
         GROUP BY a.id
         ORDER BY gender_views DESC
         LIMIT 3
@@ -103,6 +110,7 @@ class HomepageController {
 
 
     // newest articles on the platform
+    //added date as filter to only show articles from last month. rn is on 1 month onyl
     public function getLatest(int $limit = 6) {
         $rows = DB::query(
         "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
@@ -114,6 +122,7 @@ class HomepageController {
         LEFT JOIN article_views v ON v.article_id = a.id
         LEFT JOIN article_flags f ON f.article_id = a.id
         WHERE a.status = 'published'
+        AND a.published_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
         GROUP BY a.id
         ORDER BY a.published_at DESC
         LIMIT $limit"
