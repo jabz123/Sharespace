@@ -41,7 +41,9 @@ CREATE TABLE `articles` (
   `published_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'published'
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'published',
+  `review_notice` text COLLATE utf8mb4_unicode_ci,
+  `review_notice_pending` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -116,6 +118,19 @@ CREATE TABLE `article_views` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
+-- Table structure for table `article_expert_reviews`
+--
+
+CREATE TABLE `article_expert_reviews` (
+  `id` int NOT NULL,
+  `article_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `reviewed_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Dumping data for table `article_views`
 --
 
@@ -155,6 +170,17 @@ CREATE TABLE `categories` (
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
   `admin_user_id` int DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `category_experts`
+--
+
+CREATE TABLE `category_experts` (
+  `id` int NOT NULL,
+  `category_id` int NOT NULL,
+  `user_id` int NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -626,6 +652,15 @@ ALTER TABLE `article_flags`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `article_expert_reviews`
+--
+ALTER TABLE `article_expert_reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_article_expert_review` (`article_id`,`user_id`),
+  ADD KEY `idx_article_expert_reviews_user` (`user_id`),
+  ADD KEY `idx_article_expert_reviews_status` (`status`);
+
+--
 -- Indexes for table `article_views`
 --
 ALTER TABLE `article_views`
@@ -641,6 +676,14 @@ ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`),
   ADD KEY `admin_user_id` (`admin_user_id`);
+
+--
+-- Indexes for table `category_experts`
+--
+ALTER TABLE `category_experts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_category_expert` (`category_id`,`user_id`),
+  ADD KEY `idx_category_experts_user` (`user_id`);
 
 --
 -- Indexes for table `comments`
@@ -730,6 +773,12 @@ ALTER TABLE `article_flags`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `article_expert_reviews`
+--
+ALTER TABLE `article_expert_reviews`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `article_views`
 --
 ALTER TABLE `article_views`
@@ -740,6 +789,12 @@ ALTER TABLE `article_views`
 --
 ALTER TABLE `categories`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `category_experts`
+--
+ALTER TABLE `category_experts`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `comments`
@@ -820,6 +875,13 @@ ALTER TABLE `article_flags`
   ADD CONSTRAINT `article_flags_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `article_expert_reviews`
+--
+ALTER TABLE `article_expert_reviews`
+  ADD CONSTRAINT `article_expert_reviews_ibfk_1` FOREIGN KEY (`article_id`) REFERENCES `articles` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `article_expert_reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `article_views`
 --
 ALTER TABLE `article_views`
@@ -831,6 +893,13 @@ ALTER TABLE `article_views`
 --
 ALTER TABLE `categories`
   ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`admin_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `category_experts`
+--
+ALTER TABLE `category_experts`
+  ADD CONSTRAINT `category_experts_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `category_experts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `comments`
@@ -864,6 +933,72 @@ ALTER TABLE `site_feedback`
 ALTER TABLE `user_interests`
   ADD CONSTRAINT `user_interests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `user_interests_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE;
+
+--
+-- AI trainer role seed and tables
+--
+INSERT INTO `users`
+  (`email`, `password`, `full_name`, `bio`, `role`, `is_premium`, `is_suspended`, `created_at`, `updated_at`, `email_verified`, `onboarding_completed`)
+SELECT
+  'ai.trainer@example.com',
+  '$2y$12$gxbVunjvFtZxnQCMc58fHe2s6o7rQAi1H.fdvuRoYTGDBtorkV9Yu',
+  'AI Trainer',
+  'Model trainer account for reviewing AI trust analysis.',
+  'ai_trainer',
+  0,
+  0,
+  NOW(),
+  NOW(),
+  1,
+  1
+WHERE NOT EXISTS (
+  SELECT 1 FROM `users` WHERE `email` = 'ai.trainer@example.com'
+);
+
+CREATE TABLE IF NOT EXISTS `ai_trainer_analyses` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `article_id` int NOT NULL,
+  `trust_score` tinyint NOT NULL DEFAULT '80',
+  `factual_accuracy` tinyint NOT NULL DEFAULT '80',
+  `source_quality` tinyint NOT NULL DEFAULT '80',
+  `bias_detection` tinyint NOT NULL DEFAULT '80',
+  `analysed_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_ai_trainer_article` (`article_id`),
+  KEY `idx_ai_trainer_trust_score` (`trust_score`),
+  KEY `idx_ai_trainer_analysed_at` (`analysed_at`),
+  CONSTRAINT `fk_ai_trainer_article` FOREIGN KEY (`article_id`) REFERENCES `articles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `ai_trainer_calibration_settings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `setting_key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `setting_value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_by` int DEFAULT NULL,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_ai_trainer_setting` (`setting_key`),
+  KEY `idx_ai_trainer_setting_updated_by` (`updated_by`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `ai_trainer_calibration_settings` (`setting_key`, `setting_value`) VALUES
+('publishing_threshold', '60'),
+('factual_accuracy_weight', '60'),
+('source_quality_weight', '60'),
+('bias_detection_weight', '60'),
+('strict_mode', '0');
+
+INSERT IGNORE INTO `ai_trainer_analyses`
+  (`article_id`, `trust_score`, `factual_accuracy`, `source_quality`, `bias_detection`, `analysed_at`)
+SELECT
+  `id`,
+  `trust_score`,
+  LEAST(100, `trust_score` + 4),
+  GREATEST(0, `trust_score` - 2),
+  GREATEST(0, `trust_score` - 6),
+  NOW()
+FROM `articles`;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -7,6 +7,28 @@ require_once __DIR__ . '/controllers/ArticleController.php';
 require_once __DIR__ . '/controllers/CommentController.php';
 require_once __DIR__ . '/textlimit.php';
 
+function assigned_category_for_expert(int $userId): ?array {
+    static $cache = [];
+
+    if (array_key_exists($userId, $cache)) {
+        return $cache[$userId];
+    }
+
+    DB::ensureCategoryExpertsTable();
+
+    $cache[$userId] = DB::first(
+        'SELECT c.id, c.name
+         FROM category_experts ce
+         JOIN categories c ON c.id = ce.category_id
+         WHERE ce.user_id = ?
+         ORDER BY c.name
+         LIMIT 1',
+        [$userId]
+    );
+
+    return $cache[$userId];
+}
+
 function page_head(string $title): void {
     $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title), '-'));
 ?>
@@ -19,7 +41,37 @@ function page_head(string $title): void {
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/public/css/app.css" />
+<link rel="stylesheet" href="/public/css/app.css?v=<?= filemtime(__DIR__ . '/../public/css/app.css') ?>" />
+<style>
+body.page-ai-trainer-dashboard .alert-success,
+body.page-ai-trainer-datasets .alert-success,
+body.page-ai-trainer-accuracy-metrics .alert-success,
+body.page-ai-trainer-calibration .alert-success,
+body.page-ai-trainer-home .alert-success {
+    background: #f0fff6 !important;
+    border: 1px solid #a3e6c0 !important;
+    color: #1a6040 !important;
+    font-weight: 700 !important;
+}
+body.page-ai-trainer-dashboard .alert-error,
+body.page-ai-trainer-datasets .alert-error,
+body.page-ai-trainer-accuracy-metrics .alert-error,
+body.page-ai-trainer-calibration .alert-error,
+body.page-ai-trainer-home .alert-error {
+    background: #fff0f2 !important;
+    border: 1px solid #fcc !important;
+    color: #8b1a2a !important;
+    font-weight: 700 !important;
+}
+body.page-ai-trainer-dashboard .alert,
+body.page-ai-trainer-datasets .alert,
+body.page-ai-trainer-accuracy-metrics .alert,
+body.page-ai-trainer-calibration .alert,
+body.page-ai-trainer-home .alert {
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+</style>
 </head>
 <body class="page-<?= htmlspecialchars($slug) ?>">
 <?php }
@@ -54,18 +106,23 @@ function sidebar(User $user): void {
             ['href' => '/pages/browse.php',           'key' => 'browse',  'label' => 'Browse Articles'],
             ['href' => '/pages/admin-landing.php',    'key' => 'landing', 'label' => 'Manage Landing Page'],
             ['href' => '/pages/admin-audit-log.php',  'key' => 'audit',   'label' => 'Audit Log'],
+            ['href' => '/pages/admin-ai-dashboard.php', 'key' => 'ai', 'label' => 'AI Dashboard'],
+            ['href' => '/pages/admin-ai-calibration.php', 'key' => 'settings', 'label' => 'Calibration'],
             ['href' => '/pages/profile.php',          'key' => 'profile', 'label' => 'Profile'],
+            
         ];
     } elseif ($user->role === 'category_admin') {
         $links = [
             ['href' => '/pages/category-admin-dashboard.php', 'key' => 'home', 'label' => 'Home'],
             ['href' => '/pages/browse.php', 'key' => 'browse', 'label' => 'Browse Articles'],
+            ['href' => '/pages/unverified-articles.php', 'key' => 'alerts', 'label' => 'Unverified Articles'],
             ['href' => '/pages/category-articles.php', 'key' => 'library', 'label' => 'Category Articles'],
             ['href' => '/pages/category-writers.php', 'key' => 'writers', 'label' => 'Category Writers'],
             ['href' => '/pages/flagged-articles.php', 'key' => 'alerts', 'label' => 'Flagged Articles'],
             ['href' => '/pages/my-articles.php', 'key' => 'articles', 'label' => 'My Articles'],
             ['href' => '/pages/write.php', 'key' => 'compose', 'label' => 'Write Article'],
             ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
+            ['href' => '/pages/users.php', 'key' => 'users', 'label' => 'Discover Users'],
         ];
     } else {
         $links = [
@@ -76,13 +133,14 @@ function sidebar(User $user): void {
             ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
             ['href' => '/pages/savedarticles.php', 'key' => 'saved', 'label' => 'Saved Articles'],
             ['href' => '/pages/subscription.php', 'key' => 'membership', 'label' => $user->role === 'premium' ? 'Subscription' : 'Upgrade'],
+            ['href' => '/pages/users.php', 'key' => 'users', 'label' => 'Discover Users'],
         ];
     }
     ?>
 <aside class="sidebar">
     <div class="sidebar-logo">
         <?php sharedspace_brand(
-            $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php'),
+            $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'ai_trainer' ? '/pages/ai-trainer-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php')),
             'light',
             'sidebar-brand'
         ); ?>
@@ -105,13 +163,12 @@ function sidebar(User $user): void {
                 <span class="role-badge premium">Premium</span>
             <?php elseif ($user->role === 'system_admin'): ?>
                 <span class="role-badge system-admin">System Admin</span>
+            <?php elseif ($user->role === 'ai_trainer'): ?>
+                <span class="role-badge ai-trainer">AI Trainer</span>
             <?php elseif ($user->role === 'category_admin'): ?>
                 <span class="role-badge category-admin">Category Expert</span>
                 <?php
-                $assignedCategory = DB::first(
-                    'SELECT name FROM categories WHERE admin_user_id = ?',
-                    [$user->id]
-                );
+                $assignedCategory = assigned_category_for_expert((int)$user->id);
                 if ($assignedCategory): ?>
                     <span class="role-badge category-name"><?= htmlspecialchars($assignedCategory['name']) ?></span>
                 <?php endif; ?>

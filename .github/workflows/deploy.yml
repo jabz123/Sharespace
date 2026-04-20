@@ -21,6 +21,16 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/key.pem
         chmod 600 ~/.ssh/key.pem
         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: Ensure SUMMARY_API_KEY is set in Apache env
+      run: |
+        ssh -i ~/.ssh/key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          set -e
+          echo 'SetEnv SUMMARY_API_KEY \"${{ secrets.SUMMARY_API_KEY }}\"' | sudo tee /etc/apache2/conf-available/sharedspace-env.conf > /dev/null
+          sudo a2enconf sharedspace-env
+          sudo apachectl configtest
+          sudo systemctl reload apache2
+        "
 
     - name: Prepare New Release
       run: |

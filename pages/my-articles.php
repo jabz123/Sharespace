@@ -10,9 +10,13 @@ $auth->requireAuth();
 $user = $auth->currentUser();
 
 $filter = $_GET['filter'] ?? 'published';
-$articles = $filter === 'draft'
-    ? $articleCtrl->getDraftsByAuthor($user->id)
-    : $articleCtrl->getByAuthor($user->id);
+if ($filter === 'draft') {
+    $articles = $articleCtrl->getDraftsByAuthor($user->id);
+} elseif ($filter === 'pending') {
+    $articles = $articleCtrl->getPendingByAuthor($user->id);
+} else {
+    $articles = $articleCtrl->getByAuthor($user->id);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
     $result = $articleCtrl->delete((int)($_POST['article_id'] ?? 0), $user->id);
@@ -225,7 +229,7 @@ body.page-my-articles .text-muted {
 <div class="dashboard-layout">
 <?php sidebar($user); ?>
 <main>
-<?php dash_header('My Articles', 'All articles you have published'); ?>
+<?php dash_header('My Articles', 'Track your published, pending, and draft articles'); ?>
 <?php flash_messages(); ?>
 <div class="page-content my-articles-shell">
     <div class="my-articles-toolbar">
@@ -234,29 +238,43 @@ body.page-my-articles .text-muted {
 
     <div class="article-toggle">
         <a href="?filter=published" class="toggle-btn <?= $filter === 'published' ? 'active' : '' ?>">Published</a>
+        <a href="?filter=pending" class="toggle-btn <?= $filter === 'pending' ? 'active' : '' ?>">Pending</a>
         <a href="?filter=draft" class="toggle-btn <?= $filter === 'draft' ? 'active' : '' ?>">Drafts</a>
     </div>
 
     <?php if (empty($articles)): ?>
         <div class="card card-empty my-articles-empty-card">
             <h3 class="my-articles-empty-title">
-                <?= $filter === 'draft' ? 'No drafts yet' : 'No published articles yet' ?>
+                <?= $filter === 'draft' ? 'No drafts yet' : ($filter === 'pending' ? 'No pending articles' : 'No published articles yet') ?>
             </h3>
             <p class="text-muted my-articles-empty-copy">
-                You have not published anything yet. Write your first article.
+                <?= $filter === 'draft'
+                    ? 'Drafts and rejected articles you need to revise will appear here.'
+                    : ($filter === 'pending'
+                        ? 'Articles waiting for category expert review will appear here.'
+                        : 'You have not published anything yet. Write your first article.') ?>
             </p>
             <a href="/pages/write.php" class="btn btn-primary my-articles-create-btn">Write Article</a>
         </div>
     <?php else: ?>
         <div class="my-articles-list">
             <?php foreach ($articles as $article): ?>
+                <?php
+                $statusTimeLabel = $article->status === 'published' ? 'Published' : 'Updated';
+                $statusTimeValue = $article->status === 'published' ? $article->publishedAt : $article->updatedAt;
+                ?>
                 <div class="card my-article-card">
                     <div class="my-article-row">
                         <div class="my-article-info">
                             <div class="my-article-meta">
                                 <span class="category-tag"><?= htmlspecialchars($article->categoryName) ?></span>
                                 <?= trust_badge($article->trustScore) ?>
-                                <span class="text-muted my-article-time"><?= relative_time($article->publishedAt) ?></span>
+                                <?php if ($article->status === 'pending'): ?>
+                                    <span class="role-badge" style="background:#f59e0b;color:#111827">Pending Review</span>
+                                <?php elseif ($article->status === 'draft' && $article->reviewNoticePending): ?>
+                                    <span class="role-badge" style="background:#ef4444;color:#fff">Rejected</span>
+                                <?php endif; ?>
+                                <span class="text-muted my-article-time"><?= $statusTimeLabel ?> <?= relative_time($statusTimeValue) ?></span>
                             </div>
 
                             <h3 class="my-article-title">

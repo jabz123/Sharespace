@@ -5,6 +5,23 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 
 header('Content-Type: application/json');
 
+function buildArticleVerificationFingerprint(array $input, int $userId): string {
+    $normalize = static function ($value): string {
+        return trim(str_replace(["\r\n", "\r"], "\n", (string)$value));
+    };
+
+    $payload = [
+        'user_id' => $userId,
+        'title' => $normalize($input['title'] ?? ''),
+        'excerpt' => $normalize($input['excerpt'] ?? ''),
+        'content' => $normalize($input['content'] ?? ''),
+        'category_id' => (int)($input['category_id'] ?? 0),
+        'source_url' => $normalize($input['source_url'] ?? ''),
+    ];
+
+    return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
 $auth = new AuthController();
 $user = $auth->currentUser();
 
@@ -32,6 +49,7 @@ $title = trim((string)($body['title'] ?? ''));
 $excerpt = trim((string)($body['excerpt'] ?? ''));
 $content = trim((string)($body['content'] ?? ''));
 $category = trim((string)($body['category'] ?? ''));
+$categoryId = (int)($body['category_id'] ?? 0);
 $sourceUrl = trim((string)($body['source_url'] ?? ''));
 
 if ($title === '' || $excerpt === '' || $content === '') {
@@ -138,6 +156,23 @@ $summary = trim((string)($decoded['summary'] ?? ''));
 if ($summary === '') {
     $summary = 'AI verification completed successfully.';
 }
+
+$_SESSION['article_ai_verification'] = [
+    'fingerprint' => buildArticleVerificationFingerprint([
+        'title' => $title,
+        'excerpt' => $excerpt,
+        'content' => $content,
+        'category_id' => $categoryId,
+        'source_url' => $sourceUrl,
+    ], (int)$user->id),
+    'trust_score' => $trustScore,
+    'passed' => $trustScore >= 60,
+    'summary' => $summary,
+    'verdict' => $verdict,
+    'metrics' => $normalizedMetrics,
+    'source_url' => $sourceUrl,
+    'source_label' => trim((string)($decoded['source_label'] ?? '')),
+];
 
 echo json_encode([
     'trust_score' => $trustScore,

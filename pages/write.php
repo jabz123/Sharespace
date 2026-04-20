@@ -4,8 +4,44 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
+function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
+    if ($error) {
+        flash_set('flash_error', $error);
+    }
+    if ($success) {
+        flash_set('flash_success', $success);
+    }
+
+    $escapedUrl = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
+    echo '<meta http-equiv="refresh" content="0;url=' . $escapedUrl . '">';
+    echo '<title>Redirecting...</title></head><body>';
+    echo '<script>window.top.location.href = ' . json_encode($url) . ';</script>';
+    echo '<p>Redirecting... If nothing happens, <a href="' . $escapedUrl . '">continue here</a>.</p>';
+    echo '</body></html>';
+    exit;
+}
+
+function buildArticleVerificationFingerprint(array $input, int $userId): string {
+    $normalize = static function ($value): string {
+        return trim(str_replace(["\r\n", "\r"], "\n", (string)$value));
+    };
+
+    $payload = [
+        'user_id' => $userId,
+        'title' => $normalize($input['title'] ?? ''),
+        'excerpt' => $normalize($input['excerpt'] ?? ''),
+        'content' => $normalize($input['content'] ?? ''),
+        'category_id' => (int)($input['category_id'] ?? 0),
+        'source_url' => $normalize($input['source_url'] ?? ''),
+    ];
+
+    return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
+$minimumTrustScore = 60;
 
 $auth->requireAuth();
 $user = $auth->currentUser();
@@ -20,9 +56,16 @@ $isEdit = false;
 if ($editId) {
     $article = $articleCtrl->getByIdForAuthor($editId, $user->id);
     if (!$article || $article->authorId !== $user->id) {
-        redirect('/pages/my-articles.php', 'Article not found or permission denied.');
+        pageRedirect('/pages/my-articles.php', 'Article not found or permission denied.');
     }
     $isEdit = true;
+}
+
+$reviewNoticeToShow = null;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $isEdit && $article && $article->reviewNoticePending && !empty($article->reviewNotice)) {
+    $reviewNoticeToShow = $article->reviewNotice;
+    $articleCtrl->clearReviewNotice($editId, $user->id);
+    $article->reviewNoticePending = false;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -65,20 +108,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (isset($result['ok'])) {
-            redirect('/pages/my-articles.php', null, 'Draft saved!');
+            pageRedirect('/pages/my-articles.php', null, 'Draft saved!');
         }
     } else {
-        $_POST['status'] = 'published';
+        $verification = $_SESSION['article_ai_verification'] ?? null;
+        $fingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+        $isVerificationCurrent = is_array($verification)
+            && ($verification['fingerprint'] ?? '') === $fingerprint;
+        $verifiedTrustScore = $isVerificationCurrent ? (int)($verification['trust_score'] ?? 0) : 0;
+        $hasPassingVerification = $isVerificationCurrent
+            && !empty($verification['passed'])
+            && $verifiedTrustScore >= $minimumTrustScore;
 
-        if ($isEdit) {
-            $result = $articleCtrl->update($editId, $user->id, $_POST);
-            if (isset($result['ok'])) {
-                redirect('/pages/my-articles.php', null, 'Article published!');
-            }
+        if (!$hasPassingVerification) {
+            $result = ['error' => 'Run AI Fact Check and get at least 60% before publishing this article.'];
+            $_POST['trust_score'] = $verifiedTrustScore;
         } else {
-            $result = $articleCtrl->publish($user->id, $_POST);
-            if (isset($result['ok'])) {
-                redirect('/pages/my-articles.php', null, 'Article published!');
+            $_POST['status'] = 'published';
+            $_POST['trust_score'] = $verifiedTrustScore;
+
+            if ($isEdit) {
+                $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
+                if (isset($result['ok'])) {
+                    unset($_SESSION['article_ai_verification']);
+                    pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
+                }
+            } else {
+                $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
+                if (isset($result['ok'])) {
+                    unset($_SESSION['article_ai_verification']);
+                    pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
+                }
             }
         }
     }
@@ -86,13 +146,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     flash_set('flash_error', $result['error']);
 }
 
+$currentVerificationInput = [
+    'title' => $_POST['title'] ?? ($article?->title ?? ''),
+    'excerpt' => $_POST['excerpt'] ?? ($article?->excerpt ?? ''),
+    'content' => $_POST['content'] ?? ($article?->content ?? ''),
+    'category_id' => $_POST['category_id'] ?? ($article?->categoryId ?? 0),
+    'source_url' => $_POST['source_url'] ?? '',
+];
+$verification = $_SESSION['article_ai_verification'] ?? null;
+$verificationFingerprint = buildArticleVerificationFingerprint($currentVerificationInput, (int)$user->id);
+$hasCurrentVerification = is_array($verification)
+    && ($verification['fingerprint'] ?? '') === $verificationFingerprint;
+$verificationPassed = $hasCurrentVerification
+    && !empty($verification['passed'])
+    && (int)($verification['trust_score'] ?? 0) >= $minimumTrustScore;
+$initialTrustScore = $hasCurrentVerification
+    ? (int)($verification['trust_score'] ?? 0)
+    : (int)($_POST['trust_score'] ?? 0);
+$initialSummary = $hasCurrentVerification
+    ? trim((string)($verification['summary'] ?? ''))
+    : '';
+$initialVerdict = $hasCurrentVerification
+    ? trim((string)($verification['verdict'] ?? ''))
+    : '';
+$initialMetrics = $hasCurrentVerification && is_array($verification['metrics'] ?? null)
+    ? $verification['metrics']
+    : [
+        'factual_accuracy' => 0,
+        'source_quality' => 0,
+        'bias_detection' => 0,
+        'logical_consistency' => 0,
+        'completeness' => 0,
+    ];
+$initialSourceLabel = $hasCurrentVerification
+    ? trim((string)($verification['source_label'] ?? ''))
+    : '';
+
 $val = [
     'title' => $_POST['title'] ?? ($article?->title ?? ''),
     'excerpt' => $_POST['excerpt'] ?? ($article?->excerpt ?? ''),
     'content' => $_POST['content'] ?? ($article?->content ?? ''),
     'category_id' => $_POST['category_id'] ?? ($article?->categoryId ?? 0),
     'source_url' => $_POST['source_url'] ?? '',
-    'trust_score' => (int)($_POST['trust_score'] ?? ($article?->trustScore ?? 80)),
+    'trust_score' => $initialTrustScore,
 ];
 
 page_head($isEdit ? 'Edit Article' : 'Write Article');
@@ -252,6 +348,22 @@ body.page-edit-article .write-editor-form select option {
     background: linear-gradient(135deg, #203a67 0%, #2f4d83 100%) !important;
     color: #ffffff !important;
     border: 1px solid rgba(146,176,230,0.20) !important;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+}
+
+.write-editor-shell .btn-publish.is-locked,
+.write-editor-shell .btn-publish:disabled {
+    opacity: 0.38 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+    filter: saturate(0.65);
+}
+
+.write-editor-shell .publish-status {
+    margin: 12px 0 0 !important;
+    font-size: 13px !important;
+    line-height: 1.45 !important;
 }
 
 .write-editor-shell .progress-bar {
@@ -304,9 +416,14 @@ body.page-edit-article .write-editor-form select option {
             $isEdit ? 'Update your article' : 'Share your story with the world'
         ); ?>
         <?php flash_messages(); ?>
+        <?php if ($reviewNoticeToShow): ?>
+            <div class="alert alert-error" style="margin:18px 28px 0;">
+                <?= htmlspecialchars($reviewNoticeToShow) ?>
+            </div>
+        <?php endif; ?>
 
         <div class="page-content write-layout write-editor-shell">
-            <form method="POST" id="write-form" enctype="multipart/form-data" class="write-editor-form">
+            <form method="POST" action="/pages/write.php<?= $isEdit ? '?id=' . (int)$editId : '' ?>" target="_self" id="write-form" enctype="multipart/form-data" class="write-editor-form">
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
                 <input type="hidden" name="trust_score" id="trustScoreInput" value="<?= (int)$val['trust_score'] ?>">
 
@@ -376,13 +493,25 @@ body.page-edit-article .write-editor-form select option {
                             </button>
                         <?php endif; ?>
 
-                        <button type="submit" name="action" value="publish" class="btn-publish">
+                        <button
+                            type="submit"
+                            name="action"
+                            value="publish"
+                            class="btn-publish<?= $verificationPassed ? '' : ' is-locked' ?>"
+                            id="publishButton"
+                            <?= $verificationPassed ? '' : 'disabled' ?>
+                        >
                             <?php
                             $isDraft = !$isEdit || ($article->status === 'draft');
                             echo $isDraft ? 'Publish Article' : 'Save Changes';
                             ?>
                         </button>
                     </div>
+                    <p class="publish-status text-muted" id="publishStatus">
+                        <?= $verificationPassed
+                            ? 'AI verification passed. Publishing will send this article to category experts for final approval.'
+                            : 'Run AI Fact Check and score at least 60% to unlock submission for category expert review.' ?>
+                    </p>
                 </div>
             </form>
 
@@ -390,7 +519,7 @@ body.page-edit-article .write-editor-form select option {
                 <div class="card ai-verification-card">
                     <h3>AI Verification</h3>
 
-                    <div id="ai-empty">
+                    <div id="ai-empty" style="display:<?= $hasCurrentVerification ? 'none' : 'block' ?>;">
                         <p class="text-muted" style="margin-top:10px;">
                             Click "AI Fact Check" to analyze your article's credibility before publishing.
                         </p>
@@ -409,35 +538,39 @@ body.page-edit-article .write-editor-form select option {
                         <div class="alert alert-error" id="aiErrorMessage" style="margin-top:14px;"></div>
                     </div>
 
-                    <div id="ai-result" style="display:none;">
+                    <div id="ai-result" style="display:<?= $hasCurrentVerification ? 'block' : 'none' ?>;">
                         <div style="text-align:center; margin:20px 0;">
                             <h2 id="aiTrustScore" style="font-size:28px; font-weight:700;"><?= (int)$val['trust_score'] ?>%</h2>
                             <p class="text-muted">Trust Score</p>
                         </div>
 
                         <p id="aiSummary" style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
-                            Run AI Fact Check to see a real verification summary from n8n.
+                            <?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?>
                         </p>
 
-                        <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:none;"></p>
+                        <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
 
                         <p>Factual Accuracy</p>
-                        <div class="progress-bar"><div id="metricFactualAccuracy" style="width:0%"></div></div>
+                        <div class="progress-bar"><div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int)($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div></div>
 
                         <p>Source Quality</p>
-                        <div class="progress-bar"><div id="metricSourceQuality" style="width:0%"></div></div>
+                        <div class="progress-bar"><div id="metricSourceQuality" style="width:<?= max(0, min(100, (int)($initialMetrics['source_quality'] ?? 0))) ?>%"></div></div>
 
                         <p>Bias Detection</p>
-                        <div class="progress-bar"><div id="metricBiasDetection" style="width:0%"></div></div>
+                        <div class="progress-bar"><div id="metricBiasDetection" style="width:<?= max(0, min(100, (int)($initialMetrics['bias_detection'] ?? 0))) ?>%"></div></div>
 
                         <p>Logical Consistency</p>
-                        <div class="progress-bar"><div id="metricLogicalConsistency" style="width:0%"></div></div>
+                        <div class="progress-bar"><div id="metricLogicalConsistency" style="width:<?= max(0, min(100, (int)($initialMetrics['logical_consistency'] ?? 0))) ?>%"></div></div>
 
                         <p>Completeness</p>
-                        <div class="progress-bar"><div id="metricCompleteness" style="width:0%"></div></div>
+                        <div class="progress-bar"><div id="metricCompleteness" style="width:<?= max(0, min(100, (int)($initialMetrics['completeness'] ?? 0))) ?>%"></div></div>
 
-                        <div class="ai-success-box" id="aiVerdictBox">
-                            Waiting for verification.
+                        <div
+                            class="ai-success-box"
+                            id="aiVerdictBox"
+                            style="<?= $hasCurrentVerification ? 'background:' . ($verificationPassed ? '#22c55e' : '#f59e0b') . ';color:' . ($verificationPassed ? '#000' : '#111827') . ';' : '' ?>"
+                        >
+                            <?= $initialVerdict !== '' ? htmlspecialchars($initialVerdict) : 'Waiting for verification.' ?>
                         </div>
                     </div>
                 </div>
@@ -483,6 +616,25 @@ function setMetricBar(id, value) {
     document.getElementById(id).style.width = `${safeValue}%`;
 }
 
+const verificationThreshold = <?= (int)$minimumTrustScore ?>;
+const publishButton = document.getElementById('publishButton');
+const publishStatus = document.getElementById('publishStatus');
+const trustScoreInput = document.getElementById('trustScoreInput');
+const initialPublishUnlocked = <?= $verificationPassed ? 'true' : 'false' ?>;
+const writeForm = document.getElementById('write-form');
+
+function setPublishLockState(isUnlocked, message) {
+    publishButton.disabled = !isUnlocked;
+    publishButton.classList.toggle('is-locked', !isUnlocked);
+    publishButton.setAttribute('aria-disabled', isUnlocked ? 'false' : 'true');
+    publishStatus.textContent = message;
+}
+
+function invalidateVerification(message = 'Content changed. Run AI Fact Check again and score at least 60% to unlock publishing.') {
+    trustScoreInput.value = '0';
+    setPublishLockState(false, message);
+}
+
 function resetAIStates() {
     document.getElementById('ai-empty').style.display = 'none';
     document.getElementById('ai-loading').style.display = 'none';
@@ -524,6 +676,7 @@ async function runAICheck() {
                 title,
                 excerpt,
                 content,
+                category_id: Number(categorySelect.value) || 0,
                 category: categorySelect.options[categorySelect.selectedIndex].text,
                 source_url: sourceUrl
             })
@@ -561,8 +714,14 @@ async function runAICheck() {
         setMetricBar('metricCompleteness', metrics.completeness);
 
         verdictBox.textContent = data.verdict || 'Verification completed.';
-        verdictBox.style.background = trustScore >= 60 ? '#22c55e' : '#f59e0b';
-        verdictBox.style.color = trustScore >= 60 ? '#000' : '#111827';
+        verdictBox.style.background = trustScore >= verificationThreshold ? '#22c55e' : '#f59e0b';
+        verdictBox.style.color = trustScore >= verificationThreshold ? '#000' : '#111827';
+
+        if (trustScore >= verificationThreshold) {
+            setPublishLockState(true, 'AI verification passed. Publishing will send this article to category experts for final approval.');
+        } else {
+            setPublishLockState(false, 'Trust score is below 60%. Submission stays locked until the result is green.');
+        }
 
         resetAIStates();
         document.getElementById('ai-result').style.display = 'block';
@@ -573,6 +732,19 @@ async function runAICheck() {
         button.textContent = 'AI Fact Check';
     }
 }
+
+document.querySelectorAll('input[name="title"], input[name="excerpt"], textarea[name="content"], select[name="category_id"], #sourceUrlInput')
+    .forEach((field) => {
+        field.addEventListener('input', () => invalidateVerification());
+        field.addEventListener('change', () => invalidateVerification());
+    });
+
+setPublishLockState(
+    initialPublishUnlocked,
+    initialPublishUnlocked
+        ? 'AI verification passed. Publishing will send this article to category experts for final approval.'
+        : 'Run AI Fact Check and score at least 60% to unlock submission for category expert review.'
+);
 </script>
 
 <?php page_foot(); ?>

@@ -18,3 +18,6 @@ public/uploads/*
 *.cache
 config.php
 sharedspace.sql
+
+/tmp/*
+!/tmp/.gitkeep

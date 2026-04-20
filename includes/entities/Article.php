@@ -21,10 +21,13 @@ class Article {
     public bool   $hasMedia;
     public bool   $isPremiumOnly;
     public string $publishedAt;
+    public string $updatedAt;
     public int $viewCount;
     public string $status;
     public ?string $imagePath;
     public int $flagCount;
+    public ?string $reviewNotice;
+    public bool $reviewNoticePending;
 
     public function __construct(array $row) {
         $this->id            = (int)$row['id'];
@@ -39,10 +42,13 @@ class Article {
         $this->hasMedia      = (bool)($row['has_media']       ?? false);
         $this->isPremiumOnly = (bool)($row['is_premium_only'] ?? false);
         $this->publishedAt   = $row['published_at'] ?? '';
+        $this->updatedAt     = $row['updated_at'] ?? $this->publishedAt;
         $this->imagePath = $row['image_path'] ?? null;
         $this->viewCount = $row['view_count'] ?? 0;
         $this->status = $row['status'] ?? 'published';
         $this->flagCount = (int)($row['flag_count'] ?? 0);
+        $this->reviewNotice = $row['review_notice'] ?? null;
+        $this->reviewNoticePending = (bool)($row['review_notice_pending'] ?? false);
     }
 
     //put user initial for default avatar cos no picture yyet

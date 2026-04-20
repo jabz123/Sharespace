@@ -30,7 +30,29 @@ if (session_status() === PHP_SESSION_NONE) {
 function redirect(string $url, ?string $error = null, ?string $success = null): never {
     if ($error)   $_SESSION['flash_error']   = $error;
     if ($success) $_SESSION['flash_success'] = $success;
-    header('Location: ' . $url);
+
+    $target = $url;
+
+    $isPostRedirect = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST');
+
+    if (!$isPostRedirect && !headers_sent()) {
+        header('Location: ' . $target, true, 302);
+        exit;
+    }
+
+    if (!headers_sent()) {
+        header('Content-Type: text/html; charset=UTF-8');
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+    }
+
+    $escapedTarget = htmlspecialchars($target, ENT_QUOTES, 'UTF-8');
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
+    echo '<meta http-equiv="refresh" content="0;url=' . $escapedTarget . '">';
+    echo '<title>Redirecting...</title></head><body>';
+    echo '<script>window.top.location.replace(' . json_encode($target) . ');</script>';
+    echo '<p>Redirecting... If nothing happens, <a href="' . $escapedTarget . '">continue here</a>.</p>';
+    echo '</body></html>';
     exit;
 }
 

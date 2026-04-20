@@ -90,6 +90,16 @@ function audit_page_href(int $page, string $filterAction, string $filterRole): s
     return '?' . http_build_query($params);
 }
 
+function audit_format_sgt(string $timestamp): string {
+    try {
+        return (new DateTimeImmutable($timestamp, new DateTimeZone('UTC')))
+            ->setTimezone(new DateTimeZone('Asia/Singapore'))
+            ->format('M j, Y g:i A');
+    } catch (Throwable $e) {
+        return date('M j, Y g:i A', strtotime($timestamp));
+    }
+}
+
 page_head('Audit Log');
 ?>
 <div class="dashboard-layout">
@@ -170,7 +180,7 @@ page_head('Audit Log');
                         <th style="text-align:left;padding:12px 16px;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em">Details</th>
                         <th style="text-align:left;padding:12px 16px;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Actor</th>
                         <th style="text-align:left;padding:12px 16px;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Role</th>
-                        <th style="text-align:left;padding:12px 16px;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">When</th>
+                        <th style="text-align:left;padding:12px 16px;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">When (SGT)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -183,7 +193,7 @@ page_head('Audit Log');
                     [$roleLabel, $roleColour] = $role;
                     $actorName        = $entry['actor_name_display'] ?? $entry['admin_name'] ?? 'Unknown user';
                     $actorEmail       = $entry['actor_email_display'] ?? '';
-                    $ts               = date('M j, Y g:i A', strtotime($entry['created_at']));
+                    $ts               = audit_format_sgt($entry['created_at']);
                     ?>
                     <tr style="border-bottom:1px solid var(--border)">
                         <!-- action badge -->

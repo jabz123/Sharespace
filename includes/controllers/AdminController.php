@@ -15,6 +15,36 @@ require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../AuditLogger.php';
 
 class AdminController {
+    private function ensureCategoryExpertTable(): void {
+        DB::ensureCategoryExpertsTable();
+    }
+
+    public function getAssignedCategoryForExpert(int $userId): ?array {
+        $this->ensureCategoryExpertTable();
+
+        return DB::first(
+            'SELECT c.id, c.name
+             FROM category_experts ce
+             JOIN categories c ON c.id = ce.category_id
+             WHERE ce.user_id = ?
+             ORDER BY c.name
+             LIMIT 1',
+            [$userId]
+        );
+    }
+
+    public function getAssignedCategoriesForExpert(int $userId): array {
+        $this->ensureCategoryExpertTable();
+
+        return DB::query(
+            'SELECT c.id, c.name
+             FROM category_experts ce
+             JOIN categories c ON c.id = ce.category_id
+             WHERE ce.user_id = ?
+             ORDER BY c.name',
+            [$userId]
+        );
+    }
 
     // ─────────────────────────────────────────────
     // GUARD
@@ -236,18 +266,48 @@ class AdminController {
 
     // get all categories with their assigned expert (if any)
     public function getCategoriesWithExperts(): array {
-        return DB::query(
-            'SELECT c.id, c.name, c.description, c.admin_user_id,
-                    u.full_name AS expert_name, u.email AS expert_email
+        $this->ensureCategoryExpertTable();
+
+        $categories = DB::query(
+            'SELECT c.id, c.name, c.description
              FROM categories c
-             LEFT JOIN users u ON u.id = c.admin_user_id
              ORDER BY c.name'
         );
+
+        $assignments = DB::query(
+            'SELECT ce.category_id, ce.user_id, u.full_name, u.email
+             FROM category_experts ce
+             JOIN users u ON u.id = ce.user_id
+             ORDER BY u.full_name'
+        );
+
+        $expertsByCategory = [];
+        foreach ($assignments as $assignment) {
+            $categoryId = (int)$assignment['category_id'];
+            $expertsByCategory[$categoryId][] = [
+                'user_id' => (int)$assignment['user_id'],
+                'full_name' => $assignment['full_name'],
+                'email' => $assignment['email'],
+            ];
+        }
+
+        foreach ($categories as &$category) {
+            $category['experts'] = $expertsByCategory[(int)$category['id']] ?? [];
+            $primaryExpert = $category['experts'][0] ?? null;
+            $category['admin_user_id'] = $primaryExpert['user_id'] ?? null;
+            $category['expert_name'] = $primaryExpert['full_name'] ?? null;
+            $category['expert_email'] = count($category['experts']) . ' assigned';
+        }
+        unset($category);
+
+        return $categories;
     }
 
     // get all users eligible to be category experts
     // returns free users + existing category_admin users (so they show in the dropdown)
     public function getEligibleExperts(): array {
+        $this->ensureCategoryExpertTable();
+
         return DB::query(
             "SELECT id, full_name, email, role
              FROM users
@@ -262,29 +322,40 @@ class AdminController {
     // - promotes user role to 'category_admin'
     // - if category already had a different expert, demotes the old one first
     public function assignExpert(int $categoryId, int $userId): array {
+        $this->ensureCategoryExpertTable();
+
         if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
             return ['error' => 'Category not found.'];
         }
-        if (!DB::first('SELECT id FROM users WHERE id = ?', [$userId])) {
+        $user = DB::first('SELECT id, is_suspended FROM users WHERE id = ?', [$userId]);
+        if (!$user) {
             return ['error' => 'User not found.'];
         }
-
-        // if this category already has a different expert, unassign them first
-        $current = DB::first('SELECT admin_user_id FROM categories WHERE id = ?', [$categoryId]);
-        if ($current && $current['admin_user_id'] && $current['admin_user_id'] !== $userId) {
-            $this->demoteExpertIfUnused((int)$current['admin_user_id']);
+        if ((int)($user['is_suspended'] ?? 0) === 1) {
+            return ['error' => 'Suspended users cannot be assigned as category experts.'];
         }
 
-        // assign the new expert to this category
         DB::execute(
-            'UPDATE categories SET admin_user_id = ? WHERE id = ?',
-            [$userId, $categoryId]
+            'INSERT IGNORE INTO category_experts (category_id, user_id) VALUES (?, ?)',
+            [$categoryId, $userId]
         );
 
-        // promote the user to category_admin role
         DB::execute(
             "UPDATE users SET role = 'category_admin' WHERE id = ?",
             [$userId]
+        );
+
+        $primaryExpert = DB::first(
+            'SELECT user_id
+             FROM category_experts
+             WHERE category_id = ?
+             ORDER BY created_at, id
+             LIMIT 1',
+            [$categoryId]
+        );
+        DB::execute(
+            'UPDATE categories SET admin_user_id = ? WHERE id = ?',
+            [(int)($primaryExpert['user_id'] ?? $userId), $categoryId]
         );
 
         return ['ok' => true];
@@ -293,33 +364,199 @@ class AdminController {
     // unassign the expert from a category
     // - clears categories.admin_user_id
     // - demotes user back to 'free' only if they have no other category assigned
-    public function unassignExpert(int $categoryId): array {
-        $current = DB::first('SELECT admin_user_id FROM categories WHERE id = ?', [$categoryId]);
-        if (!$current) {
+    public function unassignExpert(int $categoryId, int $userId = 0): array {
+        $this->ensureCategoryExpertTable();
+
+        if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
             return ['error' => 'Category not found.'];
         }
-
-        $expertId = $current['admin_user_id'];
-
-        // clear the category's expert
-        DB::execute('UPDATE categories SET admin_user_id = NULL WHERE id = ?', [$categoryId]);
-
-        // demote the user if they are no longer assigned to any category
-        if ($expertId) {
-            $this->demoteExpertIfUnused((int)$expertId);
+        if ($userId <= 0) {
+            $primaryExpert = DB::first(
+                'SELECT user_id
+                 FROM category_experts
+                 WHERE category_id = ?
+                 ORDER BY created_at, id
+                 LIMIT 1',
+                [$categoryId]
+            );
+            $userId = (int)($primaryExpert['user_id'] ?? 0);
         }
+
+        if ($userId <= 0 || !DB::first('SELECT id FROM users WHERE id = ?', [$userId])) {
+            return ['error' => 'User not found.'];
+        }
+
+        $removed = DB::execute(
+            'DELETE FROM category_experts WHERE category_id = ? AND user_id = ?',
+            [$categoryId, $userId]
+        );
+        if ($removed === 0) {
+            return ['error' => 'That expert is not assigned to this category.'];
+        }
+
+        $primaryExpert = DB::first(
+            'SELECT user_id
+             FROM category_experts
+             WHERE category_id = ?
+             ORDER BY created_at, id
+             LIMIT 1',
+            [$categoryId]
+        );
+        DB::execute(
+            'UPDATE categories SET admin_user_id = ? WHERE id = ?',
+            [$primaryExpert ? (int)$primaryExpert['user_id'] : null, $categoryId]
+        );
+
+        $this->demoteExpertIfUnused($userId);
 
         return ['ok' => true];
     }
 
     // helper: demote a user back to 'free' if they are not assigned to any other category
     private function demoteExpertIfUnused(int $userId): void {
+        $this->ensureCategoryExpertTable();
+
         $stillAssigned = DB::first(
-            'SELECT id FROM categories WHERE admin_user_id = ?',
+            'SELECT id FROM category_experts WHERE user_id = ?',
             [$userId]
         );
         if (!$stillAssigned) {
             DB::execute("UPDATE users SET role = 'free' WHERE id = ?", [$userId]);
+        }
+    }
+
+    public function getUnverifiedArticlesForExpert(int $userId): array {
+        DB::ensureArticleReviewWorkflow();
+
+        return DB::query(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+                    aer.status AS reviewer_status,
+                    counts.total_reviews,
+                    counts.verified_reviews,
+                    counts.pending_reviews
+             FROM article_expert_reviews aer
+             JOIN articles a ON a.id = aer.article_id
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             JOIN (
+                 SELECT article_id,
+                        COUNT(*) AS total_reviews,
+                        SUM(CASE WHEN status = "verified" THEN 1 ELSE 0 END) AS verified_reviews,
+                        SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) AS pending_reviews
+                 FROM article_expert_reviews
+                 GROUP BY article_id
+             ) counts ON counts.article_id = a.id
+             WHERE aer.user_id = ?
+               AND aer.status = "pending"
+               AND a.status = "pending"
+             ORDER BY a.updated_at DESC, a.id DESC',
+            [$userId]
+        );
+    }
+
+    public function getUnverifiedArticleForExpert(int $userId, int $articleId): ?array {
+        DB::ensureArticleReviewWorkflow();
+
+        return DB::first(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+                    aer.status AS reviewer_status
+             FROM article_expert_reviews aer
+             JOIN articles a ON a.id = aer.article_id
+             JOIN users u ON u.id = a.author_id
+             JOIN categories c ON c.id = a.category_id
+             WHERE aer.user_id = ?
+               AND aer.article_id = ?
+               AND a.status = "pending"',
+            [$userId, $articleId]
+        );
+    }
+
+    public function getExpertReviewProgress(int $articleId): array {
+        DB::ensureArticleReviewWorkflow();
+
+        return DB::query(
+            'SELECT aer.user_id, aer.status, aer.reviewed_at, u.full_name, u.email
+             FROM article_expert_reviews aer
+             JOIN users u ON u.id = aer.user_id
+             WHERE aer.article_id = ?
+             ORDER BY u.full_name',
+            [$articleId]
+        );
+    }
+
+    public function reviewPendingArticle(int $articleId, int $expertId, string $decision): array {
+        DB::ensureArticleReviewWorkflow();
+
+        $decision = $decision === 'unverified' ? 'unverified' : 'verified';
+
+        $review = DB::first(
+            'SELECT aer.id, aer.status, a.id AS article_id, a.status AS article_status, a.title
+             FROM article_expert_reviews aer
+             JOIN articles a ON a.id = aer.article_id
+             WHERE aer.article_id = ? AND aer.user_id = ?',
+            [$articleId, $expertId]
+        );
+        if (!$review) {
+            return ['error' => 'Review assignment not found for this article.'];
+        }
+        if (($review['article_status'] ?? '') !== 'pending') {
+            return ['error' => 'This article is no longer pending review.'];
+        }
+
+        $pdo = DB::get();
+        $pdo->beginTransaction();
+
+        try {
+            DB::execute(
+                'UPDATE article_expert_reviews
+                 SET status = ?, reviewed_at = NOW()
+                 WHERE article_id = ? AND user_id = ?',
+                [$decision, $articleId, $expertId]
+            );
+
+            if ($decision === 'unverified') {
+                DB::execute(
+                    'UPDATE articles
+                     SET status = ?, review_notice = ?, review_notice_pending = 1, updated_at = NOW()
+                     WHERE id = ?',
+                    ['draft', 'A category expert rejected this article during final verification. Please revise it and submit it again.', $articleId]
+                );
+                AuditLogger::log($expertId, 'reject_content', 'Article', $articleId, 'Rejected article during expert verification: ' . ($review['title'] ?? ('ID ' . $articleId)));
+            } else {
+                $summary = DB::first(
+                    'SELECT
+                        COUNT(*) AS total_reviews,
+                        SUM(CASE WHEN status = "verified" THEN 1 ELSE 0 END) AS verified_reviews,
+                        SUM(CASE WHEN status = "unverified" THEN 1 ELSE 0 END) AS unverified_reviews
+                     FROM article_expert_reviews
+                     WHERE article_id = ?',
+                    [$articleId]
+                );
+
+                $allVerified = (int)($summary['total_reviews'] ?? 0) > 0
+                    && (int)($summary['verified_reviews'] ?? 0) === (int)($summary['total_reviews'] ?? 0)
+                    && (int)($summary['unverified_reviews'] ?? 0) === 0;
+
+                if ($allVerified) {
+                    DB::execute(
+                        'UPDATE articles
+                         SET status = ?, published_at = NOW(), review_notice = NULL, review_notice_pending = 0, updated_at = NOW()
+                         WHERE id = ?',
+                        ['published', $articleId]
+                    );
+                    AuditLogger::log($expertId, 'approve_content', 'Article', $articleId, 'Completed expert verification and published article: ' . ($review['title'] ?? ('ID ' . $articleId)));
+                } else {
+                    AuditLogger::log($expertId, 'approve_content', 'Article', $articleId, 'Verified article during expert review: ' . ($review['title'] ?? ('ID ' . $articleId)));
+                }
+            }
+
+            $pdo->commit();
+            return ['ok' => true, 'title' => $review['title'] ?? 'Article'];
+        } catch (\Throwable $error) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
         }
     }
 

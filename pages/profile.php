@@ -26,7 +26,7 @@ $communityReviewCount = $feedbackStats && (int)$feedbackStats['review_count'] > 
 
 page_head('Profile');
 ?>
-<div class="dashboard-layout <?= $user->role === 'system_admin' ? 'profile-admin-shell' : 'user-dashboard-shell' ?>">
+<div class="dashboard-layout <?= in_array($user->role, ['system_admin', 'ai_trainer'], true) ? 'profile-admin-shell' : 'user-dashboard-shell' ?>">
     <?php sidebar($user); ?>
 
     <main>
