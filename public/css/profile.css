@@ -1,0 +1,68 @@
+.interests-section {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.interests-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.interests-section .interests-hint {
+    font-size: 0.825rem;
+    color: #6b7280;
+    margin-bottom: 14px;
+}
+
+.interest-grid-profile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.interest-chip-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #d1d5db;
+    background: transparent;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    user-select: none;
+    color: inherit;
+}
+
+.interest-chip-profile input[type="checkbox"] {
+    display: none;
+}
+
+.interest-chip-profile.selected {
+    background: #111827;
+    border-color: #111827;
+    color: #fff;
+}
+
+.interest-chip-profile:hover:not(.selected) {
+    border-color: #6b7280;
+    background: #f3f4f6;
+}
+
+.interests-counter {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.interests-counter.error {
+    color: #dc2626;
+}
+
+.btn-save-interests {
+    margin-top: 4px;
+}

@@ -4,9 +4,11 @@
 
 require_once __DIR__ . '/../db.php';
 
-class OnboardingController {
+class OnboardingController
+{
     //check if onboarding is completed
-    public function isCompleted(int $userId): bool {
+    public function isCompleted(int $userId): bool
+    {
         $row = DB::first(
             "SELECT onboarding_completed FROM users WHERE id = ?",
             [$userId]
@@ -48,7 +50,6 @@ class OnboardingController {
 
         //insert interests
         foreach ($interests as $categoryId) {
-
             DB::execute(
                 "INSERT INTO user_interests (user_id, category_id)
                  VALUES (?, ?)",
@@ -58,4 +59,39 @@ class OnboardingController {
         return ['ok' => true];
     }
 
+    //this is for the editing inside profile shit
+    // get the current interests (category IDs) for a user
+    public function getInterests(int $userId): array
+    {
+        $rows = DB::query(
+            "SELECT category_id FROM user_interests WHERE user_id = ?",
+            [$userId]
+        );
+        return array_column($rows, 'category_id');
+    }
+
+    // replace a user's interests with a new set
+    // must be exactly 3
+    public function updateInterests(int $userId, array $interests): array
+    {
+        if (count($interests) !== 3) {
+            return ['error' => 'Please select exactly 3 interests.'];
+        }
+
+        // delete old interests then re-insert
+        DB::execute(
+            "DELETE FROM user_interests WHERE user_id = ?",
+            [$userId]
+        );
+
+        foreach ($interests as $categoryId) {
+            DB::execute(
+                "INSERT INTO user_interests (user_id, category_id)
+                 VALUES (?, ?)",
+                [$userId, (int)$categoryId]
+            );
+        }
+
+        return ['ok' => true];
+    }
 }

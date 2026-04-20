@@ -1,10 +1,19 @@
 <?php
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
+require_once __DIR__ . '/../includes/controllers/OnboardingController.php';
+require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
-$auth = new AuthController();
+
+$auth         = new AuthController();
 $auth->requireAuth();
-$user = $auth->currentUser();
+$user         = $auth->currentUser();
+
+$onboardCtrl  = new OnboardingController();
+$articleCtrl  = new ArticleController();
+
+$allCategories    = $articleCtrl->getAllCategories();
+$currentInterests = $onboardCtrl->getInterests($user->id); // array of category IDs
 
 $allowedFeedbackRoles = ['free', 'premium', 'category_admin'];
 
@@ -26,6 +35,8 @@ $communityReviewCount = $feedbackStats && (int)$feedbackStats['review_count'] > 
 
 page_head('Profile');
 ?>
+
+<link rel="stylesheet" href="/public/css/profile.css">
 <div class="dashboard-layout <?= in_array($user->role, ['system_admin', 'ai_trainer'], true) ? 'profile-admin-shell' : 'user-dashboard-shell' ?>">
     <?php sidebar($user); ?>
 
@@ -43,6 +54,7 @@ page_head('Profile');
                             </div>
                         </div>
 
+                        <!-- profile details form here -->
                         <form action="/pages/update-profile.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
 
@@ -52,8 +64,7 @@ page_head('Profile');
                                         <img
                                             id="avatarImg"
                                             src="/public/<?= htmlspecialchars($user->avatarUrl) ?>"
-                                            alt="Profile picture"
-                                        >
+                                            alt="Profile picture">
                                     <?php else: ?>
                                         <span id="avatarInitial"><?= htmlspecialchars($user->initial()) ?></span>
                                     <?php endif; ?>
@@ -64,15 +75,13 @@ page_head('Profile');
                                     id="avatarInput"
                                     name="avatar"
                                     accept="image/jpeg,image/png,image/webp,image/gif"
-                                    hidden
-                                >
+                                    hidden>
 
                                 <div class="image-buttons">
                                     <button
                                         type="button"
                                         class="btn-dark"
-                                        onclick="document.getElementById('avatarInput').click()"
-                                    >
+                                        onclick="document.getElementById('avatarInput').click()">
                                         Upload Photo
                                     </button>
 
@@ -81,8 +90,7 @@ page_head('Profile');
                                         class="btn-light"
                                         id="removeAvatarBtn"
                                         <?= empty($user->avatarUrl) ? 'style="display:none"' : '' ?>
-                                        onclick="removeAvatar()"
-                                    >
+                                        onclick="removeAvatar()">
                                         Remove Photo
                                     </button>
                                 </div>
@@ -98,8 +106,7 @@ page_head('Profile');
                                 id="fullName"
                                 name="fullName"
                                 value="<?= htmlspecialchars($user->fullName) ?>"
-                                required
-                            >
+                                required>
 
                             <label for="email">Email</label>
                             <input
@@ -107,21 +114,55 @@ page_head('Profile');
                                 id="email"
                                 name="email"
                                 value="<?= htmlspecialchars($user->email) ?>"
-                                required
-                            >
+                                required>
 
                             <label for="bio">Bio</label>
                             <textarea
                                 id="bio"
                                 name="bio"
-                                rows="6"
-                            ><?= htmlspecialchars($user->bio) ?></textarea>
+                                rows="6"><?= htmlspecialchars($user->bio) ?></textarea>
 
                             <div class="profile-actions">
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                                 <a href="/pages/edit-password.php" class="btn profile-password-btn">Edit Password</a>
                             </div>
                         </form>
+
+                        <!-- edit interests shit here -->
+                        <div class="interests-section">
+                            <h3>Your Interests</h3>
+                            <p class="interests-hint">Pick exactly 3 topics. Your homepage recommendations update automatically.</p>
+
+                            <form action="/pages/update-profile.php" method="POST" id="interestsForm">
+                                <input type="hidden" name="update_interests" value="1">
+
+                                <div class="interest-grid-profile" id="interestGrid">
+                                    <?php foreach ($allCategories as $cat): ?>
+                                        <?php $checked = in_array($cat->id, $currentInterests); ?>
+                                        <label class="interest-chip-profile <?= $checked ? 'selected' : '' ?>">
+                                            <input
+                                                type="checkbox"
+                                                name="interests[]"
+                                                value="<?= $cat->id ?>"
+                                                <?= $checked ? 'checked' : '' ?>
+                                                class="interest-checkbox-profile">
+                                            <?= htmlspecialchars($cat->name) ?>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <p class="interests-counter" id="interestCounter">
+                                    <?= count($currentInterests) ?> / 3 selected
+                                </p>
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-save-interests"
+                                    id="saveInterestsBtn">
+                                    Save Interests
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </section>
 
@@ -160,8 +201,7 @@ page_head('Profile');
                                     rows="6"
                                     maxlength="500"
                                     placeholder="Tell us about your experience..."
-                                    required
-                                ></textarea>
+                                    required></textarea>
 
                                 <div class="feedback-count">
                                     <span id="feedbackCharCount">0</span>/500 characters
@@ -191,36 +231,74 @@ page_head('Profile');
 </div>
 
 <script>
-document.getElementById('avatarInput').addEventListener('change', function () {
-    const file = this.files[0];
-    if (!file) return;
+    // avatar upload preview and remove logic
+    document.getElementById('avatarInput').addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const preview = document.getElementById('avatarPreview');
-        preview.innerHTML = '<img src="' + e.target.result + '" alt="Profile picture">';
-        document.getElementById('removeAvatarBtn').style.display = '';
-        document.getElementById('removeAvatarFlag').value = '0';
-    };
-    reader.readAsDataURL(file);
-});
-
-function removeAvatar() {
-    const preview = document.getElementById('avatarPreview');
-    preview.innerHTML = '<span><?= htmlspecialchars($user->initial()) ?></span>';
-    document.getElementById('avatarInput').value = '';
-    document.getElementById('removeAvatarFlag').value = '1';
-    document.getElementById('removeAvatarBtn').style.display = 'none';
-}
-
-const feedbackInput = document.getElementById('feedbackContent');
-const feedbackCharCount = document.getElementById('feedbackCharCount');
-
-if (feedbackInput && feedbackCharCount) {
-    feedbackInput.addEventListener('input', function () {
-        feedbackCharCount.textContent = this.value.length;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('avatarPreview');
+            preview.innerHTML = '<img src="' + e.target.result + '" alt="Profile picture">';
+            document.getElementById('removeAvatarBtn').style.display = '';
+            document.getElementById('removeAvatarFlag').value = '0';
+        };
+        reader.readAsDataURL(file);
     });
-}
+
+    function removeAvatar() {
+        const preview = document.getElementById('avatarPreview');
+        preview.innerHTML = '<span><?= htmlspecialchars($user->initial()) ?></span>';
+        document.getElementById('avatarInput').value = '';
+        document.getElementById('removeAvatarFlag').value = '1';
+        document.getElementById('removeAvatarBtn').style.display = 'none';
+    }
+
+    // ── Feedback char counter ─────────────────────────────────
+    const feedbackInput = document.getElementById('feedbackContent');
+    const feedbackCharCount = document.getElementById('feedbackCharCount');
+    if (feedbackInput && feedbackCharCount) {
+        feedbackInput.addEventListener('input', function() {
+            feedbackCharCount.textContent = this.value.length;
+        });
+    }
+
+    // interest selection logic can choose max 3 with counter and save button enable/disable
+    const MAX_INTERESTS = 3;
+    const counter = document.getElementById('interestCounter');
+    const saveBtn = document.getElementById('saveInterestsBtn');
+
+    function updateCounter() {
+        const selected = document.querySelectorAll('.interest-checkbox-profile:checked').length;
+        counter.textContent = selected + ' / ' + MAX_INTERESTS + ' selected';
+
+        if (selected === MAX_INTERESTS) {
+            counter.classList.remove('error');
+            saveBtn.disabled = false;
+        } else {
+            counter.classList.add('error');
+            saveBtn.disabled = true;
+        }
+    }
+
+    document.querySelectorAll('.interest-chip-profile').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            const checkbox = chip.querySelector('input[type="checkbox"]');
+            const selected = document.querySelectorAll('.interest-checkbox-profile:checked').length;
+
+            // if trying to select 4th, block it
+            if (!checkbox.checked && selected >= MAX_INTERESTS) {
+                return;
+            }
+
+            checkbox.checked = !checkbox.checked;
+            chip.classList.toggle('selected', checkbox.checked);
+            updateCounter();
+        });
+    });
+
+    // set initial save button state
+    updateCounter();
 </script>
 
 <?php page_foot(); ?>
