@@ -111,6 +111,8 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
             <a href="#recent-articles">Recent Articles</a>
             <a href="#features">Fact Checking</a>
             <a href="#how-it-works">How It Works</a>
+            <a href="#video">Watch It In Action</a>
+            <a href="#testimonials">Testimonials</a>
             <a href="#pricing">Pricing</a>
         </div>
 
@@ -128,6 +130,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
         <a href="#recent-articles">Recent Articles</a>
         <a href="#features">Fact Checking</a>
         <a href="#how-it-works">How It Works</a>
+        <a href="#video">Watch It In Action</a>
         <a href="#testimonials">Testimonials</a>
         <a href="#pricing">Pricing</a>
 
