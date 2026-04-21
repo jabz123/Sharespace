@@ -93,6 +93,47 @@ function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $m
     return array_slice($suggestions, 0, 5);
 }
 
+function normalizeClaims(array $decoded): array {
+    $claims = is_array($decoded['claims'] ?? null) ? $decoded['claims'] : [];
+    $normalized = [];
+
+    foreach ($claims as $claim) {
+        if (!is_array($claim)) {
+            continue;
+        }
+
+        $text = trim((string)($claim['text'] ?? ''));
+        if ($text === '') {
+            continue;
+        }
+
+        $matchScore = max(0, min(1, (float)($claim['match_score'] ?? 0)));
+        $confidence = max(0, min(1, (float)($claim['confidence'] ?? 0)));
+
+        $status = 'supported';
+        if ($matchScore <= 0.2) {
+            $status = 'contradicted';
+        } elseif ($matchScore <= 0.5) {
+            $status = 'weak';
+        }
+
+        $normalized[] = [
+            'text' => $text,
+            'subject' => ($claim['subject'] ?? null) !== null ? trim((string)$claim['subject']) : null,
+            'value' => ($claim['value'] ?? null) !== null ? trim((string)$claim['value']) : null,
+            'time' => ($claim['time'] ?? null) !== null ? trim((string)$claim['time']) : null,
+            'match_score' => $matchScore,
+            'confidence' => $confidence,
+            'source' => ($claim['source'] ?? null) !== null ? trim((string)$claim['source']) : null,
+            'reason' => trim((string)($claim['reason'] ?? '')),
+            'importance' => trim((string)($claim['importance'] ?? 'minor')),
+            'status' => $status,
+        ];
+    }
+
+    return array_slice($normalized, 0, 8);
+}
+
 $auth = new AuthController();
 $user = $auth->currentUser();
 
@@ -167,6 +208,9 @@ if ($hasCachedVerification) {
             : [],
         'improvement_suggestions' => is_array($existingVerification['improvement_suggestions'] ?? null)
             ? $existingVerification['improvement_suggestions']
+            : [],
+        'claims' => is_array($existingVerification['claims'] ?? null)
+            ? $existingVerification['claims']
             : [],
         'cached_result' => true,
     ]);
@@ -311,6 +355,7 @@ $improvementSuggestions = buildImprovementSuggestions(
     $trustScore,
     $publishDecision
 );
+$claims = normalizeClaims($decoded);
 
 $_SESSION['article_ai_verification'] = [
     'fingerprint' => $fingerprint,
@@ -324,6 +369,7 @@ $_SESSION['article_ai_verification'] = [
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
     'improvement_suggestions' => $improvementSuggestions,
+    'claims' => $claims,
 ];
 
 echo json_encode([
@@ -336,5 +382,6 @@ echo json_encode([
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
     'improvement_suggestions' => $improvementSuggestions,
+    'claims' => $claims,
     'cached_result' => false,
 ]);

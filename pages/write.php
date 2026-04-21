@@ -194,6 +194,9 @@ $initialHighlights = $hasCurrentVerification && is_array($verification['misinfor
 $initialSuggestions = $hasCurrentVerification && is_array($verification['improvement_suggestions'] ?? null)
     ? $verification['improvement_suggestions']
     : [];
+$initialClaims = $hasCurrentVerification && is_array($verification['claims'] ?? null)
+    ? $verification['claims']
+    : [];
 
 $val = [
     'title' => $_POST['title'] ?? ($article?->title ?? ''),
@@ -359,6 +362,35 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                         <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
 
+                        <div id="aiClaimsBox" style="display:<?= !empty($initialClaims) ? 'block' : 'none' ?>; margin:14px 0;">
+                            <p style="font-weight:700; margin-bottom:8px;">Claim Review</p>
+                            <div id="aiClaimsList" style="display:grid; gap:10px;">
+                                <?php foreach ($initialClaims as $claim): ?>
+                                    <?php
+                                    $status = trim((string)($claim['status'] ?? 'supported'));
+                                    $label = $status === 'contradicted' ? 'Contradicted' : ($status === 'weak' ? 'Needs Support' : 'Supported');
+                                    $bg = $status === 'contradicted' ? '#3a1820' : ($status === 'weak' ? '#3b2a12' : '#132f22');
+                                    $fg = $status === 'contradicted' ? '#fecdd3' : ($status === 'weak' ? '#fde68a' : '#bbf7d0');
+                                    ?>
+                                    <div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
+                                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
+                                            <strong style="font-size:13px; line-height:1.5;"><?= htmlspecialchars((string)($claim['text'] ?? '')) ?></strong>
+                                            <span style="font-size:11px; padding:4px 8px; border-radius:999px; background:<?= $bg ?>; color:<?= $fg ?>; white-space:nowrap;"><?= $label ?></span>
+                                        </div>
+                                        <?php if (!empty($claim['reason'])): ?>
+                                            <p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;"><?= htmlspecialchars((string)$claim['reason']) ?></p>
+                                        <?php endif; ?>
+                                        <p class="text-muted" style="font-size:11px; margin:0;">
+                                            Match Score: <?= htmlspecialchars((string)round((float)($claim['match_score'] ?? 0), 2)) ?>
+                                            <?php if (!empty($claim['source'])): ?>
+                                                · Source: <?= htmlspecialchars((string)$claim['source']) ?>
+                                            <?php endif; ?>
+                                        </p>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
                         <div id="aiImproveBox" style="display:<?= !empty($initialSuggestions) ? 'block' : 'none' ?>; margin:14px 0;">
                             <p style="font-weight:700; margin-bottom:8px;">How To Improve</p>
                             <ul id="aiImproveList" style="padding-left:18px; margin:0;">
@@ -468,6 +500,8 @@ const publishStatus = document.getElementById('publishStatus');
 const trustScoreInput = document.getElementById('trustScoreInput');
 const initialPublishUnlocked = <?= $verificationPassed ? 'true' : 'false' ?>;
 const initialDecision = <?= json_encode($initialDecision) ?>;
+const claimsBox = document.getElementById('aiClaimsBox');
+const claimsList = document.getElementById('aiClaimsList');
 const improveBox = document.getElementById('aiImproveBox');
 const improveList = document.getElementById('aiImproveList');
 const misinformationBox = document.getElementById('aiMisinformationBox');
@@ -553,6 +587,35 @@ function renderImprovementSuggestions(items) {
         return `<li style="margin-bottom:8px;">${escapeHtml(item)}</li>`;
     }).join('');
     improveBox.style.display = 'block';
+}
+
+function renderClaims(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        claimsList.innerHTML = '';
+        claimsBox.style.display = 'none';
+        return;
+    }
+
+    claimsList.innerHTML = items.map((claim) => {
+        const status = claim && claim.status ? String(claim.status) : 'supported';
+        const label = status === 'contradicted' ? 'Contradicted' : (status === 'weak' ? 'Needs Support' : 'Supported');
+        const bg = status === 'contradicted' ? '#3a1820' : (status === 'weak' ? '#3b2a12' : '#132f22');
+        const fg = status === 'contradicted' ? '#fecdd3' : (status === 'weak' ? '#fde68a' : '#bbf7d0');
+        const text = escapeHtml(claim && claim.text ? claim.text : '');
+        const reason = claim && claim.reason ? `<p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">${escapeHtml(claim.reason)}</p>` : '';
+        const score = Number(claim && claim.match_score ? claim.match_score : 0);
+        const source = claim && claim.source ? ` · Source: ${escapeHtml(claim.source)}` : '';
+
+        return `<div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
+                <strong style="font-size:13px; line-height:1.5;">${text}</strong>
+                <span style="font-size:11px; padding:4px 8px; border-radius:999px; background:${bg}; color:${fg}; white-space:nowrap;">${label}</span>
+            </div>
+            ${reason}
+            <p class="text-muted" style="font-size:11px; margin:0;">Match Score: ${score.toFixed(2)}${source}</p>
+        </div>`;
+    }).join('');
+    claimsBox.style.display = 'block';
 }
 
 function messageForDecision(decision) {
@@ -646,6 +709,7 @@ async function runAICheck() {
         verdictBox.textContent = data.verdict || 'Verification completed.';
         verdictBox.style.background = decision === 'auto_publish' ? '#22c55e' : (decision === 'needs_review' ? '#f59e0b' : '#ef4444');
         verdictBox.style.color = decision === 'unreliable' ? '#fff' : (decision === 'auto_publish' ? '#000' : '#111827');
+        renderClaims(data.claims || []);
         renderImprovementSuggestions(data.improvement_suggestions || []);
         renderMisinformationHighlights(data.misinformation_highlights || []);
 
