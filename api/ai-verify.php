@@ -201,6 +201,13 @@ if ($hasCachedVerification) {
             'logical_consistency' => 0,
             'completeness' => 0,
         ],
+        'rubric_metrics' => is_array($existingVerification['rubric_metrics'] ?? null) ? $existingVerification['rubric_metrics'] : [
+            'factual_accuracy' => 0,
+            'source_quality' => 0,
+            'bias_detection' => 0,
+            'logical_consistency' => 0,
+            'completeness' => 0,
+        ],
         'source_url' => $sourceUrl,
         'source_label' => trim((string)($existingVerification['source_label'] ?? '')),
         'misinformation_highlights' => is_array($existingVerification['misinformation_highlights'] ?? null)
@@ -296,6 +303,14 @@ $normalizedMetrics = [
     'logical_consistency' => max(0, min(100, (int)($metrics['logical_consistency'] ?? $decoded['logical_consistency'] ?? 0))),
     'completeness' => max(0, min(100, (int)($metrics['completeness'] ?? $decoded['completeness'] ?? 0))),
 ];
+$rawRubricMetrics = is_array($decoded['rubric_metrics'] ?? null) ? $decoded['rubric_metrics'] : [];
+$normalizedRubricMetrics = [
+    'factual_accuracy' => max(0, min(45, (int)($rawRubricMetrics['A_factual_accuracy'] ?? round(($normalizedMetrics['factual_accuracy'] / 100) * 45)))),
+    'source_quality' => max(0, min(25, (int)($rawRubricMetrics['S_source_quality'] ?? round(($normalizedMetrics['source_quality'] / 100) * 25)))),
+    'bias_detection' => max(0, min(10, (int)($rawRubricMetrics['B_bias'] ?? round(($normalizedMetrics['bias_detection'] / 100) * 10)))),
+    'logical_consistency' => max(0, min(10, (int)($rawRubricMetrics['L_logic'] ?? round(($normalizedMetrics['logical_consistency'] / 100) * 10)))),
+    'completeness' => max(0, min(10, (int)($rawRubricMetrics['C_completeness'] ?? round(($normalizedMetrics['completeness'] / 100) * 10)))),
+];
 
 $trustScore = (int)($decoded['trust_score'] ?? array_sum($normalizedMetrics) / 5);
 $trustScore = max(0, min(100, $trustScore));
@@ -365,6 +380,7 @@ $_SESSION['article_ai_verification'] = [
     'summary' => $summary,
     'verdict' => $verdict,
     'metrics' => $normalizedMetrics,
+    'rubric_metrics' => $normalizedRubricMetrics,
     'source_url' => $sourceUrl,
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
@@ -378,6 +394,7 @@ echo json_encode([
     'summary' => $summary,
     'verdict' => $verdict,
     'metrics' => $normalizedMetrics,
+    'rubric_metrics' => $normalizedRubricMetrics,
     'source_url' => $sourceUrl,
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,

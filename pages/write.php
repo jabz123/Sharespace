@@ -185,6 +185,15 @@ $initialMetrics = $hasCurrentVerification && is_array($verification['metrics'] ?
         'logical_consistency' => 0,
         'completeness' => 0,
     ];
+$initialRubricMetrics = $hasCurrentVerification && is_array($verification['rubric_metrics'] ?? null)
+    ? $verification['rubric_metrics']
+    : [
+        'factual_accuracy' => 0,
+        'source_quality' => 0,
+        'bias_detection' => 0,
+        'logical_consistency' => 0,
+        'completeness' => 0,
+    ];
 $initialSourceLabel = $hasCurrentVerification
     ? trim((string)($verification['source_label'] ?? ''))
     : '';
@@ -417,19 +426,19 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </ul>
                         </div>
 
-                        <p>Factual Accuracy</p>
+                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Factual Accuracy</span><span id="metricFactualAccuracyPoints" class="text-muted"><?= (int)($initialRubricMetrics['factual_accuracy'] ?? 0) ?>/45</span></p>
                         <div class="progress-bar"><div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int)($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div></div>
 
-                        <p>Source Quality</p>
+                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Source Quality</span><span id="metricSourceQualityPoints" class="text-muted"><?= (int)($initialRubricMetrics['source_quality'] ?? 0) ?>/25</span></p>
                         <div class="progress-bar"><div id="metricSourceQuality" style="width:<?= max(0, min(100, (int)($initialMetrics['source_quality'] ?? 0))) ?>%"></div></div>
 
-                        <p>Bias Detection</p>
+                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Bias Detection</span><span id="metricBiasDetectionPoints" class="text-muted"><?= (int)($initialRubricMetrics['bias_detection'] ?? 0) ?>/10</span></p>
                         <div class="progress-bar"><div id="metricBiasDetection" style="width:<?= max(0, min(100, (int)($initialMetrics['bias_detection'] ?? 0))) ?>%"></div></div>
 
-                        <p>Logical Consistency</p>
+                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Logical Consistency</span><span id="metricLogicalConsistencyPoints" class="text-muted"><?= (int)($initialRubricMetrics['logical_consistency'] ?? 0) ?>/10</span></p>
                         <div class="progress-bar"><div id="metricLogicalConsistency" style="width:<?= max(0, min(100, (int)($initialMetrics['logical_consistency'] ?? 0))) ?>%"></div></div>
 
-                        <p>Completeness</p>
+                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Completeness</span><span id="metricCompletenessPoints" class="text-muted"><?= (int)($initialRubricMetrics['completeness'] ?? 0) ?>/10</span></p>
                         <div class="progress-bar"><div id="metricCompleteness" style="width:<?= max(0, min(100, (int)($initialMetrics['completeness'] ?? 0))) ?>%"></div></div>
 
                         <div
@@ -491,6 +500,11 @@ function escapeHtml(value) {
 function setMetricBar(id, value) {
     const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
     document.getElementById(id).style.width = `${safeValue}%`;
+}
+
+function setMetricPoints(id, value, max) {
+    const safeValue = Math.max(0, Math.min(max, Number(value) || 0));
+    document.getElementById(id).textContent = `${safeValue}/${max}`;
 }
 
 const autoPublishThreshold = <?= (int)$autoPublishTrustScore ?>;
@@ -671,6 +685,7 @@ async function runAICheck() {
         }
 
         const metrics = data.metrics || {};
+        const rubricMetrics = data.rubric_metrics || {};
         const trustScore = Math.max(0, Math.min(100, Number(data.trust_score) || 0));
         const decision = String(
             data.publish_decision ||
@@ -705,6 +720,11 @@ async function runAICheck() {
         setMetricBar('metricBiasDetection', metrics.bias_detection);
         setMetricBar('metricLogicalConsistency', metrics.logical_consistency);
         setMetricBar('metricCompleteness', metrics.completeness);
+        setMetricPoints('metricFactualAccuracyPoints', rubricMetrics.factual_accuracy, 45);
+        setMetricPoints('metricSourceQualityPoints', rubricMetrics.source_quality, 25);
+        setMetricPoints('metricBiasDetectionPoints', rubricMetrics.bias_detection, 10);
+        setMetricPoints('metricLogicalConsistencyPoints', rubricMetrics.logical_consistency, 10);
+        setMetricPoints('metricCompletenessPoints', rubricMetrics.completeness, 10);
 
         verdictBox.textContent = data.verdict || 'Verification completed.';
         verdictBox.style.background = decision === 'auto_publish' ? '#22c55e' : (decision === 'needs_review' ? '#f59e0b' : '#ef4444');
