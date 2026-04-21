@@ -484,6 +484,34 @@ function showAIError(message) {
     document.getElementById('aiErrorMessage').textContent = message;
 }
 
+function formatVerifyError(data, fallbackMessage) {
+    const parts = [];
+    const baseError = data && data.error ? String(data.error) : String(fallbackMessage || 'AI verification failed.');
+    parts.push(baseError);
+
+    if (data && data.details) {
+        if (typeof data.details === 'string') {
+            parts.push(`Details: ${data.details}`);
+        } else {
+            try {
+                parts.push(`Details: ${JSON.stringify(data.details)}`);
+            } catch (error) {
+                parts.push('Details: [unserializable error payload]');
+            }
+        }
+    }
+
+    if (data && data.webhook_url) {
+        parts.push(`Webhook: ${data.webhook_url}`);
+    }
+
+    if (data && data.status_code) {
+        parts.push(`Status: ${data.status_code}`);
+    }
+
+    return parts.join(' ');
+}
+
 function renderMisinformationHighlights(items) {
     if (!Array.isArray(items) || items.length === 0) {
         misinformationList.innerHTML = '';
@@ -549,7 +577,7 @@ async function runAICheck() {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.error || 'AI verification failed.');
+            throw new Error(formatVerifyError(data, 'AI verification failed.'));
         }
 
         const metrics = data.metrics || {};

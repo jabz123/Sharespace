@@ -119,6 +119,7 @@ if (!is_array($decoded)) {
         'error' => 'n8n returned an invalid response.',
         'details' => $response,
         'status_code' => $httpCode,
+        'webhook_url' => $webhookUrl,
     ]);
     exit;
 }
@@ -129,6 +130,7 @@ if ($httpCode >= 400) {
         'error' => $decoded['error'] ?? 'n8n verification failed.',
         'details' => $decoded,
         'status_code' => $httpCode,
+        'webhook_url' => $webhookUrl,
     ]);
     exit;
 }
