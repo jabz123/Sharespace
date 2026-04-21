@@ -339,7 +339,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                     <div id="ai-loading" style="display:none;">
                         <p class="text-muted" style="margin-top:10px;">
-                            Running n8n verification workflow...
+                            AI Fact Checking...
                         </p>
                     </div>
 
