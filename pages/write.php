@@ -191,6 +191,9 @@ $initialSourceLabel = $hasCurrentVerification
 $initialHighlights = $hasCurrentVerification && is_array($verification['misinformation_highlights'] ?? null)
     ? $verification['misinformation_highlights']
     : [];
+$initialSuggestions = $hasCurrentVerification && is_array($verification['improvement_suggestions'] ?? null)
+    ? $verification['improvement_suggestions']
+    : [];
 
 $val = [
     'title' => $_POST['title'] ?? ($article?->title ?? ''),
@@ -356,6 +359,15 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                         <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
 
+                        <div id="aiImproveBox" style="display:<?= !empty($initialSuggestions) ? 'block' : 'none' ?>; margin:14px 0;">
+                            <p style="font-weight:700; margin-bottom:8px;">How To Improve</p>
+                            <ul id="aiImproveList" style="padding-left:18px; margin:0;">
+                                <?php foreach ($initialSuggestions as $item): ?>
+                                    <li style="margin-bottom:8px;"><?= htmlspecialchars((string)$item) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+
                         <div id="aiMisinformationBox" style="display:<?= !empty($initialHighlights) ? 'block' : 'none' ?>; margin:14px 0;">
                             <p style="font-weight:700; margin-bottom:8px;">Misinformation Highlights</p>
                             <ul id="aiMisinformationList" style="padding-left:18px; margin:0;">
@@ -456,6 +468,8 @@ const publishStatus = document.getElementById('publishStatus');
 const trustScoreInput = document.getElementById('trustScoreInput');
 const initialPublishUnlocked = <?= $verificationPassed ? 'true' : 'false' ?>;
 const initialDecision = <?= json_encode($initialDecision) ?>;
+const improveBox = document.getElementById('aiImproveBox');
+const improveList = document.getElementById('aiImproveList');
 const misinformationBox = document.getElementById('aiMisinformationBox');
 const misinformationList = document.getElementById('aiMisinformationList');
 
@@ -526,6 +540,19 @@ function renderMisinformationHighlights(items) {
         return `<li style="margin-bottom:8px;">${line}${reason}${source}</li>`;
     }).join('');
     misinformationBox.style.display = 'block';
+}
+
+function renderImprovementSuggestions(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        improveList.innerHTML = '';
+        improveBox.style.display = 'none';
+        return;
+    }
+
+    improveList.innerHTML = items.map((item) => {
+        return `<li style="margin-bottom:8px;">${escapeHtml(item)}</li>`;
+    }).join('');
+    improveBox.style.display = 'block';
 }
 
 function messageForDecision(decision) {
@@ -615,6 +642,7 @@ async function runAICheck() {
         verdictBox.textContent = data.verdict || 'Verification completed.';
         verdictBox.style.background = decision === 'auto_publish' ? '#22c55e' : (decision === 'needs_review' ? '#f59e0b' : '#ef4444');
         verdictBox.style.color = decision === 'unreliable' ? '#fff' : (decision === 'auto_publish' ? '#000' : '#111827');
+        renderImprovementSuggestions(data.improvement_suggestions || []);
         renderMisinformationHighlights(data.misinformation_highlights || []);
 
         if (decision === 'auto_publish' && trustScore >= autoPublishThreshold) {

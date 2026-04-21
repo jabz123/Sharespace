@@ -22,6 +22,77 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
+function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $metrics, int $trustScore, string $publishDecision): array {
+    $suggestions = [];
+    $seen = [];
+
+    $push = static function (string $message) use (&$suggestions, &$seen): void {
+        $normalized = trim($message);
+        if ($normalized === '' || isset($seen[$normalized])) {
+            return;
+        }
+
+        $seen[$normalized] = true;
+        $suggestions[] = $normalized;
+    };
+
+    $flags = is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [];
+    $claims = is_array($decoded['claims'] ?? null) ? $decoded['claims'] : [];
+    $referenceValid = !empty($decoded['reference_valid']);
+
+    if ($sourceUrl === '') {
+        $push('Add an exact CNA or ST article URL in the Reference Link field so the checker has a strong evidence anchor.');
+    } elseif (!$referenceValid) {
+        $push('Replace the current reference link with an exact CNA or ST article URL. Homepages and section pages do not count as trusted article evidence.');
+    }
+
+    if (($metrics['source_quality'] ?? 0) < 70 || in_array('no_trusted_match', $flags, true)) {
+        $push('Strengthen the sourcing by matching the draft more closely to CNA or ST coverage and using the exact article link.');
+    }
+
+    if (($metrics['factual_accuracy'] ?? 0) < 75) {
+        $push('Tighten factual claims by adding dates, locations, names, and figures that directly match CNA or ST reporting.');
+    }
+
+    if (($metrics['completeness'] ?? 0) < 75 || in_array('missing_context', $flags, true)) {
+        $push('Add missing context such as who said what, when it happened, where it happened, and what was officially announced.');
+    }
+
+    if (($metrics['bias_detection'] ?? 0) < 75 || in_array('high_bias', $flags, true)) {
+        $push('Use more neutral phrasing and avoid loaded or interpretive wording unless you attribute it to a named source.');
+    }
+
+    if (in_array('low_information', $flags, true) || in_array('vague_claims', $flags, true)) {
+        $push('Make the article more specific. Replace vague summaries with verifiable statements tied to named people, places, dates, or actions.');
+    }
+
+    $weakClaims = array_values(array_filter($claims, static function ($claim): bool {
+        return is_array($claim) && (float)($claim['match_score'] ?? 1) <= 0.5;
+    }));
+    if (!empty($weakClaims)) {
+        $example = trim((string)($weakClaims[0]['text'] ?? ''));
+        $push(
+            $example !== ''
+                ? 'Rewrite or attribute weakly supported claims such as: "' . $example . '".'
+                : 'Rewrite or attribute claims that are only partially supported by CNA or ST.'
+        );
+    }
+
+    if ($publishDecision === 'needs_review' && $trustScore < 81) {
+        $push('Aim to lift the trust score above 81 by grounding each key sentence in an exact CNA or ST article and removing broad unsupported conclusions.');
+    }
+
+    if ($publishDecision === 'unreliable') {
+        $push('Review the highlighted misinformation or unsupported lines first, then rerun AI Fact Check after revising them.');
+    }
+
+    if (empty($suggestions)) {
+        $push('Keep the draft tightly aligned with CNA or ST wording and add a precise reference article link to maximise the trust score.');
+    }
+
+    return array_slice($suggestions, 0, 5);
+}
+
 $auth = new AuthController();
 $user = $auth->currentUser();
 
@@ -195,6 +266,14 @@ if (is_array($decoded['misinformation_highlights'] ?? null)) {
     }
 }
 
+$improvementSuggestions = buildImprovementSuggestions(
+    $decoded,
+    $sourceUrl,
+    $normalizedMetrics,
+    $trustScore,
+    $publishDecision
+);
+
 $_SESSION['article_ai_verification'] = [
     'fingerprint' => buildArticleVerificationFingerprint([
         'title' => $title,
@@ -212,6 +291,7 @@ $_SESSION['article_ai_verification'] = [
     'source_url' => $sourceUrl,
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
+    'improvement_suggestions' => $improvementSuggestions,
 ];
 
 echo json_encode([
@@ -223,4 +303,5 @@ echo json_encode([
     'source_url' => $sourceUrl,
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
+    'improvement_suggestions' => $improvementSuggestions,
 ]);
