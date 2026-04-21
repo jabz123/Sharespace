@@ -624,13 +624,17 @@ async function runAICheck() {
 
         if (data.source_label) {
             sourceLabel.style.display = 'block';
-            sourceLabel.textContent = data.source_label;
+            sourceLabel.textContent = data.cached_result
+                ? `${data.source_label} Reused cached verification for the unchanged draft.`
+                : data.source_label;
         } else if (sourceUrl) {
             sourceLabel.style.display = 'block';
-            sourceLabel.innerHTML = `Reference used: <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceUrl)}</a>`;
+            sourceLabel.innerHTML = data.cached_result
+                ? `Reference used: <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceUrl)}</a> Reused cached verification for the unchanged draft.`
+                : `Reference used: <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceUrl)}</a>`;
         } else {
-            sourceLabel.style.display = 'none';
-            sourceLabel.textContent = '';
+            sourceLabel.style.display = data.cached_result ? 'block' : 'none';
+            sourceLabel.textContent = data.cached_result ? 'Reused cached verification for the unchanged draft.' : '';
         }
 
         setMetricBar('metricFactualAccuracy', metrics.factual_accuracy);

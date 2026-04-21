@@ -135,6 +135,44 @@ if ($sourceUrl !== '' && !filter_var($sourceUrl, FILTER_VALIDATE_URL)) {
     exit;
 }
 
+$fingerprint = buildArticleVerificationFingerprint([
+    'title' => $title,
+    'excerpt' => $excerpt,
+    'content' => $content,
+    'category_id' => $categoryId,
+    'source_url' => $sourceUrl,
+], (int)$user->id);
+
+$existingVerification = $_SESSION['article_ai_verification'] ?? null;
+$hasCachedVerification = is_array($existingVerification)
+    && ($existingVerification['fingerprint'] ?? '') === $fingerprint;
+
+if ($hasCachedVerification) {
+    echo json_encode([
+        'trust_score' => max(0, min(100, (int)($existingVerification['trust_score'] ?? 0))),
+        'publish_decision' => trim((string)($existingVerification['publish_decision'] ?? '')),
+        'summary' => trim((string)($existingVerification['summary'] ?? 'Verification reused from the latest unchanged draft.')),
+        'verdict' => trim((string)($existingVerification['verdict'] ?? 'Verification reused from the latest unchanged draft.')),
+        'metrics' => is_array($existingVerification['metrics'] ?? null) ? $existingVerification['metrics'] : [
+            'factual_accuracy' => 0,
+            'source_quality' => 0,
+            'bias_detection' => 0,
+            'logical_consistency' => 0,
+            'completeness' => 0,
+        ],
+        'source_url' => $sourceUrl,
+        'source_label' => trim((string)($existingVerification['source_label'] ?? '')),
+        'misinformation_highlights' => is_array($existingVerification['misinformation_highlights'] ?? null)
+            ? $existingVerification['misinformation_highlights']
+            : [],
+        'improvement_suggestions' => is_array($existingVerification['improvement_suggestions'] ?? null)
+            ? $existingVerification['improvement_suggestions']
+            : [],
+        'cached_result' => true,
+    ]);
+    exit;
+}
+
 $webhookUrl = '';
 if (defined('N8N_VERIFY_WEBHOOK_URL')) {
     $webhookUrl = trim((string)N8N_VERIFY_WEBHOOK_URL);
@@ -165,7 +203,7 @@ curl_setopt_array($ch, [
     CURLOPT_POST => true,
     CURLOPT_POSTFIELDS => json_encode($payload),
     CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-    CURLOPT_TIMEOUT => 45,
+    CURLOPT_TIMEOUT => 90,
 ]);
 
 $response = curl_exec($ch);
@@ -275,13 +313,7 @@ $improvementSuggestions = buildImprovementSuggestions(
 );
 
 $_SESSION['article_ai_verification'] = [
-    'fingerprint' => buildArticleVerificationFingerprint([
-        'title' => $title,
-        'excerpt' => $excerpt,
-        'content' => $content,
-        'category_id' => $categoryId,
-        'source_url' => $sourceUrl,
-    ], (int)$user->id),
+    'fingerprint' => $fingerprint,
     'trust_score' => $trustScore,
     'passed' => $publishDecision === 'auto_publish' && $trustScore >= 81,
     'publish_decision' => $publishDecision,
@@ -304,4 +336,5 @@ echo json_encode([
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
     'improvement_suggestions' => $improvementSuggestions,
+    'cached_result' => false,
 ]);
