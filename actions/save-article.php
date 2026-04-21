@@ -35,7 +35,7 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
 
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
-$minimumTrustScore = 60;
+$autoPublishTrustScore = 81;
 
 $auth->requireAuth();
 $user = $auth->currentUser();
@@ -107,26 +107,28 @@ $fingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
 $isVerificationCurrent = is_array($verification)
     && ($verification['fingerprint'] ?? '') === $fingerprint;
 $verifiedTrustScore = $isVerificationCurrent ? (int)($verification['trust_score'] ?? 0) : 0;
+$verifiedDecision = $isVerificationCurrent ? trim((string)($verification['publish_decision'] ?? '')) : '';
 $hasPassingVerification = $isVerificationCurrent
     && !empty($verification['passed'])
-    && $verifiedTrustScore >= $minimumTrustScore;
+    && $verifiedTrustScore >= $autoPublishTrustScore
+    && $verifiedDecision === 'auto_publish';
 
 if (!$hasPassingVerification) {
-    actionRedirect($isEdit ? '/pages/write.php?id=' . $editId : '/pages/write.php', 'Run AI Fact Check and get at least 60% before publishing this article.');
+    actionRedirect($isEdit ? '/pages/write.php?id=' . $editId : '/pages/write.php', 'Run AI Fact Check and get an Auto Publish result at 81% or above before publishing this article.');
 }
 
 $_POST['status'] = 'published';
 $_POST['trust_score'] = $verifiedTrustScore;
 
 if ($isEdit) {
-    $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
+    $result = $articleCtrl->update($editId, $user->id, $_POST);
 } else {
-    $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
+    $result = $articleCtrl->publish($user->id, $_POST);
 }
 
 if (isset($result['ok'])) {
     unset($_SESSION['article_ai_verification']);
-    actionRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
+    actionRedirect('/pages/my-articles.php', null, 'Article published successfully.');
 }
 
 actionRedirect($isEdit ? '/pages/write.php?id=' . $editId : '/pages/write.php', $result['error'] ?? 'Unable to submit article.');

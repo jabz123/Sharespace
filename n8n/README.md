@@ -5,8 +5,9 @@ This folder contains a starter `n8n` workflow for the article verification panel
 ## What it does
 
 - Receives article data from `POST /api/ai-verify.php`
-- Sends the article to OpenAI using `gpt-5-mini`
-- Returns structured verification data for the right-hand AI panel
+- Searches only CNA and The Straits Times for matching coverage
+- Scores the draft with the SharedSpace trust rubric
+- Returns publish routing plus misinformation highlights for unreliable drafts
 
 ## Expected setup
 
@@ -15,13 +16,13 @@ This folder contains a starter `n8n` workflow for the article verification panel
 3. In `n8n`, set the `OPENAI_API_KEY` environment variable or replace it in the HTTP Request node
 4. Open the write page and click `AI Fact Check`
 
-## Example source link
+## Trusted source link
 
-You can paste a reference link into the new source URL field on the write page, for example:
+You can paste an exact CNA or ST article link into the source URL field on the write page, for example:
 
-`https://www.straitstimes.com/`
+`https://www.straitstimes.com/singapore/example-article-slug`
 
-The workflow treats that URL as supporting context and includes it in the verification prompt.
+Homepage and section URLs do not count as trusted article evidence.
 
 ## Response shape
 
@@ -30,8 +31,9 @@ The workflow returns JSON like this:
 ```json
 {
   "trust_score": 82,
-  "summary": "The article is mostly consistent and grounded in the supplied context.",
-  "verdict": "Trust score is above 60%. Article can be published.",
+  "publish_decision": "auto_publish",
+  "summary": "Both CNA and ST support the core story. The supplied reference URL appears to be a valid exact CNA/ST article link.",
+  "verdict": "Reliable. Auto publish approved because the CNA/ST evidence is strong enough for direct publication.",
   "metrics": {
     "factual_accuracy": 85,
     "source_quality": 78,
@@ -39,9 +41,18 @@ The workflow returns JSON like this:
     "logical_consistency": 88,
     "completeness": 86
   },
-  "source_label": "Straits Times reference supplied"
+  "source_label": "Compared against 2 trusted CNA/ST sources.",
+  "misinformation_highlights": []
 }
 ```
+
+## Publish routing
+
+- `81-100`: `auto_publish`
+- `60-80`: `needs_review`
+- `0-59`: `unreliable`
+
+For now, `needs_review` does not auto-route to category experts and does not unlock publishing.
 
 ## Feedback sentiment workflow
 

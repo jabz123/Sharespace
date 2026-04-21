@@ -1,5 +1,5 @@
 {
-  "name": "SharedSpace AI Verification",
+  "name": "SharedSpace CNA ST Verification",
   "nodes": [
     {
       "parameters": {
@@ -8,60 +8,120 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "a9b8c3a2-0001-4d80-8f52-000000000001",
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000001",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
         220,
-        300
+        340
       ]
     },
     {
       "parameters": {
-        "jsCode": "const input = $json;\nconst title = String(input.title || '').trim();\nconst excerpt = String(input.excerpt || '').trim();\nconst content = String(input.content || '').trim();\nconst category = String(input.category || '').trim();\nconst sourceUrl = String(input.source_url || '').trim();\n\nconst prompt = [\n  'You are an editorial verification assistant for SharedSpace.',\n  'Return ONLY valid JSON.',\n  'Do not include markdown, explanations, or extra keys.',\n  '',\n  'Return this exact schema:',\n  '{',\n  '  \"trust_score\": 0,',\n  '  \"summary\": \"\",',\n  '  \"verdict\": \"\",',\n  '  \"metrics\": {',\n  '    \"factual_accuracy\": 0,',\n  '    \"source_quality\": 0,',\n  '    \"bias_detection\": 0,',\n  '    \"logical_consistency\": 0,',\n  '    \"completeness\": 0',\n  '  },',\n  '  \"source_label\": \"\"',\n  '}',\n  '',\n  'Rules:',\n  '- All score fields must be integers from 0 to 100.',\n  '- trust_score should reflect the overall article quality.',\n  '- bias_detection should be higher when bias is lower.',\n  '- summary should be 2-3 sentences.',\n  '- verdict should clearly say whether the article can be published.',\n  '',\n  `Title: ${title}`,\n  `Category: ${category}`,\n  `Summary: ${excerpt}`,\n  `Reference URL: ${sourceUrl || 'No reference URL supplied'}`,\n  '',\n  'Article content:',\n  content\n].join('\\n');\n\nreturn [{ json: { ...input, prompt } }];"
+        "jsCode": "const payload = $json.body ?? $json;\n\nconst title = String(payload.title || '').trim();\nconst excerpt = String(payload.excerpt || '').trim();\nconst content = String(payload.content || '').trim();\nconst category = String(payload.category || '').trim();\nconst sourceUrl = String(payload.source_url || '').trim();\nconst requestedBy = payload.requested_by || {};\n\nconst parseUrl = (value) => {\n  try {\n    return new URL(String(value || '').trim());\n  } catch (error) {\n    return null;\n  }\n};\n\nconst isExactTrustedArticleUrl = (value) => {\n  const parsed = parseUrl(value);\n  if (!parsed) return false;\n\n  const host = parsed.hostname.toLowerCase();\n  const allowedHosts = [\n    'channelnewsasia.com',\n    'www.channelnewsasia.com',\n    'cna.com',\n    'www.cna.com',\n    'straitstimes.com',\n    'www.straitstimes.com'\n  ];\n  if (!allowedHosts.includes(host)) return false;\n\n  const path = parsed.pathname.replace(/\\/+$/, '').toLowerCase();\n  if (!path || path === '/') return false;\n\n  const genericSegments = new Set([\n    'singapore',\n    'asia',\n    'world',\n    'business',\n    'sport',\n    'sports',\n    'life',\n    'opinion',\n    'multimedia',\n    'video',\n    'videos',\n    'podcasts',\n    'newsletter',\n    'news',\n    'topic',\n    'topics',\n    'tag',\n    'tags',\n    'search',\n    'live',\n    'collection'\n  ]);\n\n  const segments = path.split('/').filter(Boolean);\n  if (segments.length < 2) return false;\n  if (segments.length === 1 && genericSegments.has(segments[0])) return false;\n  if (segments.some((segment) => genericSegments.has(segment)) && segments.length < 3) return false;\n\n  const lastSegment = segments[segments.length - 1];\n  if (!/[a-z0-9-]{8,}/.test(lastSegment)) return false;\n\n  return true;\n};\n\nconst sourceNameFromUrl = (value) => {\n  const host = parseUrl(value)?.hostname.toLowerCase() || '';\n  if (host.includes('straitstimes.com')) return 'ST';\n  if (host.includes('channelnewsasia.com') || host.includes('cna.com')) return 'CNA';\n  return null;\n};\n\nconst referenceValid = isExactTrustedArticleUrl(sourceUrl);\nconst referenceSource = referenceValid ? sourceNameFromUrl(sourceUrl) : null;\nconst primarySource = referenceValid && referenceSource\n  ? {\n      name: referenceSource,\n      tier: 1,\n      title: title || referenceSource,\n      url: sourceUrl,\n      snippet: excerpt || content.slice(0, 320),\n      match_type: 'direct',\n      relevance_note: 'primary_source_from_user_reference'\n    }\n  : null;\n\nconst articleText = [\n  `Title: ${title || '[empty]'}`,\n  `Category: ${category || '[empty]'}`,\n  `Summary: ${excerpt || '[empty]'}`,\n  `Reference URL: ${sourceUrl || '[none]'}`,\n  'Content:',\n  content || '[empty]'\n].join('\\n');\n\nconst searchPrompt = [\n  'You are helping SharedSpace verify a user-submitted news draft.',\n  'Search only CNA and The Straits Times.',\n  'Find source articles that directly support, partially support, contradict, or strongly relate to the draft core story.',\n  referenceValid\n    ? `The user provided a valid exact ${referenceSource} article URL. Treat it as a trusted anchor and look for confirming or contradicting CNA/ST coverage of the same story.`\n    : 'If the reference URL is missing, invalid, or generic, do not treat it as trusted evidence.',\n  '',\n  'Return ONLY valid JSON with this exact shape:',\n  '{',\n  '  \"search_summary\": \"\",',\n  '  \"matched_sources\": [',\n  '    {',\n  '      \"name\": \"CNA | ST\",',\n  '      \"tier\": 1,',\n  '      \"title\": \"\",',\n  '      \"url\": \"\",',\n  '      \"snippet\": \"\",',\n  '      \"match_type\": \"direct | partial | related | contradicts\",',\n  '      \"relevance_note\": \"\"',\n  '    }',\n  '  ]',\n  '}',\n  '',\n  'Rules:',\n  '- Return at most 6 matched sources.',\n  '- Allowed domains only: channelnewsasia.com, cna.com, straitstimes.com.',\n  '- Prefer exact same-event matches over broad topic overlap.',\n  '- Do not invent URLs, titles, snippets, or source names.',\n  '- If no strong CNA/ST evidence is found, return an empty matched_sources array.',\n  '',\n  'Article draft:',\n  articleText\n].join('\\n');\n\nreturn [{\n  json: {\n    title,\n    excerpt,\n    content,\n    category,\n    source_url: sourceUrl,\n    requested_by: requestedBy,\n    reference_valid: referenceValid,\n    reference_source: referenceSource,\n    primary_source: primarySource,\n    article_text: articleText,\n    search_prompt: searchPrompt\n  }\n}];"
       },
-      "id": "a9b8c3a2-0001-4d80-8f52-000000000002",
-      "name": "Build Prompt",
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000002",
+      "name": "Build Draft Context",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        460,
-        300
+        480,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const searchRequest = {\n  model: 'gpt-5-mini',\n  reasoning: { effort: 'low' },\n  tools: [\n    {\n      type: 'web_search',\n      filters: {\n        allowed_domains: [\n          'channelnewsasia.com',\n          'www.channelnewsasia.com',\n          'cna.com',\n          'www.cna.com',\n          'straitstimes.com',\n          'www.straitstimes.com'\n        ]\n      }\n    }\n  ],\n  tool_choice: 'auto',\n  text: {\n    format: {\n      type: 'json_schema',\n      name: 'sharedspace_cna_st_search',\n      strict: true,\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          search_summary: { type: 'string' },\n          matched_sources: {\n            type: 'array',\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                name: { type: 'string' },\n                tier: { type: 'integer' },\n                title: { type: 'string' },\n                url: { type: 'string' },\n                snippet: { type: 'string' },\n                match_type: { type: 'string' },\n                relevance_note: { type: 'string' }\n              },\n              required: ['name', 'tier', 'title', 'url', 'snippet', 'match_type', 'relevance_note']\n            }\n          }\n        },\n        required: ['search_summary', 'matched_sources']\n      }\n    }\n  },\n  input: [\n    {\n      role: 'system',\n      content: 'Return JSON only. Search only CNA and ST for article evidence relevant to the user draft. Do not score the draft in this step.'\n    },\n    {\n      role: 'user',\n      content: $json.search_prompt\n    }\n  ]\n};\n\nreturn [{ json: { ...$json, search_request: searchRequest } }];"
+      },
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000003",
+      "name": "Build Search Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        340
       ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.openai.com/v1/chat/completions",
+        "url": "https://api.openai.com/v1/responses",
         "sendHeaders": true,
         "specifyHeaders": "json",
         "jsonHeaders": "{\n  \"Authorization\": \"Bearer REPLACE_WITH_YOUR_OPENAI_API_KEY\",\n  \"Content-Type\": \"application/json\"\n}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ ({\n  model: 'gpt-5-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'You are a strict editorial verification assistant. Return valid JSON only.'\n    },\n    {\n      role: 'user',\n      content: $json.prompt\n    }\n  ]\n}) }}",
+        "jsonBody": "={{$json.search_request}}",
         "options": {}
       },
-      "id": "a9b8c3a2-0001-4d80-8f52-000000000003",
-      "name": "Call OpenAI",
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000004",
+      "name": "Search Trusted Sources",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        700,
-        300
+        1040,
+        340
       ]
     },
     {
       "parameters": {
-        "jsCode": "const raw = $json.choices?.[0]?.message?.content || '{}';\nconst cleaned = String(raw).replace(/```json|```/gi, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (error) {\n  return [{\n    json: {\n      trust_score: 0,\n      summary: 'AI returned invalid JSON.',\n      verdict: 'Verification failed. Check the OpenAI response in n8n.',\n      metrics: {\n        factual_accuracy: 0,\n        source_quality: 0,\n        bias_detection: 0,\n        logical_consistency: 0,\n        completeness: 0\n      },\n      source_label: 'Invalid AI response'\n    }\n  }];\n}\n\nconst clamp = (value) => Math.max(0, Math.min(100, parseInt(value ?? 0, 10) || 0));\nconst metrics = parsed.metrics || {};\n\nconst factual = clamp(metrics.factual_accuracy);\nconst source = clamp(metrics.source_quality);\nconst bias = clamp(metrics.bias_detection);\nconst logical = clamp(metrics.logical_consistency);\nconst completeness = clamp(metrics.completeness);\n\nlet trust = clamp(parsed.trust_score);\nif (!trust) {\n  trust = Math.round((factual + source + bias + logical + completeness) / 5);\n}\n\nreturn [{\n  json: {\n    trust_score: trust,\n    summary: String(parsed.summary || 'Verification completed.'),\n    verdict: String(\n      parsed.verdict ||\n      (trust >= 60\n        ? 'Trust score is above 60%. Article can be published.'\n        : 'Trust score is below 60%. Revise the article and run verification again.')\n    ),\n    metrics: {\n      factual_accuracy: factual,\n      source_quality: source,\n      bias_detection: bias,\n      logical_consistency: logical,\n      completeness\n    },\n    source_label: String(parsed.source_label || '')\n  }\n}];"
+        "jsCode": "const raw = $json.output_text || $json.output?.find((item) => item.type === 'message')?.content?.find((part) => part.type === 'output_text')?.text || '{}';\nconst cleaned = String(raw).replace(/```json|```/gi, '').trim();\nlet parsed;\n\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (error) {\n  parsed = { search_summary: 'Search response could not be parsed.', matched_sources: [] };\n}\n\nconst upstream = $items('Build Search Request', 0, 0)?.[0]?.json || {};\n\nconst normalizeName = (name, url) => {\n  const value = String(name || '').toLowerCase();\n  const link = String(url || '').toLowerCase();\n  if (value.includes('cna') || value.includes('channel newsasia') || link.includes('channelnewsasia.com') || link.includes('cna.com')) return 'CNA';\n  if (value === 'st' || value.includes('straits') || link.includes('straitstimes.com')) return 'ST';\n  return String(name || '');\n};\n\nconst normalizeSource = (source) => ({\n  name: normalizeName(source.name, source.url),\n  tier: 1,\n  title: String(source.title || ''),\n  url: String(source.url || ''),\n  snippet: String(source.snippet || ''),\n  match_type: String(source.match_type || 'related').toLowerCase(),\n  relevance_note: String(source.relevance_note || '')\n});\n\nconst searchSources = Array.isArray(parsed.matched_sources)\n  ? parsed.matched_sources\n      .slice(0, 6)\n      .map(normalizeSource)\n      .filter((source) => ['CNA', 'ST'].includes(source.name) && (source.title || source.url || source.snippet))\n  : [];\n\nconst allSources = [];\nif (upstream.primary_source) {\n  allSources.push(normalizeSource(upstream.primary_source));\n}\nfor (const source of searchSources) {\n  const key = `${source.name}|${source.url}`.toLowerCase();\n  if (!allSources.some((item) => `${item.name}|${item.url}`.toLowerCase() === key)) {\n    allSources.push(source);\n  }\n}\n\nconst matchedSources = allSources.slice(0, 6);\n\nreturn [{\n  json: {\n    ...upstream,\n    search_summary: String(parsed.search_summary || ''),\n    matched_sources: matchedSources\n  }\n}];"
       },
-      "id": "a9b8c3a2-0001-4d80-8f52-000000000004",
-      "name": "Normalize Result",
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000005",
+      "name": "Parse Search Results",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        940,
-        300
+        1320,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const matchedSources = Array.isArray($json.matched_sources) ? $json.matched_sources : [];\nconst matchedSourcesJson = JSON.stringify(matchedSources, null, 2);\n\nconst comparePrompt = [\n  'You are the SharedSpace AI Fact Verification Engine.',\n  'Evaluate the submitted article using a strict 100-point trust system.',\n  'You ONLY trust CNA and The Straits Times (ST).',\n  'Use only the draft text, reference URL, and matched CNA/ST sources below.',\n  'Return ONLY valid JSON. Do not add extra prose.',\n  '',\n  'VERDICT RULES:',\n  '- 81 to 100 = auto_publish',\n  '- 60 to 80 = needs_review',\n  '- 0 to 59 = unreliable',\n  '- Low-information articles cannot be auto_publish.',\n  '- If a core claim is contradicted, the article cannot be auto_publish.',\n  '',\n  'SCORING:',\n  '- A_factual_accuracy max 45',\n  '- S_source_quality max 25',\n  '- B_bias max 10',\n  '- L_logic max 10',\n  '- C_completeness max 10',\n  '- Trust Score = A + S + B + L + C',\n  '',\n  'STRICT RULES:',\n  '- Validate reference_url as trusted only if it is an exact CNA/ST article URL, not a homepage or section page.',\n  '- Extract 2 to 8 factual claims only.',\n  '- If fewer than 2 factual claims can be extracted, mark low_information and score down aggressively.',\n  '- Claim match scores: 1.0 exact, 0.85 clear paraphrase, 0.5 partial, 0.2 weak/no direct support, 0.0 contradicted.',\n  '- Source quality must be 0 if there is no trusted CNA/ST match.',\n  '- If strong emotional language exists, bias must be low.',\n  '- If the draft is too short or vague, logic/completeness must be low.',\n  '- If unreliable, identify the false, misleading, or unsupported line(s) from the draft. Quote the exact line when possible.',\n  '- Do not invent support. If support is missing, treat it as unsupported.',\n  '',\n  'Return this exact JSON shape:',\n  '{',\n  '  \"confidence\": 0.0,',\n  '  \"reference_valid\": false,',\n  '  \"metrics\": {',\n  '    \"A_factual_accuracy\": 0,',\n  '    \"S_source_quality\": 0,',\n  '    \"B_bias\": 0,',\n  '    \"L_logic\": 0,',\n  '    \"C_completeness\": 0',\n  '  },',\n  '  \"claims\": [',\n  '    {',\n  '      \"text\": \"\",',\n  '      \"subject\": \"\",',\n  '      \"value\": \"\",',\n  '      \"time\": \"\",',\n  '      \"match_score\": 0.0,',\n  '      \"confidence\": 0.0,',\n  '      \"source\": \"CNA | ST | CNA+ST | null\",',\n  '      \"reason\": \"\",',\n  '      \"importance\": \"core | minor\"',\n  '    }',\n  '  ],',\n  '  \"source_validation\": {',\n  '    \"cna_match\": false,',\n  '    \"st_match\": false',\n  '  },',\n  '  \"flags\": [],',\n  '  \"misinformation_highlights\": [',\n  '    {',\n  '      \"line\": null,',\n  '      \"reason\": \"\",',\n  '      \"source\": null',\n  '    }',\n  '  ]',\n  '}',\n  '',\n  'Allowed flags:',\n  '- low_information',\n  '- vague_claims',\n  '- no_trusted_match',\n  '- high_bias',\n  '- missing_context',\n  '- core_claim_contradicted',\n  '- multiple_core_claims_contradicted',\n  '- contradicted_by_cna_and_st',\n  '',\n  'REFERENCE URL:',\n  $json.source_url || '[none]',\n  '',\n  'MATCHED SOURCES JSON:',\n  matchedSourcesJson,\n  '',\n  'ARTICLE DRAFT:',\n  $json.article_text || '[missing article text]'\n].join('\\n');\n\nconst compareRequest = {\n  model: 'gpt-5-mini',\n  reasoning: { effort: 'low' },\n  text: {\n    format: {\n      type: 'json_schema',\n      name: 'sharedspace_cna_st_score',\n      strict: true,\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          confidence: { type: 'number' },\n          reference_valid: { type: 'boolean' },\n          metrics: {\n            type: 'object',\n            additionalProperties: false,\n            properties: {\n              A_factual_accuracy: { type: 'integer' },\n              S_source_quality: { type: 'integer' },\n              B_bias: { type: 'integer' },\n              L_logic: { type: 'integer' },\n              C_completeness: { type: 'integer' }\n            },\n            required: ['A_factual_accuracy', 'S_source_quality', 'B_bias', 'L_logic', 'C_completeness']\n          },\n          claims: {\n            type: 'array',\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                text: { type: 'string' },\n                subject: { type: ['string', 'null'] },\n                value: { type: ['string', 'null'] },\n                time: { type: ['string', 'null'] },\n                match_score: { type: 'number' },\n                confidence: { type: 'number' },\n                source: { type: ['string', 'null'] },\n                reason: { type: 'string' },\n                importance: { type: 'string' }\n              },\n              required: ['text', 'subject', 'value', 'time', 'match_score', 'confidence', 'source', 'reason', 'importance']\n            }\n          },\n          source_validation: {\n            type: 'object',\n            additionalProperties: false,\n            properties: {\n              cna_match: { type: 'boolean' },\n              st_match: { type: 'boolean' }\n            },\n            required: ['cna_match', 'st_match']\n          },\n          flags: {\n            type: 'array',\n            items: { type: 'string' }\n          },\n          misinformation_highlights: {\n            type: 'array',\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                line: { type: ['string', 'null'] },\n                reason: { type: 'string' },\n                source: { type: ['string', 'null'] }\n              },\n              required: ['line', 'reason', 'source']\n            }\n          }\n        },\n        required: ['confidence', 'reference_valid', 'metrics', 'claims', 'source_validation', 'flags', 'misinformation_highlights']\n      }\n    }\n  },\n  input: [\n    {\n      role: 'system',\n      content: 'Return JSON only. Score the draft strictly using only the supplied CNA/ST evidence.'\n    },\n    {\n      role: 'user',\n      content: comparePrompt\n    }\n  ]\n};\n\nreturn [{ json: { ...$json, compare_request: compareRequest } }];"
+      },
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000006",
+      "name": "Build Compare Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer REPLACE_WITH_YOUR_OPENAI_API_KEY\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.compare_request}}",
+        "options": {}
+      },
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000007",
+      "name": "Score Draft vs Matches",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1880,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output_text || $json.output?.find((item) => item.type === 'message')?.content?.find((part) => part.type === 'output_text')?.text || '{}';\nconst cleaned = String(raw).replace(/```json|```/gi, '').trim();\nconst upstream = $items('Build Compare Request', 0, 0)?.[0]?.json || {};\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (error) {\n  return [{\n    json: {\n      trust_score: 0,\n      publish_decision: 'unreliable',\n      summary: 'Verification failed because the scoring response could not be parsed.',\n      verdict: 'Unreliable. The verification response was invalid, so the draft cannot be trusted yet.',\n      confidence: 0,\n      reference_valid: Boolean(upstream.reference_valid),\n      metrics: {\n        factual_accuracy: 0,\n        source_quality: 0,\n        bias_detection: 0,\n        logical_consistency: 0,\n        completeness: 0\n      },\n      rubric_metrics: {\n        A_factual_accuracy: 0,\n        S_source_quality: 0,\n        B_bias: 0,\n        L_logic: 0,\n        C_completeness: 0\n      },\n      claims: [],\n      source_validation: {\n        cna_match: false,\n        st_match: false\n      },\n      flags: ['invalid_ai_response'],\n      source_label: 'Unable to parse the verification response.',\n      misinformation_highlights: []\n    }\n  }];\n}\n\nconst clamp = (value, max) => Math.max(0, Math.min(max, Number(value ?? 0) || 0));\nconst metrics = parsed.metrics || {};\nconst claims = Array.isArray(parsed.claims) ? parsed.claims : [];\nconst sourceValidation = parsed.source_validation || {};\nconst flags = Array.isArray(parsed.flags) ? [...parsed.flags] : [];\nconst contentLength = String(upstream.content || '').trim().length;\nconst lowInformation = flags.includes('low_information') || flags.includes('vague_claims') || contentLength < 150 || claims.length < 2;\nconst noTrustedMatch = flags.includes('no_trusted_match') || (!sourceValidation.cna_match && !sourceValidation.st_match);\nconst coreContradicted = flags.includes('core_claim_contradicted') || flags.includes('multiple_core_claims_contradicted');\nconst contradictedByBoth = flags.includes('contradicted_by_cna_and_st');\nconst highBias = flags.includes('high_bias');\nconst bothStrong = Boolean(sourceValidation.cna_match) && Boolean(sourceValidation.st_match) && !coreContradicted && !contradictedByBoth;\nconst referenceValid = Boolean(parsed.reference_valid ?? upstream.reference_valid);\n\nlet A = clamp(metrics.A_factual_accuracy, 45);\nlet S = clamp(metrics.S_source_quality, 25);\nlet B = clamp(metrics.B_bias, 10);\nlet L = clamp(metrics.L_logic, 10);\nlet C = clamp(metrics.C_completeness, 10);\n\nif (lowInformation) {\n  A = Math.min(A, 10);\n  C = Math.min(C, 3);\n  if (!flags.includes('low_information')) {\n    flags.push('low_information');\n  }\n}\nif (noTrustedMatch) {\n  S = 0;\n  if (!flags.includes('no_trusted_match')) {\n    flags.push('no_trusted_match');\n  }\n}\nif (coreContradicted) {\n  A = Math.min(A, flags.includes('multiple_core_claims_contradicted') ? 10 : 20);\n}\n\nlet trust = A + S + B + L + C;\nif (noTrustedMatch) {\n  trust = Math.min(trust, 50);\n}\nif (coreContradicted) {\n  trust = Math.min(trust, 49);\n}\nif (contradictedByBoth) {\n  trust = Math.min(trust, 30);\n}\nif (lowInformation) {\n  trust = Math.min(trust, 35);\n}\nif (highBias) {\n  trust = Math.round(trust * 0.85);\n}\nif (bothStrong) {\n  trust += 2;\n}\nif (referenceValid) {\n  trust += 3;\n}\ntrust = Math.max(0, Math.min(100, Math.round(trust)));\n\nlet publishDecision = 'unreliable';\nif (!lowInformation && !coreContradicted && trust >= 81) {\n  publishDecision = 'auto_publish';\n} else if (trust >= 60) {\n  publishDecision = 'needs_review';\n}\n\nconst verdictMap = {\n  auto_publish: 'Reliable. Auto publish approved because the CNA/ST evidence is strong enough for direct publication.',\n  needs_review: 'Needs Review. Do not publish yet. The draft needs manual revision or stronger evidence before it can move forward.',\n  unreliable: 'Unreliable. Do not publish. The draft contains unsupported, false, or insufficiently verified information.'\n};\n\nconst summaryParts = [];\nif (bothStrong) {\n  summaryParts.push('Both CNA and ST support the core story.');\n} else if (sourceValidation.cna_match || sourceValidation.st_match) {\n  summaryParts.push('Only one trusted source strongly supports the draft, so confidence remains limited.');\n} else {\n  summaryParts.push('No trusted CNA/ST match clearly supports the core story.');\n}\nif (referenceValid) {\n  summaryParts.push('The supplied reference URL appears to be a valid exact CNA/ST article link.');\n} else if (upstream.source_url) {\n  summaryParts.push('The supplied reference URL does not qualify as a trusted exact CNA/ST article link.');\n}\nif (lowInformation) {\n  summaryParts.push('The draft is too vague or too thin to verify precisely.');\n}\nif (coreContradicted) {\n  summaryParts.push('At least one core claim is contradicted by trusted coverage.');\n}\nif (highBias) {\n  summaryParts.push('Emotionally loaded language lowered the bias score.');\n}\n\nconst fallbackHighlights = claims\n  .filter((claim) => Number(claim.match_score ?? 1) <= 0.2)\n  .slice(0, 5)\n  .map((claim) => ({\n    line: claim.text || null,\n    reason: claim.reason || 'This claim is unsupported or contradicted by the trusted CNA/ST matches.',\n    source: claim.source || null\n  }));\n\nconst misinformationHighlights = publishDecision === 'unreliable'\n  ? ((Array.isArray(parsed.misinformation_highlights) && parsed.misinformation_highlights.length ? parsed.misinformation_highlights : fallbackHighlights)\n      .slice(0, 5)\n      .map((item) => ({\n        line: item?.line ? String(item.line) : null,\n        reason: String(item?.reason || 'Unsupported or contradicted by trusted CNA/ST evidence.'),\n        source: item?.source ? String(item.source) : null\n      })))\n  : [];\n\nconst sourceCount = (Array.isArray(upstream.matched_sources) ? upstream.matched_sources : []).length;\nconst sourceLabel = sourceCount\n  ? `Compared against ${sourceCount} trusted CNA/ST source${sourceCount === 1 ? '' : 's'}.`\n  : 'No trusted CNA/ST match found.';\n\nreturn [{\n  json: {\n    trust_score: trust,\n    publish_decision: publishDecision,\n    summary: summaryParts.join(' ') || 'Verification completed using CNA and ST only.',\n    verdict: verdictMap[publishDecision],\n    confidence: clamp(parsed.confidence, 1),\n    reference_valid: referenceValid,\n    metrics: {\n      factual_accuracy: Math.round((A / 45) * 100),\n      source_quality: Math.round((S / 25) * 100),\n      bias_detection: Math.round((B / 10) * 100),\n      logical_consistency: Math.round((L / 10) * 100),\n      completeness: Math.round((C / 10) * 100)\n    },\n    rubric_metrics: {\n      A_factual_accuracy: Math.round(A),\n      S_source_quality: Math.round(S),\n      B_bias: Math.round(B),\n      L_logic: Math.round(L),\n      C_completeness: Math.round(C)\n    },\n    claims: claims.slice(0, 8).map((claim) => ({\n      text: String(claim.text || ''),\n      subject: claim.subject ?? null,\n      value: claim.value ?? null,\n      time: claim.time ?? null,\n      match_score: clamp(claim.match_score, 1),\n      confidence: clamp(claim.confidence, 1),\n      source: claim.source ?? null,\n      reason: String(claim.reason || ''),\n      importance: String(claim.importance || 'minor')\n    })),\n    source_validation: {\n      cna_match: Boolean(sourceValidation.cna_match),\n      st_match: Boolean(sourceValidation.st_match)\n    },\n    flags,\n    source_label: sourceLabel,\n    misinformation_highlights: misinformationHighlights,\n    matched_sources: upstream.matched_sources || []\n  }\n}];"
+      },
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000008",
+      "name": "Normalize Final Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        340
       ]
     },
     {
@@ -70,13 +130,13 @@
         "responseBody": "={{$json}}",
         "options": {}
       },
-      "id": "a9b8c3a2-0001-4d80-8f52-000000000005",
+      "id": "f4b5c6d7-0001-4d80-8f52-000000000009",
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1180,
-        300
+        2440,
+        340
       ]
     }
   ],
@@ -85,36 +145,80 @@
       "main": [
         [
           {
-            "node": "Build Prompt",
+            "node": "Build Draft Context",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Build Prompt": {
+    "Build Draft Context": {
       "main": [
         [
           {
-            "node": "Call OpenAI",
+            "node": "Build Search Request",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Call OpenAI": {
+    "Build Search Request": {
       "main": [
         [
           {
-            "node": "Normalize Result",
+            "node": "Search Trusted Sources",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Normalize Result": {
+    "Search Trusted Sources": {
+      "main": [
+        [
+          {
+            "node": "Parse Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Search Results": {
+      "main": [
+        [
+          {
+            "node": "Build Compare Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Compare Request": {
+      "main": [
+        [
+          {
+            "node": "Score Draft vs Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Draft vs Matches": {
+      "main": [
+        [
+          {
+            "node": "Normalize Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Final Result": {
       "main": [
         [
           {
@@ -129,7 +233,7 @@
   "pinData": {},
   "settings": {},
   "active": false,
-  "versionId": "a9b8c3a2-0001-4d80-8f52-000000000006",
+  "versionId": "f4b5c6d7-0001-4d80-8f52-000000000010",
   "meta": {
     "templateCredsSetupCompleted": false
   },

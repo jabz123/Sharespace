@@ -145,16 +145,52 @@ $normalizedMetrics = [
 $trustScore = (int)($decoded['trust_score'] ?? array_sum($normalizedMetrics) / 5);
 $trustScore = max(0, min(100, $trustScore));
 
+$publishDecision = trim((string)($decoded['publish_decision'] ?? ''));
+if ($publishDecision === '') {
+    if ($trustScore >= 81) {
+        $publishDecision = 'auto_publish';
+    } elseif ($trustScore >= 60) {
+        $publishDecision = 'needs_review';
+    } else {
+        $publishDecision = 'unreliable';
+    }
+}
+
 $verdict = trim((string)($decoded['verdict'] ?? ''));
 if ($verdict === '') {
-    $verdict = $trustScore >= 60
-        ? 'Trust score is above 60%. Article can be published.'
-        : 'Trust score is below 60%. Revise the article and run verification again.';
+    $verdict = $publishDecision === 'auto_publish'
+        ? 'Reliable. Auto publish approved because the CNA/ST evidence is strong enough for direct publication.'
+        : ($publishDecision === 'needs_review'
+            ? 'Needs Review. Do not publish yet. The draft needs manual revision or stronger evidence before it can move forward.'
+            : 'Unreliable. Do not publish. The draft contains unsupported, false, or insufficiently verified information.');
 }
 
 $summary = trim((string)($decoded['summary'] ?? ''));
 if ($summary === '') {
     $summary = 'AI verification completed successfully.';
+}
+
+$misinformationHighlights = [];
+if (is_array($decoded['misinformation_highlights'] ?? null)) {
+    foreach ($decoded['misinformation_highlights'] as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+
+        $reason = trim((string)($item['reason'] ?? ''));
+        $line = trim((string)($item['line'] ?? ''));
+        $source = trim((string)($item['source'] ?? ''));
+
+        if ($reason === '' && $line === '') {
+            continue;
+        }
+
+        $misinformationHighlights[] = [
+            'line' => $line !== '' ? $line : null,
+            'reason' => $reason !== '' ? $reason : 'Unsupported or contradicted by trusted CNA/ST evidence.',
+            'source' => $source !== '' ? $source : null,
+        ];
+    }
 }
 
 $_SESSION['article_ai_verification'] = [
@@ -166,19 +202,23 @@ $_SESSION['article_ai_verification'] = [
         'source_url' => $sourceUrl,
     ], (int)$user->id),
     'trust_score' => $trustScore,
-    'passed' => $trustScore >= 60,
+    'passed' => $publishDecision === 'auto_publish' && $trustScore >= 81,
+    'publish_decision' => $publishDecision,
     'summary' => $summary,
     'verdict' => $verdict,
     'metrics' => $normalizedMetrics,
     'source_url' => $sourceUrl,
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
+    'misinformation_highlights' => $misinformationHighlights,
 ];
 
 echo json_encode([
     'trust_score' => $trustScore,
+    'publish_decision' => $publishDecision,
     'summary' => $summary,
     'verdict' => $verdict,
     'metrics' => $normalizedMetrics,
     'source_url' => $sourceUrl,
     'source_label' => trim((string)($decoded['source_label'] ?? '')),
+    'misinformation_highlights' => $misinformationHighlights,
 ]);

@@ -41,7 +41,8 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
 
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
-$minimumTrustScore = 60;
+$autoPublishTrustScore = 81;
+$needsReviewTrustScore = 60;
 
 $auth->requireAuth();
 $user = $auth->currentUser();
@@ -116,28 +117,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $isVerificationCurrent = is_array($verification)
             && ($verification['fingerprint'] ?? '') === $fingerprint;
         $verifiedTrustScore = $isVerificationCurrent ? (int)($verification['trust_score'] ?? 0) : 0;
+        $verifiedDecision = $isVerificationCurrent ? trim((string)($verification['publish_decision'] ?? '')) : '';
         $hasPassingVerification = $isVerificationCurrent
             && !empty($verification['passed'])
-            && $verifiedTrustScore >= $minimumTrustScore;
+            && $verifiedTrustScore >= $autoPublishTrustScore
+            && $verifiedDecision === 'auto_publish';
 
         if (!$hasPassingVerification) {
-            $result = ['error' => 'Run AI Fact Check and get at least 60% before publishing this article.'];
+            $result = ['error' => 'Run AI Fact Check and get an Auto Publish result at 81% or above before publishing this article.'];
             $_POST['trust_score'] = $verifiedTrustScore;
         } else {
             $_POST['status'] = 'published';
             $_POST['trust_score'] = $verifiedTrustScore;
 
             if ($isEdit) {
-                $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
+                $result = $articleCtrl->update($editId, $user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
+                    pageRedirect('/pages/my-articles.php', null, 'Article published successfully.');
                 }
             } else {
-                $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
+                $result = $articleCtrl->publish($user->id, $_POST);
                 if (isset($result['ok'])) {
                     unset($_SESSION['article_ai_verification']);
-                    pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article sent to category experts for final verification.');
+                    pageRedirect('/pages/my-articles.php', null, 'Article published successfully.');
                 }
             }
         }
@@ -159,7 +162,11 @@ $hasCurrentVerification = is_array($verification)
     && ($verification['fingerprint'] ?? '') === $verificationFingerprint;
 $verificationPassed = $hasCurrentVerification
     && !empty($verification['passed'])
-    && (int)($verification['trust_score'] ?? 0) >= $minimumTrustScore;
+    && (int)($verification['trust_score'] ?? 0) >= $autoPublishTrustScore
+    && trim((string)($verification['publish_decision'] ?? '')) === 'auto_publish';
+$initialDecision = $hasCurrentVerification
+    ? trim((string)($verification['publish_decision'] ?? ''))
+    : '';
 $initialTrustScore = $hasCurrentVerification
     ? (int)($verification['trust_score'] ?? 0)
     : (int)($_POST['trust_score'] ?? 0);
@@ -181,6 +188,9 @@ $initialMetrics = $hasCurrentVerification && is_array($verification['metrics'] ?
 $initialSourceLabel = $hasCurrentVerification
     ? trim((string)($verification['source_label'] ?? ''))
     : '';
+$initialHighlights = $hasCurrentVerification && is_array($verification['misinformation_highlights'] ?? null)
+    ? $verification['misinformation_highlights']
+    : [];
 
 $val = [
     'title' => $_POST['title'] ?? ($article?->title ?? ''),
@@ -296,9 +306,17 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         </button>
                     </div>
                     <p class="publish-status text-muted" id="publishStatus">
-                        <?= $verificationPassed
-                            ? 'AI verification passed. Publishing will send this article to category experts for final approval.'
-                            : 'Run AI Fact Check and score at least 60% to unlock submission for category expert review.' ?>
+                        <?php
+                        if ($verificationPassed) {
+                            echo 'AI verification passed. Publishing is unlocked for direct publication.';
+                        } elseif ($initialDecision === 'needs_review') {
+                            echo 'Needs Review. This draft will not publish yet. Strengthen the evidence and rerun AI Fact Check.';
+                        } elseif ($initialDecision === 'unreliable') {
+                            echo 'Unreliable. Fix the highlighted misinformation or unsupported claims before trying again.';
+                        } else {
+                            echo 'Run AI Fact Check. Only Auto Publish results at 81% or above unlock publishing.';
+                        }
+                        ?>
                     </p>
                 </div>
             </form>
@@ -312,7 +330,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             Click "AI Fact Check" to analyze your article's credibility before publishing.
                         </p>
                         <p class="text-muted" style="font-size:13px;">
-                            You can include a reference link such as a The Straits Times article URL for extra context.
+                            Add an exact CNA or ST article URL if you have one. 81%+ unlocks publish, 60-80% stays in Needs Review, and anything below 60% is Unreliable.
                         </p>
                     </div>
 
@@ -338,6 +356,23 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                         <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
 
+                        <div id="aiMisinformationBox" style="display:<?= !empty($initialHighlights) ? 'block' : 'none' ?>; margin:14px 0;">
+                            <p style="font-weight:700; margin-bottom:8px;">Misinformation Highlights</p>
+                            <ul id="aiMisinformationList" style="padding-left:18px; margin:0;">
+                                <?php foreach ($initialHighlights as $item): ?>
+                                    <li style="margin-bottom:8px;">
+                                        <?php if (!empty($item['line'])): ?>
+                                            <strong><?= htmlspecialchars((string)$item['line']) ?></strong><br>
+                                        <?php endif; ?>
+                                        <?= htmlspecialchars((string)($item['reason'] ?? 'Unsupported or contradicted by trusted CNA/ST evidence.')) ?>
+                                        <?php if (!empty($item['source'])): ?>
+                                            <span class="text-muted">(<?= htmlspecialchars((string)$item['source']) ?>)</span>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+
                         <p>Factual Accuracy</p>
                         <div class="progress-bar"><div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int)($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div></div>
 
@@ -356,7 +391,17 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         <div
                             class="ai-success-box"
                             id="aiVerdictBox"
-                            style="<?= $hasCurrentVerification ? 'background:' . ($verificationPassed ? '#22c55e' : '#f59e0b') . ';color:' . ($verificationPassed ? '#000' : '#111827') . ';' : '' ?>"
+                            style="<?=
+                                $hasCurrentVerification
+                                    ? (
+                                        $initialDecision === 'auto_publish'
+                                            ? 'background:#22c55e;color:#000;'
+                                            : ($initialDecision === 'needs_review'
+                                                ? 'background:#f59e0b;color:#111827;'
+                                                : 'background:#ef4444;color:#fff;')
+                                    )
+                                    : ''
+                            ?>"
                         >
                             <?= $initialVerdict !== '' ? htmlspecialchars($initialVerdict) : 'Waiting for verification.' ?>
                         </div>
@@ -404,12 +449,15 @@ function setMetricBar(id, value) {
     document.getElementById(id).style.width = `${safeValue}%`;
 }
 
-const verificationThreshold = <?= (int)$minimumTrustScore ?>;
+const autoPublishThreshold = <?= (int)$autoPublishTrustScore ?>;
+const needsReviewThreshold = <?= (int)$needsReviewTrustScore ?>;
 const publishButton = document.getElementById('publishButton');
 const publishStatus = document.getElementById('publishStatus');
 const trustScoreInput = document.getElementById('trustScoreInput');
 const initialPublishUnlocked = <?= $verificationPassed ? 'true' : 'false' ?>;
-const writeForm = document.getElementById('write-form');
+const initialDecision = <?= json_encode($initialDecision) ?>;
+const misinformationBox = document.getElementById('aiMisinformationBox');
+const misinformationList = document.getElementById('aiMisinformationList');
 
 function setPublishLockState(isUnlocked, message) {
     publishButton.disabled = !isUnlocked;
@@ -418,7 +466,7 @@ function setPublishLockState(isUnlocked, message) {
     publishStatus.textContent = message;
 }
 
-function invalidateVerification(message = 'Content changed. Run AI Fact Check again and score at least 60% to unlock publishing.') {
+function invalidateVerification(message = 'Content changed. Run AI Fact Check again. Only Auto Publish results at 81% or above unlock publishing.') {
     trustScoreInput.value = '0';
     setPublishLockState(false, message);
 }
@@ -434,6 +482,35 @@ function showAIError(message) {
     resetAIStates();
     document.getElementById('ai-error').style.display = 'block';
     document.getElementById('aiErrorMessage').textContent = message;
+}
+
+function renderMisinformationHighlights(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        misinformationList.innerHTML = '';
+        misinformationBox.style.display = 'none';
+        return;
+    }
+
+    misinformationList.innerHTML = items.map((item) => {
+        const line = item && item.line ? `<strong>${escapeHtml(item.line)}</strong><br>` : '';
+        const reason = escapeHtml(item && item.reason ? item.reason : 'Unsupported or contradicted by trusted CNA/ST evidence.');
+        const source = item && item.source ? ` <span class="text-muted">(${escapeHtml(item.source)})</span>` : '';
+        return `<li style="margin-bottom:8px;">${line}${reason}${source}</li>`;
+    }).join('');
+    misinformationBox.style.display = 'block';
+}
+
+function messageForDecision(decision) {
+    if (decision === 'auto_publish') {
+        return 'AI verification passed. Publishing is unlocked for direct publication.';
+    }
+    if (decision === 'needs_review') {
+        return 'Needs Review. This draft will not publish yet. Strengthen the evidence and rerun AI Fact Check.';
+    }
+    if (decision === 'unreliable') {
+        return 'Unreliable. Fix the highlighted misinformation or unsupported claims before trying again.';
+    }
+    return 'Run AI Fact Check. Only Auto Publish results at 81% or above unlock publishing.';
 }
 
 async function runAICheck() {
@@ -477,6 +554,12 @@ async function runAICheck() {
 
         const metrics = data.metrics || {};
         const trustScore = Math.max(0, Math.min(100, Number(data.trust_score) || 0));
+        const decision = String(
+            data.publish_decision ||
+            (trustScore >= autoPublishThreshold
+                ? 'auto_publish'
+                : (trustScore >= needsReviewThreshold ? 'needs_review' : 'unreliable'))
+        );
         const verdictBox = document.getElementById('aiVerdictBox');
         const sourceLabel = document.getElementById('aiSourceLabel');
 
@@ -502,13 +585,16 @@ async function runAICheck() {
         setMetricBar('metricCompleteness', metrics.completeness);
 
         verdictBox.textContent = data.verdict || 'Verification completed.';
-        verdictBox.style.background = trustScore >= verificationThreshold ? '#22c55e' : '#f59e0b';
-        verdictBox.style.color = trustScore >= verificationThreshold ? '#000' : '#111827';
+        verdictBox.style.background = decision === 'auto_publish' ? '#22c55e' : (decision === 'needs_review' ? '#f59e0b' : '#ef4444');
+        verdictBox.style.color = decision === 'unreliable' ? '#fff' : (decision === 'auto_publish' ? '#000' : '#111827');
+        renderMisinformationHighlights(data.misinformation_highlights || []);
 
-        if (trustScore >= verificationThreshold) {
-            setPublishLockState(true, 'AI verification passed. Publishing will send this article to category experts for final approval.');
+        if (decision === 'auto_publish' && trustScore >= autoPublishThreshold) {
+            setPublishLockState(true, messageForDecision(decision));
+        } else if (decision === 'needs_review' && trustScore >= needsReviewThreshold) {
+            setPublishLockState(false, messageForDecision(decision));
         } else {
-            setPublishLockState(false, 'Trust score is below 60%. Submission stays locked until the result is green.');
+            setPublishLockState(false, messageForDecision('unreliable'));
         }
 
         resetAIStates();
@@ -529,9 +615,7 @@ document.querySelectorAll('input[name="title"], input[name="excerpt"], textarea[
 
 setPublishLockState(
     initialPublishUnlocked,
-    initialPublishUnlocked
-        ? 'AI verification passed. Publishing will send this article to category experts for final approval.'
-        : 'Run AI Fact Check and score at least 60% to unlock submission for category expert review.'
+    initialPublishUnlocked ? messageForDecision('auto_publish') : messageForDecision(initialDecision)
 );
 </script>
 

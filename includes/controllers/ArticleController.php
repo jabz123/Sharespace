@@ -210,9 +210,9 @@ class ArticleController {
 
         $status = $input['status'] ?? null;
 
-        // ONLY SET published_at WHEN draft → published
+        // Set published_at the first time a non-published article becomes published.
         $setPublishedAt = '';
-        if ($current['status'] === 'draft' && $status === 'published') {
+        if (($current['status'] ?? '') !== 'published' && $status === 'published') {
             $setPublishedAt = ', published_at = NOW()';
         }
 

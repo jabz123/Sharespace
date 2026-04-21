@@ -4,22 +4,21 @@ This workflow verifies a submitted article by comparing it against trusted news 
 
 ## Trusted Sources
 
-The workflow treats these as Tier 1 sources:
+The workflow treats these as the only trusted sources:
 
-- Reuters
 - CNA / Channel NewsAsia
 - The Straits Times
 
-If the writer provides an exact article URL from one of these sources, the workflow treats that link as the main evidence anchor. This is important because a copied or adapted Straits Times article should not be penalized just because another website does not repeat every detail.
+If the writer provides an exact article URL from one of these sources, the workflow treats that link as the main evidence anchor. Homepage and section URLs do not count.
 
 ## Score Breakdown
 
 The trust score is out of 100:
 
-- Factual Accuracy: 35 points
-- Source Quality: 20 points
-- Bias / Neutrality: 20 points
-- Logical Consistency: 15 points
+- Factual Accuracy: 45 points
+- Source Quality: 25 points
+- Bias / Neutrality: 10 points
+- Logical Consistency: 10 points
 - Completeness: 10 points
 
 Final formula:
@@ -32,9 +31,9 @@ The category maximums already add up to 100, so the workflow does not multiply t
 
 ## What Each Category Means
 
-Factual Accuracy checks whether the core claims are supported by trusted sources. The workflow snaps the score into fixed bands such as 32, 24, 14, 4, or 0 so repeated checks are more stable.
+Factual Accuracy checks whether the core claims are supported by CNA/ST. If a core claim is contradicted, the score is capped aggressively.
 
-Source Quality checks the strength of the matched evidence. An exact Tier 1 reference URL scores highest. Multiple trusted matches also score strongly. No trusted match scores poorly.
+Source Quality checks the strength of the matched evidence. An exact CNA/ST article URL scores highest. Multiple trusted matches also score strongly. No trusted match scores 0.
 
 Bias / Neutrality checks for sensational or loaded language. The workflow scans for words such as "shocking", "bombshell", "secret", and "must share". Neutral reporting keeps a high score.
 
@@ -46,16 +45,20 @@ Completeness checks whether enough basic news elements are present, such as titl
 
 The workflow returns one of three decisions:
 
-- `safe_to_publish`: score is at least 75, factual accuracy is strong, and neutrality is acceptable.
-- `needs_review`: article has some support but should be checked or improved.
-- `not_reliable`: score is too low, factual accuracy is too weak, or no trusted source supports the article.
+- `auto_publish`: score is 81 to 100 and no hard-fail rule is triggered.
+- `needs_review`: score is 60 to 80.
+- `unreliable`: score is below 60, contradicted, or too weak to verify.
+
+For now, `needs_review` does not auto-route to category experts.
 
 ## Hard Overrides
 
 Some situations override the normal score:
 
-- If a Tier 1 source directly contradicts the headline or core claim, the article is forced to `not_reliable`.
-- If there is no trusted source match and factual accuracy is very low, the article is forced to `not_reliable`.
+- If a trusted source directly contradicts the headline or a core claim, the article is forced to `unreliable`.
+- If there is no trusted CNA/ST match, source quality becomes 0 and the final score is capped.
+- If the article is low-information, it cannot become `auto_publish`.
+- If the article is `unreliable`, the workflow returns misinformation highlights pointing to false, misleading, or unsupported lines.
 
 ## Why The Workflow Is More Consistent
 
