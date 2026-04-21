@@ -33,7 +33,7 @@ $communityReviewCount = $feedbackStats && (int)$feedbackStats['review_count'] > 
     ? (int)$feedbackStats['review_count']
     : 1247;
 
-page_head('Profile');
+page_head('Profile', in_array($user->role, ['system_admin', 'ai_trainer'], true));
 ?>
 
 <link rel="stylesheet" href="/public/css/profile.css">

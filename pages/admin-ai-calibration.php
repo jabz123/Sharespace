@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $settings = $aiCtrl->getCalibrationSettings();
 
-page_head('AI Calibration');
+page_head('AI Calibration', true);
 ?>
 <div class="dashboard-layout admin-ai-shell">
 <?php sidebar($user); ?>
@@ -48,29 +48,6 @@ page_head('AI Calibration');
                 value="<?= (int)$settings['publishing_threshold'] ?>"
                 data-output="publishing_threshold_output"
             >
-        </section>
-
-        <section>
-            <h2>Dimension Weights</h2>
-            <p>Optional backend weights sent to the n8n workflow for score calculation.</p>
-
-            <div class="admin-ai-weight-row">
-                <label for="factual_accuracy_weight">Factual Accuracy</label>
-                <input id="factual_accuracy_weight" type="range" name="factual_accuracy_weight" min="0" max="100" value="<?= (int)$settings['factual_accuracy_weight'] ?>" data-output="factual_accuracy_weight_output">
-                <output id="factual_accuracy_weight_output"><?= (int)$settings['factual_accuracy_weight'] ?>%</output>
-            </div>
-
-            <div class="admin-ai-weight-row">
-                <label for="source_quality_weight">Source Quality</label>
-                <input id="source_quality_weight" type="range" name="source_quality_weight" min="0" max="100" value="<?= (int)$settings['source_quality_weight'] ?>" data-output="source_quality_weight_output">
-                <output id="source_quality_weight_output"><?= (int)$settings['source_quality_weight'] ?>%</output>
-            </div>
-
-            <div class="admin-ai-weight-row">
-                <label for="bias_detection_weight">Bias Detection</label>
-                <input id="bias_detection_weight" type="range" name="bias_detection_weight" min="0" max="100" value="<?= (int)$settings['bias_detection_weight'] ?>" data-output="bias_detection_weight_output">
-                <output id="bias_detection_weight_output"><?= (int)$settings['bias_detection_weight'] ?>%</output>
-            </div>
         </section>
 
         <section>

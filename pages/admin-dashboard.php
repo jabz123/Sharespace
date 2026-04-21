@@ -148,7 +148,7 @@ if ($tab === 'users') {
     $allArticles = $adminCtrl->getAllArticles();
 }
 
-page_head('Admin Dashboard');
+page_head('Admin Dashboard', true);
 ?>
 <div class="dashboard-layout">
 <?php sidebar($user); ?>

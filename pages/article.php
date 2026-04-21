@@ -86,7 +86,7 @@ if (!$returnUrl) {
         : '/dashboard.php';
 }
 
-page_head($article->title);
+page_head($article->title, $isSystemAdmin);
 ?>
 <div class="dashboard-layout<?= $isSystemAdmin ? ' article-admin-shell' : '' ?>">
     <?php sidebar($user); ?>

@@ -37,7 +37,7 @@ $featuredArticle = !empty($articles) ? $articles[0] : null;
 $feedArticles = !empty($articles) ? array_slice($articles, 1) : [];
 $activeSortLabel = $sort === 'trusted' ? 'Most trusted first' : 'Newest first';
 
-page_head('Browse Articles');
+page_head('Browse Articles', $isSystemAdmin || $isTrainer);
 ?>
 
 <?php if ($isSystemAdmin || $isTrainer): ?>
