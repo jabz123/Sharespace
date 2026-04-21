@@ -16,7 +16,7 @@ $aiCtrl = new AITrainerController();
 $stats = $aiCtrl->getDashboardStats();
 $recentAnalyses = $aiCtrl->getRecentAnalyses(8);
 
-page_head('AI Dashboard');
+page_head('AI Dashboard', true);
 ?>
 <div class="dashboard-layout admin-ai-shell">
 <?php sidebar($user); ?>

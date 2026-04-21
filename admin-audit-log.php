@@ -40,7 +40,7 @@ $actionMeta = [
     'unassign_role'     => ['unassign role',     '#9ca3af'],
 ];
 
-page_head('Audit Log');
+page_head('Audit Log', true);
 ?>
 <div class="dashboard-layout">
 <?php sidebar($user); ?>

@@ -29,7 +29,7 @@ function assigned_category_for_expert(int $userId): ?array {
     return $cache[$userId];
 }
 
-function page_head(string $title): void {
+function page_head(string $title, bool $useSystemAdminCss = false): void {
     $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title), '-'));
 ?>
 <!DOCTYPE html>
@@ -42,6 +42,9 @@ function page_head(string $title): void {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/public/css/app.css?v=<?= filemtime(__DIR__ . '/../public/css/app.css') ?>" />
+<?php if ($useSystemAdminCss): ?>
+<link rel="stylesheet" href="/public/css/system-admin.css?v=<?= filemtime(__DIR__ . '/../public/css/system-admin.css') ?>" />
+<?php endif; ?>
 <style>
 body.page-ai-trainer-dashboard .alert-success,
 body.page-ai-trainer-datasets .alert-success,

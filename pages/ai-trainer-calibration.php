@@ -47,29 +47,6 @@ page_head('AI Trainer Calibration');
         </section>
 
         <section class="ai-panel-card ai-calibration-card">
-            <h2>Dimension Weights</h2>
-            <p>Adjust how much each dimension contributes to the overall trust score</p>
-
-            <div class="ai-weight-row">
-                <label for="factual_accuracy_weight">Factual Accuracy</label>
-                <input id="factual_accuracy_weight" type="range" name="factual_accuracy_weight" min="0" max="100" value="<?= (int)$settings['factual_accuracy_weight'] ?>" data-output="factual_accuracy_weight_output">
-                <output id="factual_accuracy_weight_output"><?= (int)$settings['factual_accuracy_weight'] ?>%</output>
-            </div>
-
-            <div class="ai-weight-row">
-                <label for="source_quality_weight">Source Quality</label>
-                <input id="source_quality_weight" type="range" name="source_quality_weight" min="0" max="100" value="<?= (int)$settings['source_quality_weight'] ?>" data-output="source_quality_weight_output">
-                <output id="source_quality_weight_output"><?= (int)$settings['source_quality_weight'] ?>%</output>
-            </div>
-
-            <div class="ai-weight-row">
-                <label for="bias_detection_weight">Bias Detection</label>
-                <input id="bias_detection_weight" type="range" name="bias_detection_weight" min="0" max="100" value="<?= (int)$settings['bias_detection_weight'] ?>" data-output="bias_detection_weight_output">
-                <output id="bias_detection_weight_output"><?= (int)$settings['bias_detection_weight'] ?>%</output>
-            </div>
-        </section>
-
-        <section class="ai-panel-card ai-calibration-card">
             <h2>Strict Mode</h2>
             <p>When enabled, articles with any flagged claim of high severity are automatically blocked</p>
             <label class="ai-switch-row">

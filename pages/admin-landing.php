@@ -89,7 +89,7 @@ if (isset($_GET['edit_step'])) {
     $editStep = $landingCtrl->getStepById((int) $_GET['edit_step']);
 }
 
-page_head('Manage Landing Page');
+page_head('Manage Landing Page', true);
 ?>
 
 <div class="dashboard-layout">

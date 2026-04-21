@@ -100,7 +100,7 @@ function audit_format_sgt(string $timestamp): string {
     }
 }
 
-page_head('Audit Log');
+page_head('Audit Log', true);
 ?>
 <div class="dashboard-layout">
 <?php sidebar($user); ?>
