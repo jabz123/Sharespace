@@ -360,6 +360,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 <div class="form-group">
                     <label>Content</label>
                     <textarea name="content" class="write-content-input" required><?= htmlspecialchars($val['content']) ?></textarea>
+                    <section id="aiContentHighlightsBox" class="ai-inline-content-highlights" style="display:none;">
+                        <div class="ai-section-head">
+                            <h4>Content Highlights</h4>
+                            <p>Sentence-level verification appears here after AI Fact Check.</p>
+                        </div>
+                        <div id="aiContentHighlights" class="ai-content-highlights"></div>
+                    </section>
                 </div>
 
                 <div class="write-actions">
@@ -507,11 +514,15 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         </section>
 
                         <section id="aiSourcesBox" class="ai-section" style="display:<?= !empty($initialMatchedSources) ? 'block' : 'none' ?>;">
-                            <div class="ai-section-head">
-                                <h4>Matched Sources</h4>
-                                <p id="aiSourcesCountLabel"><?= count($initialMatchedSources) ?> sources matched</p>
-                            </div>
-                            <div id="aiSourcesList" class="ai-sources-grid">
+                            <details id="aiSourcesDisclosure" class="ai-sources-disclosure">
+                                <summary class="ai-sources-summary">
+                                    <span class="ai-sources-summary-text">
+                                        <strong>Matched Sources</strong>
+                                        <small id="aiSourcesCountLabel"><?= count($initialMatchedSources) ?> sources matched</small>
+                                    </span>
+                                    <span class="ai-sources-summary-icon" aria-hidden="true"></span>
+                                </summary>
+                                <div id="aiSourcesList" class="ai-sources-grid">
                                 <?php foreach ($initialMatchedSources as $source): ?>
                                     <div class="ai-source-card">
                                         <div class="ai-source-topline">
@@ -534,13 +545,6 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                        </section>
-
-                        <section id="aiContentHighlightsBox" class="ai-section" style="display:none;">
-                            <div class="ai-section-head">
-                                <h4>Content Highlights</h4>
-                            </div>
-                            <div id="aiContentHighlights" class="ai-content-highlights"></div>
                         </section>
 
                         <section id="aiClaimsBox" class="ai-section" style="display:none;">
@@ -573,7 +577,8 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                         <span class="ai-issue-action">Jump to sentence</span>
                                     </button>
                                 <?php endforeach; ?>
-                            </div>
+                                </div>
+                            </details>
                         </section>
 
                         <section id="aiImproveBox" class="ai-section" style="display:none;">
