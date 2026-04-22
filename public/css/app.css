@@ -933,16 +933,16 @@ h4,
     border-color: rgba(247, 169, 27, 0.24);
 }
 
-.nav-icon {
+/* .nav-icon {
     width: 10px;
     height: 10px;
     border-radius: 999px;
     background: rgba(247, 169, 27, 0.8);
     box-shadow: 0 0 0 4px rgba(247, 169, 27, 0.12);
     flex-shrink: 0;
-}
+} */
 
-.nav-icon-browse { background: #60a5fa; box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.16); }
+/* .nav-icon-browse { background: #60a5fa; box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.16); }
 .nav-icon-articles { background: #34d399; box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.16); }
 .nav-icon-compose { background: #f7a91b; box-shadow: 0 0 0 4px rgba(247, 169, 27, 0.16); }
 .nav-icon-profile { background: #c084fc; box-shadow: 0 0 0 4px rgba(192, 132, 252, 0.16); }
@@ -952,7 +952,7 @@ h4,
 .nav-icon-writers { background: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.16); }
 .nav-icon-alerts { background: #fb7185; box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.16); }
 .nav-icon-landing { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16); }
-.nav-icon-logout { background: rgba(255, 255, 255, 0.68); box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08); }
+.nav-icon-logout { background: rgba(255, 255, 255, 0.68); box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08); } */
 
 .dash-header {
     padding: 34px 36px 26px;
@@ -2920,7 +2920,7 @@ body:has(.browse-page-shell) {
     box-shadow: none !important;
 }
 
-.nav-icon-home,
+/* .nav-icon-home,
 .nav-icon-browse,
 .nav-icon-compose,
 .nav-icon-profile,
@@ -2934,7 +2934,7 @@ body:has(.browse-page-shell) {
 .nav-icon-articles {
     background: currentColor;
     opacity: 0.9;
-}
+} */
 
 .dash-header {
     background: black;
@@ -3513,7 +3513,7 @@ textarea,
     opacity: 1;
 }
 
-.nav-icon-home { background: var(--primary); box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.12); }
+/* .nav-icon-home { background: var(--primary); box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.12); }
 .nav-icon-browse { background: #4db8ff; box-shadow: 0 0 0 4px rgba(77, 184, 255, 0.12); }
 .nav-icon-articles { background: #2edf9a; box-shadow: 0 0 0 4px rgba(46, 223, 154, 0.12); }
 .nav-icon-compose { background: #ffb830; box-shadow: 0 0 0 4px rgba(255, 184, 48, 0.12); }
@@ -3527,7 +3527,7 @@ textarea,
 .nav-icon-logout {
     background: #8ea7cc;
     box-shadow: 0 0 0 4px rgba(142, 167, 204, 0.12);
-}
+} */
 
 /* Typography refinement */
 body,
