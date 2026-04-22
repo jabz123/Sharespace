@@ -6084,17 +6084,18 @@ body.page-ai-trainer-home .toast button {
 
 /* ── Write / Edit Article ─────────────────────────────────────── */
 .write-editor-shell {
-    max-width: 1380px;
+    max-width: 1920px;
     padding: 30px 32px 42px;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 28px;
     align-items: flex-start;
 }
 
 .write-editor-form {
-    flex: 1 1 0;
     min-width: 0;
-    max-width: 920px;
+    max-width: none;
+    width: 100%;
     padding: 28px;
     border-radius: 26px;
     border: 1px solid rgba(255,255,255,0.08);
@@ -6157,9 +6158,9 @@ body.page-ai-trainer-home .toast button {
 }
 
 .write-editor-shell .ai-panel {
-    flex: 0 0 520px;
-    max-width: 520px;
-    min-width: 460px;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
 }
 
 .ai-verification-card,
@@ -6191,6 +6192,39 @@ body.page-ai-trainer-home .toast button {
 .user-dashboard-shell .ai-verification-card h3,
 .user-dashboard-shell .ai-verification-card a {
     color: #f5f8ff;
+}
+
+.user-dashboard-shell .ai-verification-card,
+.user-dashboard-shell .ai-verification-card p,
+.user-dashboard-shell .ai-verification-card li,
+.user-dashboard-shell .ai-verification-card span,
+.user-dashboard-shell .ai-verification-card strong,
+.user-dashboard-shell .ai-verification-card div:not(.progress-bar):not(.ai-success-box) {
+    color: #dbe7f7;
+}
+
+.user-dashboard-shell #aiSummary,
+.user-dashboard-shell #aiSourceLabel,
+.user-dashboard-shell #aiClaimsList p,
+.user-dashboard-shell #aiSourcesList p,
+.user-dashboard-shell #aiWhyNotPerfectList li,
+.user-dashboard-shell #aiImproveList li,
+.user-dashboard-shell #aiMisinformationList li,
+.user-dashboard-shell #aiContentHighlights,
+.user-dashboard-shell #aiContentHighlights p {
+    color: #dbe7f7 !important;
+}
+
+.user-dashboard-shell #aiWhyNotPerfectList,
+.user-dashboard-shell #aiImproveList,
+.user-dashboard-shell #aiMisinformationList {
+    padding-left: 20px;
+}
+
+.user-dashboard-shell #aiWhyNotPerfectList li::marker,
+.user-dashboard-shell #aiImproveList li::marker,
+.user-dashboard-shell #aiMisinformationList li::marker {
+    color: #ffca61;
 }
 
 .user-dashboard-shell .ai-verification-card ul,
@@ -6229,7 +6263,7 @@ body.page-ai-trainer-home .toast button {
 }
 
 .user-dashboard-shell #aiContentHighlights {
-    color: #f3f7ff;
+    color: #f3f7ff !important;
     font-size: 14px;
     line-height: 1.8;
 }
@@ -6330,6 +6364,7 @@ body.page-ai-trainer-home .toast button {
 
 @media (max-width: 1100px) {
     .write-editor-shell {
+        display: flex;
         flex-direction: column;
         padding: 22px 18px 32px;
     }
