@@ -401,7 +401,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </div>
                         </section>
 
-                        <section id="aiBreakdownSection" class="ai-section">
+                        <section id="aiBreakdownSection" class="ai-section" style="display:none;">
                             <div class="ai-section-head">
                                 <h4>Breakdown</h4>
                             </div>
@@ -426,6 +426,29 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                     <span>Total Claims</span>
                                     <p>AI identified factual claims in this article</p>
                                 </div>
+                            </div>
+                        </section>
+
+                        <section id="aiAreasBox" class="ai-section ai-areas-section" style="display:none;">
+                            <div class="ai-section-head ai-areas-head">
+                                <div>
+                                    <h4>Areas to Improve</h4>
+                                    <p id="aiAreasSubtitle">These issues are affecting your score. Addressing them can improve the accuracy and reliability of your article.</p>
+                                </div>
+                                <div class="ai-impact-card">
+                                    <span class="ai-impact-label">Score Impact</span>
+                                    <strong id="aiImpactValue">-0%</strong>
+                                    <span class="ai-impact-note">from perfect score</span>
+                                </div>
+                            </div>
+                            <div id="aiAreasSummary" class="ai-areas-summary"></div>
+                            <div id="aiAreasGroups" class="ai-areas-groups"></div>
+                            <div id="aiImproveGuideCard" class="ai-improve-guide-card" style="display:none;">
+                                <div class="ai-improve-guide-copy">
+                                    <span class="ai-improve-guide-kicker">How to improve your score</span>
+                                    <p id="aiImproveGuideText">Use more direct quotes and data from trusted CNA/ST sources, add missing context, and ensure neutral, factual wording throughout the article.</p>
+                                </div>
+                                <button type="button" id="aiImproveGuideButton" class="ai-guide-button">View Guide</button>
                             </div>
                         </section>
 
@@ -466,7 +489,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             <div id="aiContentHighlights" class="ai-content-highlights"></div>
                         </section>
 
-                        <section id="aiClaimsBox" class="ai-section" style="display:<?= !empty($initialClaims) ? 'block' : 'none' ?>;">
+                        <section id="aiClaimsBox" class="ai-section" style="display:none;">
                             <div class="ai-section-head">
                                 <h4>Issues to Review</h4>
                             </div>
@@ -499,7 +522,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </div>
                         </section>
 
-                        <section id="aiImproveBox" class="ai-section" style="display:<?= !empty($initialSuggestions) ? 'block' : 'none' ?>;">
+                        <section id="aiImproveBox" class="ai-section" style="display:none;">
                             <div class="ai-section-head">
                                 <h4>How To Improve</h4>
                             </div>
@@ -557,7 +580,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </div>
                         </section>
 
-                        <section id="aiWhyNotPerfectBox" class="ai-section" style="display:<?= (!empty($initialWhyNotPerfectDetails) || !empty($initialWhyNotPerfect)) ? 'block' : 'none' ?>;">
+                        <section id="aiWhyNotPerfectBox" class="ai-section" style="display:none;">
                             <div class="ai-section-head">
                                 <h4>Why Not 100?</h4>
                             </div>
@@ -729,6 +752,14 @@ const supportedCount = document.getElementById('aiSupportedCount');
 const weakCount = document.getElementById('aiWeakCount');
 const contradictedCount = document.getElementById('aiContradictedCount');
 const totalClaimsCount = document.getElementById('aiTotalClaimsCount');
+const areasBox = document.getElementById('aiAreasBox');
+const areasSummary = document.getElementById('aiAreasSummary');
+const areasGroups = document.getElementById('aiAreasGroups');
+const areasSubtitle = document.getElementById('aiAreasSubtitle');
+const impactValue = document.getElementById('aiImpactValue');
+const improveGuideCard = document.getElementById('aiImproveGuideCard');
+const improveGuideText = document.getElementById('aiImproveGuideText');
+const improveGuideButton = document.getElementById('aiImproveGuideButton');
 const whyNotPerfectBox = document.getElementById('aiWhyNotPerfectBox');
 const whyNotPerfectList = document.getElementById('aiWhyNotPerfectList');
 const sourcesBox = document.getElementById('aiSourcesBox');
@@ -837,6 +868,344 @@ function renderClaimSummary(summary) {
     weakCount.textContent = String(weak);
     totalClaimsCount.textContent = String(total);
     claimSummaryBox.style.display = 'flex';
+}
+
+function truncateIssueText(value, maxLength = 120) {
+    const text = String(value || '').trim();
+    if (text.length <= maxLength) {
+        return text;
+    }
+    return `${text.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function normalizeWhyItems(items) {
+    if (!Array.isArray(items)) {
+        return [];
+    }
+
+    return items.map((item) => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            return {
+                message: String(item.message || '').trim(),
+                examples: Array.isArray(item.examples) ? item.examples : []
+            };
+        }
+
+        return {
+            message: String(item || '').trim(),
+            examples: []
+        };
+    }).filter((item) => item.message);
+}
+
+function truncateIssuePreview(value, maxLength = 120) {
+    const text = String(value || '').trim();
+    if (text.length <= maxLength) {
+        return text;
+    }
+    return `${text.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+}
+
+function findMatchedSourceForClaim(claim, matchedSources) {
+    if (!Array.isArray(matchedSources) || matchedSources.length === 0) {
+        return null;
+    }
+
+    const sourceLabel = String(claim && claim.source ? claim.source : '').toLowerCase();
+    if (sourceLabel.includes('cna+st')) {
+        return matchedSources[0] || null;
+    }
+    if (sourceLabel) {
+        const directMatch = matchedSources.find((source) => {
+            const name = String(source && source.name ? source.name : '').toLowerCase();
+            return name && sourceLabel.includes(name);
+        });
+        if (directMatch) {
+            return directMatch;
+        }
+    }
+
+    const claimText = String(claim && (claim.text || claim.draft_sentence) ? (claim.text || claim.draft_sentence) : '').toLowerCase();
+    return matchedSources.find((source) => {
+        const title = String(source && source.title ? source.title : '').toLowerCase();
+        return title && claimText && (title.includes(claimText.slice(0, 28)) || claimText.includes(title.slice(0, 28)));
+    }) || matchedSources[0] || null;
+}
+
+function buildClaimIssueItem(claim, matchedSources) {
+    const status = String(claim && claim.status ? claim.status : 'supported');
+    const matchedSource = findMatchedSourceForClaim(claim, matchedSources);
+    const highlightKey = claim && claim.sentence_key
+        ? String(claim.sentence_key)
+        : normalizeForSentenceMatch(claim && claim.draft_sentence ? claim.draft_sentence : '');
+    const draftSentence = String(claim && (claim.draft_sentence || claim.text) ? (claim.draft_sentence || claim.text) : '').trim();
+    const description = String(
+        claim && claim.reason
+            ? claim.reason
+            : (status === 'contradicted'
+                ? 'This claim appears to conflict with trusted CNA/ST reporting.'
+                : 'This claim needs stronger or more direct CNA/ST support.')
+    ).trim();
+    const examples = [];
+
+    if (draftSentence) {
+        examples.push({
+            label: 'Draft sentence',
+            text: draftSentence,
+            reason: status === 'contradicted' ? 'Review and correct this sentence.' : 'Review and strengthen this sentence.',
+            highlight_key: highlightKey || null,
+            url: null
+        });
+    }
+
+    if (matchedSource && matchedSource.url) {
+        examples.push({
+            label: 'Source example',
+            text: String(matchedSource.title || matchedSource.name || 'Matched source'),
+            reason: `${String(matchedSource.name || 'Trusted source')} - ${String(matchedSource.match_type || 'related')}`,
+            highlight_key: null,
+            url: String(matchedSource.url)
+        });
+    }
+
+    return {
+        title: status === 'contradicted' ? 'Contradicting claim(s) lower the score.' : 'This claim needs stronger support.',
+        description,
+        status,
+        examples
+    };
+}
+
+function categorizeWhyMessage(message) {
+    const lower = String(message || '').toLowerCase();
+    if (/(contradict|false|unsupported|misinformation)/.test(lower)) {
+        return 'contradicted';
+    }
+    if (/(source quality|support|supported|corroborat|confirmed|evidence|reference|trusted source|matched cna\/st)/.test(lower)) {
+        return 'weak';
+    }
+    return 'clarity';
+}
+
+function suggestionCategory(text) {
+    const lower = String(text || '').toLowerCase();
+    if (/(source|cna|st|reference|quote|data|evidence|support)/.test(lower)) {
+        return 'weak';
+    }
+    return 'clarity';
+}
+
+function dedupeIssueItems(items) {
+    const seen = new Set();
+    return items.filter((item) => {
+        const key = `${item.status}|${String(item.title || '').toLowerCase()}|${String(item.description || '').toLowerCase()}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+function renderAreaExamples(examples) {
+    if (!Array.isArray(examples) || examples.length === 0) {
+        return '';
+    }
+
+    return `<div class="ai-area-examples">${examples.map((example) => {
+        const label = escapeHtml(example && example.label ? example.label : 'Example');
+        const text = escapeHtml(truncateIssuePreview(example && example.text ? example.text : '', 140));
+        const reason = example && example.reason ? `<span class="ai-area-example-reason">${escapeHtml(example.reason)}</span>` : '';
+        const highlightKey = example && example.highlight_key ? escapeHtml(example.highlight_key) : '';
+        const url = example && example.url ? escapeHtml(example.url) : '';
+
+        if (highlightKey) {
+            return `<button type="button" class="ai-area-example is-clickable" data-highlight-key="${highlightKey}">
+                <span class="ai-area-example-label">${label}</span>
+                <strong>${text}</strong>
+                ${reason}
+                <span class="ai-area-example-action">Jump to sentence</span>
+            </button>`;
+        }
+
+        if (url) {
+            return `<a class="ai-area-example" href="${url}" target="_blank" rel="noopener noreferrer">
+                <span class="ai-area-example-label">${label}</span>
+                <strong>${text}</strong>
+                ${reason}
+                <span class="ai-area-example-action">View source</span>
+            </a>`;
+        }
+
+        return `<div class="ai-area-example">
+            <span class="ai-area-example-label">${label}</span>
+            <strong>${text}</strong>
+            ${reason}
+        </div>`;
+    }).join('')}</div>`;
+}
+
+function renderAreaGroup(title, count, status, impactLabel, items, openByDefault = false) {
+    if (!Array.isArray(items) || items.length === 0) {
+        return '';
+    }
+
+    return `<details class="ai-area-group is-${status}" ${openByDefault ? 'open' : ''}>
+        <summary class="ai-area-summary">
+            <span class="ai-area-summary-title">${escapeHtml(title)} (${count})</span>
+            <span class="ai-area-summary-impact">${escapeHtml(impactLabel)}</span>
+        </summary>
+        <div class="ai-area-body">
+            ${items.map((item) => `<article class="ai-area-item is-${status}">
+                <div class="ai-area-item-copy">
+                    <h5>${escapeHtml(item.title || '')}</h5>
+                    <p>${escapeHtml(item.description || '')}</p>
+                </div>
+                ${renderAreaExamples(item.examples)}
+            </article>`).join('')}
+        </div>
+    </details>`;
+}
+
+function bindAreaActions() {
+    areasBox.querySelectorAll('[data-highlight-key]').forEach((element) => {
+        element.addEventListener('click', () => {
+            const highlightKey = element.getAttribute('data-highlight-key');
+            if (!highlightKey) {
+                return;
+            }
+            jumpToClaimHighlight(highlightKey);
+        });
+    });
+}
+
+function renderAreasToImprove({ trustScore = 0, claims = [], whyItems = [], suggestions = [], matchedSources = [], highlights = [] } = {}) {
+    const contradictedItems = [];
+    const supportItems = [];
+    const clarityItems = [];
+
+    (Array.isArray(claims) ? claims : []).forEach((claim) => {
+        const status = String(claim && claim.status ? claim.status : 'supported');
+        if (status === 'contradicted') {
+            contradictedItems.push(buildClaimIssueItem(claim, matchedSources));
+        } else if (status === 'weak') {
+            supportItems.push(buildClaimIssueItem(claim, matchedSources));
+        }
+    });
+
+    normalizeWhyItems(whyItems).forEach((item) => {
+        const category = categorizeWhyMessage(item.message);
+        const issue = {
+            title: item.message,
+            description: category === 'contradicted'
+                ? 'This reason signals a direct factual conflict that should be fixed first.'
+                : (category === 'weak'
+                    ? 'This part of the article needs stronger sourcing or more direct corroboration.'
+                    : 'This is more about wording, context, or explanation than a hard factual conflict.'),
+            status: category,
+            examples: item.examples || []
+        };
+
+        if (category === 'contradicted') {
+            contradictedItems.push(issue);
+        } else if (category === 'weak') {
+            supportItems.push(issue);
+        } else {
+            clarityItems.push(issue);
+        }
+    });
+
+    (Array.isArray(suggestions) ? suggestions : []).slice(0, 4).forEach((suggestion) => {
+        const category = suggestionCategory(suggestion);
+        const issue = {
+            title: category === 'weak' ? 'Stronger sourcing would improve this draft.' : 'Clearer wording would improve this draft.',
+            description: String(suggestion || ''),
+            status: category,
+            examples: []
+        };
+        if (category === 'weak') {
+            supportItems.push(issue);
+        } else {
+            clarityItems.push(issue);
+        }
+    });
+
+    if (Array.isArray(highlights) && highlights.length && contradictedItems.length === 0) {
+        highlights.slice(0, 3).forEach((item) => {
+            contradictedItems.push({
+                title: 'Unsupported or false line detected.',
+                description: String(item && item.reason ? item.reason : 'Trusted CNA/ST evidence does not support this line.'),
+                status: 'contradicted',
+                examples: [{
+                    label: 'Draft line',
+                    text: String(item && item.line ? item.line : ''),
+                    reason: item && item.source ? String(item.source) : 'Review this line.',
+                    highlight_key: normalizeForSentenceMatch(item && item.line ? item.line : ''),
+                    url: null
+                }]
+            });
+        });
+    }
+
+    const contradictionList = dedupeIssueItems(contradictedItems);
+    const supportList = dedupeIssueItems(supportItems);
+    const clarityList = dedupeIssueItems(clarityItems);
+    const totalIssues = contradictionList.length + supportList.length + clarityList.length;
+
+    if (totalIssues === 0) {
+        areasSummary.innerHTML = '';
+        areasGroups.innerHTML = '';
+        areasBox.style.display = 'none';
+        improveGuideCard.style.display = 'none';
+        return;
+    }
+
+    const scoreDelta = Math.max(0, 100 - (Number(trustScore) || 0));
+    impactValue.textContent = `-${scoreDelta}%`;
+    areasSubtitle.textContent = contradictionList.length > 0
+        ? 'These issues are affecting your score. Fix the contradictions first, then strengthen weaker evidence.'
+        : 'These issues are affecting your score. Addressing them can improve the accuracy and reliability of your article.';
+
+    areasSummary.innerHTML = `
+        <div class="ai-area-stat is-contradicted">
+            <strong>${contradictionList.length}</strong>
+            <span>Contradictions</span>
+            <small>High impact</small>
+        </div>
+        <div class="ai-area-stat is-weak">
+            <strong>${supportList.length}</strong>
+            <span>Need More Support</span>
+            <small>Medium impact</small>
+        </div>
+        <div class="ai-area-stat is-clarity">
+            <strong>${clarityList.length}</strong>
+            <span>Clarity Issues</span>
+            <small>Low impact</small>
+        </div>
+        <div class="ai-area-stat is-total">
+            <strong>${totalIssues}</strong>
+            <span>Total Issues</span>
+            <small>Across all categories</small>
+        </div>
+    `;
+
+    const firstOpen = contradictionList.length > 0 ? 'contradicted' : (supportList.length > 0 ? 'weak' : 'clarity');
+    areasGroups.innerHTML = [
+        renderAreaGroup('Contradictions', contradictionList.length, 'contradicted', 'High impact', contradictionList, firstOpen === 'contradicted'),
+        renderAreaGroup('Need More Support', supportList.length, 'weak', 'Medium impact', supportList, firstOpen === 'weak'),
+        renderAreaGroup('Clarity Issues', clarityList.length, 'clarity', 'Low impact', clarityList, firstOpen === 'clarity')
+    ].filter(Boolean).join('');
+
+    const guideLines = (Array.isArray(suggestions) ? suggestions : []).slice(0, 3);
+    if (guideLines.length > 0) {
+        improveGuideText.textContent = guideLines.join(' ');
+        improveGuideCard.style.display = 'flex';
+    } else {
+        improveGuideCard.style.display = 'none';
+    }
+
+    areasBox.style.display = 'block';
+    bindAreaActions();
 }
 
 function renderWhyNotPerfect(items) {
@@ -1167,6 +1536,14 @@ async function runAICheck() {
 
         applyVerdictState(decision, data.verdict || 'Verification completed.');
         renderClaimSummary(claimSummary);
+        renderAreasToImprove({
+            trustScore,
+            claims: data.claims || [],
+            whyItems: data.why_not_perfect_details || data.why_not_perfect || [],
+            suggestions: data.improvement_suggestions || [],
+            matchedSources: data.matched_sources || [],
+            highlights: data.misinformation_highlights || []
+        });
         renderWhyNotPerfect(data.why_not_perfect_details || data.why_not_perfect || []);
         renderMatchedSources(data.matched_sources || []);
         renderClaims(data.claims || []);
@@ -1207,12 +1584,29 @@ aiVerdictHeadline.textContent = headlineForDecision(initialDecision, <?= (int)$i
 setLastCheckedLabel(<?= json_encode($hasCurrentVerification ? 'Last checked: Just now' : 'Waiting for fact check') ?>);
 applyVerdictState(initialDecision, <?= json_encode($initialVerdict !== '' ? $initialVerdict : 'Waiting for verification.') ?>);
 renderClaimSummary(<?= json_encode($initialClaimSummary) ?>);
+renderAreasToImprove({
+    trustScore: <?= (int)$initialTrustScore ?>,
+    claims: <?= json_encode($initialClaims) ?>,
+    whyItems: <?= json_encode(!empty($initialWhyNotPerfectDetails) ? $initialWhyNotPerfectDetails : $initialWhyNotPerfect) ?>,
+    suggestions: <?= json_encode($initialSuggestions) ?>,
+    matchedSources: <?= json_encode($initialMatchedSources) ?>,
+    highlights: <?= json_encode($initialHighlights) ?>
+});
 renderWhyNotPerfect(<?= json_encode(!empty($initialWhyNotPerfectDetails) ? $initialWhyNotPerfectDetails : $initialWhyNotPerfect) ?>);
 renderMatchedSources(<?= json_encode($initialMatchedSources) ?>);
 renderClaims(<?= json_encode($initialClaims) ?>);
 renderContentHighlights(initialContentText, <?= json_encode($initialClaims) ?>);
 renderImprovementSuggestions(<?= json_encode($initialSuggestions) ?>);
 renderMisinformationHighlights(<?= json_encode($initialHighlights) ?>);
+
+if (improveGuideButton) {
+    improveGuideButton.addEventListener('click', () => {
+        const targetSection = contentHighlightsBox.style.display !== 'none'
+            ? contentHighlightsBox
+            : (sourcesBox.style.display !== 'none' ? sourcesBox : areasBox);
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+}
 </script>
 
 <?php page_foot(); ?>
