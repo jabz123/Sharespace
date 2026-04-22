@@ -1395,7 +1395,7 @@ function normalizeForSentenceMatch(value) {
         .replace(/\s+/g, ' ');
 }
 
-function renderContentHighlights(content, claims) {
+function renderContentHighlights(content, claims, whyItems = []) {
     const rawContent = String(content || '').trim();
     if (!rawContent) {
         contentHighlights.innerHTML = '';
@@ -1405,7 +1405,19 @@ function renderContentHighlights(content, claims) {
 
     const normalizedClaims = Array.isArray(claims) ? claims : [];
     const sentenceClaimMap = new Map();
-    const statusPriority = { contradicted: 3, weak: 2, supported: 1 };
+    const statusPriority = { contradicted: 4, weak: 3, clarity: 2, supported: 1 };
+    const registerSentenceMatch = (keys, entry) => {
+        const currentPriority = statusPriority[String(entry && entry.status ? entry.status : 'supported')] || 0;
+
+        keys.filter(Boolean).forEach((mapKey) => {
+            const existing = sentenceClaimMap.get(mapKey);
+            const existingPriority = existing ? (statusPriority[String(existing.status || 'supported')] || 0) : 0;
+
+            if (!existing || currentPriority >= existingPriority) {
+                sentenceClaimMap.set(mapKey, entry);
+            }
+        });
+    };
 
     normalizedClaims.forEach((claim) => {
         const sentenceKey = claim && claim.sentence_key ? String(claim.sentence_key) : '';
@@ -1417,14 +1429,24 @@ function renderContentHighlights(content, claims) {
             return;
         }
 
-        const currentPriority = statusPriority[String(claim && claim.status ? claim.status : 'supported')] || 0;
-        [sentenceKey, sentenceIndex, draftSentence].filter(Boolean).forEach((mapKey) => {
-            const existing = sentenceClaimMap.get(mapKey);
-            const existingPriority = existing ? (statusPriority[String(existing.status || 'supported')] || 0) : 0;
+        registerSentenceMatch([sentenceKey, sentenceIndex, draftSentence], claim);
+    });
 
-            if (!existing || currentPriority >= existingPriority) {
-                sentenceClaimMap.set(mapKey, claim);
+    normalizeWhyItems(whyItems).forEach((item) => {
+        const issueStatus = categorizeWhyMessage(item.message);
+        (Array.isArray(item.examples) ? item.examples : []).forEach((example) => {
+            const sentenceKey = example && example.highlight_key ? String(example.highlight_key) : '';
+            const draftSentence = example && example.text ? normalizeForSentenceMatch(example.text) : '';
+            if (!sentenceKey && !draftSentence) {
+                return;
             }
+
+            registerSentenceMatch([sentenceKey, draftSentence], {
+                status: issueStatus,
+                sentence_key: sentenceKey || null,
+                draft_sentence: example && example.text ? String(example.text) : '',
+                reason: item.message
+            });
         });
     });
 
@@ -1449,8 +1471,10 @@ function renderContentHighlights(content, claims) {
             const styles = status === 'contradicted'
                 ? 'background:rgba(239,68,68,0.26); box-shadow:inset 0 0 0 1px rgba(248,113,113,0.55); border-left:3px solid #ef4444; padding:2px 5px; border-radius:6px; color:#fff4f4;'
                 : (status === 'weak'
-                    ? 'background:rgba(245,158,11,0.24); box-shadow:inset 0 0 0 1px rgba(251,191,36,0.45); border-left:3px solid #f59e0b; padding:2px 5px; border-radius:6px; color:#fff7ed;'
-                    : 'background:rgba(34,197,94,0.22); box-shadow:inset 0 0 0 1px rgba(74,222,128,0.42); border-left:3px solid #22c55e; padding:2px 5px; border-radius:6px; color:#f0fdf4;');
+                    ? 'background:rgba(120,82,42,0.34); box-shadow:inset 0 0 0 1px rgba(214,158,46,0.48); border-left:3px solid #d6a11d; padding:2px 5px; border-radius:6px; color:#fff7ed;'
+                    : (status === 'clarity'
+                        ? 'background:rgba(30,64,175,0.28); box-shadow:inset 0 0 0 1px rgba(96,165,250,0.45); border-left:3px solid #60a5fa; padding:2px 5px; border-radius:6px; color:#eff6ff;'
+                        : 'background:rgba(34,197,94,0.22); box-shadow:inset 0 0 0 1px rgba(74,222,128,0.42); border-left:3px solid #22c55e; padding:2px 5px; border-radius:6px; color:#f0fdf4;'));
 
             return `<span data-highlight-key="${highlightKey}" style="${styles}">${escapeHtml(sentence)}</span>`;
         }).join(' ');
@@ -1626,7 +1650,7 @@ async function runAICheck() {
         renderWhyNotPerfect(data.why_not_perfect_details || data.why_not_perfect || []);
         renderMatchedSources(data.matched_sources || []);
         renderClaims(data.claims || []);
-        renderContentHighlights(content, data.claims || []);
+        renderContentHighlights(content, data.claims || [], data.why_not_perfect_details || data.why_not_perfect || []);
         renderImprovementSuggestions(data.improvement_suggestions || []);
         renderMisinformationHighlights(data.misinformation_highlights || []);
 
@@ -1674,7 +1698,7 @@ renderAreasToImprove({
 renderWhyNotPerfect(<?= json_encode(!empty($initialWhyNotPerfectDetails) ? $initialWhyNotPerfectDetails : $initialWhyNotPerfect) ?>);
 renderMatchedSources(<?= json_encode($initialMatchedSources) ?>);
 renderClaims(<?= json_encode($initialClaims) ?>);
-renderContentHighlights(initialContentText, <?= json_encode($initialClaims) ?>);
+renderContentHighlights(initialContentText, <?= json_encode($initialClaims) ?>, <?= json_encode(!empty($initialWhyNotPerfectDetails) ? $initialWhyNotPerfectDetails : $initialWhyNotPerfect) ?>);
 renderImprovementSuggestions(<?= json_encode($initialSuggestions) ?>);
 renderMisinformationHighlights(<?= json_encode($initialHighlights) ?>);
 
