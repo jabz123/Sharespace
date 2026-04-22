@@ -128,10 +128,141 @@ function normalizeClaims(array $decoded): array {
             'reason' => trim((string)($claim['reason'] ?? '')),
             'importance' => trim((string)($claim['importance'] ?? 'minor')),
             'status' => $status,
+            'claim_key' => substr(sha1($text . '|' . $status), 0, 12),
         ];
     }
 
     return array_slice($normalized, 0, 8);
+}
+
+function detectSourceType(?string $url): string {
+    $value = strtolower(trim((string)$url));
+    if ($value === '') {
+        return 'article';
+    }
+    if (str_contains($value, '/commentary/')) {
+        return 'commentary';
+    }
+    if (str_contains($value, '/opinion/')) {
+        return 'opinion';
+    }
+    if (str_contains($value, '/analysis/')) {
+        return 'analysis';
+    }
+    return 'article';
+}
+
+function normalizeMatchedSources(array $decoded): array {
+    $sources = is_array($decoded['matched_sources'] ?? null) ? $decoded['matched_sources'] : [];
+    $normalized = [];
+
+    foreach ($sources as $source) {
+        if (!is_array($source)) {
+            continue;
+        }
+
+        $url = trim((string)($source['url'] ?? ''));
+        $title = trim((string)($source['title'] ?? $source['name'] ?? ''));
+        if ($url === '' && $title === '') {
+            continue;
+        }
+
+        $normalized[] = [
+            'name' => trim((string)($source['name'] ?? '')),
+            'title' => $title,
+            'url' => $url !== '' ? $url : null,
+            'match_type' => trim((string)($source['match_type'] ?? 'related')),
+            'relevance_note' => trim((string)($source['relevance_note'] ?? '')),
+            'snippet' => trim((string)($source['snippet'] ?? '')),
+            'source_type' => detectSourceType($url),
+        ];
+    }
+
+    return array_slice($normalized, 0, 6);
+}
+
+function buildClaimSummary(array $claims): array {
+    $summary = [
+        'supported' => 0,
+        'weak' => 0,
+        'contradicted' => 0,
+        'total' => 0,
+    ];
+
+    foreach ($claims as $claim) {
+        if (!is_array($claim)) {
+            continue;
+        }
+
+        $status = trim((string)($claim['status'] ?? 'supported'));
+        if (!isset($summary[$status])) {
+            $status = 'supported';
+        }
+
+        $summary[$status]++;
+        $summary['total']++;
+    }
+
+    return $summary;
+}
+
+function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, array $claims, array $matchedSources): array {
+    $reasons = [];
+    $seen = [];
+    $maxima = [
+        'factual_accuracy' => 45,
+        'source_quality' => 25,
+        'bias_detection' => 10,
+        'logical_consistency' => 10,
+        'completeness' => 10,
+    ];
+
+    $push = static function (string $message) use (&$reasons, &$seen): void {
+        $message = trim($message);
+        if ($message === '' || isset($seen[$message])) {
+            return;
+        }
+        $seen[$message] = true;
+        $reasons[] = $message;
+    };
+
+    $weakClaims = count(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'weak'));
+    $contradictedClaims = count(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'contradicted'));
+    $hasCommentaryEvidence = count(array_filter($matchedSources, static fn($source): bool => is_array($source) && in_array(($source['source_type'] ?? 'article'), ['commentary', 'opinion', 'analysis'], true))) > 0;
+
+    if ($contradictedClaims > 0) {
+        $push('Contradicted claim(s) still lowered the score.');
+    }
+    if ($weakClaims > 0) {
+        $push($weakClaims . ' claim(s) are only partially supported by CNA/ST.');
+    }
+    if (($maxima['source_quality'] - (int)($rubricMetrics['source_quality'] ?? 0)) > 0) {
+        $push('Source quality is not at the maximum, so the evidence could still be stronger or more directly corroborated.');
+    }
+    if (($maxima['completeness'] - (int)($rubricMetrics['completeness'] ?? 0)) > 0 || in_array('missing_context', $flags, true)) {
+        $push('Some context or reporting detail is still missing.');
+    }
+    if (($maxima['bias_detection'] - (int)($rubricMetrics['bias_detection'] ?? 0)) > 0 || in_array('high_bias', $flags, true)) {
+        $push('Some wording is still interpretive or less neutral than ideal.');
+    }
+    if (($maxima['logical_consistency'] - (int)($rubricMetrics['logical_consistency'] ?? 0)) > 0) {
+        $push('The article can still be clearer in how it connects evidence to conclusions.');
+    }
+    if (($maxima['factual_accuracy'] - (int)($rubricMetrics['factual_accuracy'] ?? 0)) > 0) {
+        $push('Not every important claim is fully or exactly confirmed by the matched CNA/ST sources.');
+    }
+    if ($hasCommentaryEvidence) {
+        $push('Some supporting evidence is commentary or analysis rather than straight news reporting.');
+    }
+    if (in_array('low_information', $flags, true) || in_array('vague_claims', $flags, true)) {
+        $push('Some parts of the draft remain too vague to verify precisely.');
+    }
+
+    if (empty($reasons) && array_sum($metrics) < 500) {
+        $push('The draft is strong overall, but it still loses a few points because the evidence and reporting detail are not completely perfect.');
+    }
+
+    return array_slice($reasons, 0, 5);
 }
 
 $auth = new AuthController();
@@ -218,6 +349,15 @@ if ($hasCachedVerification) {
             : [],
         'claims' => is_array($existingVerification['claims'] ?? null)
             ? $existingVerification['claims']
+            : [],
+        'claim_summary' => is_array($existingVerification['claim_summary'] ?? null)
+            ? $existingVerification['claim_summary']
+            : ['supported' => 0, 'weak' => 0, 'contradicted' => 0, 'total' => 0],
+        'matched_sources' => is_array($existingVerification['matched_sources'] ?? null)
+            ? $existingVerification['matched_sources']
+            : [],
+        'why_not_perfect' => is_array($existingVerification['why_not_perfect'] ?? null)
+            ? $existingVerification['why_not_perfect']
             : [],
         'cached_result' => true,
     ]);
@@ -371,6 +511,15 @@ $improvementSuggestions = buildImprovementSuggestions(
     $publishDecision
 );
 $claims = normalizeClaims($decoded);
+$claimSummary = buildClaimSummary($claims);
+$matchedSources = normalizeMatchedSources($decoded);
+$whyNotPerfect = buildWhyNotPerfect(
+    $normalizedRubricMetrics,
+    $normalizedMetrics,
+    is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [],
+    $claims,
+    $matchedSources
+);
 
 $_SESSION['article_ai_verification'] = [
     'fingerprint' => $fingerprint,
@@ -386,6 +535,9 @@ $_SESSION['article_ai_verification'] = [
     'misinformation_highlights' => $misinformationHighlights,
     'improvement_suggestions' => $improvementSuggestions,
     'claims' => $claims,
+    'claim_summary' => $claimSummary,
+    'matched_sources' => $matchedSources,
+    'why_not_perfect' => $whyNotPerfect,
 ];
 
 echo json_encode([
@@ -400,5 +552,8 @@ echo json_encode([
     'misinformation_highlights' => $misinformationHighlights,
     'improvement_suggestions' => $improvementSuggestions,
     'claims' => $claims,
+    'claim_summary' => $claimSummary,
+    'matched_sources' => $matchedSources,
+    'why_not_perfect' => $whyNotPerfect,
     'cached_result' => false,
 ]);

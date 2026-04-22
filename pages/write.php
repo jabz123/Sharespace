@@ -206,6 +206,15 @@ $initialSuggestions = $hasCurrentVerification && is_array($verification['improve
 $initialClaims = $hasCurrentVerification && is_array($verification['claims'] ?? null)
     ? $verification['claims']
     : [];
+$initialClaimSummary = $hasCurrentVerification && is_array($verification['claim_summary'] ?? null)
+    ? $verification['claim_summary']
+    : ['supported' => 0, 'weak' => 0, 'contradicted' => 0, 'total' => 0];
+$initialMatchedSources = $hasCurrentVerification && is_array($verification['matched_sources'] ?? null)
+    ? $verification['matched_sources']
+    : [];
+$initialWhyNotPerfect = $hasCurrentVerification && is_array($verification['why_not_perfect'] ?? null)
+    ? $verification['why_not_perfect']
+    : [];
 
 $val = [
     'title' => $_POST['title'] ?? ($article?->title ?? ''),
@@ -371,6 +380,49 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                         <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
 
+                        <div id="aiClaimSummaryBox" style="display:<?= $initialClaimSummary['total'] > 0 ? 'flex' : 'none' ?>; gap:8px; flex-wrap:wrap; margin:14px 0;">
+                            <span id="aiClaimSupportedBadge" style="font-size:11px; padding:6px 10px; border-radius:999px; background:#132f22; color:#bbf7d0;"><?= (int)($initialClaimSummary['supported'] ?? 0) ?> Supported</span>
+                            <span id="aiClaimWeakBadge" style="font-size:11px; padding:6px 10px; border-radius:999px; background:#3b2a12; color:#fde68a;"><?= (int)($initialClaimSummary['weak'] ?? 0) ?> Need Support</span>
+                            <span id="aiClaimContradictedBadge" style="font-size:11px; padding:6px 10px; border-radius:999px; background:#3a1820; color:#fecdd3;"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?> Contradicted</span>
+                        </div>
+
+                        <div id="aiWhyNotPerfectBox" style="display:<?= !empty($initialWhyNotPerfect) ? 'block' : 'none' ?>; margin:14px 0;">
+                            <p style="font-weight:700; margin-bottom:8px;">Why Not 100?</p>
+                            <ul id="aiWhyNotPerfectList" style="padding-left:18px; margin:0;">
+                                <?php foreach ($initialWhyNotPerfect as $item): ?>
+                                    <li style="margin-bottom:8px;"><?= htmlspecialchars((string)$item) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+
+                        <div id="aiSourcesBox" style="display:<?= !empty($initialMatchedSources) ? 'block' : 'none' ?>; margin:14px 0;">
+                            <p style="font-weight:700; margin-bottom:8px;">Matched Sources</p>
+                            <div id="aiSourcesList" style="display:grid; gap:10px;">
+                                <?php foreach ($initialMatchedSources as $source): ?>
+                                    <div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
+                                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
+                                            <strong style="font-size:13px; line-height:1.5;"><?= htmlspecialchars((string)($source['title'] ?? $source['name'] ?? '')) ?></strong>
+                                            <span class="text-muted" style="font-size:11px; white-space:nowrap;"><?= htmlspecialchars((string)($source['match_type'] ?? 'related')) ?></span>
+                                        </div>
+                                        <p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">
+                                            <?= htmlspecialchars((string)($source['name'] ?? '')) ?>
+                                            <?php if (!empty($source['source_type'])): ?>
+                                                · <?= htmlspecialchars((string)$source['source_type']) ?>
+                                            <?php endif; ?>
+                                        </p>
+                                        <?php if (!empty($source['url'])): ?>
+                                            <a href="<?= htmlspecialchars((string)$source['url']) ?>" target="_blank" rel="noopener noreferrer" style="font-size:12px; word-break:break-all;">View source</a>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <div id="aiContentHighlightsBox" style="display:none; margin:14px 0;">
+                            <p style="font-weight:700; margin-bottom:8px;">Content Highlights</p>
+                            <div id="aiContentHighlights" style="max-height:220px; overflow:auto; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; background:rgba(255,255,255,0.02); font-size:13px; line-height:1.7;"></div>
+                        </div>
+
                         <div id="aiClaimsBox" style="display:<?= !empty($initialClaims) ? 'block' : 'none' ?>; margin:14px 0;">
                             <p style="font-weight:700; margin-bottom:8px;">Claim Review</p>
                             <div id="aiClaimsList" style="display:grid; gap:10px;">
@@ -380,8 +432,9 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                     $label = $status === 'contradicted' ? 'Contradicted' : ($status === 'weak' ? 'Needs Support' : 'Supported');
                                     $bg = $status === 'contradicted' ? '#3a1820' : ($status === 'weak' ? '#3b2a12' : '#132f22');
                                     $fg = $status === 'contradicted' ? '#fecdd3' : ($status === 'weak' ? '#fde68a' : '#bbf7d0');
+                                    $claimKey = substr(sha1((string)($claim['text'] ?? '') . '|' . (string)($claim['status'] ?? 'supported')), 0, 12);
                                     ?>
-                                    <div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
+                                    <div data-claim-key="<?= htmlspecialchars($claimKey) ?>" style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02); cursor:pointer;">
                                         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
                                             <strong style="font-size:13px; line-height:1.5;"><?= htmlspecialchars((string)($claim['text'] ?? '')) ?></strong>
                                             <span style="font-size:11px; padding:4px 8px; border-radius:999px; background:<?= $bg ?>; color:<?= $fg ?>; white-space:nowrap;"><?= $label ?></span>
@@ -392,7 +445,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                         <p class="text-muted" style="font-size:11px; margin:0;">
                                             Match Score: <?= htmlspecialchars((string)round((float)($claim['match_score'] ?? 0), 2)) ?>
                                             <?php if (!empty($claim['source'])): ?>
-                                                · Source: <?= htmlspecialchars((string)$claim['source']) ?>
+                                                - Source: <?= htmlspecialchars((string)$claim['source']) ?>
                                             <?php endif; ?>
                                         </p>
                                     </div>
@@ -514,6 +567,17 @@ const publishStatus = document.getElementById('publishStatus');
 const trustScoreInput = document.getElementById('trustScoreInput');
 const initialPublishUnlocked = <?= $verificationPassed ? 'true' : 'false' ?>;
 const initialDecision = <?= json_encode($initialDecision) ?>;
+const initialContentText = <?= json_encode((string)$val['content']) ?>;
+const claimSummaryBox = document.getElementById('aiClaimSummaryBox');
+const claimSupportedBadge = document.getElementById('aiClaimSupportedBadge');
+const claimWeakBadge = document.getElementById('aiClaimWeakBadge');
+const claimContradictedBadge = document.getElementById('aiClaimContradictedBadge');
+const whyNotPerfectBox = document.getElementById('aiWhyNotPerfectBox');
+const whyNotPerfectList = document.getElementById('aiWhyNotPerfectList');
+const sourcesBox = document.getElementById('aiSourcesBox');
+const sourcesList = document.getElementById('aiSourcesList');
+const contentHighlightsBox = document.getElementById('aiContentHighlightsBox');
+const contentHighlights = document.getElementById('aiContentHighlights');
 const claimsBox = document.getElementById('aiClaimsBox');
 const claimsList = document.getElementById('aiClaimsList');
 const improveBox = document.getElementById('aiImproveBox');
@@ -590,6 +654,60 @@ function renderMisinformationHighlights(items) {
     misinformationBox.style.display = 'block';
 }
 
+function renderClaimSummary(summary) {
+    const supported = Math.max(0, Number(summary && summary.supported ? summary.supported : 0));
+    const weak = Math.max(0, Number(summary && summary.weak ? summary.weak : 0));
+    const contradicted = Math.max(0, Number(summary && summary.contradicted ? summary.contradicted : 0));
+    const total = Math.max(0, Number(summary && summary.total ? summary.total : (supported + weak + contradicted)));
+
+    if (total === 0) {
+        claimSummaryBox.style.display = 'none';
+        return;
+    }
+
+    claimSupportedBadge.textContent = `${supported} Supported`;
+    claimWeakBadge.textContent = `${weak} Need Support`;
+    claimContradictedBadge.textContent = `${contradicted} Contradicted`;
+    claimSummaryBox.style.display = 'flex';
+}
+
+function renderWhyNotPerfect(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        whyNotPerfectList.innerHTML = '';
+        whyNotPerfectBox.style.display = 'none';
+        return;
+    }
+
+    whyNotPerfectList.innerHTML = items.map((item) => `<li style="margin-bottom:8px;">${escapeHtml(item)}</li>`).join('');
+    whyNotPerfectBox.style.display = 'block';
+}
+
+function renderMatchedSources(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        sourcesList.innerHTML = '';
+        sourcesBox.style.display = 'none';
+        return;
+    }
+
+    sourcesList.innerHTML = items.map((source) => {
+        const title = escapeHtml(source && (source.title || source.name) ? (source.title || source.name) : '');
+        const matchType = escapeHtml(source && source.match_type ? source.match_type : 'related');
+        const name = escapeHtml(source && source.name ? source.name : '');
+        const sourceType = source && source.source_type ? ` · ${escapeHtml(source.source_type)}` : '';
+        const url = source && source.url ? `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer" style="font-size:12px; word-break:break-all;">View source</a>` : '';
+
+        return `<div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
+                <strong style="font-size:13px; line-height:1.5;">${title}</strong>
+                <span class="text-muted" style="font-size:11px; white-space:nowrap;">${matchType}</span>
+            </div>
+            <p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">${name}${sourceType}</p>
+            ${url}
+        </div>`;
+    }).join('');
+    sourcesBox.style.display = 'block';
+}
+
 function renderImprovementSuggestions(items) {
     if (!Array.isArray(items) || items.length === 0) {
         improveList.innerHTML = '';
@@ -618,9 +736,10 @@ function renderClaims(items) {
         const text = escapeHtml(claim && claim.text ? claim.text : '');
         const reason = claim && claim.reason ? `<p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">${escapeHtml(claim.reason)}</p>` : '';
         const score = Number(claim && claim.match_score ? claim.match_score : 0);
-        const source = claim && claim.source ? ` · Source: ${escapeHtml(claim.source)}` : '';
+        const source = claim && claim.source ? ` - Source: ${escapeHtml(claim.source)}` : '';
+        const claimKey = claim && claim.claim_key ? escapeHtml(claim.claim_key) : '';
 
-        return `<div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
+        return `<div data-claim-key="${claimKey}" style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02); cursor:pointer;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
                 <strong style="font-size:13px; line-height:1.5;">${text}</strong>
                 <span style="font-size:11px; padding:4px 8px; border-radius:999px; background:${bg}; color:${fg}; white-space:nowrap;">${label}</span>
@@ -630,6 +749,75 @@ function renderClaims(items) {
         </div>`;
     }).join('');
     claimsBox.style.display = 'block';
+    bindClaimCardClicks();
+}
+
+function renderContentHighlights(content, claims) {
+    const rawContent = String(content || '').trim();
+    if (!rawContent) {
+        contentHighlights.innerHTML = '';
+        contentHighlightsBox.style.display = 'none';
+        return;
+    }
+
+    const normalizedClaims = Array.isArray(claims) ? claims : [];
+    const paragraphs = rawContent.split(/\n{2,}/).filter(Boolean);
+    const html = paragraphs.map((paragraph) => {
+        const sentences = paragraph.split(/(?<=[.!?])\s+/).filter(Boolean);
+        const sentenceHtml = sentences.map((sentence) => {
+            const lowerSentence = sentence.toLowerCase();
+            const matchedClaim = normalizedClaims.find((claim) => {
+                const text = String(claim && claim.text ? claim.text : '').toLowerCase();
+                return text && (text.includes(lowerSentence) || lowerSentence.includes(text));
+            });
+
+            if (!matchedClaim) {
+                return `<span>${escapeHtml(sentence)}</span>`;
+            }
+
+            const status = String(matchedClaim.status || 'supported');
+            const claimKey = matchedClaim && matchedClaim.claim_key ? escapeHtml(matchedClaim.claim_key) : '';
+            const styles = status === 'contradicted'
+                ? 'background:rgba(239,68,68,0.18); border-left:3px solid #ef4444; padding:1px 4px; border-radius:4px;'
+                : (status === 'weak'
+                    ? 'background:rgba(245,158,11,0.18); border-left:3px solid #f59e0b; padding:1px 4px; border-radius:4px;'
+                    : 'background:rgba(34,197,94,0.14); border-left:3px solid #22c55e; padding:1px 4px; border-radius:4px;');
+
+            return `<span data-highlight-key="${claimKey}" style="${styles}">${escapeHtml(sentence)}</span>`;
+        }).join(' ');
+
+        return `<p style="margin:0 0 12px;">${sentenceHtml}</p>`;
+    }).join('');
+
+    contentHighlights.innerHTML = html;
+    contentHighlightsBox.style.display = 'block';
+}
+
+function jumpToClaimHighlight(claimKey) {
+    if (!claimKey) {
+        return;
+    }
+
+    const target = contentHighlights.querySelector(`[data-highlight-key="${CSS.escape(claimKey)}"]`);
+    if (!target) {
+        return;
+    }
+
+    contentHighlightsBox.style.display = 'block';
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const previousBoxShadow = target.style.boxShadow;
+    target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.45)';
+    setTimeout(() => {
+        target.style.boxShadow = previousBoxShadow;
+    }, 1400);
+}
+
+function bindClaimCardClicks() {
+    claimsList.querySelectorAll('[data-claim-key]').forEach((card) => {
+        card.addEventListener('click', () => {
+            jumpToClaimHighlight(card.getAttribute('data-claim-key'));
+        });
+    });
 }
 
 function messageForDecision(decision) {
@@ -686,6 +874,7 @@ async function runAICheck() {
 
         const metrics = data.metrics || {};
         const rubricMetrics = data.rubric_metrics || {};
+        const claimSummary = data.claim_summary || {};
         const trustScore = Math.max(0, Math.min(100, Number(data.trust_score) || 0));
         const decision = String(
             data.publish_decision ||
@@ -729,7 +918,11 @@ async function runAICheck() {
         verdictBox.textContent = data.verdict || 'Verification completed.';
         verdictBox.style.background = decision === 'auto_publish' ? '#22c55e' : (decision === 'needs_review' ? '#f59e0b' : '#ef4444');
         verdictBox.style.color = decision === 'unreliable' ? '#fff' : (decision === 'auto_publish' ? '#000' : '#111827');
+        renderClaimSummary(claimSummary);
+        renderWhyNotPerfect(data.why_not_perfect || []);
+        renderMatchedSources(data.matched_sources || []);
         renderClaims(data.claims || []);
+        renderContentHighlights(content, data.claims || []);
         renderImprovementSuggestions(data.improvement_suggestions || []);
         renderMisinformationHighlights(data.misinformation_highlights || []);
 
@@ -761,6 +954,10 @@ setPublishLockState(
     initialPublishUnlocked,
     initialPublishUnlocked ? messageForDecision('auto_publish') : messageForDecision(initialDecision)
 );
+renderClaimSummary(<?= json_encode($initialClaimSummary) ?>);
+renderWhyNotPerfect(<?= json_encode($initialWhyNotPerfect) ?>);
+renderMatchedSources(<?= json_encode($initialMatchedSources) ?>);
+renderContentHighlights(initialContentText, <?= json_encode($initialClaims) ?>);
 </script>
 
 <?php page_foot(); ?>
