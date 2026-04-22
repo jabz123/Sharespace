@@ -6087,7 +6087,7 @@ body.page-ai-trainer-home .toast button {
     max-width: 1920px;
     padding: 30px 32px 42px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.08fr) minmax(460px, 0.92fr);
     gap: 28px;
     align-items: flex-start;
 }
@@ -6374,6 +6374,8 @@ body.page-ai-trainer-home .toast button {
     margin-top: 6px;
     font-size: 13px;
     line-height: 1.5;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-last-checked {
@@ -6471,11 +6473,15 @@ body.page-ai-trainer-home .toast button {
     font-size: 32px;
     line-height: 1.05;
     color: #f5f8ff;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-overview-copy p {
     margin: 0;
     line-height: 1.65;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-source-label {
@@ -6498,6 +6504,7 @@ body.page-ai-trainer-home .toast button {
     padding: 7px 12px;
     font-size: 12px;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .ai-pill-supported {
@@ -6527,12 +6534,16 @@ body.page-ai-trainer-home .toast button {
     margin: 0;
     font-size: 21px;
     color: #f5f8ff;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-section-head p {
     margin: 0;
     font-size: 12px;
     color: #8ea3c6;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-breakdown-grid {
@@ -6649,6 +6660,8 @@ body.page-ai-trainer-home .toast button {
     font-size: 15px;
     font-weight: 600;
     line-height: 1.55;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-issue-meta {
@@ -6656,6 +6669,8 @@ body.page-ai-trainer-home .toast button {
     font-size: 13px;
     line-height: 1.6;
     color: #9cb0ce;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-issue-action {
@@ -6665,6 +6680,7 @@ body.page-ai-trainer-home .toast button {
     font-size: 12px;
     font-weight: 700;
     color: #f5f8ff;
+    white-space: nowrap;
 }
 
 .ai-issue-card.is-supported .ai-issue-badge {
@@ -6722,6 +6738,7 @@ body.page-ai-trainer-home .toast button {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    white-space: nowrap;
 }
 
 .ai-source-name {
@@ -6735,6 +6752,8 @@ body.page-ai-trainer-home .toast button {
 .ai-source-card strong {
     font-size: 18px !important;
     line-height: 1.45 !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
 }
 
 .ai-source-card > p.text-muted {
@@ -6746,6 +6765,8 @@ body.page-ai-trainer-home .toast button {
     font-size: 13px;
     line-height: 1.55;
     color: #9cb0ce !important;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-source-card a {
@@ -6753,6 +6774,8 @@ body.page-ai-trainer-home .toast button {
     color: #8ec5ff !important;
     font-weight: 700;
     text-decoration: none;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
 }
 
 .ai-source-card a:hover {
@@ -6785,6 +6808,8 @@ body.page-ai-trainer-home .toast button {
 
 .ai-guidance-list li {
     line-height: 1.6;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-guidance-list li::marker {
@@ -6804,6 +6829,17 @@ body.page-ai-trainer-home .toast button {
     background: rgba(255,255,255,0.02);
     font-size: 14px;
     line-height: 1.75;
+}
+
+.ai-results-dashboard,
+.ai-results-dashboard div,
+.ai-results-dashboard p,
+.ai-results-dashboard span,
+.ai-results-dashboard strong,
+.ai-results-dashboard button,
+.ai-results-dashboard h4 {
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .ai-results-footer {
