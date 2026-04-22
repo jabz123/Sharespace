@@ -346,126 +346,169 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
             <div class="ai-panel">
                 <div class="card ai-verification-card">
-                    <h3>AI Verification</h3>
-
-                    <div id="ai-empty" style="display:<?= $hasCurrentVerification ? 'none' : 'block' ?>;">
-                        <p class="text-muted" style="margin-top:10px;">
-                            Click "AI Fact Check" to analyze your article's credibility before publishing.
-                        </p>
-                        <p class="text-muted" style="font-size:13px;">
-                            Add an exact CNA or ST article URL if you have one. 81%+ unlocks publish, 60-80% stays in Needs Review, and anything below 60% is Unreliable.
-                        </p>
+                    <div class="ai-results-head">
+                        <div>
+                            <h3>AI Verification Results</h3>
+                            <p class="ai-results-subtitle">Comprehensive analysis of this article's factual reliability.</p>
+                        </div>
+                        <p id="aiLastChecked" class="ai-last-checked"><?= $hasCurrentVerification ? 'Last checked: Just now' : 'Waiting for fact check' ?></p>
                     </div>
 
-                    <div id="ai-loading" style="display:none;">
-                        <p class="text-muted" style="margin-top:10px;">
-                            AI Fact Checking...
-                        </p>
+                    <div id="ai-empty" class="ai-state-card" style="display:<?= $hasCurrentVerification ? 'none' : 'block' ?>;">
+                        <p>Click "AI Fact Check" to analyze your article's credibility before publishing.</p>
+                        <p class="text-muted">Add an exact CNA or ST article URL if you have one. 81%+ unlocks publish, 60-80% stays in Needs Review, and anything below 60% is Unreliable.</p>
+                    </div>
+
+                    <div id="ai-loading" class="ai-state-card" style="display:none;">
+                        <p>AI Fact Checking...</p>
+                        <p class="text-muted">Checking claim support, source quality, bias, logic, and completeness.</p>
                     </div>
 
                     <div id="ai-error" style="display:none;">
                         <div class="alert alert-error" id="aiErrorMessage" style="margin-top:14px;"></div>
                     </div>
 
-                    <div id="ai-result" style="display:<?= $hasCurrentVerification ? 'block' : 'none' ?>;">
-                        <div style="text-align:center; margin:20px 0;">
-                            <h2 id="aiTrustScore" style="font-size:28px; font-weight:700;"><?= (int)$val['trust_score'] ?>%</h2>
-                            <p class="text-muted">Trust Score</p>
-                        </div>
+                    <div id="ai-result" class="ai-results-dashboard" style="display:<?= $hasCurrentVerification ? 'block' : 'none' ?>;">
+                        <section class="ai-overview-card">
+                            <div class="ai-score-ring" id="aiScoreRing" style="--score: <?= max(0, min(100, (int)$initialTrustScore)) ?>;">
+                                <div class="ai-score-ring-inner">
+                                    <span id="aiTrustScore"><?= (int)$initialTrustScore ?>%</span>
+                                    <span>Trust Score</span>
+                                </div>
+                            </div>
 
-                        <p id="aiSummary" style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.5;">
-                            <?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?>
-                        </p>
+                            <div class="ai-overview-copy">
+                                <h4 id="aiVerdictHeadline"><?=
+                                    htmlspecialchars(
+                                        $initialDecision === 'auto_publish'
+                                            ? 'Reliable'
+                                            : ($initialDecision === 'needs_review'
+                                                ? 'Needs Review'
+                                                : ($initialDecision === 'unreliable' ? 'Unreliable' : 'Waiting for verification'))
+                                    )
+                                ?></h4>
+                                <p id="aiSummary"><?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?></p>
+                                <p id="aiSourceLabel" class="ai-source-label" style="display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
 
-                        <p id="aiSourceLabel" class="text-muted" style="font-size:12px; display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
+                                <div id="aiClaimSummaryBox" class="ai-pill-row" style="display:<?= $initialClaimSummary['total'] > 0 ? 'flex' : 'none' ?>;">
+                                    <span id="aiClaimSupportedBadge" class="ai-pill ai-pill-supported"><?= (int)($initialClaimSummary['supported'] ?? 0) ?> Supported</span>
+                                    <span id="aiClaimContradictedBadge" class="ai-pill ai-pill-contradicted"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?> Contradicted</span>
+                                    <span id="aiClaimWeakBadge" class="ai-pill ai-pill-weak"><?= (int)($initialClaimSummary['weak'] ?? 0) ?> Needs Support</span>
+                                </div>
+                            </div>
+                        </section>
 
-                        <div id="aiClaimSummaryBox" style="display:<?= $initialClaimSummary['total'] > 0 ? 'flex' : 'none' ?>; gap:8px; flex-wrap:wrap; margin:14px 0;">
-                            <span id="aiClaimSupportedBadge" style="font-size:11px; padding:6px 10px; border-radius:999px; background:#132f22; color:#bbf7d0;"><?= (int)($initialClaimSummary['supported'] ?? 0) ?> Supported</span>
-                            <span id="aiClaimWeakBadge" style="font-size:11px; padding:6px 10px; border-radius:999px; background:#3b2a12; color:#fde68a;"><?= (int)($initialClaimSummary['weak'] ?? 0) ?> Need Support</span>
-                            <span id="aiClaimContradictedBadge" style="font-size:11px; padding:6px 10px; border-radius:999px; background:#3a1820; color:#fecdd3;"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?> Contradicted</span>
-                        </div>
+                        <section id="aiBreakdownSection" class="ai-section">
+                            <div class="ai-section-head">
+                                <h4>Breakdown</h4>
+                            </div>
+                            <div class="ai-breakdown-grid">
+                                <div class="ai-stat-card ai-stat-supported">
+                                    <strong id="aiSupportedCount"><?= (int)($initialClaimSummary['supported'] ?? 0) ?></strong>
+                                    <span>Supported</span>
+                                    <p>Claims backed by reliable sources</p>
+                                </div>
+                                <div class="ai-stat-card ai-stat-contradicted">
+                                    <strong id="aiContradictedCount"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?></strong>
+                                    <span>Contradicted</span>
+                                    <p>Claims contradicted by credible sources</p>
+                                </div>
+                                <div class="ai-stat-card ai-stat-weak">
+                                    <strong id="aiWeakCount"><?= (int)($initialClaimSummary['weak'] ?? 0) ?></strong>
+                                    <span>Needs Support</span>
+                                    <p>Claims need more evidence or context</p>
+                                </div>
+                                <div class="ai-stat-card ai-stat-total">
+                                    <strong id="aiTotalClaimsCount"><?= (int)($initialClaimSummary['total'] ?? 0) ?></strong>
+                                    <span>Total Claims</span>
+                                    <p>AI identified factual claims in this article</p>
+                                </div>
+                            </div>
+                        </section>
 
-                        <div id="aiWhyNotPerfectBox" style="display:<?= !empty($initialWhyNotPerfect) ? 'block' : 'none' ?>; margin:14px 0;">
-                            <p style="font-weight:700; margin-bottom:8px;">Why Not 100?</p>
-                            <ul id="aiWhyNotPerfectList" style="padding-left:18px; margin:0;">
-                                <?php foreach ($initialWhyNotPerfect as $item): ?>
-                                    <li style="margin-bottom:8px;"><?= htmlspecialchars((string)$item) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-
-                        <div id="aiSourcesBox" style="display:<?= !empty($initialMatchedSources) ? 'block' : 'none' ?>; margin:14px 0;">
-                            <p style="font-weight:700; margin-bottom:8px;">Matched Sources</p>
-                            <div id="aiSourcesList" style="display:grid; gap:10px;">
+                        <section id="aiSourcesBox" class="ai-section" style="display:<?= !empty($initialMatchedSources) ? 'block' : 'none' ?>;">
+                            <div class="ai-section-head">
+                                <h4>Matched Sources</h4>
+                                <p id="aiSourcesCountLabel"><?= count($initialMatchedSources) ?> sources matched</p>
+                            </div>
+                            <div id="aiSourcesList" class="ai-sources-grid">
                                 <?php foreach ($initialMatchedSources as $source): ?>
-                                    <div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
-                                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
-                                            <strong style="font-size:13px; line-height:1.5;"><?= htmlspecialchars((string)($source['title'] ?? $source['name'] ?? '')) ?></strong>
-                                            <span class="text-muted" style="font-size:11px; white-space:nowrap;"><?= htmlspecialchars((string)($source['match_type'] ?? 'related')) ?></span>
+                                    <div class="ai-source-card">
+                                        <div class="ai-source-topline">
+                                            <span class="ai-source-name"><?= htmlspecialchars((string)($source['name'] ?? 'Trusted source')) ?></span>
+                                            <span class="ai-source-match"><?= htmlspecialchars((string)($source['match_type'] ?? 'related')) ?></span>
                                         </div>
+                                        <strong><?= htmlspecialchars((string)($source['title'] ?? $source['name'] ?? '')) ?></strong>
                                         <p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">
                                             <?= htmlspecialchars((string)($source['name'] ?? '')) ?>
                                             <?php if (!empty($source['source_type'])): ?>
                                                 · <?= htmlspecialchars((string)$source['source_type']) ?>
                                             <?php endif; ?>
                                         </p>
+                                        <?php if (!empty($source['source_type'])): ?>
+                                            <p class="ai-source-type"><?= htmlspecialchars((string)$source['source_type']) ?></p>
+                                        <?php endif; ?>
                                         <?php if (!empty($source['url'])): ?>
                                             <a href="<?= htmlspecialchars((string)$source['url']) ?>" target="_blank" rel="noopener noreferrer" style="font-size:12px; word-break:break-all;">View source</a>
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                        </div>
+                        </section>
 
-                        <div id="aiContentHighlightsBox" style="display:none; margin:14px 0;">
-                            <p style="font-weight:700; margin-bottom:8px;">Content Highlights</p>
-                            <div id="aiContentHighlights" style="max-height:220px; overflow:auto; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; background:rgba(255,255,255,0.02); font-size:13px; line-height:1.7;"></div>
-                        </div>
+                        <section id="aiContentHighlightsBox" class="ai-section" style="display:none;">
+                            <div class="ai-section-head">
+                                <h4>Content Highlights</h4>
+                            </div>
+                            <div id="aiContentHighlights" class="ai-content-highlights"></div>
+                        </section>
 
-                        <div id="aiClaimsBox" style="display:<?= !empty($initialClaims) ? 'block' : 'none' ?>; margin:14px 0;">
-                            <p style="font-weight:700; margin-bottom:8px;">Claim Review</p>
-                            <div id="aiClaimsList" style="display:grid; gap:10px;">
+                        <section id="aiClaimsBox" class="ai-section" style="display:<?= !empty($initialClaims) ? 'block' : 'none' ?>;">
+                            <div class="ai-section-head">
+                                <h4>Issues to Review</h4>
+                            </div>
+                            <div id="aiClaimsList" class="ai-issues-list">
                                 <?php foreach ($initialClaims as $claim): ?>
                                     <?php
                                     $status = trim((string)($claim['status'] ?? 'supported'));
                                     $label = $status === 'contradicted' ? 'Contradicted' : ($status === 'weak' ? 'Needs Support' : 'Supported');
-                                    $bg = $status === 'contradicted' ? '#3a1820' : ($status === 'weak' ? '#3b2a12' : '#132f22');
-                                    $fg = $status === 'contradicted' ? '#fecdd3' : ($status === 'weak' ? '#fde68a' : '#bbf7d0');
-                                    $claimKey = substr(sha1((string)($claim['text'] ?? '') . '|' . (string)($claim['status'] ?? 'supported')), 0, 12);
+                                    $statusClass = $status === 'contradicted' ? 'is-contradicted' : ($status === 'weak' ? 'is-weak' : 'is-supported');
+                                    $claimKey = (string)($claim['claim_key'] ?? substr(sha1((string)($claim['text'] ?? '') . '|' . (string)($claim['status'] ?? 'supported')), 0, 12));
                                     ?>
-                                    <div data-claim-key="<?= htmlspecialchars($claimKey) ?>" style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02); cursor:pointer;">
-                                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
-                                            <strong style="font-size:13px; line-height:1.5;"><?= htmlspecialchars((string)($claim['text'] ?? '')) ?></strong>
-                                            <span style="font-size:11px; padding:4px 8px; border-radius:999px; background:<?= $bg ?>; color:<?= $fg ?>; white-space:nowrap;"><?= $label ?></span>
-                                        </div>
-                                        <?php if (!empty($claim['reason'])): ?>
-                                            <p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;"><?= htmlspecialchars((string)$claim['reason']) ?></p>
-                                        <?php endif; ?>
-                                        <p class="text-muted" style="font-size:11px; margin:0;">
-                                            Match Score: <?= htmlspecialchars((string)round((float)($claim['match_score'] ?? 0), 2)) ?>
-                                            <?php if (!empty($claim['source'])): ?>
-                                                - Source: <?= htmlspecialchars((string)$claim['source']) ?>
+                                    <button type="button" class="ai-issue-card <?= $statusClass ?>" data-claim-key="<?= htmlspecialchars($claimKey) ?>">
+                                        <span class="ai-issue-badge"><?= $label ?></span>
+                                        <span class="ai-issue-text"><?= htmlspecialchars((string)($claim['text'] ?? '')) ?></span>
+                                        <span class="ai-issue-meta">
+                                            <?php if (!empty($claim['reason'])): ?>
+                                                <?= htmlspecialchars((string)$claim['reason']) ?>
+                                            <?php else: ?>
+                                                Match Score: <?= htmlspecialchars((string)round((float)($claim['match_score'] ?? 0), 2)) ?>
                                             <?php endif; ?>
-                                        </p>
-                                    </div>
+                                        </span>
+                                        <span class="ai-issue-action">Jump to sentence</span>
+                                    </button>
                                 <?php endforeach; ?>
                             </div>
-                        </div>
+                        </section>
 
-                        <div id="aiImproveBox" style="display:<?= !empty($initialSuggestions) ? 'block' : 'none' ?>; margin:14px 0;">
-                            <p style="font-weight:700; margin-bottom:8px;">How To Improve</p>
-                            <ul id="aiImproveList" style="padding-left:18px; margin:0;">
+                        <section id="aiImproveBox" class="ai-section" style="display:<?= !empty($initialSuggestions) ? 'block' : 'none' ?>;">
+                            <div class="ai-section-head">
+                                <h4>How To Improve</h4>
+                            </div>
+                            <ul id="aiImproveList" class="ai-guidance-list">
                                 <?php foreach ($initialSuggestions as $item): ?>
-                                    <li style="margin-bottom:8px;"><?= htmlspecialchars((string)$item) ?></li>
+                                    <li><?= htmlspecialchars((string)$item) ?></li>
                                 <?php endforeach; ?>
                             </ul>
-                        </div>
+                        </section>
 
-                        <div id="aiMisinformationBox" style="display:<?= !empty($initialHighlights) ? 'block' : 'none' ?>; margin:14px 0;">
-                            <p style="font-weight:700; margin-bottom:8px;">Misinformation Highlights</p>
-                            <ul id="aiMisinformationList" style="padding-left:18px; margin:0;">
+                        <section id="aiMisinformationBox" class="ai-section" style="display:<?= !empty($initialHighlights) ? 'block' : 'none' ?>;">
+                            <div class="ai-section-head">
+                                <h4>Misinformation Highlights</h4>
+                            </div>
+                            <ul id="aiMisinformationList" class="ai-guidance-list ai-guidance-list-danger">
                                 <?php foreach ($initialHighlights as $item): ?>
-                                    <li style="margin-bottom:8px;">
+                                    <li>
                                         <?php if (!empty($item['line'])): ?>
                                             <strong><?= htmlspecialchars((string)$item['line']) ?></strong><br>
                                         <?php endif; ?>
@@ -476,39 +519,51 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
-                        </div>
+                        </section>
 
-                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Factual Accuracy</span><span id="metricFactualAccuracyPoints" class="text-muted"><?= (int)($initialRubricMetrics['factual_accuracy'] ?? 0) ?>/45</span></p>
-                        <div class="progress-bar"><div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int)($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div></div>
+                        <section id="aiMetricsBox" class="ai-section">
+                            <div class="ai-section-head">
+                                <h4>Metric Breakdown</h4>
+                            </div>
+                            <div class="ai-metric-list">
+                                <div class="ai-metric-row">
+                                    <div class="ai-metric-label-line"><span>Factual Accuracy</span><span id="metricFactualAccuracyPoints" class="text-muted"><?= (int)($initialRubricMetrics['factual_accuracy'] ?? 0) ?>/45</span></div>
+                                    <div class="progress-bar"><div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int)($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div></div>
+                                </div>
+                                <div class="ai-metric-row">
+                                    <div class="ai-metric-label-line"><span>Source Quality</span><span id="metricSourceQualityPoints" class="text-muted"><?= (int)($initialRubricMetrics['source_quality'] ?? 0) ?>/25</span></div>
+                                    <div class="progress-bar"><div id="metricSourceQuality" style="width:<?= max(0, min(100, (int)($initialMetrics['source_quality'] ?? 0))) ?>%"></div></div>
+                                </div>
+                                <div class="ai-metric-row">
+                                    <div class="ai-metric-label-line"><span>Bias Detection</span><span id="metricBiasDetectionPoints" class="text-muted"><?= (int)($initialRubricMetrics['bias_detection'] ?? 0) ?>/10</span></div>
+                                    <div class="progress-bar"><div id="metricBiasDetection" style="width:<?= max(0, min(100, (int)($initialMetrics['bias_detection'] ?? 0))) ?>%"></div></div>
+                                </div>
+                                <div class="ai-metric-row">
+                                    <div class="ai-metric-label-line"><span>Logical Consistency</span><span id="metricLogicalConsistencyPoints" class="text-muted"><?= (int)($initialRubricMetrics['logical_consistency'] ?? 0) ?>/10</span></div>
+                                    <div class="progress-bar"><div id="metricLogicalConsistency" style="width:<?= max(0, min(100, (int)($initialMetrics['logical_consistency'] ?? 0))) ?>%"></div></div>
+                                </div>
+                                <div class="ai-metric-row">
+                                    <div class="ai-metric-label-line"><span>Completeness</span><span id="metricCompletenessPoints" class="text-muted"><?= (int)($initialRubricMetrics['completeness'] ?? 0) ?>/10</span></div>
+                                    <div class="progress-bar"><div id="metricCompleteness" style="width:<?= max(0, min(100, (int)($initialMetrics['completeness'] ?? 0))) ?>%"></div></div>
+                                </div>
+                            </div>
+                        </section>
 
-                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Source Quality</span><span id="metricSourceQualityPoints" class="text-muted"><?= (int)($initialRubricMetrics['source_quality'] ?? 0) ?>/25</span></p>
-                        <div class="progress-bar"><div id="metricSourceQuality" style="width:<?= max(0, min(100, (int)($initialMetrics['source_quality'] ?? 0))) ?>%"></div></div>
+                        <section id="aiWhyNotPerfectBox" class="ai-section" style="display:<?= !empty($initialWhyNotPerfect) ? 'block' : 'none' ?>;">
+                            <div class="ai-section-head">
+                                <h4>Why Not 100?</h4>
+                            </div>
+                            <ul id="aiWhyNotPerfectList" class="ai-guidance-list">
+                                <?php foreach ($initialWhyNotPerfect as $item): ?>
+                                    <li><?= htmlspecialchars((string)$item) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </section>
 
-                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Bias Detection</span><span id="metricBiasDetectionPoints" class="text-muted"><?= (int)($initialRubricMetrics['bias_detection'] ?? 0) ?>/10</span></p>
-                        <div class="progress-bar"><div id="metricBiasDetection" style="width:<?= max(0, min(100, (int)($initialMetrics['bias_detection'] ?? 0))) ?>%"></div></div>
-
-                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Logical Consistency</span><span id="metricLogicalConsistencyPoints" class="text-muted"><?= (int)($initialRubricMetrics['logical_consistency'] ?? 0) ?>/10</span></p>
-                        <div class="progress-bar"><div id="metricLogicalConsistency" style="width:<?= max(0, min(100, (int)($initialMetrics['logical_consistency'] ?? 0))) ?>%"></div></div>
-
-                        <p style="display:flex; justify-content:space-between; gap:12px;"><span>Completeness</span><span id="metricCompletenessPoints" class="text-muted"><?= (int)($initialRubricMetrics['completeness'] ?? 0) ?>/10</span></p>
-                        <div class="progress-bar"><div id="metricCompleteness" style="width:<?= max(0, min(100, (int)($initialMetrics['completeness'] ?? 0))) ?>%"></div></div>
-
-                        <div
-                            class="ai-success-box"
-                            id="aiVerdictBox"
-                            style="<?=
-                                $hasCurrentVerification
-                                    ? (
-                                        $initialDecision === 'auto_publish'
-                                            ? 'background:#22c55e;color:#000;'
-                                            : ($initialDecision === 'needs_review'
-                                                ? 'background:#f59e0b;color:#111827;'
-                                                : 'background:#ef4444;color:#fff;')
-                                    )
-                                    : ''
-                            ?>"
-                        >
-                            <?= $initialVerdict !== '' ? htmlspecialchars($initialVerdict) : 'Waiting for verification.' ?>
+                        <div class="ai-results-footer">
+                            <div class="ai-success-box" id="aiVerdictBox">
+                                <?= $initialVerdict !== '' ? htmlspecialchars($initialVerdict) : 'Waiting for verification.' ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -559,6 +614,58 @@ function setMetricPoints(id, value, max) {
     document.getElementById(id).textContent = `${safeValue}/${max}`;
 }
 
+function setScoreRing(value) {
+    const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
+    aiScoreRing.style.setProperty('--score', safeValue);
+}
+
+function headlineForDecision(decision, trustScore) {
+    if (decision === 'auto_publish' && trustScore >= autoPublishThreshold) {
+        return 'Reliable';
+    }
+    if (decision === 'needs_review' && trustScore >= needsReviewThreshold) {
+        return 'Needs Review';
+    }
+    if (decision === 'unreliable') {
+        return 'Unreliable';
+    }
+    return 'Awaiting Review';
+}
+
+function setLastCheckedLabel(message) {
+    aiLastChecked.textContent = message;
+}
+
+function applyVerdictState(decision, text) {
+    const verdictBox = document.getElementById('aiVerdictBox');
+    verdictBox.textContent = text || 'Verification completed.';
+
+    if (decision === 'auto_publish') {
+        verdictBox.style.background = '#22c55e';
+        verdictBox.style.color = '#08111f';
+        verdictBox.style.borderColor = 'rgba(34,197,94,0.28)';
+        return;
+    }
+
+    if (decision === 'needs_review') {
+        verdictBox.style.background = '#f59e0b';
+        verdictBox.style.color = '#111827';
+        verdictBox.style.borderColor = 'rgba(245,158,11,0.26)';
+        return;
+    }
+
+    if (decision === 'unreliable') {
+        verdictBox.style.background = '#ef4444';
+        verdictBox.style.color = '#fff';
+        verdictBox.style.borderColor = 'rgba(239,68,68,0.28)';
+        return;
+    }
+
+    verdictBox.style.background = 'rgba(46,223,154,0.10)';
+    verdictBox.style.color = '#2edf9a';
+    verdictBox.style.borderColor = 'rgba(46,223,154,0.24)';
+}
+
 const autoPublishThreshold = <?= (int)$autoPublishTrustScore ?>;
 const needsReviewThreshold = <?= (int)$needsReviewTrustScore ?>;
 const publishButton = document.getElementById('publishButton');
@@ -567,14 +674,22 @@ const trustScoreInput = document.getElementById('trustScoreInput');
 const initialPublishUnlocked = <?= $verificationPassed ? 'true' : 'false' ?>;
 const initialDecision = <?= json_encode($initialDecision) ?>;
 const initialContentText = <?= json_encode((string)$val['content']) ?>;
+const aiLastChecked = document.getElementById('aiLastChecked');
+const aiScoreRing = document.getElementById('aiScoreRing');
+const aiVerdictHeadline = document.getElementById('aiVerdictHeadline');
 const claimSummaryBox = document.getElementById('aiClaimSummaryBox');
 const claimSupportedBadge = document.getElementById('aiClaimSupportedBadge');
 const claimWeakBadge = document.getElementById('aiClaimWeakBadge');
 const claimContradictedBadge = document.getElementById('aiClaimContradictedBadge');
+const supportedCount = document.getElementById('aiSupportedCount');
+const weakCount = document.getElementById('aiWeakCount');
+const contradictedCount = document.getElementById('aiContradictedCount');
+const totalClaimsCount = document.getElementById('aiTotalClaimsCount');
 const whyNotPerfectBox = document.getElementById('aiWhyNotPerfectBox');
 const whyNotPerfectList = document.getElementById('aiWhyNotPerfectList');
 const sourcesBox = document.getElementById('aiSourcesBox');
 const sourcesList = document.getElementById('aiSourcesList');
+const sourcesCountLabel = document.getElementById('aiSourcesCountLabel');
 const contentHighlightsBox = document.getElementById('aiContentHighlightsBox');
 const contentHighlights = document.getElementById('aiContentHighlights');
 const claimsBox = document.getElementById('aiClaimsBox');
@@ -594,6 +709,7 @@ function setPublishLockState(isUnlocked, message) {
 function invalidateVerification(message = 'Content changed. Run AI Fact Check again. Only Auto Publish results at 81% or above unlock publishing.') {
     trustScoreInput.value = '0';
     setPublishLockState(false, message);
+    setLastCheckedLabel('Last checked: Outdated - rerun AI Fact Check');
 }
 
 function resetAIStates() {
@@ -607,6 +723,7 @@ function showAIError(message) {
     resetAIStates();
     document.getElementById('ai-error').style.display = 'block';
     document.getElementById('aiErrorMessage').textContent = message;
+    setLastCheckedLabel('Last checked: Error');
 }
 
 function formatVerifyError(data, fallbackMessage) {
@@ -648,7 +765,7 @@ function renderMisinformationHighlights(items) {
         const line = item && item.line ? `<strong>${escapeHtml(item.line)}</strong><br>` : '';
         const reason = escapeHtml(item && item.reason ? item.reason : 'Unsupported or contradicted by trusted CNA/ST evidence.');
         const source = item && item.source ? ` <span class="text-muted">(${escapeHtml(item.source)})</span>` : '';
-        return `<li style="margin-bottom:8px;">${line}${reason}${source}</li>`;
+        return `<li>${line}${reason}${source}</li>`;
     }).join('');
     misinformationBox.style.display = 'block';
 }
@@ -661,12 +778,20 @@ function renderClaimSummary(summary) {
 
     if (total === 0) {
         claimSummaryBox.style.display = 'none';
+        supportedCount.textContent = '0';
+        contradictedCount.textContent = '0';
+        weakCount.textContent = '0';
+        totalClaimsCount.textContent = '0';
         return;
     }
 
     claimSupportedBadge.textContent = `${supported} Supported`;
-    claimWeakBadge.textContent = `${weak} Need Support`;
+    claimWeakBadge.textContent = `${weak} Needs Support`;
     claimContradictedBadge.textContent = `${contradicted} Contradicted`;
+    supportedCount.textContent = String(supported);
+    contradictedCount.textContent = String(contradicted);
+    weakCount.textContent = String(weak);
+    totalClaimsCount.textContent = String(total);
     claimSummaryBox.style.display = 'flex';
 }
 
@@ -677,7 +802,7 @@ function renderWhyNotPerfect(items) {
         return;
     }
 
-    whyNotPerfectList.innerHTML = items.map((item) => `<li style="margin-bottom:8px;">${escapeHtml(item)}</li>`).join('');
+    whyNotPerfectList.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
     whyNotPerfectBox.style.display = 'block';
 }
 
@@ -685,7 +810,14 @@ function renderMatchedSources(items) {
     if (!Array.isArray(items) || items.length === 0) {
         sourcesList.innerHTML = '';
         sourcesBox.style.display = 'none';
+        if (sourcesCountLabel) {
+            sourcesCountLabel.textContent = '0 sources matched';
+        }
         return;
+    }
+
+    if (sourcesCountLabel) {
+        sourcesCountLabel.textContent = `${items.length} source${items.length === 1 ? '' : 's'} matched`;
     }
 
     sourcesList.innerHTML = items.map((source) => {
@@ -693,14 +825,16 @@ function renderMatchedSources(items) {
         const matchType = escapeHtml(source && source.match_type ? source.match_type : 'related');
         const name = escapeHtml(source && source.name ? source.name : '');
         const sourceType = source && source.source_type ? ` · ${escapeHtml(source.source_type)}` : '';
-        const url = source && source.url ? `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer" style="font-size:12px; word-break:break-all;">View source</a>` : '';
+        const url = source && source.url ? `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">View source</a>` : '';
+        const sourceTypeLabel = source && source.source_type ? escapeHtml(source.source_type) : '';
 
-        return `<div style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02);">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
-                <strong style="font-size:13px; line-height:1.5;">${title}</strong>
-                <span class="text-muted" style="font-size:11px; white-space:nowrap;">${matchType}</span>
+        return `<div class="ai-source-card">
+            <div class="ai-source-topline">
+                <span class="ai-source-name">${name}</span>
+                <span class="ai-source-match">${matchType}</span>
             </div>
-            <p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">${name}${sourceType}</p>
+            <strong>${title}</strong>
+            <p class="ai-source-type">${name}${sourceTypeLabel ? ` - ${sourceTypeLabel}` : ''}</p>
             ${url}
         </div>`;
     }).join('');
@@ -714,9 +848,7 @@ function renderImprovementSuggestions(items) {
         return;
     }
 
-    improveList.innerHTML = items.map((item) => {
-        return `<li style="margin-bottom:8px;">${escapeHtml(item)}</li>`;
-    }).join('');
+    improveList.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
     improveBox.style.display = 'block';
 }
 
@@ -730,22 +862,18 @@ function renderClaims(items) {
     claimsList.innerHTML = items.map((claim) => {
         const status = claim && claim.status ? String(claim.status) : 'supported';
         const label = status === 'contradicted' ? 'Contradicted' : (status === 'weak' ? 'Needs Support' : 'Supported');
-        const bg = status === 'contradicted' ? '#3a1820' : (status === 'weak' ? '#3b2a12' : '#132f22');
-        const fg = status === 'contradicted' ? '#fecdd3' : (status === 'weak' ? '#fde68a' : '#bbf7d0');
+        const statusClass = status === 'contradicted' ? 'is-contradicted' : (status === 'weak' ? 'is-weak' : 'is-supported');
         const text = escapeHtml(claim && claim.text ? claim.text : '');
-        const reason = claim && claim.reason ? `<p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">${escapeHtml(claim.reason)}</p>` : '';
-        const score = Number(claim && claim.match_score ? claim.match_score : 0);
-        const source = claim && claim.source ? ` - Source: ${escapeHtml(claim.source)}` : '';
+        const reason = claim && claim.reason ? escapeHtml(claim.reason) : `Match Score: ${(Number(claim && claim.match_score ? claim.match_score : 0)).toFixed(2)}`;
+        const source = claim && claim.source ? ` Source: ${escapeHtml(claim.source)}` : '';
         const claimKey = claim && claim.claim_key ? escapeHtml(claim.claim_key) : '';
 
-        return `<div data-claim-key="${claimKey}" style="border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; background:rgba(255,255,255,0.02); cursor:pointer;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
-                <strong style="font-size:13px; line-height:1.5;">${text}</strong>
-                <span style="font-size:11px; padding:4px 8px; border-radius:999px; background:${bg}; color:${fg}; white-space:nowrap;">${label}</span>
-            </div>
-            ${reason}
-            <p class="text-muted" style="font-size:11px; margin:0;">Match Score: ${score.toFixed(2)}${source}</p>
-        </div>`;
+        return `<button type="button" class="ai-issue-card ${statusClass}" data-claim-key="${claimKey}">
+            <span class="ai-issue-badge">${label}</span>
+            <span class="ai-issue-text">${text}</span>
+            <span class="ai-issue-meta">${reason}${source}</span>
+            <span class="ai-issue-action">Jump to sentence</span>
+        </button>`;
     }).join('');
     claimsBox.style.display = 'block';
     bindClaimCardClicks();
@@ -847,6 +975,7 @@ async function runAICheck() {
 
     resetAIStates();
     document.getElementById('ai-loading').style.display = 'block';
+    setLastCheckedLabel('Last checked: Running now');
     button.disabled = true;
     button.textContent = 'Running AI Fact Check...';
 
@@ -881,12 +1010,14 @@ async function runAICheck() {
                 ? 'auto_publish'
                 : (trustScore >= needsReviewThreshold ? 'needs_review' : 'unreliable'))
         );
-        const verdictBox = document.getElementById('aiVerdictBox');
         const sourceLabel = document.getElementById('aiSourceLabel');
 
         document.getElementById('trustScoreInput').value = trustScore;
         document.getElementById('aiTrustScore').textContent = `${trustScore}%`;
+        setScoreRing(trustScore);
+        aiVerdictHeadline.textContent = headlineForDecision(decision, trustScore);
         document.getElementById('aiSummary').textContent = data.summary || 'Verification completed.';
+        setLastCheckedLabel(data.cached_result ? 'Last checked: Just now (cached)' : 'Last checked: Just now');
 
         if (data.source_label) {
             sourceLabel.style.display = 'block';
@@ -914,9 +1045,7 @@ async function runAICheck() {
         setMetricPoints('metricLogicalConsistencyPoints', rubricMetrics.logical_consistency, 10);
         setMetricPoints('metricCompletenessPoints', rubricMetrics.completeness, 10);
 
-        verdictBox.textContent = data.verdict || 'Verification completed.';
-        verdictBox.style.background = decision === 'auto_publish' ? '#22c55e' : (decision === 'needs_review' ? '#f59e0b' : '#ef4444');
-        verdictBox.style.color = decision === 'unreliable' ? '#fff' : (decision === 'auto_publish' ? '#000' : '#111827');
+        applyVerdictState(decision, data.verdict || 'Verification completed.');
         renderClaimSummary(claimSummary);
         renderWhyNotPerfect(data.why_not_perfect || []);
         renderMatchedSources(data.matched_sources || []);
@@ -953,10 +1082,17 @@ setPublishLockState(
     initialPublishUnlocked,
     initialPublishUnlocked ? messageForDecision('auto_publish') : messageForDecision(initialDecision)
 );
+setScoreRing(<?= (int)$initialTrustScore ?>);
+aiVerdictHeadline.textContent = headlineForDecision(initialDecision, <?= (int)$initialTrustScore ?>);
+setLastCheckedLabel(<?= json_encode($hasCurrentVerification ? 'Last checked: Just now' : 'Waiting for fact check') ?>);
+applyVerdictState(initialDecision, <?= json_encode($initialVerdict !== '' ? $initialVerdict : 'Waiting for verification.') ?>);
 renderClaimSummary(<?= json_encode($initialClaimSummary) ?>);
 renderWhyNotPerfect(<?= json_encode($initialWhyNotPerfect) ?>);
 renderMatchedSources(<?= json_encode($initialMatchedSources) ?>);
+renderClaims(<?= json_encode($initialClaims) ?>);
 renderContentHighlights(initialContentText, <?= json_encode($initialClaims) ?>);
+renderImprovementSuggestions(<?= json_encode($initialSuggestions) ?>);
+renderMisinformationHighlights(<?= json_encode($initialHighlights) ?>);
 </script>
 
 <?php page_foot(); ?>
