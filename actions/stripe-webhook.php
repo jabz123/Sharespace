@@ -59,7 +59,7 @@ flush();
 
 wh_log('SIG OK event=' . $event->type);
 
-// ── checkout.session.completed → upgrade user to premium ─────────────
+//  checkout.session.completed user will be upgraded to premium
 if ($event->type === 'checkout.session.completed') {
     $session = $event->data->object;
     $userId  = (int)($session->metadata->user_id ?? 0);
@@ -80,10 +80,10 @@ if ($event->type === 'checkout.session.completed') {
     }
 }
 
-// ── customer.subscription.updated → store cancellation date ──────────
-// Fires when user cancels via billing portal.
-// Stripe sets cancel_at_period_end=true OR cancel_at=timestamp.
-// We store the end date so the UI can show "cancels on X".
+//customer.subscription.updated, will store cancellation date 
+// fires when user cancels via billing portal.
+// stripe sets cancel_at_period_end=true OR cancel_at=timestamp.
+// end date is stored so UI can show cancel on date.
 if ($event->type === 'customer.subscription.updated') {
     $sub   = $event->data->object;
     $subId = $sub->id;
@@ -98,7 +98,7 @@ if ($event->type === 'customer.subscription.updated') {
     wh_log("sub.updated sub=$subId cancel_at_period_end=$cancelAtPeriodEnd cancel_at=$cancelAt period_end=$periodEnd");
 
     if ($cancelAtPeriodEnd || $cancelAt) {
-        // Use cancel_at if set, otherwise fall back to current_period_end
+        // use cancel_at if set, otherwise fall back to current_period_end
         $endTimestamp = $cancelAt ?: $periodEnd;
         $rows = DB::execute(
             "UPDATE users SET subscription_cancel_at=FROM_UNIXTIME(?)
@@ -112,7 +112,7 @@ if ($event->type === 'customer.subscription.updated') {
             wh_log("NO MATCH — subs in DB: " . json_encode($all));
         }
     } else {
-        // User reactivated — clear the cancel date
+        // user reactivated/ resubcribed — clear the cancel date
         $rows = DB::execute(
             "UPDATE users SET subscription_cancel_at=NULL WHERE stripe_subscription_id=?",
             [$subId]
@@ -121,8 +121,9 @@ if ($event->type === 'customer.subscription.updated') {
     }
 }
 
-// ── customer.subscription.deleted → downgrade to free ────────────────
-// Fires when the billing period actually ends after cancellation.
+//customer.subscription.deleted downgrade user back to free 
+// fires when the billing period actually ends after cancellation.
+//alr tested if i manually cancel the subscription on the strripe dashboard. user will auto revert to free.
 if ($event->type === 'customer.subscription.deleted') {
     $sub   = $event->data->object;
     $subId = $sub->id;

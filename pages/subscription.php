@@ -24,15 +24,14 @@ $features = $plan ? DB::query(
 
 page_head('Subscription');
 ?>
-<link rel="stylesheet" href="/public/css/subscription.css">
 
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
     <?php sidebar($user); ?>
     <main>
         <?php dash_header('Subscription', 'Manage your plan'); ?>
         <?php flash_messages(); ?>
 
-        <div class="page-content">
+        <div class="page-content sub-page-content">
             <?php if ($user->role === 'premium'): ?>
                 <?php $cancelAt = $user->subscription_cancel_at; ?>
                 <div class="sub-status-card">

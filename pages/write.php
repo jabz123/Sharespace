@@ -216,12 +216,11 @@ $val = [
     'trust_score' => $initialTrustScore,
 ];
 
+//determines whether article is to be edited or written 
 page_head($isEdit ? 'Edit Article' : 'Write Article');
 ?>
 
-<link rel="stylesheet" href="/public/css/write.css"/>
-
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
     <?php sidebar($user); ?>
     <main>
         <?php dash_header(

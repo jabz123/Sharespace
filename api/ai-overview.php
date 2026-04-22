@@ -1,11 +1,11 @@
 <?php
 
-/**
- * BOUNDARY — AI Article Overview endpoint (api/ai-overview.php)
- * Accessible to any logged-in user.
+/*
+  BOUNDARY for AI Article Overview endpoint (api/ai-overview.php)
+  accessible to any logged-in user.
 
- * accepts article_id via POST JSON, calls OpenRouter, returns structured overview.
- * some of the logic here is to reduce 429 rate-limit errors.
+  accepts article_id via POST JSON, calls OpenRouter, returns structured overview.
+  some of the logic here is to reduce that 429 shit
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $body      = json_decode(file_get_contents('php://input'), true);
 $articleId = (int)($body['article_id'] ?? 0);
 
+// check for valid article ID in db
 if (!$articleId) {
     http_response_code(400);
     echo json_encode(['error' => 'Missing article_id.']);
@@ -39,6 +40,7 @@ if (!$articleId) {
 }
 
 // fetch article — any published/suspended article can do the AI summary
+//article must be published or suspended only.
 $article = DB::first(
     "SELECT a.title, a.excerpt, a.content, a.trust_score,
             u.full_name AS author_name, c.name AS category_name
@@ -62,10 +64,8 @@ if (!$apiKey) {
     exit;
 }
 
-/**
- * =========================
- * File cache (no DB needed)
- * =========================
+/*
+file cache. reduces token usage and redundant calls.
  */
 $cacheDir = dirname(__DIR__) . '/tmp';
 if (!is_dir($cacheDir)) {
@@ -138,6 +138,7 @@ foreach ($models as $model) {
             'max_tokens' => 260,
         ];
 
+        // OpenRouter API call with cURL
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -184,6 +185,7 @@ foreach ($models as $model) {
     }
 }
 
+// 429 shit will keep happening if too many requests
 if (!$finalResponse || $finalHttpCode !== 200) {
     if ($finalHttpCode === 429) {
         http_response_code(429);

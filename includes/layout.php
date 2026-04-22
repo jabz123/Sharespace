@@ -1,5 +1,11 @@
 <?php
 
+//css styles are all loaded here in the layout file
+//this file also has common functions for rendering the layout and other shared utilities
+//css will be called through page_head function. it is at the top of every page.
+//to make sure the cache is refreshed when changes are made.
+
+
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/controllers/AuthController.php';
@@ -7,7 +13,8 @@ require_once __DIR__ . '/controllers/ArticleController.php';
 require_once __DIR__ . '/controllers/CommentController.php';
 require_once __DIR__ . '/textlimit.php';
 
-function assigned_category_for_expert(int $userId): ?array {
+function assigned_category_for_expert(int $userId): ?array
+{
     static $cache = [];
 
     if (array_key_exists($userId, $cache)) {
@@ -29,78 +36,98 @@ function assigned_category_for_expert(int $userId): ?array {
     return $cache[$userId];
 }
 
-function page_head(string $title, bool $useSystemAdminCss = false): void {
+// this is called at the head section of ever page to load common css and title shit
+//sets page title and adds class to body
+
+//page head just sets page title, and generates body class slug. So,
+//"Discover Users" will become page-discover-users, shown at $slug below.
+
+//check if user is admin. if admin, load admin css.
+function page_head(string $title, bool $useSystemAdminCss = false): void
+{
     $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title), '-'));
+    //this slug is used in the body class to allow page-specific css targeting without 
+    //needing to create separate css files for every page. 
+
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title><?= htmlspecialchars($title) ?> - SharedSpace</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/public/css/app.css?v=<?= filemtime(__DIR__ . '/../public/css/app.css') ?>" />
-<?php if ($useSystemAdminCss): ?>
-<link rel="stylesheet" href="/public/css/system-admin.css?v=<?= filemtime(__DIR__ . '/../public/css/system-admin.css') ?>" />
-<?php endif; ?>
-<style>
-body.page-ai-trainer-dashboard .alert-success,
-body.page-ai-trainer-datasets .alert-success,
-body.page-ai-trainer-accuracy-metrics .alert-success,
-body.page-ai-trainer-calibration .alert-success,
-body.page-ai-trainer-home .alert-success {
-    background: #f0fff6 !important;
-    border: 1px solid #a3e6c0 !important;
-    color: #1a6040 !important;
-    font-weight: 700 !important;
-}
-body.page-ai-trainer-dashboard .alert-error,
-body.page-ai-trainer-datasets .alert-error,
-body.page-ai-trainer-accuracy-metrics .alert-error,
-body.page-ai-trainer-calibration .alert-error,
-body.page-ai-trainer-home .alert-error {
-    background: #fff0f2 !important;
-    border: 1px solid #fcc !important;
-    color: #8b1a2a !important;
-    font-weight: 700 !important;
-}
-body.page-ai-trainer-dashboard .alert,
-body.page-ai-trainer-datasets .alert,
-body.page-ai-trainer-accuracy-metrics .alert,
-body.page-ai-trainer-calibration .alert,
-body.page-ai-trainer-home .alert {
-    opacity: 1 !important;
-    text-shadow: none !important;
-}
-</style>
-</head>
-<body class="page-<?= htmlspecialchars($slug) ?>">
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title><?= htmlspecialchars($title) ?> - SharedSpace</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="/public/css/app.css?v=<?= filemtime(__DIR__ . '/../public/css/app.css') ?>" />
+
+        <!-- load admin css -->
+        <?php if ($useSystemAdminCss): ?>
+            <link rel="stylesheet" href="/public/css/system-admin.css?v=<?= filemtime(__DIR__ . '/../public/css/system-admin.css') ?>" />
+        <?php endif; ?>
+        <style>
+            body.page-ai-trainer-dashboard .alert-success,
+            body.page-ai-trainer-datasets .alert-success,
+            body.page-ai-trainer-accuracy-metrics .alert-success,
+            body.page-ai-trainer-calibration .alert-success,
+            body.page-ai-trainer-home .alert-success {
+                background: #f0fff6 !important;
+                border: 1px solid #a3e6c0 !important;
+                color: #1a6040 !important;
+                font-weight: 700 !important;
+            }
+
+            body.page-ai-trainer-dashboard .alert-error,
+            body.page-ai-trainer-datasets .alert-error,
+            body.page-ai-trainer-accuracy-metrics .alert-error,
+            body.page-ai-trainer-calibration .alert-error,
+            body.page-ai-trainer-home .alert-error {
+                background: #fff0f2 !important;
+                border: 1px solid #fcc !important;
+                color: #8b1a2a !important;
+                font-weight: 700 !important;
+            }
+
+            body.page-ai-trainer-dashboard .alert,
+            body.page-ai-trainer-datasets .alert,
+            body.page-ai-trainer-accuracy-metrics .alert,
+            body.page-ai-trainer-calibration .alert,
+            body.page-ai-trainer-home .alert {
+                opacity: 1 !important;
+                text-shadow: none !important;
+            }
+        </style>
+    </head>
+
+    <body class="page-<?= htmlspecialchars($slug) ?>">
+    <?php }
+
+function page_foot(): void
+{ ?>
+        <div id="toast" class="toast hidden">
+            <span id="toastMessage"></span>
+            <button id="toastClose">x</button>
+        </div>
+
+        <script src="/public/js/app.js"></script>
+    </body>
+
+    </html>
 <?php }
 
-function page_foot(): void { ?>
-    <div id="toast" class="toast hidden">
-        <span id="toastMessage"></span>
-        <button id="toastClose">x</button>
-    </div>
-
-    <script src="/public/js/app.js"></script>
-</body>
-</html>
-<?php }
-
-function sharedspace_brand(string $href = '/', string $variant = 'dark', string $class = ''): void { ?>
+function sharedspace_brand(string $href = '/', string $variant = 'dark', string $class = ''): void
+{ ?>
     <a href="<?= htmlspecialchars($href) ?>" class="sharedspace-brand <?= htmlspecialchars(trim($class)) ?>">
         <img
             src="<?= htmlspecialchars($variant === 'light' ? '/public/icons/sharedspace-logo-light.svg' : '/public/icons/sharedspace-logo-dark.svg') ?>"
             alt="SharedSpace"
-            class="sharedspace-brand-image"
-        >
+            class="sharedspace-brand-image">
     </a>
 <?php }
 
-function sidebar(User $user): void {
+function sidebar(User $user): void
+{
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
     if ($user->role === 'system_admin') {
@@ -112,7 +139,7 @@ function sidebar(User $user): void {
             ['href' => '/pages/admin-ai-dashboard.php', 'key' => 'ai', 'label' => 'AI Dashboard'],
             ['href' => '/pages/admin-ai-calibration.php', 'key' => 'settings', 'label' => 'Calibration'],
             ['href' => '/pages/profile.php',          'key' => 'profile', 'label' => 'Profile'],
-            
+
         ];
     } elseif ($user->role === 'category_admin') {
         $links = [
@@ -139,201 +166,207 @@ function sidebar(User $user): void {
             ['href' => '/pages/users.php', 'key' => 'users', 'label' => 'Discover Users'],
         ];
     }
-    ?>
-<aside class="sidebar">
-    <div class="sidebar-logo">
-        <?php sharedspace_brand(
-            $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'ai_trainer' ? '/pages/ai-trainer-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php')),
-            'light',
-            'sidebar-brand'
-        ); ?>
-    </div>
+?>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <?php sharedspace_brand(
+                $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'ai_trainer' ? '/pages/ai-trainer-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php')),
+                'light',
+                'sidebar-brand'
+            ); ?>
+        </div>
 
-    <div class="sidebar-user">
-        <?php if (!empty($user->avatarUrl)): ?>
-            <div class="user-avatar" style="background:none;padding:0;overflow:hidden">
-                <img src="/public/<?= htmlspecialchars($user->avatarUrl) ?>"
-                     alt="<?= htmlspecialchars($user->fullName) ?>"
-                     style="width:100%;height:100%;object-fit:cover;border-radius:50%">
-            </div>
-        <?php else: ?>
-            <div class="user-avatar"><?= htmlspecialchars($user->initial()) ?></div>
-        <?php endif; ?>
-        <div class="user-info">
-            <p class="user-name"><?= htmlspecialchars($user->fullName) ?></p>
-
-            <?php if ($user->role === 'premium'): ?>
-                <span class="role-badge premium">Premium</span>
-            <?php elseif ($user->role === 'system_admin'): ?>
-                <span class="role-badge system-admin">System Admin</span>
-            <?php elseif ($user->role === 'ai_trainer'): ?>
-                <span class="role-badge ai-trainer">AI Trainer</span>
-            <?php elseif ($user->role === 'category_admin'): ?>
-                <span class="role-badge category-admin">Category Expert</span>
-                <?php
-                $assignedCategory = assigned_category_for_expert((int)$user->id);
-                if ($assignedCategory): ?>
-                    <span class="role-badge category-name"><?= htmlspecialchars($assignedCategory['name']) ?></span>
-                <?php endif; ?>
+        <div class="sidebar-user">
+            <?php if (!empty($user->avatarUrl)): ?>
+                <div class="user-avatar" style="background:none;padding:0;overflow:hidden">
+                    <img src="/public/<?= htmlspecialchars($user->avatarUrl) ?>"
+                        alt="<?= htmlspecialchars($user->fullName) ?>"
+                        style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+                </div>
             <?php else: ?>
-                <span class="role-badge free">Free</span>
+                <div class="user-avatar"><?= htmlspecialchars($user->initial()) ?></div>
+            <?php endif; ?>
+            <div class="user-info">
+                <p class="user-name"><?= htmlspecialchars($user->fullName) ?></p>
+
+                <?php if ($user->role === 'premium'): ?>
+                    <span class="role-badge premium">Premium</span>
+                <?php elseif ($user->role === 'system_admin'): ?>
+                    <span class="role-badge system-admin">System Admin</span>
+                <?php elseif ($user->role === 'ai_trainer'): ?>
+                    <span class="role-badge ai-trainer">AI Trainer</span>
+                <?php elseif ($user->role === 'category_admin'): ?>
+                    <span class="role-badge category-admin">Category Expert</span>
+                    <?php
+                    $assignedCategory = assigned_category_for_expert((int)$user->id);
+                    if ($assignedCategory): ?>
+                        <span class="role-badge category-name"><?= htmlspecialchars($assignedCategory['name']) ?></span>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <span class="role-badge free">Free</span>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <?php foreach ($links as $link): ?>
+                    <li>
+                        <a href="<?= $link['href'] ?>" class="nav-link <?= $path === $link['href'] ? 'active' : '' ?>">
+                            <span class="nav-icon nav-icon-<?= htmlspecialchars($link['key']) ?>" aria-hidden="true"></span>
+                            <?= htmlspecialchars($link['label']) ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="/logout.php" class="nav-link logout">
+                <span class="nav-icon nav-icon-logout" aria-hidden="true"></span>
+                Sign Out
+            </a>
+        </div>
+    </aside>
+<?php }
+
+function dash_header(string $title, string $subtitle = ''): void
+{ ?>
+    <header class="dash-header">
+        <div>
+            <h1 class="dash-title"><?= htmlspecialchars($title) ?></h1>
+            <?php if ($subtitle): ?>
+                <p class="dash-subtitle"><?= htmlspecialchars($subtitle) ?></p>
             <?php endif; ?>
         </div>
-    </div>
+    </header>
+    <?php }
 
-    <nav class="sidebar-nav">
-        <ul>
-        <?php foreach ($links as $link): ?>
-            <li>
-                <a href="<?= $link['href'] ?>" class="nav-link <?= $path === $link['href'] ? 'active' : '' ?>">
-                    <span class="nav-icon nav-icon-<?= htmlspecialchars($link['key']) ?>" aria-hidden="true"></span>
-                    <?= htmlspecialchars($link['label']) ?>
-                </a>
-            </li>
-        <?php endforeach; ?>
-        </ul>
-    </nav>
-
-    <div class="sidebar-footer">
-        <a href="/logout.php" class="nav-link logout">
-            <span class="nav-icon nav-icon-logout" aria-hidden="true"></span>
-            Sign Out
-        </a>
-    </div>
-</aside>
-<?php }
-
-function dash_header(string $title, string $subtitle = ''): void { ?>
-<header class="dash-header">
-    <div>
-        <h1 class="dash-title"><?= htmlspecialchars($title) ?></h1>
-        <?php if ($subtitle): ?>
-        <p class="dash-subtitle"><?= htmlspecialchars($subtitle) ?></p>
-        <?php endif; ?>
-    </div>
-</header>
-<?php }
-
-function flash_messages(): void {
+function flash_messages(): void
+{
     $err = flash('flash_error');
     $ok = flash('flash_success');
     if ($err): ?><div class="alert alert-error"><?= htmlspecialchars($err) ?></div><?php endif;
-    if ($ok): ?><div class="alert alert-success"><?= htmlspecialchars($ok) ?></div><?php endif;
-}
+                                                                                if ($ok): ?><div class="alert alert-success"><?= htmlspecialchars($ok) ?></div><?php endif;
+                                                                            }
 
-function category_theme_class(string $name): string {
-    return match (strtolower(trim($name))) {
-        'politics' => 'category-politics',
-        'health' => 'category-health',
-        'economy', 'business', 'finance' => 'category-economy',
-        'sports' => 'category-sports',
-        'games', 'gaming', 'technology', 'tech' => 'category-games',
-        default => 'category-default',
-    };
-}
+                                                                            function category_theme_class(string $name): string
+                                                                            {
+                                                                                return match (strtolower(trim($name))) {
+                                                                                    'politics' => 'category-politics',
+                                                                                    'health' => 'category-health',
+                                                                                    'economy', 'business', 'finance' => 'category-economy',
+                                                                                    'sports' => 'category-sports',
+                                                                                    'games', 'gaming', 'technology', 'tech' => 'category-games',
+                                                                                    default => 'category-default',
+                                                                                };
+                                                                            }
 
-function trust_badge(int $score): string {
-    $cls = $score >= 80 ? 'high' : ($score >= 60 ? 'mid' : 'low');
-    return "<span class=\"trust-badge trust-{$cls}\">{$score}%</span>";
-}
+                                                                            function trust_badge(int $score): string
+                                                                            {
+                                                                                $cls = $score >= 80 ? 'high' : ($score >= 60 ? 'mid' : 'low');
+                                                                                return "<span class=\"trust-badge trust-{$cls}\">{$score}%</span>";
+                                                                            }
 
-function relative_time(string $dateStr): string {
-    $diff = time() - strtotime($dateStr);
-    $hours = (int)($diff / 3600);
-    if ($hours < 1) {
-        return 'Just now';
-    }
-    if ($hours < 24) {
-        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
-    }
-    $days = (int)($hours / 24);
-    return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
-}
+                                                                            function relative_time(string $dateStr): string
+                                                                            {
+                                                                                $diff = time() - strtotime($dateStr);
+                                                                                $hours = (int)($diff / 3600);
+                                                                                if ($hours < 1) {
+                                                                                    return 'Just now';
+                                                                                }
+                                                                                if ($hours < 24) {
+                                                                                    return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+                                                                                }
+                                                                                $days = (int)($hours / 24);
+                                                                                return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+                                                                            }
 
-function article_card(Article $article, User $user): void {
-    $currentUrl = $_SERVER['REQUEST_URI'];
-    $url = '/pages/article.php?id=' . $article->id . '&return=' . urlencode($currentUrl);
+                                                                            function article_card(Article $article, User $user): void
+                                                                            {
+                                                                                $currentUrl = $_SERVER['REQUEST_URI'];
+                                                                                $url = '/pages/article.php?id=' . $article->id . '&return=' . urlencode($currentUrl);
 
-    $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
-    $hasImage = !empty($article->imagePath);
-    $commentCtrl = new CommentController();
-    $commentCount = $commentCtrl->countByArticle($article->id);
-?>
-<a href="<?= $url ?>" class="article-card-link">
-<div class="article-card">
-    <div class="card-top">
-        <span class="category-tag <?= category_theme_class($article->categoryName) ?>"><?= htmlspecialchars($article->categoryName) ?></span>
-        <?= trust_badge($article->trustScore) ?>
-    </div>
-
-    <?php if ($article->status === 'suspended'): ?>
-        <span class="suspended-badge">Suspended Article</span>
-    <?php endif; ?>
-
-    <?php if ($hasImage): ?>
-    <div class="card-image">
-        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="">
-        <?php if (!$isPremiumUser): ?>
-            <span class="premium-badge">Premium</span>
-        <?php endif; ?>
-    </div>
-    <?php endif; ?>
-
-    <h3 class="card-title">
-        <?= htmlspecialchars(limit_words($article->title, 8)) ?>
-    </h3>
-
-    <p class="card-excerpt">
-        <?php
-        $excerpt = $article->excerpt;
-        if (mb_strlen($excerpt, 'UTF-8') > 120) {
-            echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
-        } else {
-            echo htmlspecialchars($excerpt);
-        }
-        ?>
-    </p>
-
-    <div class="card-credibility">
-        <div class="card-credibility-row">
-            <span class="card-verified-pill">Verified</span>
-            <span class="card-score-copy"><?= (int)$article->trustScore ?>% credibility</span>
-        </div>
-        <div class="card-score-track">
-            <span style="width: <?= max(10, min(100, (int)$article->trustScore)) ?>%"></span>
-        </div>
-    </div>
-
-    <div class="card-footer">
-        <div class="footer-left">
-            <div class="author-avatar">
-                <?= htmlspecialchars($article->authorInitial()) ?>
+                                                                                $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
+                                                                                $hasImage = !empty($article->imagePath);
+                                                                                $commentCtrl = new CommentController();
+                                                                                $commentCount = $commentCtrl->countByArticle($article->id);
+                                                                                    ?>
+    <a href="<?= $url ?>" class="article-card-link">
+        <div class="article-card">
+            <div class="card-top">
+                <span class="category-tag <?= category_theme_class($article->categoryName) ?>"><?= htmlspecialchars($article->categoryName) ?></span>
+                <?= trust_badge($article->trustScore) ?>
             </div>
 
-            <div class="author-info">
-                <div class="author-name">
-                    <?= htmlspecialchars($article->authorName) ?>
-                </div>
+            <?php if ($article->status === 'suspended'): ?>
+                <span class="suspended-badge">Suspended Article</span>
+            <?php endif; ?>
 
-                <div class="card-time">
-                    <?= relative_time($article->publishedAt) ?>
+            <?php if ($hasImage): ?>
+                <div class="card-image">
+                    <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="">
+                    <?php if (!$isPremiumUser): ?>
+                        <span class="premium-badge">Premium</span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
+            <h3 class="card-title">
+                <?= htmlspecialchars(limit_words($article->title, 8)) ?>
+            </h3>
+
+            <p class="card-excerpt">
+                <?php
+                                                                                $excerpt = $article->excerpt;
+                                                                                if (mb_strlen($excerpt, 'UTF-8') > 120) {
+                                                                                    echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
+                                                                                } else {
+                                                                                    echo htmlspecialchars($excerpt);
+                                                                                }
+                ?>
+            </p>
+
+            <div class="card-credibility">
+                <div class="card-credibility-row">
+                    <span class="card-verified-pill">Verified</span>
+                    <span class="card-score-copy"><?= (int)$article->trustScore ?>% credibility</span>
+                </div>
+                <div class="card-score-track">
+                    <span style="width: <?= max(10, min(100, (int)$article->trustScore)) ?>%"></span>
                 </div>
             </div>
-        </div>
 
-        <div class="footer-actions">
-            <div class="meta-item">
-                <span class="meta-label">Comments</span>
-                <span class="meta-count"><?= $commentCount ?></span>
-            </div>
+            <div class="card-footer">
+                <div class="footer-left">
+                    <div class="author-avatar">
+                        <?= htmlspecialchars($article->authorInitial()) ?>
+                    </div>
 
-            <div class="meta-item">
-                <span class="meta-label">Views</span>
-                <span class="meta-count"><?= $article->viewCount ?></span>
+                    <div class="author-info">
+                        <div class="author-name">
+                            <?= htmlspecialchars($article->authorName) ?>
+                        </div>
+
+                        <div class="card-time">
+                            <?= relative_time($article->publishedAt) ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-actions">
+                    <div class="meta-item">
+                        <span class="meta-label">Comments</span>
+                        <span class="meta-count"><?= $commentCount ?></span>
+                    </div>
+
+                    <div class="meta-item">
+                        <span class="meta-label">Views</span>
+                        <span class="meta-count"><?= $article->viewCount ?></span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</a>
+    </a>
 <?php
-}
+                                                                            }
