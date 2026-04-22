@@ -137,6 +137,24 @@ class DB {
                  ADD COLUMN source_url VARCHAR(2048) DEFAULT NULL'
             );
         }
+        if (!self::columnExists('articles', 'verification_fingerprint')) {
+            self::execute(
+                'ALTER TABLE articles
+                 ADD COLUMN verification_fingerprint VARCHAR(64) DEFAULT NULL'
+            );
+        }
+        if (!self::columnExists('articles', 'verification_payload')) {
+            self::execute(
+                'ALTER TABLE articles
+                 ADD COLUMN verification_payload LONGTEXT DEFAULT NULL'
+            );
+        }
+        if (!self::columnExists('articles', 'verification_checked_at')) {
+            self::execute(
+                'ALTER TABLE articles
+                 ADD COLUMN verification_checked_at DATETIME DEFAULT NULL'
+            );
+        }
 
         self::$articleReviewWorkflowReady = true;
     }

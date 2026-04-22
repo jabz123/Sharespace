@@ -26,6 +26,9 @@ class Article {
     public string $status;
     public ?string $imagePath;
     public ?string $sourceUrl;
+    public ?string $verificationFingerprint;
+    public ?string $verificationPayload;
+    public ?string $verificationCheckedAt;
     public int $flagCount;
     public ?string $reviewNotice;
     public bool $reviewNoticePending;
@@ -46,6 +49,9 @@ class Article {
         $this->updatedAt     = $row['updated_at'] ?? $this->publishedAt;
         $this->imagePath = $row['image_path'] ?? null;
         $this->sourceUrl = $row['source_url'] ?? null;
+        $this->verificationFingerprint = $row['verification_fingerprint'] ?? null;
+        $this->verificationPayload = $row['verification_payload'] ?? null;
+        $this->verificationCheckedAt = $row['verification_checked_at'] ?? null;
         $this->viewCount = $row['view_count'] ?? 0;
         $this->status = $row['status'] ?? 'published';
         $this->flagCount = (int)($row['flag_count'] ?? 0);

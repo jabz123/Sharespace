@@ -39,6 +39,24 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
+function resolveStoredArticleVerification(?Article $article, string $fingerprint): ?array {
+    if (!$article) {
+        return null;
+    }
+
+    if (($article->verificationFingerprint ?? '') !== $fingerprint) {
+        return null;
+    }
+
+    $rawPayload = $article->verificationPayload ?? null;
+    if (!is_string($rawPayload) || trim($rawPayload) === '') {
+        return null;
+    }
+
+    $decoded = json_decode($rawPayload, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
 $autoPublishTrustScore = 81;
