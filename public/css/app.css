@@ -6157,8 +6157,9 @@ body.page-ai-trainer-home .toast button {
 }
 
 .write-editor-shell .ai-panel {
-    flex: 0 0 360px;
-    max-width: 360px;
+    flex: 0 0 520px;
+    max-width: 520px;
+    min-width: 460px;
 }
 
 .ai-verification-card,
@@ -6166,7 +6167,10 @@ body.page-ai-trainer-home .toast button {
     position: sticky;
     top: 24px;
     width: 100%;
-    min-height: 720px;
+    min-height: auto;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 24px;
     border-radius: 26px;
     border: 1px solid rgba(255,255,255,0.08);
@@ -6182,6 +6186,66 @@ body.page-ai-trainer-home .toast button {
 .user-dashboard-shell .ai-panel p,
 .user-dashboard-shell .ai-verification-card p,
 .user-dashboard-shell #aiSummary { color: #9caeca; }
+
+.user-dashboard-shell .ai-verification-card strong,
+.user-dashboard-shell .ai-verification-card h3,
+.user-dashboard-shell .ai-verification-card a {
+    color: #f5f8ff;
+}
+
+.user-dashboard-shell .ai-verification-card ul,
+.user-dashboard-shell .ai-verification-card li,
+.user-dashboard-shell .ai-verification-card span,
+.user-dashboard-shell .ai-verification-card div {
+    word-break: break-word;
+}
+
+.user-dashboard-shell #aiClaimsList,
+.user-dashboard-shell #aiSourcesList {
+    display: grid;
+    gap: 12px;
+}
+
+.user-dashboard-shell #aiClaimsList > div,
+.user-dashboard-shell #aiSourcesList > div {
+    padding: 14px 16px !important;
+}
+
+.user-dashboard-shell #aiClaimsList strong,
+.user-dashboard-shell #aiSourcesList strong {
+    display: block;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #f8fbff !important;
+}
+
+.user-dashboard-shell #aiClaimsList p,
+.user-dashboard-shell #aiSourcesList p,
+.user-dashboard-shell #aiWhyNotPerfectList li,
+.user-dashboard-shell #aiImproveList li,
+.user-dashboard-shell #aiMisinformationList li {
+    font-size: 13px !important;
+    line-height: 1.65 !important;
+}
+
+.user-dashboard-shell #aiContentHighlights {
+    color: #f3f7ff;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.user-dashboard-shell #aiContentHighlights p {
+    color: #f3f7ff !important;
+}
+
+.user-dashboard-shell #aiClaimSummaryBox {
+    align-items: center;
+}
+
+.user-dashboard-shell #aiClaimSummaryBox span {
+    font-size: 12px !important;
+    font-weight: 700;
+}
 
 .user-dashboard-shell .progress-bar { background: rgba(255,255,255,0.08); }
 .user-dashboard-shell .progress-bar > div {
@@ -6279,6 +6343,7 @@ body.page-ai-trainer-home .toast button {
     .user-dashboard-shell .ai-panel .card {
         position: static;
         min-height: auto;
+        max-height: none;
     }
     .write-actions-row { grid-template-columns: 1fr; }
 }
