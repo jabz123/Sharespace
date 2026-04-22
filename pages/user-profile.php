@@ -36,12 +36,11 @@ $totalPages = (int) ceil($totalArticles / $perPage);
 // paginated articles
 $articles = $articleCtrl->getByAuthorPaginated($userId, $perPage, $offset);
 
+//uses profile nmame as page title 
 page_head($profile['full_name']);
 ?>
 
-<link rel="stylesheet" href="/public/css/user-profile.css">
-
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($currentUser); ?>
 
 <main>

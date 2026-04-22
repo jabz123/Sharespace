@@ -25,9 +25,7 @@ $users = $userCtrl->searchUsers($search, $perPage, $offset, $user->id);
 page_head('Discover Users');
 ?>
 
-<link rel="stylesheet" href="/public/css/users.css">
-
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 
 <main>

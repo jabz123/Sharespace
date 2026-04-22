@@ -28,9 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 
 page_head('My Articles');
 ?>
-<link rel="stylesheet" href="/public/css/my-articles.css">
 
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 <main>
 <?php dash_header('My Articles', 'Track your published, pending, and draft articles'); ?>

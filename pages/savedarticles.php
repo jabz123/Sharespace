@@ -22,16 +22,15 @@ $totalSaved = $articleCtrl->countSavedArticles($user->id);
 
 page_head('Saved Articles');
 ?>
-<link rel="stylesheet" href="/public/css/savedarticles.css">
 
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 
 <main>
 <?php dash_header('Saved Articles', 'Your bookmarked articles'); ?>
 <?php flash_messages(); ?>
 
-<div class="page-content">
+<div class="page-content saved-page-content">
 
     <?php if (empty($savedArticles)): ?>
         <p class="text-muted saved-empty-state">You have not saved any articles yet.</p>
@@ -61,7 +60,7 @@ page_head('Saved Articles');
                         Upgrade to access everything.
                     </p>
 
-                    <a href="/subscribe.php" class="btn btn-primary">
+                    <a href="/subscription.php" class="btn btn-primary">
                         Upgrade to Premium
                     </a>
 
