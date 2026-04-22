@@ -93,9 +93,117 @@ function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $m
     return array_slice($suggestions, 0, 5);
 }
 
-function normalizeClaims(array $decoded): array {
+function normalizeWhitespace(string $value): string {
+    $value = trim(str_replace(["\r\n", "\r"], "\n", $value));
+    return preg_replace('/\s+/', ' ', $value) ?? $value;
+}
+
+function tokenizeForSentenceMatch(string $value): array {
+    $normalized = strtolower(normalizeWhitespace($value));
+    $normalized = preg_replace('/[^a-z0-9\s]/', ' ', $normalized) ?? $normalized;
+    $parts = preg_split('/\s+/', trim($normalized)) ?: [];
+    $stopWords = [
+        'the', 'a', 'an', 'and', 'or', 'but', 'if', 'then', 'than', 'to', 'of', 'in', 'on', 'at', 'by',
+        'for', 'from', 'with', 'without', 'into', 'over', 'under', 'after', 'before', 'during', 'through',
+        'is', 'are', 'was', 'were', 'be', 'been', 'being', 'it', 'its', 'this', 'that', 'these', 'those',
+        'as', 'about', 'also', 'will', 'would', 'could', 'should', 'has', 'have', 'had',
+    ];
+    $stopMap = array_fill_keys($stopWords, true);
+
+    return array_values(array_filter($parts, static function ($token) use ($stopMap): bool {
+        return $token !== '' && strlen($token) > 2 && !isset($stopMap[$token]);
+    }));
+}
+
+function extractDraftSentences(string $content): array {
+    $paragraphs = array_values(array_filter(
+        preg_split("/\n{2,}/", trim(str_replace(["\r\n", "\r"], "\n", $content))) ?: [],
+        static fn($paragraph): bool => trim((string)$paragraph) !== ''
+    ));
+    $sentences = [];
+    $sentenceIndex = 0;
+
+    foreach ($paragraphs as $paragraphIndex => $paragraph) {
+        $parts = preg_split('/(?<=[.!?])\s+/', trim((string)$paragraph)) ?: [];
+        foreach ($parts as $part) {
+            $text = trim((string)$part);
+            if ($text === '') {
+                continue;
+            }
+
+            $normalizedText = normalizeWhitespace($text);
+            $sentences[] = [
+                'text' => $text,
+                'normalized_text' => $normalizedText,
+                'normalized_lower' => strtolower($normalizedText),
+                'tokens' => tokenizeForSentenceMatch($text),
+                'sentence_index' => $sentenceIndex,
+                'sentence_key' => substr(sha1($sentenceIndex . '|' . $normalizedText), 0, 12),
+                'paragraph_index' => $paragraphIndex,
+            ];
+            $sentenceIndex++;
+        }
+    }
+
+    return $sentences;
+}
+
+function matchClaimToSentence(array $claim, array $sentences): array {
+    $claimText = trim((string)($claim['text'] ?? ''));
+    if ($claimText === '' || empty($sentences)) {
+        return [null, null, null];
+    }
+
+    $claimLower = strtolower(normalizeWhitespace($claimText));
+    $claimTokens = array_unique(array_merge(
+        tokenizeForSentenceMatch($claimText),
+        tokenizeForSentenceMatch((string)($claim['subject'] ?? '')),
+        tokenizeForSentenceMatch((string)($claim['value'] ?? '')),
+        tokenizeForSentenceMatch((string)($claim['time'] ?? ''))
+    ));
+
+    $bestSentence = null;
+    $bestScore = -1;
+
+    foreach ($sentences as $sentence) {
+        $score = 0.0;
+        $sentenceLower = (string)($sentence['normalized_lower'] ?? '');
+
+        if ($sentenceLower !== '' && ($sentenceLower === $claimLower || str_contains($sentenceLower, $claimLower) || str_contains($claimLower, $sentenceLower))) {
+            $score += 5.0;
+        }
+
+        $sentenceTokens = $sentence['tokens'] ?? [];
+        if (!empty($claimTokens) && !empty($sentenceTokens)) {
+            $intersection = array_intersect($claimTokens, $sentenceTokens);
+            $overlap = count($intersection);
+            if ($overlap > 0) {
+                $score += ($overlap / max(count($claimTokens), 1)) * 3.0;
+                $score += ($overlap / max(count($sentenceTokens), 1)) * 2.0;
+            }
+        }
+
+        if ($score > $bestScore) {
+            $bestScore = $score;
+            $bestSentence = $sentence;
+        }
+    }
+
+    if ($bestSentence === null || $bestScore < 1.2) {
+        return [null, null, null];
+    }
+
+    return [
+        $bestSentence['text'] ?? null,
+        $bestSentence['sentence_key'] ?? null,
+        $bestSentence['sentence_index'] ?? null,
+    ];
+}
+
+function normalizeClaims(array $decoded, string $content = ''): array {
     $claims = is_array($decoded['claims'] ?? null) ? $decoded['claims'] : [];
     $normalized = [];
+    $sentences = extractDraftSentences($content);
 
     foreach ($claims as $claim) {
         if (!is_array($claim)) {
@@ -117,6 +225,8 @@ function normalizeClaims(array $decoded): array {
             $status = 'weak';
         }
 
+        [$draftSentence, $sentenceKey, $sentenceIndex] = matchClaimToSentence($claim, $sentences);
+
         $normalized[] = [
             'text' => $text,
             'subject' => ($claim['subject'] ?? null) !== null ? trim((string)$claim['subject']) : null,
@@ -129,6 +239,9 @@ function normalizeClaims(array $decoded): array {
             'importance' => trim((string)($claim['importance'] ?? 'minor')),
             'status' => $status,
             'claim_key' => substr(sha1($text . '|' . $status), 0, 12),
+            'draft_sentence' => $draftSentence,
+            'sentence_key' => $sentenceKey,
+            'sentence_index' => $sentenceIndex,
         ];
     }
 
@@ -206,6 +319,60 @@ function buildClaimSummary(array $claims): array {
     return $summary;
 }
 
+function buildWhyExampleFromClaim(?array $claim, string $label): ?array {
+    if (!is_array($claim)) {
+        return null;
+    }
+
+    $text = trim((string)($claim['draft_sentence'] ?? $claim['text'] ?? ''));
+    if ($text === '') {
+        return null;
+    }
+
+    return [
+        'type' => 'claim',
+        'label' => $label,
+        'text' => $text,
+        'reason' => trim((string)($claim['reason'] ?? '')),
+        'highlight_key' => ($claim['sentence_key'] ?? null) !== null ? trim((string)$claim['sentence_key']) : null,
+        'source' => ($claim['source'] ?? null) !== null ? trim((string)$claim['source']) : null,
+    ];
+}
+
+function buildWhyExampleFromSource(?array $source, string $label): ?array {
+    if (!is_array($source)) {
+        return null;
+    }
+
+    $title = trim((string)($source['title'] ?? $source['name'] ?? ''));
+    if ($title === '') {
+        return null;
+    }
+
+    $reasonParts = [];
+    $name = trim((string)($source['name'] ?? ''));
+    $sourceType = trim((string)($source['source_type'] ?? ''));
+    $matchType = trim((string)($source['match_type'] ?? ''));
+
+    if ($name !== '') {
+        $reasonParts[] = $name;
+    }
+    if ($sourceType !== '') {
+        $reasonParts[] = $sourceType;
+    }
+    if ($matchType !== '') {
+        $reasonParts[] = $matchType;
+    }
+
+    return [
+        'type' => 'source',
+        'label' => $label,
+        'text' => $title,
+        'reason' => implode(' - ', $reasonParts),
+        'url' => ($source['url'] ?? null) !== null ? trim((string)$source['url']) : null,
+    ];
+}
+
 function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, array $claims, array $matchedSources): array {
     $reasons = [];
     $seen = [];
@@ -263,6 +430,125 @@ function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, 
     }
 
     return array_slice($reasons, 0, 5);
+}
+
+function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $flags, array $claims, array $matchedSources): array {
+    $details = [];
+    $seen = [];
+    $maxima = [
+        'factual_accuracy' => 45,
+        'source_quality' => 25,
+        'bias_detection' => 10,
+        'logical_consistency' => 10,
+        'completeness' => 10,
+    ];
+
+    $push = static function (string $message, array $examples = []) use (&$details, &$seen): void {
+        $message = trim($message);
+        if ($message === '' || isset($seen[$message])) {
+            return;
+        }
+
+        $filteredExamples = array_values(array_filter($examples, static function ($example): bool {
+            return is_array($example) && trim((string)($example['text'] ?? '')) !== '';
+        }));
+
+        $seen[$message] = true;
+        $details[] = [
+            'message' => $message,
+            'examples' => array_slice($filteredExamples, 0, 2),
+        ];
+    };
+
+    $weakClaims = array_values(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'weak'));
+    $contradictedClaims = array_values(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'contradicted'));
+    $coreClaimsNeedingWork = array_values(array_filter($claims, static function ($claim): bool {
+        return is_array($claim)
+            && in_array(($claim['status'] ?? ''), ['weak', 'contradicted'], true)
+            && (($claim['importance'] ?? 'minor') === 'core');
+    }));
+    $sourceExamples = [];
+    foreach ($matchedSources as $source) {
+        $matchType = strtolower(trim((string)($source['match_type'] ?? '')));
+        $sourceType = strtolower(trim((string)($source['source_type'] ?? 'article')));
+        if ($matchType !== 'direct' || in_array($sourceType, ['commentary', 'opinion', 'analysis'], true)) {
+            $example = buildWhyExampleFromSource($source, 'Source example');
+            if ($example !== null) {
+                $sourceExamples[] = $example;
+            }
+        }
+    }
+    if (empty($sourceExamples)) {
+        foreach (array_slice($matchedSources, 0, 2) as $source) {
+            $example = buildWhyExampleFromSource($source, 'Matched source');
+            if ($example !== null) {
+                $sourceExamples[] = $example;
+            }
+        }
+    }
+
+    if (($maxima['source_quality'] - (int)($rubricMetrics['source_quality'] ?? 0)) > 0) {
+        $push(
+            'Source quality is not at the maximum, so the evidence could still be stronger or more directly corroborated.',
+            $sourceExamples
+        );
+    }
+
+    if (($maxima['completeness'] - (int)($rubricMetrics['completeness'] ?? 0)) > 0 || in_array('missing_context', $flags, true)) {
+        $examples = [];
+        if (!empty($coreClaimsNeedingWork[0])) {
+            $example = buildWhyExampleFromClaim($coreClaimsNeedingWork[0], 'Context to add');
+            if ($example !== null) {
+                $examples[] = $example;
+            }
+        }
+        if (!empty($weakClaims[0])) {
+            $example = buildWhyExampleFromClaim($weakClaims[0], 'Needs more context');
+            if ($example !== null) {
+                $examples[] = $example;
+            }
+        }
+
+        $push('Some context or reporting detail is still missing.', $examples);
+    }
+
+    if (($maxima['bias_detection'] - (int)($rubricMetrics['bias_detection'] ?? 0)) > 0 || in_array('high_bias', $flags, true)) {
+        $examples = [];
+        foreach (array_slice(array_merge($weakClaims, $coreClaimsNeedingWork), 0, 2) as $claim) {
+            $example = buildWhyExampleFromClaim($claim, 'Interpretive wording');
+            if ($example !== null) {
+                $examples[] = $example;
+            }
+        }
+
+        $push('Some wording is still interpretive or less neutral than ideal.', $examples);
+    }
+
+    if (($maxima['logical_consistency'] - (int)($rubricMetrics['logical_consistency'] ?? 0)) > 0) {
+        $examples = [];
+        foreach (array_slice(array_merge($weakClaims, $contradictedClaims), 0, 2) as $claim) {
+            $example = buildWhyExampleFromClaim($claim, 'Clarify this sentence');
+            if ($example !== null) {
+                $examples[] = $example;
+            }
+        }
+
+        $push('The article can still be clearer in how it connects evidence to conclusions.', $examples);
+    }
+
+    if (($maxima['factual_accuracy'] - (int)($rubricMetrics['factual_accuracy'] ?? 0)) > 0) {
+        $examples = [];
+        foreach (array_slice(array_merge($contradictedClaims, $coreClaimsNeedingWork, $weakClaims), 0, 2) as $claim) {
+            $example = buildWhyExampleFromClaim($claim, 'Not fully confirmed');
+            if ($example !== null) {
+                $examples[] = $example;
+            }
+        }
+
+        $push('Not every important claim is fully or exactly confirmed by the matched CNA/ST sources.', $examples);
+    }
+
+    return array_slice($details, 0, 5);
 }
 
 $auth = new AuthController();
@@ -358,6 +644,9 @@ if ($hasCachedVerification) {
             : [],
         'why_not_perfect' => is_array($existingVerification['why_not_perfect'] ?? null)
             ? $existingVerification['why_not_perfect']
+            : [],
+        'why_not_perfect_details' => is_array($existingVerification['why_not_perfect_details'] ?? null)
+            ? $existingVerification['why_not_perfect_details']
             : [],
         'cached_result' => true,
     ]);
@@ -510,10 +799,17 @@ $improvementSuggestions = buildImprovementSuggestions(
     $trustScore,
     $publishDecision
 );
-$claims = normalizeClaims($decoded);
+$claims = normalizeClaims($decoded, $content);
 $claimSummary = buildClaimSummary($claims);
 $matchedSources = normalizeMatchedSources($decoded);
 $whyNotPerfect = buildWhyNotPerfect(
+    $normalizedRubricMetrics,
+    $normalizedMetrics,
+    is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [],
+    $claims,
+    $matchedSources
+);
+$whyNotPerfectDetails = buildWhyNotPerfectDetails(
     $normalizedRubricMetrics,
     $normalizedMetrics,
     is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [],
@@ -538,6 +834,7 @@ $_SESSION['article_ai_verification'] = [
     'claim_summary' => $claimSummary,
     'matched_sources' => $matchedSources,
     'why_not_perfect' => $whyNotPerfect,
+    'why_not_perfect_details' => $whyNotPerfectDetails,
 ];
 
 echo json_encode([
@@ -555,5 +852,6 @@ echo json_encode([
     'claim_summary' => $claimSummary,
     'matched_sources' => $matchedSources,
     'why_not_perfect' => $whyNotPerfect,
+    'why_not_perfect_details' => $whyNotPerfectDetails,
     'cached_result' => false,
 ]);

@@ -6755,6 +6755,62 @@ body.page-ai-trainer-home .toast button {
     overflow-wrap: normal;
 }
 
+.ai-why-item {
+    display: grid;
+    gap: 10px;
+}
+
+.ai-why-message {
+    display: block;
+}
+
+.ai-why-examples {
+    display: grid;
+    gap: 10px;
+}
+
+.ai-why-example {
+    display: grid;
+    gap: 6px;
+    text-align: left;
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    padding: 12px 14px;
+    color: #dbe7f7;
+    text-decoration: none;
+}
+
+.ai-why-example.is-clickable {
+    cursor: pointer;
+}
+
+.ai-why-example:hover {
+    border-color: rgba(245,166,35,0.24);
+    background: rgba(255,255,255,0.05);
+}
+
+.ai-why-example-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #ffcf72;
+}
+
+.ai-why-example strong {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #f5f8ff;
+}
+
+.ai-why-example-reason {
+    font-size: 12px;
+    line-height: 1.55;
+    color: #9cb0ce;
+}
+
 .ai-guidance-list li::marker {
     color: #ffca61;
 }

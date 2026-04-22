@@ -215,6 +215,9 @@ $initialMatchedSources = $hasCurrentVerification && is_array($verification['matc
 $initialWhyNotPerfect = $hasCurrentVerification && is_array($verification['why_not_perfect'] ?? null)
     ? $verification['why_not_perfect']
     : [];
+$initialWhyNotPerfectDetails = $hasCurrentVerification && is_array($verification['why_not_perfect_details'] ?? null)
+    ? $verification['why_not_perfect_details']
+    : [];
 
 $val = [
     'title' => $_POST['title'] ?? ($article?->title ?? ''),
@@ -475,7 +478,12 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                     $statusClass = $status === 'contradicted' ? 'is-contradicted' : ($status === 'weak' ? 'is-weak' : 'is-supported');
                                     $claimKey = (string)($claim['claim_key'] ?? substr(sha1((string)($claim['text'] ?? '') . '|' . (string)($claim['status'] ?? 'supported')), 0, 12));
                                     ?>
-                                    <button type="button" class="ai-issue-card <?= $statusClass ?>" data-claim-key="<?= htmlspecialchars($claimKey) ?>">
+                                    <button
+                                        type="button"
+                                        class="ai-issue-card <?= $statusClass ?>"
+                                        data-claim-key="<?= htmlspecialchars($claimKey) ?>"
+                                        data-highlight-key="<?= htmlspecialchars((string)($claim['sentence_key'] ?? trim(preg_replace('/\s+/', ' ', (string)($claim['draft_sentence'] ?? ''))))) ?>"
+                                    >
                                         <span class="ai-issue-badge"><?= $label ?></span>
                                         <span class="ai-issue-text"><?= htmlspecialchars((string)($claim['text'] ?? '')) ?></span>
                                         <span class="ai-issue-meta">
@@ -549,14 +557,50 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </div>
                         </section>
 
-                        <section id="aiWhyNotPerfectBox" class="ai-section" style="display:<?= !empty($initialWhyNotPerfect) ? 'block' : 'none' ?>;">
+                        <section id="aiWhyNotPerfectBox" class="ai-section" style="display:<?= (!empty($initialWhyNotPerfectDetails) || !empty($initialWhyNotPerfect)) ? 'block' : 'none' ?>;">
                             <div class="ai-section-head">
                                 <h4>Why Not 100?</h4>
                             </div>
                             <ul id="aiWhyNotPerfectList" class="ai-guidance-list">
-                                <?php foreach ($initialWhyNotPerfect as $item): ?>
-                                    <li><?= htmlspecialchars((string)$item) ?></li>
+                                <?php foreach ($initialWhyNotPerfectDetails as $item): ?>
+                                    <?php $examples = is_array($item['examples'] ?? null) ? $item['examples'] : []; ?>
+                                    <li class="ai-why-item">
+                                        <span class="ai-why-message"><?= htmlspecialchars((string)($item['message'] ?? '')) ?></span>
+                                        <?php if (!empty($examples)): ?>
+                                            <div class="ai-why-examples">
+                                                <?php foreach ($examples as $example): ?>
+                                                    <?php
+                                                    $highlightKey = trim((string)($example['highlight_key'] ?? ''));
+                                                    $url = trim((string)($example['url'] ?? ''));
+                                                    $tag = $highlightKey !== '' ? 'button' : ($url !== '' ? 'a' : 'div');
+                                                    ?>
+                                                    <<?= $tag ?>
+                                                        class="ai-why-example<?= $highlightKey !== '' ? ' is-clickable' : '' ?>"
+                                                        <?php if ($highlightKey !== ''): ?>
+                                                            type="button"
+                                                            data-highlight-key="<?= htmlspecialchars($highlightKey) ?>"
+                                                        <?php elseif ($url !== ''): ?>
+                                                            href="<?= htmlspecialchars($url) ?>"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        <?php endif; ?>
+                                                    >
+                                                        <span class="ai-why-example-label"><?= htmlspecialchars((string)($example['label'] ?? 'Example')) ?></span>
+                                                        <strong><?= htmlspecialchars((string)($example['text'] ?? '')) ?></strong>
+                                                        <?php if (!empty($example['reason'])): ?>
+                                                            <span class="ai-why-example-reason"><?= htmlspecialchars((string)$example['reason']) ?></span>
+                                                        <?php endif; ?>
+                                                    </<?= $tag ?>>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </li>
                                 <?php endforeach; ?>
+                                <?php if (empty($initialWhyNotPerfectDetails)): ?>
+                                    <?php foreach ($initialWhyNotPerfect as $item): ?>
+                                        <li class="ai-why-item"><span class="ai-why-message"><?= htmlspecialchars((string)$item) ?></span></li>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </ul>
                         </section>
 
@@ -802,8 +846,47 @@ function renderWhyNotPerfect(items) {
         return;
     }
 
-    whyNotPerfectList.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+    whyNotPerfectList.innerHTML = items.map((item) => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            const message = escapeHtml(item.message || '');
+            const examples = Array.isArray(item.examples) ? item.examples : [];
+            const exampleHtml = examples.map((example) => {
+                const label = escapeHtml(example && example.label ? example.label : 'Example');
+                const text = escapeHtml(example && example.text ? example.text : '');
+                const reason = example && example.reason ? `<span class="ai-why-example-reason">${escapeHtml(example.reason)}</span>` : '';
+                const highlightKey = example && example.highlight_key ? escapeHtml(example.highlight_key) : '';
+                const url = example && example.url ? escapeHtml(example.url) : '';
+
+                if (highlightKey) {
+                    return `<button type="button" class="ai-why-example is-clickable" data-highlight-key="${highlightKey}">
+                        <span class="ai-why-example-label">${label}</span>
+                        <strong>${text}</strong>
+                        ${reason}
+                    </button>`;
+                }
+
+                if (url) {
+                    return `<a class="ai-why-example" href="${url}" target="_blank" rel="noopener noreferrer">
+                        <span class="ai-why-example-label">${label}</span>
+                        <strong>${text}</strong>
+                        ${reason}
+                    </a>`;
+                }
+
+                return `<div class="ai-why-example">
+                    <span class="ai-why-example-label">${label}</span>
+                    <strong>${text}</strong>
+                    ${reason}
+                </div>`;
+            }).join('');
+
+            return `<li class="ai-why-item"><span class="ai-why-message">${message}</span>${exampleHtml ? `<div class="ai-why-examples">${exampleHtml}</div>` : ''}</li>`;
+        }
+
+        return `<li class="ai-why-item"><span class="ai-why-message">${escapeHtml(item)}</span></li>`;
+    }).join('');
     whyNotPerfectBox.style.display = 'block';
+    bindWhyNotPerfectClicks();
 }
 
 function renderMatchedSources(items) {
@@ -867,8 +950,11 @@ function renderClaims(items) {
         const reason = claim && claim.reason ? escapeHtml(claim.reason) : `Match Score: ${(Number(claim && claim.match_score ? claim.match_score : 0)).toFixed(2)}`;
         const source = claim && claim.source ? ` Source: ${escapeHtml(claim.source)}` : '';
         const claimKey = claim && claim.claim_key ? escapeHtml(claim.claim_key) : '';
+        const highlightKey = claim && claim.sentence_key
+            ? escapeHtml(claim.sentence_key)
+            : escapeHtml(normalizeForSentenceMatch(claim && claim.draft_sentence ? claim.draft_sentence : ''));
 
-        return `<button type="button" class="ai-issue-card ${statusClass}" data-claim-key="${claimKey}">
+        return `<button type="button" class="ai-issue-card ${statusClass}" data-claim-key="${claimKey}" data-highlight-key="${highlightKey}">
             <span class="ai-issue-badge">${label}</span>
             <span class="ai-issue-text">${text}</span>
             <span class="ai-issue-meta">${reason}${source}</span>
@@ -877,6 +963,13 @@ function renderClaims(items) {
     }).join('');
     claimsBox.style.display = 'block';
     bindClaimCardClicks();
+}
+
+function normalizeForSentenceMatch(value) {
+    return String(value || '')
+        .replace(/\r\n?/g, '\n')
+        .trim()
+        .replace(/\s+/g, ' ');
 }
 
 function renderContentHighlights(content, claims) {
@@ -888,29 +981,48 @@ function renderContentHighlights(content, claims) {
     }
 
     const normalizedClaims = Array.isArray(claims) ? claims : [];
+    const sentenceClaimMap = new Map();
+    const statusPriority = { contradicted: 3, weak: 2, supported: 1 };
+
+    normalizedClaims.forEach((claim) => {
+        const sentenceKey = claim && claim.sentence_key ? String(claim.sentence_key) : '';
+        const draftSentence = claim && claim.draft_sentence ? normalizeForSentenceMatch(claim.draft_sentence) : '';
+        const mapKey = sentenceKey || draftSentence;
+        if (!mapKey) {
+            return;
+        }
+
+        const existing = sentenceClaimMap.get(mapKey);
+        const currentPriority = statusPriority[String(claim && claim.status ? claim.status : 'supported')] || 0;
+        const existingPriority = existing ? (statusPriority[String(existing.status || 'supported')] || 0) : 0;
+
+        if (!existing || currentPriority >= existingPriority) {
+            sentenceClaimMap.set(mapKey, claim);
+        }
+    });
+
     const paragraphs = rawContent.split(/\n{2,}/).filter(Boolean);
     const html = paragraphs.map((paragraph) => {
         const sentences = paragraph.split(/(?<=[.!?])\s+/).filter(Boolean);
         const sentenceHtml = sentences.map((sentence) => {
-            const lowerSentence = sentence.toLowerCase();
-            const matchedClaim = normalizedClaims.find((claim) => {
-                const text = String(claim && claim.text ? claim.text : '').toLowerCase();
-                return text && (text.includes(lowerSentence) || lowerSentence.includes(text));
-            });
+            const normalizedSentence = normalizeForSentenceMatch(sentence);
+            const matchedClaim = sentenceClaimMap.get(normalizedSentence);
 
             if (!matchedClaim) {
                 return `<span>${escapeHtml(sentence)}</span>`;
             }
 
             const status = String(matchedClaim.status || 'supported');
-            const claimKey = matchedClaim && matchedClaim.claim_key ? escapeHtml(matchedClaim.claim_key) : '';
+            const highlightKey = matchedClaim && matchedClaim.sentence_key
+                ? escapeHtml(matchedClaim.sentence_key)
+                : escapeHtml(normalizedSentence);
             const styles = status === 'contradicted'
                 ? 'background:rgba(239,68,68,0.18); border-left:3px solid #ef4444; padding:1px 4px; border-radius:4px;'
                 : (status === 'weak'
                     ? 'background:rgba(245,158,11,0.18); border-left:3px solid #f59e0b; padding:1px 4px; border-radius:4px;'
                     : 'background:rgba(34,197,94,0.14); border-left:3px solid #22c55e; padding:1px 4px; border-radius:4px;');
 
-            return `<span data-highlight-key="${claimKey}" style="${styles}">${escapeHtml(sentence)}</span>`;
+            return `<span data-highlight-key="${highlightKey}" style="${styles}">${escapeHtml(sentence)}</span>`;
         }).join(' ');
 
         return `<p style="margin:0 0 12px;">${sentenceHtml}</p>`;
@@ -940,9 +1052,17 @@ function jumpToClaimHighlight(claimKey) {
 }
 
 function bindClaimCardClicks() {
-    claimsList.querySelectorAll('[data-claim-key]').forEach((card) => {
+    claimsList.querySelectorAll('[data-highlight-key]').forEach((card) => {
         card.addEventListener('click', () => {
-            jumpToClaimHighlight(card.getAttribute('data-claim-key'));
+            jumpToClaimHighlight(card.getAttribute('data-highlight-key'));
+        });
+    });
+}
+
+function bindWhyNotPerfectClicks() {
+    whyNotPerfectList.querySelectorAll('[data-highlight-key]').forEach((item) => {
+        item.addEventListener('click', () => {
+            jumpToClaimHighlight(item.getAttribute('data-highlight-key'));
         });
     });
 }
@@ -1047,7 +1167,7 @@ async function runAICheck() {
 
         applyVerdictState(decision, data.verdict || 'Verification completed.');
         renderClaimSummary(claimSummary);
-        renderWhyNotPerfect(data.why_not_perfect || []);
+        renderWhyNotPerfect(data.why_not_perfect_details || data.why_not_perfect || []);
         renderMatchedSources(data.matched_sources || []);
         renderClaims(data.claims || []);
         renderContentHighlights(content, data.claims || []);
@@ -1087,7 +1207,7 @@ aiVerdictHeadline.textContent = headlineForDecision(initialDecision, <?= (int)$i
 setLastCheckedLabel(<?= json_encode($hasCurrentVerification ? 'Last checked: Just now' : 'Waiting for fact check') ?>);
 applyVerdictState(initialDecision, <?= json_encode($initialVerdict !== '' ? $initialVerdict : 'Waiting for verification.') ?>);
 renderClaimSummary(<?= json_encode($initialClaimSummary) ?>);
-renderWhyNotPerfect(<?= json_encode($initialWhyNotPerfect) ?>);
+renderWhyNotPerfect(<?= json_encode(!empty($initialWhyNotPerfectDetails) ? $initialWhyNotPerfectDetails : $initialWhyNotPerfect) ?>);
 renderMatchedSources(<?= json_encode($initialMatchedSources) ?>);
 renderClaims(<?= json_encode($initialClaims) ?>);
 renderContentHighlights(initialContentText, <?= json_encode($initialClaims) ?>);
