@@ -33,6 +33,42 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
+function resolveStoredArticleVerification(?Article $article, string $fingerprint): ?array {
+    if (!$article) {
+        return null;
+    }
+
+    if (($article->verificationFingerprint ?? '') !== $fingerprint) {
+        return null;
+    }
+
+    $rawPayload = $article->verificationPayload ?? null;
+    if (!is_string($rawPayload) || trim($rawPayload) === '') {
+        return null;
+    }
+
+    $decoded = json_decode($rawPayload, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
+function persistArticleVerification(int $articleId, int $authorId, array $verification): void {
+    if ($articleId <= 0 || empty($verification['fingerprint'])) {
+        return;
+    }
+
+    DB::execute(
+        'UPDATE articles
+         SET verification_fingerprint = ?, verification_payload = ?, verification_checked_at = NOW()
+         WHERE id = ? AND author_id = ?',
+        [
+            (string)$verification['fingerprint'],
+            json_encode($verification, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            $articleId,
+            $authorId,
+        ]
+    );
+}
+
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
 $autoPublishTrustScore = 81;
@@ -59,6 +95,10 @@ if ($editId > 0) {
 $canUploadImage = ($user->role === 'premium' || $user->role === 'category_admin');
 $action = $_POST['action'] ?? 'publish';
 $imagePath = $article->imagePath ?? null;
+$requestFingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+$requestVerification = $_SESSION['article_ai_verification'] ?? null;
+$hasRequestVerification = is_array($requestVerification)
+    && (($requestVerification['fingerprint'] ?? '') === $requestFingerprint);
 
 if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1') {
     if (!empty($article->imagePath)) {
@@ -96,14 +136,23 @@ if ($action === 'draft') {
     }
 
     if (isset($result['ok'])) {
+        $savedArticleId = $isEdit ? $editId : (int)($result['id'] ?? 0);
+        if ($hasRequestVerification && $savedArticleId > 0) {
+            persistArticleVerification($savedArticleId, (int)$user->id, $requestVerification);
+        }
         actionRedirect('/pages/my-articles.php', null, 'Draft saved!');
     }
 
     actionRedirect($isEdit ? '/pages/write.php?id=' . $editId : '/pages/write.php', $result['error'] ?? 'Unable to save draft.');
 }
 
-$verification = $_SESSION['article_ai_verification'] ?? null;
 $fingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+$verification = $_SESSION['article_ai_verification'] ?? null;
+$storedVerification = $isEdit ? resolveStoredArticleVerification($article, $fingerprint) : null;
+if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $fingerprint)) {
+    $verification = $storedVerification;
+    $_SESSION['article_ai_verification'] = $storedVerification;
+}
 $isVerificationCurrent = is_array($verification)
     && ($verification['fingerprint'] ?? '') === $fingerprint;
 $verifiedTrustScore = $isVerificationCurrent ? (int)($verification['trust_score'] ?? 0) : 0;

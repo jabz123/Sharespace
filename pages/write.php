@@ -57,6 +57,24 @@ function resolveStoredArticleVerification(?Article $article, string $fingerprint
     return is_array($decoded) ? $decoded : null;
 }
 
+function persistArticleVerification(int $articleId, int $authorId, array $verification): void {
+    if ($articleId <= 0 || empty($verification['fingerprint'])) {
+        return;
+    }
+
+    DB::execute(
+        'UPDATE articles
+         SET verification_fingerprint = ?, verification_payload = ?, verification_checked_at = NOW()
+         WHERE id = ? AND author_id = ?',
+        [
+            (string)$verification['fingerprint'],
+            json_encode($verification, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            $articleId,
+            $authorId,
+        ]
+    );
+}
+
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
 $autoPublishTrustScore = 81;
@@ -90,6 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $isEdit && $article && $article->re
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? 'publish';
     $imagePath = $article->imagePath ?? null;
+    $requestFingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+    $requestVerification = $_SESSION['article_ai_verification'] ?? null;
+    $hasRequestVerification = is_array($requestVerification)
+        && (($requestVerification['fingerprint'] ?? '') === $requestFingerprint);
 
     if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1') {
         if (!empty($article->imagePath)) {
@@ -127,11 +149,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (isset($result['ok'])) {
+            $savedArticleId = $isEdit ? $editId : (int)($result['id'] ?? 0);
+            if ($hasRequestVerification && $savedArticleId > 0) {
+                persistArticleVerification($savedArticleId, (int)$user->id, $requestVerification);
+            }
             pageRedirect('/pages/my-articles.php', null, 'Draft saved!');
         }
     } else {
-        $verification = $_SESSION['article_ai_verification'] ?? null;
         $fingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+        $verification = $_SESSION['article_ai_verification'] ?? null;
+        $storedVerification = $isEdit ? resolveStoredArticleVerification($article, $fingerprint) : null;
+        if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $fingerprint)) {
+            $verification = $storedVerification;
+            $_SESSION['article_ai_verification'] = $storedVerification;
+        }
         $isVerificationCurrent = is_array($verification)
             && ($verification['fingerprint'] ?? '') === $fingerprint;
         $verifiedTrustScore = $isVerificationCurrent ? (int)($verification['trust_score'] ?? 0) : 0;
@@ -176,6 +207,11 @@ $currentVerificationInput = [
 ];
 $verification = $_SESSION['article_ai_verification'] ?? null;
 $verificationFingerprint = buildArticleVerificationFingerprint($currentVerificationInput, (int)$user->id);
+$storedVerification = $isEdit ? resolveStoredArticleVerification($article, $verificationFingerprint) : null;
+if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $verificationFingerprint)) {
+    $verification = $storedVerification;
+    $_SESSION['article_ai_verification'] = $storedVerification;
+}
 $hasCurrentVerification = is_array($verification)
     && ($verification['fingerprint'] ?? '') === $verificationFingerprint;
 $verificationPassed = $hasCurrentVerification
@@ -1424,18 +1460,35 @@ function jumpToClaimHighlight(claimKey) {
         return;
     }
 
-    const target = contentHighlights.querySelector(`[data-highlight-key="${CSS.escape(claimKey)}"]`);
+    const escapedKey = CSS.escape(String(claimKey));
+    let target = contentHighlights.querySelector(`[data-highlight-key="${escapedKey}"]`);
+    if (!target) {
+        const fallbackKey = normalizeForSentenceMatch(claimKey);
+        if (fallbackKey) {
+            target = contentHighlights.querySelector(`[data-highlight-key="${CSS.escape(fallbackKey)}"]`);
+        }
+    }
     if (!target) {
         return;
     }
 
     contentHighlightsBox.style.display = 'block';
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    const previousBoxShadow = target.style.boxShadow;
-    target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.45)';
+
+    // Bring the section into view first so the user can actually see the highlight.
+    contentHighlightsBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    contentHighlights.scrollTo({
+        top: Math.max(0, target.offsetTop - 32),
+        behavior: 'smooth'
+    });
+
+    contentHighlights.querySelectorAll('.ai-highlight-focus').forEach((node) => {
+        node.classList.remove('ai-highlight-focus');
+    });
+    target.classList.add('ai-highlight-focus');
+
     setTimeout(() => {
-        target.style.boxShadow = previousBoxShadow;
-    }, 1400);
+        target.classList.remove('ai-highlight-focus');
+    }, 1800);
 }
 
 function bindClaimCardClicks() {
@@ -1493,6 +1546,7 @@ async function runAICheck() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                article_id: <?= $isEdit ? (int)$editId : 0 ?>,
                 title,
                 excerpt,
                 content,

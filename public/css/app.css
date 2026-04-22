@@ -7122,6 +7122,16 @@ body.page-ai-trainer-home .toast button {
     line-height: 1.75;
 }
 
+.ai-content-highlights [data-highlight-key] {
+    transition: box-shadow 0.22s ease, transform 0.22s ease, background-color 0.22s ease;
+}
+
+.ai-content-highlights .ai-highlight-focus {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.75), 0 0 22px rgba(245,166,35,0.42);
+    transform: translateY(-1px);
+    background-color: rgba(245,166,35,0.24) !important;
+}
+
 .ai-results-dashboard,
 .ai-results-dashboard div,
 .ai-results-dashboard p,

@@ -22,6 +22,15 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
+function decodeStoredVerificationPayload(?string $rawPayload): ?array {
+    if (!is_string($rawPayload) || trim($rawPayload) === '') {
+        return null;
+    }
+
+    $decoded = json_decode($rawPayload, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
 function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $metrics, int $trustScore, string $publishDecision): array {
     $suggestions = [];
     $seen = [];
@@ -580,6 +589,7 @@ $content = trim((string)($body['content'] ?? ''));
 $category = trim((string)($body['category'] ?? ''));
 $categoryId = (int)($body['category_id'] ?? 0);
 $sourceUrl = trim((string)($body['source_url'] ?? ''));
+$articleId = (int)($body['article_id'] ?? 0);
 
 if ($title === '' || $excerpt === '' || $content === '') {
     http_response_code(422);
@@ -604,6 +614,26 @@ $fingerprint = buildArticleVerificationFingerprint([
 $existingVerification = $_SESSION['article_ai_verification'] ?? null;
 $hasCachedVerification = is_array($existingVerification)
     && ($existingVerification['fingerprint'] ?? '') === $fingerprint;
+
+$storedArticleVerification = null;
+if ($articleId > 0) {
+    $articleRow = DB::first(
+        'SELECT verification_fingerprint, verification_payload
+         FROM articles
+         WHERE id = ? AND author_id = ?
+         LIMIT 1',
+        [$articleId, (int)$user->id]
+    );
+
+    if ($articleRow && ($articleRow['verification_fingerprint'] ?? '') === $fingerprint) {
+        $storedArticleVerification = decodeStoredVerificationPayload($articleRow['verification_payload'] ?? null);
+        if (is_array($storedArticleVerification)) {
+            $existingVerification = $storedArticleVerification;
+            $hasCachedVerification = true;
+            $_SESSION['article_ai_verification'] = $storedArticleVerification;
+        }
+    }
+}
 
 if ($hasCachedVerification) {
     echo json_encode([
@@ -836,6 +866,20 @@ $_SESSION['article_ai_verification'] = [
     'why_not_perfect' => $whyNotPerfect,
     'why_not_perfect_details' => $whyNotPerfectDetails,
 ];
+
+if ($articleId > 0) {
+    DB::execute(
+        'UPDATE articles
+         SET verification_fingerprint = ?, verification_payload = ?, verification_checked_at = NOW()
+         WHERE id = ? AND author_id = ?',
+        [
+            $fingerprint,
+            json_encode($_SESSION['article_ai_verification'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            $articleId,
+            (int)$user->id,
+        ]
+    );
+}
 
 echo json_encode([
     'trust_score' => $trustScore,

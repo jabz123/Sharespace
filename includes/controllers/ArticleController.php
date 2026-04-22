@@ -522,9 +522,10 @@ public function saveDraft(int $authorId, array $input): array {
         ]
     );
 
-    AuditLogger::log($authorId, 'save_draft', 'Article', DB::lastId(), 'Saved draft: ' . ($input['title'] ?? 'Untitled draft'));
+    $articleId = DB::lastId();
+    AuditLogger::log($authorId, 'save_draft', 'Article', $articleId, 'Saved draft: ' . ($input['title'] ?? 'Untitled draft'));
 
-    return ['ok' => true];
+    return ['ok' => true, 'id' => $articleId];
 }
     // save article function
     public function toggleSave(int $userId, int $articleId): bool {
