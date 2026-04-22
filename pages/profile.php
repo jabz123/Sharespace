@@ -45,10 +45,10 @@ page_head('Profile', in_array($user->role, ['system_admin', 'ai_trainer'], true)
         <?php dash_header('Profile Page'); ?>
         <?php flash_messages(); ?>
 
-        <div class="page-content">
+        <div class="page-content profile-page-content">
             <div class="profile-layout">
                 <section class="profile-main">
-                    <div class="profile">
+                    <div class="profile profile-card">
                         <div class="profile-header">
                             <div class="user-info">
                                 <h2><?= htmlspecialchars($user->fullName); ?></h2>
@@ -81,14 +81,14 @@ page_head('Profile', in_array($user->role, ['system_admin', 'ai_trainer'], true)
                                 <div class="image-buttons">
                                     <button
                                         type="button"
-                                        class="btn-dark"
+                                        class="btn btn-secondary profile-upload-btn"
                                         onclick="document.getElementById('avatarInput').click()">
                                         Upload Photo
                                     </button>
 
                                     <button
                                         type="button"
-                                        class="btn-light"
+                                        class="btn btn-ghost profile-remove-btn"
                                         id="removeAvatarBtn"
                                         <?= empty($user->avatarUrl) ? 'style="display:none"' : '' ?>
                                         onclick="removeAvatar()">

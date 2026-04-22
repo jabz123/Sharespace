@@ -88,15 +88,15 @@ if (!$returnUrl) {
 
 page_head($article->title, $isSystemAdmin);
 ?>
-<div class="dashboard-layout<?= $isSystemAdmin ? ' article-admin-shell' : '' ?>">
+<div class="dashboard-layout<?= $isSystemAdmin ? ' article-admin-shell' : ' user-dashboard-shell' ?>">
     <?php sidebar($user); ?>
     <main>
         <?php dash_header(htmlspecialchars($article->categoryName), 'Article'); ?>
 
-        <div class="page-content">
+        <div class="page-content article-page-content">
             <div class="article-detail">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-2">
+                <div class="article-toolbar">
+                    <div class="article-toolbar-left">
                         <a href="<?= htmlspecialchars($returnUrl) ?>" class="btn btn-ghost btn-sm">Back</a>
 
                         <?php if ($isAuthor): ?>
@@ -105,7 +105,7 @@ page_head($article->title, $isSystemAdmin);
                     </div>
 
                     <?php if ($user->role !== 'system_admin'): ?>
-                        <div class="flex items-center gap-4" style="position: relative;">
+                        <div class="article-toolbar-actions">
                             <button class="icon-btn" id="saveBtn" title="Save">
                                 <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/Bookmark.png' ?>"
                                     data-default="/public/icons/Bookmark.png"
@@ -117,7 +117,7 @@ page_head($article->title, $isSystemAdmin);
                                 <?= $alreadyFlagged ? 'disabled' : '' ?> title="<?= $alreadyFlagged ? 'Already flagged' : 'Flag' ?>">
                                 <img src="/public/icons/flag.png" alt="Flag article">
                             </button>
-                            <div style="position: relative;">
+                            <div class="article-share-wrap">
                             <button class="icon-btn" id="shareBtn" title="Share">
                                 <img src="/public/icons/share.png" alt="Share article">
                             </button>
@@ -134,20 +134,20 @@ page_head($article->title, $isSystemAdmin);
                     <?php endif; ?>
                 </div>
 
-                <div class="flex justify-between items-center mb-3">
+                <div class="article-topline">
                     <span class="category-tag <?= category_theme_class($article->categoryName) ?>"><?= htmlspecialchars($article->categoryName) ?></span>
                     <?= trust_badge($article->trustScore) ?>
                 </div>
 
-                <h1 style="font-size:32px;font-weight:800;font-family:Georgia,serif;line-height:1.2;margin-bottom:16px">
+                <h1 class="article-page-title">
                     <?= htmlspecialchars($article->title) ?>
                 </h1>
 
                 <div class="article-meta">
-                    <div class="author-avatar" style="width:42px;height:42px;font-size:16px"><?= htmlspecialchars($article->authorInitial()) ?></div>
+                    <div class="author-avatar article-author-avatar"><?= htmlspecialchars($article->authorInitial()) ?></div>
                     <div>
-                        <p style="font-weight:600;font-size:14px"><?= htmlspecialchars($article->authorName) ?></p>
-                        <p class="text-sm text-muted"><?= date('F j, Y g:i A', strtotime($article->publishedAt)) ?></p>
+                        <p class="article-author-name"><?= htmlspecialchars($article->authorName) ?></p>
+                        <p class="article-published-time text-muted"><?= date('F j, Y g:i A', strtotime($article->publishedAt)) ?></p>
                     </div>
                 </div>
 
@@ -163,7 +163,7 @@ page_head($article->title, $isSystemAdmin);
                         <p class="summary-text"><?= htmlspecialchars($article->excerpt) ?></p>
                     </div>
 
-                    <div class="ai-overview-panel" id="aiOverviewPanel" style="margin-top:40px;">
+                    <div class="ai-overview-panel article-ai-overview-panel" id="aiOverviewPanel">
                         <div class="ai-overview-header">
                             <div class="ai-overview-title">
                                 <h3>AI Overview</h3>
@@ -212,22 +212,22 @@ page_head($article->title, $isSystemAdmin);
                 </div>
             </div>
 
-            <div id="comments" style="margin-top:48px;padding-top:32px;border-top:2px solid var(--border)">
+            <div id="comments" class="article-comments-section">
                 <div class="comments-container">
-                    <h2 style="font-size:20px;font-weight:700;font-family:Georgia,serif;margin-bottom:24px">
-                        Comments <span style="font-size:14px;font-weight:400;color:var(--muted)">(<?= count($comments) ?>)</span>
+                    <h2 class="comments-title">
+                        Comments <span class="comments-count">(<?= count($comments) ?>)</span>
                     </h2>
 
-                    <div class="card" style="margin-bottom:28px">
+                    <div class="card comment-form-card">
                         <form method="POST">
                             <input type="hidden" name="action" value="comment">
-                            <div class="form-group" style="margin-bottom:12px">
-                                <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block">
-                                    Leave a comment as <span style="color:var(--primary)"><?= htmlspecialchars($user->fullName) ?></span>
+                            <div class="form-group comment-form-group">
+                                <label class="comment-form-label">
+                                    Leave a comment as <span class="comment-author-highlight"><?= htmlspecialchars($user->fullName) ?></span>
                                 </label>
                                 <textarea name="comment_body" rows="3"
                                     placeholder="Share your thoughts on this article..."
-                                    style="width:100%;resize:vertical"
+                                    class="comment-form-input"
                                     required></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
@@ -235,32 +235,31 @@ page_head($article->title, $isSystemAdmin);
                     </div>
 
                     <?php if (empty($comments)): ?>
-                        <p class="text-muted" style="text-align:center;padding:32px 0">
+                        <p class="text-muted comments-empty-state">
                             No comments yet. Be the first to share your thoughts.
                         </p>
                     <?php else: ?>
-                        <div style="display:flex;flex-direction:column;gap:16px">
+                        <div class="comments-list">
                             <?php foreach ($comments as $comment):
                                 $canDelete = $comment->userId === $user->id;
                             ?>
-                                <div class="card" style="padding:16px 20px">
-                                    <div class="flex items-center gap-3" style="margin-bottom:10px">
-                                        <div class="author-avatar" style="width:34px;height:34px;font-size:13px;flex-shrink:0"><?= htmlspecialchars($comment->initial()) ?></div>
-                                        <div style="flex:1">
-                                            <span style="font-weight:600;font-size:14px"><?= htmlspecialchars($comment->commenterName) ?></span>
-                                            <span class="text-muted" style="font-size:12px;margin-left:8px"><?= relative_time($comment->createdAt) ?></span>
+                                <div class="card comment-card">
+                                    <div class="comment-card-head">
+                                        <div class="author-avatar comment-avatar"><?= htmlspecialchars($comment->initial()) ?></div>
+                                        <div class="comment-meta">
+                                            <span class="comment-author-name"><?= htmlspecialchars($comment->commenterName) ?></span>
+                                            <span class="text-muted comment-created-at"><?= relative_time($comment->createdAt) ?></span>
                                         </div>
                                         <?php if ($canDelete): ?>
-                                            <form method="POST" style="margin:0">
+                                            <form method="POST" class="comment-delete-form">
                                                 <input type="hidden" name="action" value="delete_comment">
                                                 <input type="hidden" name="comment_id" value="<?= $comment->id ?>">
-                                                <button type="submit" class="btn btn-ghost btn-sm"
-                                                    style="font-size:11px;padding:2px 8px;color:var(--muted)"
+                                                <button type="submit" class="btn btn-ghost btn-sm comment-remove-btn"
                                                     onclick="return confirm('Delete this comment?')">Remove</button>
                                             </form>
                                         <?php endif; ?>
                                     </div>
-                                    <p style="font-size:14px;line-height:1.6;color:var(--fg);margin:0"><?= nl2br(htmlspecialchars($comment->content)) ?></p>
+                                    <p class="comment-content"><?= nl2br(htmlspecialchars($comment->content)) ?></p>
                                 </div>
                             <?php endforeach; ?>
                         </div>
