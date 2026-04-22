@@ -1409,27 +1409,34 @@ function renderContentHighlights(content, claims) {
 
     normalizedClaims.forEach((claim) => {
         const sentenceKey = claim && claim.sentence_key ? String(claim.sentence_key) : '';
+        const sentenceIndex = claim && Number.isInteger(Number(claim.sentence_index))
+            ? `index:${Number(claim.sentence_index)}`
+            : '';
         const draftSentence = claim && claim.draft_sentence ? normalizeForSentenceMatch(claim.draft_sentence) : '';
-        const mapKey = sentenceKey || draftSentence;
-        if (!mapKey) {
+        if (!sentenceKey && !sentenceIndex && !draftSentence) {
             return;
         }
 
-        const existing = sentenceClaimMap.get(mapKey);
         const currentPriority = statusPriority[String(claim && claim.status ? claim.status : 'supported')] || 0;
-        const existingPriority = existing ? (statusPriority[String(existing.status || 'supported')] || 0) : 0;
+        [sentenceKey, sentenceIndex, draftSentence].filter(Boolean).forEach((mapKey) => {
+            const existing = sentenceClaimMap.get(mapKey);
+            const existingPriority = existing ? (statusPriority[String(existing.status || 'supported')] || 0) : 0;
 
-        if (!existing || currentPriority >= existingPriority) {
-            sentenceClaimMap.set(mapKey, claim);
-        }
+            if (!existing || currentPriority >= existingPriority) {
+                sentenceClaimMap.set(mapKey, claim);
+            }
+        });
     });
 
     const paragraphs = rawContent.split(/\n{2,}/).filter(Boolean);
+    let sentenceCursor = 0;
     const html = paragraphs.map((paragraph) => {
         const sentences = paragraph.split(/(?<=[.!?])\s+/).filter(Boolean);
         const sentenceHtml = sentences.map((sentence) => {
             const normalizedSentence = normalizeForSentenceMatch(sentence);
-            const matchedClaim = sentenceClaimMap.get(normalizedSentence);
+            const currentSentenceIndex = sentenceCursor++;
+            const matchedClaim = sentenceClaimMap.get(`index:${currentSentenceIndex}`)
+                || sentenceClaimMap.get(normalizedSentence);
 
             if (!matchedClaim) {
                 return `<span>${escapeHtml(sentence)}</span>`;
@@ -1440,10 +1447,10 @@ function renderContentHighlights(content, claims) {
                 ? escapeHtml(matchedClaim.sentence_key)
                 : escapeHtml(normalizedSentence);
             const styles = status === 'contradicted'
-                ? 'background:rgba(239,68,68,0.18); border-left:3px solid #ef4444; padding:1px 4px; border-radius:4px;'
+                ? 'background:rgba(239,68,68,0.26); box-shadow:inset 0 0 0 1px rgba(248,113,113,0.55); border-left:3px solid #ef4444; padding:2px 5px; border-radius:6px; color:#fff4f4;'
                 : (status === 'weak'
-                    ? 'background:rgba(245,158,11,0.18); border-left:3px solid #f59e0b; padding:1px 4px; border-radius:4px;'
-                    : 'background:rgba(34,197,94,0.14); border-left:3px solid #22c55e; padding:1px 4px; border-radius:4px;');
+                    ? 'background:rgba(245,158,11,0.24); box-shadow:inset 0 0 0 1px rgba(251,191,36,0.45); border-left:3px solid #f59e0b; padding:2px 5px; border-radius:6px; color:#fff7ed;'
+                    : 'background:rgba(34,197,94,0.22); box-shadow:inset 0 0 0 1px rgba(74,222,128,0.42); border-left:3px solid #22c55e; padding:2px 5px; border-radius:6px; color:#f0fdf4;');
 
             return `<span data-highlight-key="${highlightKey}" style="${styles}">${escapeHtml(sentence)}</span>`;
         }).join(' ');
