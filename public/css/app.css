@@ -6077,9 +6077,36 @@ body.page-ai-trainer-home .toast button {
     box-shadow: 0 0 0 3px rgba(245,166,35,0.10);
 }
 
+.write-content-shell {
+    position: relative;
+    min-height: 380px;
+}
+
+.write-content-mirror {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    padding: 14px 16px;
+    border-radius: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #f5f8ff;
+    pointer-events: none;
+    z-index: 1;
+}
+
 .write-content-input {
     min-height: 380px;
     line-height: 1.75;
+    position: relative;
+    z-index: 2;
+    background: transparent !important;
+    color: transparent !important;
+    caret-color: #f5f8ff;
+    resize: vertical;
 }
 
 .write-content-input.ai-content-focus {
@@ -6104,6 +6131,45 @@ body.page-ai-trainer-home .toast button {
 .write-content-input.ai-content-focus-contradicted {
     border-color: rgba(239,68,68,0.82) !important;
     box-shadow: 0 0 0 3px rgba(239,68,68,0.16) !important;
+}
+
+.write-content-input::selection {
+    background: rgba(245,166,35,0.32);
+}
+
+.ai-inline-highlight {
+    border-radius: 6px;
+    padding: 2px 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.ai-inline-highlight.is-supported {
+    background: rgba(34,197,94,0.22);
+    box-shadow: inset 0 0 0 1px rgba(74,222,128,0.42);
+    color: #f0fdf4;
+}
+
+.ai-inline-highlight.is-weak {
+    background: rgba(120,82,42,0.34);
+    box-shadow: inset 0 0 0 1px rgba(214,158,46,0.48);
+    color: #fff7ed;
+}
+
+.ai-inline-highlight.is-clarity {
+    background: rgba(30,64,175,0.28);
+    box-shadow: inset 0 0 0 1px rgba(96,165,250,0.45);
+    color: #eff6ff;
+}
+
+.ai-inline-highlight.is-contradicted {
+    background: rgba(239,68,68,0.26);
+    box-shadow: inset 0 0 0 1px rgba(248,113,113,0.55);
+    color: #fff4f4;
+}
+
+.write-content-mirror .ai-highlight-focus {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.72), 0 0 22px rgba(245,166,35,0.4);
 }
 
 .user-dashboard-shell .write-editor-shell .image-preview {

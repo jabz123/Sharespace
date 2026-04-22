@@ -359,7 +359,10 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                 <div class="form-group">
                     <label>Content</label>
-                    <textarea name="content" class="write-content-input" required><?= htmlspecialchars($val['content']) ?></textarea>
+                    <div class="write-content-shell">
+                        <div id="contentMirror" class="write-content-mirror" aria-hidden="true"></div>
+                        <textarea name="content" id="contentInput" class="write-content-input" required><?= htmlspecialchars($val['content']) ?></textarea>
+                    </div>
                 </div>
 
                 <div class="write-actions">
@@ -817,7 +820,8 @@ const whyNotPerfectList = document.getElementById('aiWhyNotPerfectList');
 const sourcesBox = document.getElementById('aiSourcesBox');
 const sourcesList = document.getElementById('aiSourcesList');
 const sourcesCountLabel = document.getElementById('aiSourcesCountLabel');
-const contentInput = document.querySelector('textarea[name="content"]');
+const contentInput = document.getElementById('contentInput');
+const contentMirror = document.getElementById('contentMirror');
 const contentFormGroup = contentInput ? contentInput.closest('.form-group') : null;
 const claimsBox = document.getElementById('aiClaimsBox');
 const claimsList = document.getElementById('aiClaimsList');
@@ -838,6 +842,7 @@ function invalidateVerification(message = 'Content changed. Run AI Fact Check ag
     trustScoreInput.value = '0';
     setPublishLockState(false, message);
     contentSentenceMap = new Map();
+    renderContentHighlights(contentInput ? contentInput.value : '', [], []);
     setLastCheckedLabel('Last checked: Outdated - rerun AI Fact Check');
 }
 
@@ -1395,15 +1400,28 @@ function normalizeForSentenceMatch(value) {
         .replace(/\s+/g, ' ');
 }
 
+function syncContentMirrorScroll() {
+    if (!contentInput || !contentMirror) {
+        return;
+    }
+    contentMirror.scrollTop = contentInput.scrollTop;
+    contentMirror.scrollLeft = contentInput.scrollLeft;
+}
+
 function renderContentHighlights(content, claims, whyItems = []) {
     const rawContent = String(content || '').trim();
     contentSentenceMap = new Map();
+    if (contentMirror) {
+        contentMirror.innerHTML = '';
+    }
     if (!rawContent) {
+        syncContentMirrorScroll();
         return;
     }
 
     const normalizedClaims = Array.isArray(claims) ? claims : [];
     const sentenceClaimMap = new Map();
+    const highlightRanges = [];
     const statusPriority = { contradicted: 4, weak: 3, clarity: 2, supported: 1 };
     const registerSentenceMatch = (keys, entry) => {
         const currentPriority = statusPriority[String(entry && entry.status ? entry.status : 'supported')] || 0;
@@ -1476,12 +1494,55 @@ function renderContentHighlights(content, claims, whyItems = []) {
                 end,
                 status: String(matchedClaim.status || 'supported')
             };
+            highlightRanges.push({
+                start,
+                end,
+                status: selectionMeta.status,
+                highlightKey
+            });
 
             [highlightKey, normalizedSentence].filter(Boolean).forEach((key) => {
                 contentSentenceMap.set(key, selectionMeta);
             });
         });
     });
+
+    const uniqueRanges = [];
+    const seenRanges = new Set();
+    highlightRanges
+        .sort((a, b) => a.start - b.start || a.end - b.end)
+        .forEach((range) => {
+            const dedupeKey = `${range.start}:${range.end}:${range.status}`;
+            if (seenRanges.has(dedupeKey)) {
+                return;
+            }
+            seenRanges.add(dedupeKey);
+            uniqueRanges.push(range);
+        });
+
+    let cursor = 0;
+    const htmlParts = [];
+    uniqueRanges.forEach((range) => {
+        if (range.start > cursor) {
+            htmlParts.push(escapeHtml(rawContent.slice(cursor, range.start)));
+        }
+
+        const segment = rawContent.slice(range.start, range.end);
+        const statusClass = String(range.status || 'supported');
+        htmlParts.push(
+            `<mark class="ai-inline-highlight is-${statusClass}" data-highlight-key="${escapeHtml(range.highlightKey)}">${escapeHtml(segment)}</mark>`
+        );
+        cursor = range.end;
+    });
+
+    if (cursor < rawContent.length) {
+        htmlParts.push(escapeHtml(rawContent.slice(cursor)));
+    }
+
+    if (contentMirror) {
+        contentMirror.innerHTML = htmlParts.join('');
+    }
+    syncContentMirrorScroll();
 }
 
 function jumpToClaimHighlight(claimKey) {
@@ -1506,10 +1567,29 @@ function jumpToClaimHighlight(claimKey) {
     const lineHeight = parseFloat(window.getComputedStyle(contentInput).lineHeight) || 28;
     const linesBefore = contentInput.value.slice(0, target.start).split('\n').length - 1;
     contentInput.scrollTop = Math.max(0, (linesBefore * lineHeight) - (contentInput.clientHeight * 0.35));
+    syncContentMirrorScroll();
 
     contentInput.classList.remove('ai-content-focus', 'ai-content-focus-supported', 'ai-content-focus-weak', 'ai-content-focus-clarity', 'ai-content-focus-contradicted');
     contentInput.classList.add('ai-content-focus');
     contentInput.classList.add(`ai-content-focus-${target.status}`);
+
+    if (contentMirror) {
+        contentMirror.querySelectorAll('.ai-highlight-focus').forEach((node) => {
+            node.classList.remove('ai-highlight-focus');
+        });
+
+        const escapedKey = CSS.escape(directKey);
+        let mirrorTarget = contentMirror.querySelector(`[data-highlight-key="${escapedKey}"]`);
+        if (!mirrorTarget && fallbackKey) {
+            mirrorTarget = contentMirror.querySelector(`[data-highlight-key="${CSS.escape(fallbackKey)}"]`);
+        }
+        if (mirrorTarget) {
+            mirrorTarget.classList.add('ai-highlight-focus');
+            setTimeout(() => {
+                mirrorTarget.classList.remove('ai-highlight-focus');
+            }, 1800);
+        }
+    }
 
     setTimeout(() => {
         contentInput.classList.remove('ai-content-focus', 'ai-content-focus-supported', 'ai-content-focus-weak', 'ai-content-focus-clarity', 'ai-content-focus-contradicted');
@@ -1671,6 +1751,11 @@ document.querySelectorAll('input[name="title"], input[name="excerpt"], textarea[
         field.addEventListener('input', () => invalidateVerification());
         field.addEventListener('change', () => invalidateVerification());
     });
+
+if (contentInput) {
+    contentInput.addEventListener('scroll', syncContentMirrorScroll);
+    contentInput.addEventListener('input', syncContentMirrorScroll);
+}
 
 setPublishLockState(
     initialPublishUnlocked,
