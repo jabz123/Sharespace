@@ -544,13 +544,21 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         </section>
 
                         <section id="aiClaimsBox" class="ai-section" style="display:none;">
-                            <div class="ai-section-head">
-                                <h4>Issues to Review</h4>
-                            </div>
-                            <div id="aiClaimsList" class="ai-issues-list">
+                            <details id="aiClaimsDisclosure" class="ai-sources-disclosure">
+                                <summary class="ai-sources-summary">
+                                    <span class="ai-sources-summary-text">
+                                        <strong>Supported</strong>
+                                        <small id="aiClaimsCountLabel"><?= count(array_filter($initialClaims, static fn($claim): bool => (string)($claim['status'] ?? '') === 'supported')) ?> claims</small>
+                                    </span>
+                                    <span class="ai-sources-summary-icon" aria-hidden="true"></span>
+                                </summary>
+                                <div id="aiClaimsList" class="ai-issues-list">
                                 <?php foreach ($initialClaims as $claim): ?>
                                     <?php
                                     $status = trim((string)($claim['status'] ?? 'supported'));
+                                    if ($status !== 'supported') {
+                                        continue;
+                                    }
                                     $label = $status === 'contradicted' ? 'Contradicted' : ($status === 'weak' ? 'Needs Support' : 'Supported');
                                     $statusClass = $status === 'contradicted' ? 'is-contradicted' : ($status === 'weak' ? 'is-weak' : 'is-supported');
                                     $claimKey = (string)($claim['claim_key'] ?? substr(sha1((string)($claim['text'] ?? '') . '|' . (string)($claim['status'] ?? 'supported')), 0, 12));
@@ -824,7 +832,9 @@ const contentInput = document.getElementById('contentInput');
 const contentMirror = document.getElementById('contentMirror');
 const contentFormGroup = contentInput ? contentInput.closest('.form-group') : null;
 const claimsBox = document.getElementById('aiClaimsBox');
+const claimsDisclosure = document.getElementById('aiClaimsDisclosure');
 const claimsList = document.getElementById('aiClaimsList');
+const claimsCountLabel = document.getElementById('aiClaimsCountLabel');
 const improveBox = document.getElementById('aiImproveBox');
 const improveList = document.getElementById('aiImproveList');
 const misinformationBox = document.getElementById('aiMisinformationBox');
@@ -1115,13 +1125,25 @@ function renderAreaGroup(title, count, status, impactLabel, items, openByDefault
             <span class="ai-area-summary-impact">${escapeHtml(impactLabel)}</span>
         </summary>
         <div class="ai-area-body">
-            ${items.map((item) => `<article class="ai-area-item is-${status}">
-                <div class="ai-area-item-copy">
-                    <h5>${escapeHtml(item.title || '')}</h5>
-                    <p>${escapeHtml(item.description || '')}</p>
+            ${items.map((item) => {
+                const primaryJumpExample = Array.isArray(item.examples)
+                    ? item.examples.find((example) => example && example.highlight_key)
+                    : null;
+                const jumpAction = primaryJumpExample
+                    ? `<button type="button" class="ai-area-item-jump" data-highlight-key="${escapeHtml(String(primaryJumpExample.highlight_key))}">Jump to sentence</button>`
+                    : '';
+
+                return `<article class="ai-area-item is-${status}">
+                <div class="ai-area-item-head">
+                    <div class="ai-area-item-copy">
+                        <h5>${escapeHtml(item.title || '')}</h5>
+                        <p>${escapeHtml(item.description || '')}</p>
+                    </div>
+                    ${jumpAction}
                 </div>
                 ${renderAreaExamples(item.examples)}
-            </article>`).join('')}
+            </article>`;
+            }).join('')}
         </div>
     </details>`;
 }
@@ -1142,13 +1164,20 @@ function renderAreasToImprove({ trustScore = 0, claims = [], whyItems = [], sugg
     const contradictedItems = [];
     const supportItems = [];
     const clarityItems = [];
+    const weakClaims = [];
+    const contradictedClaims = [];
+    const supportedClaims = [];
 
     (Array.isArray(claims) ? claims : []).forEach((claim) => {
         const status = String(claim && claim.status ? claim.status : 'supported');
         if (status === 'contradicted') {
+            contradictedClaims.push(claim);
             contradictedItems.push(buildClaimIssueItem(claim, matchedSources));
         } else if (status === 'weak') {
+            weakClaims.push(claim);
             supportItems.push(buildClaimIssueItem(claim, matchedSources));
+        } else if (status === 'supported') {
+            supportedClaims.push(claim);
         }
     });
 
@@ -1205,6 +1234,46 @@ function renderAreasToImprove({ trustScore = 0, claims = [], whyItems = [], sugg
             });
         });
     }
+
+    const claimToExample = (claim, label, fallbackReason) => {
+        if (!claim) {
+            return null;
+        }
+        const sentenceText = String(claim.draft_sentence || claim.text || '').trim();
+        if (!sentenceText) {
+            return null;
+        }
+        return {
+            label,
+            text: sentenceText,
+            reason: String(claim.reason || fallbackReason || '').trim(),
+            highlight_key: claim.sentence_key ? String(claim.sentence_key) : normalizeForSentenceMatch(sentenceText),
+            url: null
+        };
+    };
+
+    const attachFallbackExamples = (items, claimPool, label, fallbackReason) => {
+        let claimIndex = 0;
+        items.forEach((item) => {
+            if (Array.isArray(item.examples) && item.examples.some((example) => example && example.highlight_key)) {
+                return;
+            }
+
+            while (claimIndex < claimPool.length) {
+                const example = claimToExample(claimPool[claimIndex], label, fallbackReason);
+                claimIndex += 1;
+                if (!example) {
+                    continue;
+                }
+                item.examples = Array.isArray(item.examples) ? [...item.examples, example] : [example];
+                break;
+            }
+        });
+    };
+
+    attachFallbackExamples(contradictedItems, contradictedClaims, 'Draft sentence', 'Review and correct this sentence.');
+    attachFallbackExamples(supportItems, weakClaims, 'Draft sentence', 'Strengthen this sentence with better support.');
+    attachFallbackExamples(clarityItems, [...weakClaims, ...supportedClaims, ...contradictedClaims], 'Draft sentence', 'Clarify this sentence.');
 
     const contradictionList = dedupeIssueItems(contradictedItems);
     const supportList = dedupeIssueItems(supportItems);
@@ -1364,13 +1433,27 @@ function renderImprovementSuggestions(items) {
 }
 
 function renderClaims(items) {
-    if (!Array.isArray(items) || items.length === 0) {
+    const supportedItems = Array.isArray(items)
+        ? items.filter((claim) => String(claim && claim.status ? claim.status : 'supported') === 'supported')
+        : [];
+
+    if (supportedItems.length === 0) {
         claimsList.innerHTML = '';
         claimsBox.style.display = 'none';
+        if (claimsCountLabel) {
+            claimsCountLabel.textContent = '0 claims';
+        }
         return;
     }
 
-    claimsList.innerHTML = items.map((claim) => {
+    if (claimsCountLabel) {
+        claimsCountLabel.textContent = `${supportedItems.length} claim${supportedItems.length === 1 ? '' : 's'}`;
+    }
+    if (claimsDisclosure) {
+        claimsDisclosure.open = false;
+    }
+
+    claimsList.innerHTML = supportedItems.map((claim) => {
         const status = claim && claim.status ? String(claim.status) : 'supported';
         const label = status === 'contradicted' ? 'Contradicted' : (status === 'weak' ? 'Needs Support' : 'Supported');
         const statusClass = status === 'contradicted' ? 'is-contradicted' : (status === 'weak' ? 'is-weak' : 'is-supported');
