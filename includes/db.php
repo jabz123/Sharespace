@@ -131,6 +131,12 @@ class DB {
                  ADD COLUMN review_notice_pending TINYINT(1) NOT NULL DEFAULT 0'
             );
         }
+        if (!self::columnExists('articles', 'source_url')) {
+            self::execute(
+                'ALTER TABLE articles
+                 ADD COLUMN source_url VARCHAR(2048) DEFAULT NULL'
+            );
+        }
 
         self::$articleReviewWorkflowReady = true;
     }

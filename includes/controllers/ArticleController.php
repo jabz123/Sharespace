@@ -189,6 +189,7 @@ class ArticleController {
         $title      = trim($input['title']       ?? '');
         $excerpt    = trim($input['excerpt']     ?? '');
         $content    = trim($input['content']     ?? '');
+        $sourceUrl  = trim($input['source_url']  ?? '');
         $categoryId = (int)($input['category_id'] ?? 0);
         $status = $input['status'] ?? null;
         $trustScore = $this->resolveTrustScore($input);
@@ -218,9 +219,9 @@ class ArticleController {
 
         DB::execute(
             "UPDATE articles
-            SET title = ?, excerpt = ?, content = ?, category_id = ?, trust_score = ?, image_path = ?, status = ? $setPublishedAt, updated_at = NOW()
+            SET title = ?, excerpt = ?, content = ?, source_url = ?, category_id = ?, trust_score = ?, image_path = ?, status = ? $setPublishedAt, updated_at = NOW()
             WHERE id = ? AND author_id = ?",
-            [$title, $excerpt, $content, $categoryId, $trustScore, $imagePath, $status, $articleId, $authorId]
+            [$title, $excerpt, $content, ($sourceUrl !== '' ? $sourceUrl : null), $categoryId, $trustScore, $imagePath, $status, $articleId, $authorId]
         );
 
         $action = $status === 'draft' ? 'save_draft' : (($current['status'] ?? '') === 'draft' ? 'submit_content' : 'update_content');
@@ -257,6 +258,7 @@ class ArticleController {
         $title      = trim($input['title']       ?? '');
         $excerpt    = trim($input['excerpt']     ?? '');
         $content    = trim($input['content']     ?? '');
+        $sourceUrl  = trim($input['source_url']  ?? '');
         $categoryId = (int)($input['category_id'] ?? 0);
         $imagePath = $input['image_path'] ?? null;
         $trustScore = $this->resolveTrustScore($input);
@@ -270,9 +272,9 @@ class ArticleController {
         }
 
         DB::execute(
-        'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status, published_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-        [$title, $excerpt, $content, $authorId, $categoryId, $trustScore, $imagePath, 'published']
+        'INSERT INTO articles (title, excerpt, content, source_url, author_id, category_id, trust_score, image_path, status, published_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+        [$title, $excerpt, $content, ($sourceUrl !== '' ? $sourceUrl : null), $authorId, $categoryId, $trustScore, $imagePath, 'published']
          );
 
         $articleId = DB::lastId();
@@ -287,6 +289,7 @@ class ArticleController {
         $title      = trim($input['title'] ?? '');
         $excerpt    = trim($input['excerpt'] ?? '');
         $content    = trim($input['content'] ?? '');
+        $sourceUrl  = trim($input['source_url'] ?? '');
         $categoryId = (int)($input['category_id'] ?? 0);
         $imagePath  = $input['image_path'] ?? null;
         $trustScore = $this->resolveTrustScore($input);
@@ -303,9 +306,9 @@ class ArticleController {
 
         try {
             DB::execute(
-                'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status, review_notice, review_notice_pending)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0)',
-                [$title, $excerpt, $content, $authorId, $categoryId, $trustScore, $imagePath, 'pending']
+                'INSERT INTO articles (title, excerpt, content, source_url, author_id, category_id, trust_score, image_path, status, review_notice, review_notice_pending)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0)',
+                [$title, $excerpt, $content, ($sourceUrl !== '' ? $sourceUrl : null), $authorId, $categoryId, $trustScore, $imagePath, 'pending']
             );
             $articleId = DB::lastId();
 
@@ -333,6 +336,7 @@ class ArticleController {
         $title      = trim($input['title'] ?? '');
         $excerpt    = trim($input['excerpt'] ?? '');
         $content    = trim($input['content'] ?? '');
+        $sourceUrl  = trim($input['source_url'] ?? '');
         $categoryId = (int)($input['category_id'] ?? 0);
         $trustScore = $this->resolveTrustScore($input);
         $imagePath  = $input['image_path'] ?? null;
@@ -354,9 +358,9 @@ class ArticleController {
         try {
             DB::execute(
                 'UPDATE articles
-                 SET title = ?, excerpt = ?, content = ?, category_id = ?, trust_score = ?, image_path = ?, status = ?, review_notice = NULL, review_notice_pending = 0, updated_at = NOW()
+                 SET title = ?, excerpt = ?, content = ?, source_url = ?, category_id = ?, trust_score = ?, image_path = ?, status = ?, review_notice = NULL, review_notice_pending = 0, updated_at = NOW()
                  WHERE id = ? AND author_id = ?',
-                [$title, $excerpt, $content, $categoryId, $trustScore, $imagePath, 'pending', $articleId, $authorId]
+                [$title, $excerpt, $content, ($sourceUrl !== '' ? $sourceUrl : null), $categoryId, $trustScore, $imagePath, 'pending', $articleId, $authorId]
             );
 
             $reviewInit = $this->initializeExpertReviews($articleId, $categoryId);
@@ -500,14 +504,16 @@ class ArticleController {
 public function saveDraft(int $authorId, array $input): array {
     $this->ensureReviewWorkflow();
     $trustScore = $this->resolveTrustScore($input);
+    $sourceUrl = trim($input['source_url'] ?? '');
 
     DB::execute(
-        'INSERT INTO articles (title, excerpt, content, author_id, category_id, trust_score, image_path, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO articles (title, excerpt, content, source_url, author_id, category_id, trust_score, image_path, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
             $input['title'] ?? '',
             $input['excerpt'] ?? '',
             $input['content'] ?? '',
+            ($sourceUrl !== '' ? $sourceUrl : null),
             $authorId,
             $input['category_id'] ?? null,
             $trustScore,

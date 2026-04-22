@@ -25,6 +25,7 @@ class Article {
     public int $viewCount;
     public string $status;
     public ?string $imagePath;
+    public ?string $sourceUrl;
     public int $flagCount;
     public ?string $reviewNotice;
     public bool $reviewNoticePending;
@@ -44,6 +45,7 @@ class Article {
         $this->publishedAt   = $row['published_at'] ?? '';
         $this->updatedAt     = $row['updated_at'] ?? $this->publishedAt;
         $this->imagePath = $row['image_path'] ?? null;
+        $this->sourceUrl = $row['source_url'] ?? null;
         $this->viewCount = $row['view_count'] ?? 0;
         $this->status = $row['status'] ?? 'published';
         $this->flagCount = (int)($row['flag_count'] ?? 0);

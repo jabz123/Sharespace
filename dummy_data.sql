@@ -50,6 +50,7 @@ CREATE TABLE articles (
     title           VARCHAR(500) NOT NULL,
     excerpt         TEXT         NOT NULL,
     content         LONGTEXT     NOT NULL,
+    source_url      VARCHAR(2048) DEFAULT NULL,
     author_id       INT          NOT NULL,
     category_id     INT          NOT NULL,
     trust_score     TINYINT      NOT NULL DEFAULT 80,

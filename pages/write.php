@@ -154,7 +154,7 @@ $currentVerificationInput = [
     'excerpt' => $_POST['excerpt'] ?? ($article?->excerpt ?? ''),
     'content' => $_POST['content'] ?? ($article?->content ?? ''),
     'category_id' => $_POST['category_id'] ?? ($article?->categoryId ?? 0),
-    'source_url' => $_POST['source_url'] ?? '',
+    'source_url' => $_POST['source_url'] ?? ($article?->sourceUrl ?? ''),
 ];
 $verification = $_SESSION['article_ai_verification'] ?? null;
 $verificationFingerprint = buildArticleVerificationFingerprint($currentVerificationInput, (int)$user->id);
@@ -224,7 +224,7 @@ $val = [
     'excerpt' => $_POST['excerpt'] ?? ($article?->excerpt ?? ''),
     'content' => $_POST['content'] ?? ($article?->content ?? ''),
     'category_id' => $_POST['category_id'] ?? ($article?->categoryId ?? 0),
-    'source_url' => $_POST['source_url'] ?? '',
+    'source_url' => $_POST['source_url'] ?? ($article?->sourceUrl ?? ''),
     'trust_score' => $initialTrustScore,
 ];
 
