@@ -360,13 +360,6 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 <div class="form-group">
                     <label>Content</label>
                     <textarea name="content" class="write-content-input" required><?= htmlspecialchars($val['content']) ?></textarea>
-                    <section id="aiContentHighlightsBox" class="ai-inline-content-highlights" style="display:none;">
-                        <div class="ai-section-head">
-                            <h4>Content Highlights</h4>
-                            <p>Sentence-level verification appears here after AI Fact Check.</p>
-                        </div>
-                        <div id="aiContentHighlights" class="ai-content-highlights"></div>
-                    </section>
                 </div>
 
                 <div class="write-actions">
@@ -824,14 +817,15 @@ const whyNotPerfectList = document.getElementById('aiWhyNotPerfectList');
 const sourcesBox = document.getElementById('aiSourcesBox');
 const sourcesList = document.getElementById('aiSourcesList');
 const sourcesCountLabel = document.getElementById('aiSourcesCountLabel');
-const contentHighlightsBox = document.getElementById('aiContentHighlightsBox');
-const contentHighlights = document.getElementById('aiContentHighlights');
+const contentInput = document.querySelector('textarea[name="content"]');
+const contentFormGroup = contentInput ? contentInput.closest('.form-group') : null;
 const claimsBox = document.getElementById('aiClaimsBox');
 const claimsList = document.getElementById('aiClaimsList');
 const improveBox = document.getElementById('aiImproveBox');
 const improveList = document.getElementById('aiImproveList');
 const misinformationBox = document.getElementById('aiMisinformationBox');
 const misinformationList = document.getElementById('aiMisinformationList');
+let contentSentenceMap = new Map();
 
 function setPublishLockState(isUnlocked, message) {
     publishButton.disabled = !isUnlocked;
@@ -843,6 +837,7 @@ function setPublishLockState(isUnlocked, message) {
 function invalidateVerification(message = 'Content changed. Run AI Fact Check again. Only Auto Publish results at 81% or above unlock publishing.') {
     trustScoreInput.value = '0';
     setPublishLockState(false, message);
+    contentSentenceMap = new Map();
     setLastCheckedLabel('Last checked: Outdated - rerun AI Fact Check');
 }
 
@@ -1402,9 +1397,8 @@ function normalizeForSentenceMatch(value) {
 
 function renderContentHighlights(content, claims, whyItems = []) {
     const rawContent = String(content || '').trim();
+    contentSentenceMap = new Map();
     if (!rawContent) {
-        contentHighlights.innerHTML = '';
-        contentHighlightsBox.style.display = 'none';
         return;
     }
 
@@ -1457,73 +1451,68 @@ function renderContentHighlights(content, claims, whyItems = []) {
 
     const paragraphs = rawContent.split(/\n{2,}/).filter(Boolean);
     let sentenceCursor = 0;
-    const html = paragraphs.map((paragraph) => {
+    let searchCursor = 0;
+    paragraphs.forEach((paragraph) => {
         const sentences = paragraph.split(/(?<=[.!?])\s+/).filter(Boolean);
-        const sentenceHtml = sentences.map((sentence) => {
+        sentences.forEach((sentence) => {
             const normalizedSentence = normalizeForSentenceMatch(sentence);
             const currentSentenceIndex = sentenceCursor++;
             const matchedClaim = sentenceClaimMap.get(`index:${currentSentenceIndex}`)
                 || sentenceClaimMap.get(normalizedSentence);
+            const sentenceStart = rawContent.indexOf(sentence, searchCursor);
+            const start = sentenceStart >= 0 ? sentenceStart : searchCursor;
+            const end = start + sentence.length;
+            searchCursor = end;
 
             if (!matchedClaim) {
-                return `<span>${escapeHtml(sentence)}</span>`;
+                return;
             }
 
-            const status = String(matchedClaim.status || 'supported');
             const highlightKey = matchedClaim && matchedClaim.sentence_key
-                ? escapeHtml(matchedClaim.sentence_key)
-                : escapeHtml(normalizedSentence);
-            const styles = status === 'contradicted'
-                ? 'background:rgba(239,68,68,0.26); box-shadow:inset 0 0 0 1px rgba(248,113,113,0.55); border-left:3px solid #ef4444; padding:2px 5px; border-radius:6px; color:#fff4f4;'
-                : (status === 'weak'
-                    ? 'background:rgba(120,82,42,0.34); box-shadow:inset 0 0 0 1px rgba(214,158,46,0.48); border-left:3px solid #d6a11d; padding:2px 5px; border-radius:6px; color:#fff7ed;'
-                    : (status === 'clarity'
-                        ? 'background:rgba(30,64,175,0.28); box-shadow:inset 0 0 0 1px rgba(96,165,250,0.45); border-left:3px solid #60a5fa; padding:2px 5px; border-radius:6px; color:#eff6ff;'
-                        : 'background:rgba(34,197,94,0.22); box-shadow:inset 0 0 0 1px rgba(74,222,128,0.42); border-left:3px solid #22c55e; padding:2px 5px; border-radius:6px; color:#f0fdf4;'));
+                ? String(matchedClaim.sentence_key)
+                : normalizedSentence;
+            const selectionMeta = {
+                start,
+                end,
+                status: String(matchedClaim.status || 'supported')
+            };
 
-            return `<span data-highlight-key="${highlightKey}" style="${styles}">${escapeHtml(sentence)}</span>`;
-        }).join(' ');
-
-        return `<p style="margin:0 0 12px;">${sentenceHtml}</p>`;
-    }).join('');
-
-    contentHighlights.innerHTML = html;
-    contentHighlightsBox.style.display = 'block';
+            [highlightKey, normalizedSentence].filter(Boolean).forEach((key) => {
+                contentSentenceMap.set(key, selectionMeta);
+            });
+        });
+    });
 }
 
 function jumpToClaimHighlight(claimKey) {
-    if (!claimKey) {
+    if (!claimKey || !contentInput) {
         return;
     }
 
-    const escapedKey = CSS.escape(String(claimKey));
-    let target = contentHighlights.querySelector(`[data-highlight-key="${escapedKey}"]`);
-    if (!target) {
-        const fallbackKey = normalizeForSentenceMatch(claimKey);
-        if (fallbackKey) {
-            target = contentHighlights.querySelector(`[data-highlight-key="${CSS.escape(fallbackKey)}"]`);
-        }
-    }
+    const directKey = String(claimKey);
+    const fallbackKey = normalizeForSentenceMatch(claimKey);
+    const target = contentSentenceMap.get(directKey) || contentSentenceMap.get(fallbackKey);
     if (!target) {
         return;
     }
 
-    contentHighlightsBox.style.display = 'block';
+    if (contentFormGroup) {
+        contentFormGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
-    // Bring the section into view first so the user can actually see the highlight.
-    contentHighlightsBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    contentHighlights.scrollTo({
-        top: Math.max(0, target.offsetTop - 32),
-        behavior: 'smooth'
-    });
+    contentInput.focus();
+    contentInput.setSelectionRange(target.start, target.end);
 
-    contentHighlights.querySelectorAll('.ai-highlight-focus').forEach((node) => {
-        node.classList.remove('ai-highlight-focus');
-    });
-    target.classList.add('ai-highlight-focus');
+    const lineHeight = parseFloat(window.getComputedStyle(contentInput).lineHeight) || 28;
+    const linesBefore = contentInput.value.slice(0, target.start).split('\n').length - 1;
+    contentInput.scrollTop = Math.max(0, (linesBefore * lineHeight) - (contentInput.clientHeight * 0.35));
+
+    contentInput.classList.remove('ai-content-focus', 'ai-content-focus-supported', 'ai-content-focus-weak', 'ai-content-focus-clarity', 'ai-content-focus-contradicted');
+    contentInput.classList.add('ai-content-focus');
+    contentInput.classList.add(`ai-content-focus-${target.status}`);
 
     setTimeout(() => {
-        target.classList.remove('ai-highlight-focus');
+        contentInput.classList.remove('ai-content-focus', 'ai-content-focus-supported', 'ai-content-focus-weak', 'ai-content-focus-clarity', 'ai-content-focus-contradicted');
     }, 1800);
 }
 
@@ -1709,9 +1698,7 @@ renderMisinformationHighlights(<?= json_encode($initialHighlights) ?>);
 
 if (improveGuideButton) {
     improveGuideButton.addEventListener('click', () => {
-        const targetSection = contentHighlightsBox.style.display !== 'none'
-            ? contentHighlightsBox
-            : (sourcesBox.style.display !== 'none' ? sourcesBox : areasBox);
+        const targetSection = contentFormGroup || (sourcesBox.style.display !== 'none' ? sourcesBox : areasBox);
         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 }
