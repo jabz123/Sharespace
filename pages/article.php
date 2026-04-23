@@ -109,7 +109,7 @@ page_head($article->title, $isSystemAdmin);
 
                     <?php if ($user->role !== 'system_admin'): ?>
                         <div class="flex items-center gap-4" style="position: relative;">
-                            <button class="icon-btn" id="saveBtn" title="Save">
+                            <button class="icon-btn <?= $isSaved ? 'active' : '' ?>" id="saveBtn" title="Save">
                                 <img id="saveIcon" src="<?= $isSaved ? '/public/icons/bookmarkactive.png' : '/public/icons/Bookmark.png' ?>"
                                     data-default="/public/icons/Bookmark.png"
                                     data-active="/public/icons/bookmarkactive.png"
@@ -162,7 +162,7 @@ page_head($article->title, $isSystemAdmin);
 
                 <?php if (!empty($article->excerpt)): ?>
                     <div class="article-summary">
-                        <h3 class="summary-title">Brief Summary</h3>
+                        <h3 class="summary-title">Article Description</h3>
                         <p class="summary-text"><?= htmlspecialchars($article->excerpt) ?></p>
                     </div>
 
@@ -337,6 +337,7 @@ page_head($article->title, $isSystemAdmin);
                 .then(res => res.json())
                 .then(data => {
                     saveIcon.src = data.saved ? saveIcon.dataset.active : saveIcon.dataset.default;
+                    saveBtn.classList.toggle('active', data.saved);
                 });
         });
     }
