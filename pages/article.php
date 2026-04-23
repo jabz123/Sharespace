@@ -59,7 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $url .= '#comments';
 
     if ($action === 'comment') {
-        $commentCtrl->post($article->id, $user->id, $_POST['comment_body'] ?? '');
+        $result = $commentCtrl->post($article->id, $user->id, $_POST['comment_body'] ?? '');
+        if (!empty($result['error'])) {
+            flash_set('flash_error', $result['error']);
+        }
         header('Location: ' . $url);
         exit;
     }
@@ -94,6 +97,8 @@ page_head($article->title, $isSystemAdmin);
         <?php dash_header(htmlspecialchars($article->categoryName), 'Article'); ?>
 
         <div class="page-content">
+            <?php flash_messages(); ?>
+
             <div class="article-detail">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-2">

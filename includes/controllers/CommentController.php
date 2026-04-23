@@ -10,6 +10,7 @@
 
 require_once __DIR__ . '/../entities/Comment.php';
 require_once __DIR__ . '/../AuditLogger.php';
+require_once __DIR__ . '/../comment_moderation_rules.php';
 
 class CommentController {
 
@@ -43,6 +44,11 @@ class CommentController {
         }
         if (strlen($body) > 2000) {
             return ['error' => 'Comment is too long (max 2000 characters).'];
+        }
+
+        $moderationError = comment_moderation_reject($body);
+        if ($moderationError !== null) {
+            return ['error' => $moderationError];
         }
 
         DB::execute(
