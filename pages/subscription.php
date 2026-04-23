@@ -24,7 +24,6 @@ $features = $plan ? DB::query(
 
 page_head('Subscription');
 ?>
-
 <div class="dashboard-layout user-dashboard-shell">
     <?php sidebar($user); ?>
     <main>

@@ -39,7 +39,6 @@ $articles = $articleCtrl->getByAuthorPaginated($userId, $perPage, $offset);
 //uses profile nmame as page title 
 page_head($profile['full_name']);
 ?>
-
 <div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($currentUser); ?>
 

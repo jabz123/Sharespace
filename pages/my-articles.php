@@ -28,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 
 page_head('My Articles');
 ?>
-
 <div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 <main>

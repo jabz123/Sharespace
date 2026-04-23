@@ -285,7 +285,6 @@ $val = [
 //determines whether article is to be edited or written 
 page_head($isEdit ? 'Edit Article' : 'Write Article');
 ?>
-
 <div class="dashboard-layout user-dashboard-shell">
     <?php sidebar($user); ?>
     <main>

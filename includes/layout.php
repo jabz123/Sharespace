@@ -62,9 +62,12 @@ function page_head(string $title, bool $useSystemAdminCss = false): void
         <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="/public/css/app.css?v=<?= filemtime(__DIR__ . '/../public/css/app.css') ?>" />
 
-        <!-- load admin css -->
+        <!-- load admin css, or user dark theme css -->
         <?php if ($useSystemAdminCss): ?>
             <link rel="stylesheet" href="/public/css/system-admin.css?v=<?= filemtime(__DIR__ . '/../public/css/system-admin.css') ?>" />
+        <?php else: ?>
+            <link rel="stylesheet" href="/public/css/dashboard.css?v=<?= filemtime(__DIR__ . '/../public/css/dashboard.css') ?>" />
+            <link rel="stylesheet" href="/public/css/pages.css?v=<?= filemtime(__DIR__ . '/../public/css/pages.css') ?>" />
         <?php endif; ?>
         <style>
             body.page-ai-trainer-dashboard .alert-success,

@@ -22,7 +22,6 @@ $totalSaved = $articleCtrl->countSavedArticles($user->id);
 
 page_head('Saved Articles');
 ?>
-
 <div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 

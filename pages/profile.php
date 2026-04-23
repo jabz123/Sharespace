@@ -37,7 +37,6 @@ $communityReviewCount = $feedbackStats && (int)$feedbackStats['review_count'] > 
     //if admin, load admin css with dff layout from layout.php
 page_head('Profile', in_array($user->role, ['system_admin', 'ai_trainer'], true));
 ?>
-
 <div class="dashboard-layout <?= in_array($user->role, ['system_admin', 'ai_trainer'], true) ? 'profile-admin-shell' : 'user-dashboard-shell' ?>">
     <?php sidebar($user); ?>
 

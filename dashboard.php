@@ -46,7 +46,6 @@ $topContributors = array_slice(array_values($contributorMap), 0, 3);
 
 page_head('Dashboard');
 ?>
-<link rel="stylesheet" href="/public/css/dashboard.css?v=<?= filemtime(__DIR__ . '/public/css/dashboard.css') ?>" />
 
 <div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>

@@ -34,9 +34,7 @@ $articles = $assignedCategory
 
 page_head('Category Articles');
 ?>
-
-<div class="dashboard-layout">
-<?php sidebar($user); ?>
+<div class="dashboard-layout user-dashboard-shell"><?php sidebar($user); ?>
 <main>
 <?php flash_messages(); ?>
 

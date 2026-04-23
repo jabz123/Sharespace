@@ -56,8 +56,7 @@ $articleWord = count($articles) === 1 ? 'article' : 'articles';
 
 page_head(htmlspecialchars($writer['full_name']) . ' – Articles');
 ?>
-
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 <main>
 <?php flash_messages(); ?>

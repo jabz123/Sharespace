@@ -39,7 +39,6 @@ $activeSortLabel = $sort === 'trusted' ? 'Most trusted first' : 'Newest first';
 
 page_head('Browse Articles', $isSystemAdmin || $isTrainer);
 ?>
-
 <?php if ($isSystemAdmin || $isTrainer): ?>
 <div class="dashboard-layout browse-admin-shell">
 
@@ -305,7 +304,7 @@ page_head('Browse Articles', $isSystemAdmin || $isTrainer);
 
 </div>
 <?php else: ?>
-<div class="dashboard-layout browse-page-shell">
+<div class="dashboard-layout user-dashboard-shell browse-page-shell">
 
     <?php sidebar($user); ?>
 
