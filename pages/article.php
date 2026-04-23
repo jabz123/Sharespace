@@ -224,13 +224,13 @@ page_head($article->title, $isSystemAdmin);
                     <div class="card" style="margin-bottom:28px">
                         <?php flash_messages(); ?>
 
-                        <form method="POST">
+                        <form method="POST" id="commentForm">
                             <input type="hidden" name="action" value="comment">
                             <div class="form-group" style="margin-bottom:12px">
                                 <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block">
                                     Leave a comment as <span style="color:var(--primary)"><?= htmlspecialchars($user->fullName) ?></span>
                                 </label>
-                                <textarea name="comment_body" rows="3"
+                                <textarea name="comment_body" id="commentBody" rows="3"
                                     placeholder="Share your thoughts on this article..."
                                     style="width:100%;resize:vertical"
                                     required></textarea>
@@ -310,7 +310,7 @@ page_head($article->title, $isSystemAdmin);
                     maxlength="400"
                     required></textarea>
                 <small id="charCount">0/400</small>
-                <small>Use 20 to 400 characters and avoid vague, heavily misspelled, or symbol-only text.</small>
+                <small>Use 20 to 400 characters, more than 3 words, and avoid vague, heavily misspelled, or symbol-only text.</small>
             </div>
 
             <div class="modal-actions">

@@ -223,6 +223,14 @@ function validate_article_flag_spelling(string $details, int $maxMisspelledWords
     return null;
 }
 
+function moderation_word_count(string $content): int
+{
+    $normalized = preg_replace("/[^\p{L}\p{N}']+/u", ' ', $content) ?? '';
+    $words = preg_split('/\s+/u', trim($normalized), -1, PREG_SPLIT_NO_EMPTY);
+
+    return count(array_filter($words ?: [], static fn($word) => preg_match('/[\p{L}\p{N}]/u', $word)));
+}
+
 function validate_article_flag_details(string $details, int $minLen = 20, int $maxLen = 400): ?string
 {
     $trimmed = trim($details);
@@ -237,6 +245,11 @@ function validate_article_flag_details(string $details, int $minLen = 20, int $m
 
     if ($length < $minLen) {
         return "Details must be at least {$minLen} characters.";
+    }
+
+    $wordCount = moderation_word_count($trimmed);
+    if ($wordCount <= 3) {
+        return "Details must be more than 3 words. Current word count: {$wordCount}.";
     }
 
     if ($length > $maxLen) {

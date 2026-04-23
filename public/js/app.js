@@ -91,6 +91,11 @@ const detailsInput = document.getElementById('flagDetails');
 const charCount = document.getElementById('charCount');
 const maxLength = 400;
 const minFlagDetailsLength = 20;
+const minModerationWords = 4;
+
+function countModerationWords(value) {
+    return (value.match(/[\p{L}\p{N}']+/gu) || []).length;
+}
 
 if (detailsInput && charCount) {
     detailsInput.addEventListener('input', () => {
@@ -130,6 +135,13 @@ if (flagForm && flagBtn && flagModal) {
             return;
         }
 
+        const detailsWordCount = countModerationWords(detailsValue);
+        if (detailsWordCount < minModerationWords) {
+            alert(`Please enter more than 3 words. Current word count: ${detailsWordCount}.`);
+            if (detailsInput) detailsInput.focus();
+            return;
+        }
+
         const formData = new FormData(flagForm);
 
         try {
@@ -152,6 +164,29 @@ if (flagForm && flagBtn && flagModal) {
         } catch (err) {
             console.error(err);
             alert('Network error.');
+        }
+    });
+}
+
+const commentForm = document.getElementById('commentForm');
+const commentBody = document.getElementById('commentBody');
+
+if (commentForm && commentBody) {
+    commentForm.addEventListener('submit', (event) => {
+        const commentValue = commentBody.value.trim();
+
+        if (commentValue.length < minFlagDetailsLength) {
+            event.preventDefault();
+            alert(`Please enter at least ${minFlagDetailsLength} characters before posting your comment.`);
+            commentBody.focus();
+            return;
+        }
+
+        const commentWordCount = countModerationWords(commentValue);
+        if (commentWordCount < minModerationWords) {
+            event.preventDefault();
+            alert(`Please enter more than 3 words. Current word count: ${commentWordCount}.`);
+            commentBody.focus();
         }
     });
 }

@@ -13,6 +13,15 @@ function comment_moderation_reject(string $comment, string $label = 'Comment'): 
         ? mb_strlen($trimmed)
         : strlen($trimmed);
 
+    if ($length < 20) {
+        return $label . ' must be at least 20 characters. Current character count: ' . $length . '.';
+    }
+
+    $wordCount = moderation_word_count($trimmed);
+    if ($wordCount <= 3) {
+        return $label . ' must be more than 3 words. Current word count: ' . $wordCount . '.';
+    }
+
     if (preg_match('/^(.)\1{5,}$/u', $trimmed)) {
         return $label . ' looks like spam. Please write a proper ' . strtolower($label) . '.';
     }
