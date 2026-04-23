@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
+require_once __DIR__ . '/../includes/comment_moderation_rules.php';
 
 $auth = new AuthController();
 $auth->requireAuth();
@@ -29,6 +30,16 @@ if ($content === '') {
 
 if (mb_strlen($content) > 500) {
     redirect('/pages/profile.php', 'Feedback must be 500 characters or less.');
+}
+
+preg_match_all("/[a-zA-Z0-9']+/u", $content, $feedbackWords);
+if (count($feedbackWords[0] ?? []) <= 20) {
+    redirect('/pages/profile.php', 'Feedback must be more than 20 words.');
+}
+
+$moderationError = comment_moderation_reject($content, 'Feedback');
+if ($moderationError !== null) {
+    redirect('/pages/profile.php', $moderationError);
 }
 
 $name = trim((string)($user->fullName ?? ''));
