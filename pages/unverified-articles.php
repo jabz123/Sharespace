@@ -11,13 +11,7 @@ function pageRedirect(string $url, ?string $error = null, ?string $success = nul
         flash_set('flash_success', $success);
     }
 
-    $escapedUrl = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
-    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
-    echo '<meta http-equiv="refresh" content="0;url=' . $escapedUrl . '">';
-    echo '<title>Redirecting...</title></head><body>';
-    echo '<script>window.top.location.href = ' . json_encode($url) . ';</script>';
-    echo '<p>Redirecting... If nothing happens, <a href="' . $escapedUrl . '">continue here</a>.</p>';
-    echo '</body></html>';
+    header('Location: ' . $url, true, 303);
     exit;
 }
 
