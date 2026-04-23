@@ -1284,7 +1284,14 @@ body.page-profile .profile-admin-shell {
     color: #16233f !important;
 }
 
+body.page-profile,
+body.page-profile .profile-admin-shell,
 body.page-profile .profile-admin-shell main {
+    background: #f0f5fc !important;
+}
+
+body.page-profile .profile-admin-shell .page-content,
+body.page-profile .profile-admin-shell .profile-main {
     background: #f0f5fc !important;
 }
 
@@ -1298,6 +1305,35 @@ body.page-profile .profile-admin-shell .dash-title,
 body.page-profile .profile-admin-shell .profile-header h2,
 body.page-profile .profile-admin-shell .profile label {
     color: #16233f !important;
+}
+
+body.page-profile .profile-admin-shell .nav-link {
+    color: #a8bdd8 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+body.page-profile .profile-admin-shell .nav-link:hover {
+    background: rgba(255,255,255,0.09) !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .profile-admin-shell .nav-link.active {
+    background: rgba(255,255,255,0.14) !important;
+    color: #ffffff !important;
+}
+
+body.page-profile .profile-admin-shell .nav-link.active::before {
+    background: #f5a623 !important;
+}
+
+body.page-profile .profile-admin-shell .nav-link.logout {
+    color: #7a8ea8 !important;
+}
+
+body.page-profile .profile-admin-shell .nav-link.logout:hover {
+    color: #ff8fa3 !important;
+    background: rgba(255,107,138,0.12) !important;
 }
 
 body.page-profile .profile-admin-shell .dash-subtitle,
@@ -1330,10 +1366,164 @@ body.page-profile .profile-admin-shell .btn-dark {
     color: #ffffff !important;
 }
 
+body.page-profile .profile-admin-shell .btn.btn-primary,
+body.page-profile .profile-admin-shell .btn-save-interests {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+    border: 1px solid #1c2d4f !important;
+}
+
+body.page-profile .profile-admin-shell .btn.btn-primary:hover,
+body.page-profile .profile-admin-shell .btn-save-interests:hover {
+    background: #253c68 !important;
+    color: #ffffff !important;
+    border-color: #253c68 !important;
+}
+
 body.page-profile .profile-admin-shell .btn-light {
     background: #edf3fb !important;
     color: #314766 !important;
     border: 1px solid #c8d8ee !important;
+}
+
+body.page-profile .profile-admin-shell .feedback-card {
+    background: #ffffff !important;
+    border: 1px solid #dce8f4 !important;
+    box-shadow: 0 18px 40px rgba(28, 45, 79, 0.10) !important;
+}
+
+body.page-profile .profile-admin-shell .feedback-card h3,
+body.page-profile .profile-admin-shell .feedback-label,
+body.page-profile .profile-admin-shell .community-rating-title {
+    color: #16233f !important;
+}
+
+body.page-profile .profile-admin-shell .feedback-subtitle,
+body.page-profile .profile-admin-shell .feedback-count,
+body.page-profile .profile-admin-shell .community-rating {
+    color: #5a7090 !important;
+}
+
+body.page-profile .profile-admin-shell .feedback-form textarea {
+    background: #f7faff !important;
+    border: 1px solid #c8d8ee !important;
+    color: #16233f !important;
+}
+
+body.page-profile .profile-admin-shell .feedback-form textarea::placeholder {
+    color: #7a9ab8 !important;
+}
+
+body.page-profile .profile-admin-shell .feedback-divider {
+    background: linear-gradient(90deg, transparent, #dce8f4, transparent) !important;
+}
+
+body.page-profile .profile-admin-shell .rating-stars label {
+    color: rgba(90, 112, 144, 0.28) !important;
+}
+
+body.page-profile .profile-admin-shell .rating-stars label:hover,
+body.page-profile .profile-admin-shell .rating-stars label:hover ~ label,
+body.page-profile .profile-admin-shell .rating-stars input:checked ~ label,
+body.page-profile .profile-admin-shell .community-rating-star {
+    color: #f5a623 !important;
+}
+
+body.page-admin-dashboard .nav-icon,
+body.page-audit-log .nav-icon,
+body.page-manage-landing-page .nav-icon,
+body.page-ai-dashboard .nav-icon,
+body.page-ai-calibration .nav-icon,
+body.page-profile .profile-admin-shell .nav-icon,
+body.page-browse-articles .browse-admin-shell .nav-icon {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 999px !important;
+    opacity: 1 !important;
+    background: #8ea7cc !important;
+    box-shadow: 0 0 0 4px rgba(142, 167, 204, 0.12) !important;
+    flex: 0 0 10px !important;
+}
+
+body.page-admin-dashboard .nav-icon-home,
+body.page-audit-log .nav-icon-home,
+body.page-manage-landing-page .nav-icon-home,
+body.page-ai-dashboard .nav-icon-home,
+body.page-ai-calibration .nav-icon-home,
+body.page-profile .profile-admin-shell .nav-icon-home {
+    background: #f5a623 !important;
+    box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.12) !important;
+}
+
+body.page-admin-dashboard .nav-icon-browse,
+body.page-audit-log .nav-icon-browse,
+body.page-manage-landing-page .nav-icon-browse,
+body.page-ai-dashboard .nav-icon-browse,
+body.page-ai-calibration .nav-icon-browse,
+body.page-profile .profile-admin-shell .nav-icon-browse {
+    background: #60a5fa !important;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12) !important;
+}
+
+body.page-admin-dashboard .nav-icon-landing,
+body.page-audit-log .nav-icon-landing,
+body.page-manage-landing-page .nav-icon-landing,
+body.page-ai-dashboard .nav-icon-landing,
+body.page-ai-calibration .nav-icon-landing,
+body.page-profile .profile-admin-shell .nav-icon-landing {
+    background: #2dd4bf !important;
+    box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.12) !important;
+}
+
+body.page-admin-dashboard .nav-icon-audit,
+body.page-audit-log .nav-icon-audit,
+body.page-manage-landing-page .nav-icon-audit,
+body.page-ai-dashboard .nav-icon-audit,
+body.page-ai-calibration .nav-icon-audit,
+body.page-profile .profile-admin-shell .nav-icon-audit {
+    background: #a78bfa !important;
+    box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.12) !important;
+}
+
+body.page-admin-dashboard .nav-icon-profile,
+body.page-audit-log .nav-icon-profile,
+body.page-manage-landing-page .nav-icon-profile,
+body.page-ai-dashboard .nav-icon-profile,
+body.page-ai-calibration .nav-icon-profile,
+body.page-profile .profile-admin-shell .nav-icon-profile {
+    background: #f472b6 !important;
+    box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.12) !important;
+}
+
+body.page-admin-dashboard .nav-icon-ai,
+body.page-audit-log .nav-icon-ai,
+body.page-manage-landing-page .nav-icon-ai,
+body.page-ai-dashboard .nav-icon-ai,
+body.page-ai-calibration .nav-icon-ai,
+body.page-profile .profile-admin-shell .nav-icon-ai {
+    background: #38bdf8 !important;
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12) !important;
+}
+
+body.page-admin-dashboard .nav-icon-settings,
+body.page-audit-log .nav-icon-settings,
+body.page-manage-landing-page .nav-icon-settings,
+body.page-ai-dashboard .nav-icon-settings,
+body.page-ai-calibration .nav-icon-settings,
+body.page-profile .profile-admin-shell .nav-icon-settings {
+    background: #f87171 !important;
+    box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.12) !important;
+}
+
+body.page-admin-dashboard .nav-icon-logout,
+body.page-audit-log .nav-icon-logout,
+body.page-manage-landing-page .nav-icon-logout,
+body.page-ai-dashboard .nav-icon-logout,
+body.page-ai-calibration .nav-icon-logout,
+body.page-profile .profile-admin-shell .nav-icon-logout,
+body.page-browse-articles .browse-admin-shell .nav-icon-logout {
+    background: rgba(255, 255, 255, 0.72) !important;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.10) !important;
 }
 
 /* System Admin AI pages */
