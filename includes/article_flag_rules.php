@@ -59,11 +59,12 @@ function article_flag_banned_terms(): array
     $terms = [
         'ass', 'asshole', 'bastard', 'bitch', 'blowjob', 'boner', 'boob', 'boobs', 'bullshit',
         'cock', 'cocksucker', 'cum', 'cunt', 'damn', 'dick', 'dildo', 'dumbass',
-        'fag', 'faggot', 'fck', 'fucker', 'fucking', 'fuck', 'gook', 'hell', 'honky', 'horny',
-        'injun', 'jerkoff', 'jigaboo', 'kike', 'motherfucker', 'nazi', 'negro', 'nigga', 'nigger',
-        'orgasm', 'penis', 'pikey', 'porn', 'pussy', 'raghead', 'rape', 'rapist', 'redskin',
-        'retard', 'sex', 'sexual', 'shit', 'slant', 'slut', 'spic', 'squaw', 'tit', 'tits',
-        'twat', 'vagina', 'wetback', 'whore', 'wog',
+        'fag', 'faggot', 'fck', 'fk', 'fker', 'fkers', 'fking', 'fucker', 'fucking', 'fuck',
+        'gook', 'hell', 'honky', 'horny', 'injun', 'jerkoff', 'jigaboo', 'kike', 'motherfucker',
+        'nazi', 'negro', 'nigga', 'nigger', 'orgasm', 'penis', 'pikey', 'porn', 'pussy',
+        'raghead', 'rape', 'rapist', 'redskin', 'retard', 'sex', 'sexual', 'sh1t', 'sht',
+        'shit', 'slant', 'slut', 'spic', 'squaw', 'tit', 'tits', 'twat', 'vagina', 'wetback',
+        'whore', 'wog',
     ];
 
     return $terms;
@@ -73,6 +74,19 @@ function validate_article_flag_language(string $details): ?string
 {
     $normalized = strtolower($details);
     $lettersOnly = preg_replace('/[^a-z]+/i', '', $normalized) ?? '';
+    $deobfuscated = strtr($normalized, [
+        '@' => 'a',
+        '4' => 'a',
+        '!' => 'i',
+        '1' => 'i',
+        '0' => 'o',
+        '$' => 's',
+        '5' => 's',
+        '7' => 't',
+        '+' => 't',
+        '3' => 'e',
+    ]);
+    $deobfuscatedLettersOnly = preg_replace('/[^a-z]+/i', '', $deobfuscated) ?? '';
 
     foreach (article_flag_banned_terms() as $term) {
         $pattern = '/\b' . preg_quote($term, '/') . '\b/i';
@@ -80,12 +94,16 @@ function validate_article_flag_language(string $details): ?string
             return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
         }
 
-        $collapsedPattern = '/' . implode('\s*', str_split(preg_quote($term, '/'))) . '/i';
-        if (preg_match($collapsedPattern, $normalized)) {
+        if (preg_match($pattern, $deobfuscated)) {
             return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
         }
 
-        if ($term !== '' && str_contains($lettersOnly, $term)) {
+        $collapsedPattern = '/' . implode('[^a-z0-9]*', array_map(static fn($char) => preg_quote($char, '/'), str_split($term))) . '/i';
+        if (preg_match($collapsedPattern, $normalized) || preg_match($collapsedPattern, $deobfuscated)) {
+            return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
+        }
+
+        if ($term !== '' && (str_contains($lettersOnly, $term) || str_contains($deobfuscatedLettersOnly, $term))) {
             return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
         }
     }
