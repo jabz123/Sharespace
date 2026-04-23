@@ -162,7 +162,7 @@ page_head($article->title, $isSystemAdmin);
 
                 <?php if (!empty($article->excerpt)): ?>
                     <div class="article-summary">
-                        <h3 class="summary-title">Article Description</h3>
+                        <h3 class="summary-title">Brief Description</h3>
                         <p class="summary-text"><?= htmlspecialchars($article->excerpt) ?></p>
                     </div>
 

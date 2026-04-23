@@ -21,12 +21,13 @@ $recommended      = $homeCtrl->getRecommendedByInterest($user->id);
 $ageGroupArticles = $homeCtrl->getPopularByAgeGroup($user->id);
 $genderArticles   = $homeCtrl->getPopularByGender($user->id);
 $latestArticles   = $homeCtrl->getLatest(6);
-$spotlight        = $recommended[0] ?? $latestArticles[0] ?? null;
+$spotlight = $latestArticles[0] ?? null;
 $recommendedFeed  = $recommended;
 
-if ($spotlight && !empty($recommended) && $recommended[0]->id === $spotlight->id) {
-    $recommendedFeed = array_slice($recommended, 1);
-}
+// remove spotlight article taking from $recommanded article section
+// if ($spotlight && !empty($recommended) && $recommended[0]->id === $spotlight->id) {
+//     $recommendedFeed = array_slice($recommended, 1);
+// }
 
 $credibilityPool = array_filter(array_merge($recommended, $ageGroupArticles, $genderArticles, $latestArticles));
 $averageTrust = !empty($credibilityPool)
@@ -222,7 +223,7 @@ page_head('Dashboard');
             <div class="dashboard-section-head">
                 <div>
                     <span class="dashboard-section-kicker">⭐ Recommended</span>
-                    <h2>Recommended For You</h2>
+                    <h2>Top Stories in Your Interests</h2>
                 </div>
                 <a href="/pages/browse.php?sort=trusted" class="dashboard-section-link">Open newsroom ↗</a>
             </div>

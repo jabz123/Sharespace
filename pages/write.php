@@ -322,7 +322,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 </div>
 
                 <div class="form-group">
-                    <label>Article Summary</label>
+                    <label>Brief description</label>
                     <input type="text" name="excerpt" value="<?= htmlspecialchars($val['excerpt']) ?>" required>
                 </div>
 
