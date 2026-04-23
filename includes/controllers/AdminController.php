@@ -533,11 +533,11 @@ class AdminController {
                     [$articleId]
                 );
 
-                $allVerified = (int)($summary['total_reviews'] ?? 0) > 0
-                    && (int)($summary['verified_reviews'] ?? 0) === (int)($summary['total_reviews'] ?? 0)
+                $hasVerifiedExpert = (int)($summary['total_reviews'] ?? 0) > 0
+                    && (int)($summary['verified_reviews'] ?? 0) >= 1
                     && (int)($summary['unverified_reviews'] ?? 0) === 0;
 
-                if ($allVerified) {
+                if ($hasVerifiedExpert) {
                     DB::execute(
                         'UPDATE articles
                          SET status = ?, published_at = NOW(), review_notice = NULL, review_notice_pending = 0, updated_at = NOW()

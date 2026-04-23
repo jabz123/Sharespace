@@ -42,7 +42,7 @@ $result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision
 
 if (isset($result['ok'])) {
     $message = $decision === 'verified'
-        ? 'Article verified. It will publish automatically once every assigned category expert verifies it.'
+        ? 'Article verified. One category expert approval is enough, so it has been published.'
         : 'Article rejected. It has been moved back to draft for the author.';
 
     actionRedirect('/pages/unverified-articles.php', null, $message);

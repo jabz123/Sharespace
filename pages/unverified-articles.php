@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (isset($result['ok'])) {
             $message = $decision === 'verified'
-                ? 'Article verified. It will publish automatically once every assigned category expert verifies it.'
+                ? 'Article verified. One category expert approval is enough, so it has been published.'
                 : 'Article rejected. It has been moved back to draft for the author.';
             pageRedirect('/pages/unverified-articles.php', null, $message);
         }
@@ -88,7 +88,7 @@ page_head('Unverified Articles');
             <p style="font-size:14px;margin-top:8px"><?= htmlspecialchars($detailArticle->excerpt) ?></p>
 
             <div class="flex items-center gap-3 mt-6" style="flex-wrap:wrap">
-                <form method="POST" action="/pages/unverified-articles.php" target="_self" style="margin:0" onsubmit="return confirm('Verify this article? It will publish once every assigned expert verifies it.')">
+                <form method="POST" action="/pages/unverified-articles.php" target="_self" style="margin:0" onsubmit="return confirm('Verify this article? One category expert approval will publish it.')">
                     <input type="hidden" name="action" value="verify_article">
                     <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
                     <button type="submit" class="btn btn-secondary btn-sm">Verify</button>
@@ -163,7 +163,7 @@ page_head('Unverified Articles');
                                     <span class="category-tag <?= category_theme_class($article['category_name']) ?>"><?= htmlspecialchars($article['category_name']) ?></span>
                                     <?= trust_badge((int)$article['trust_score']) ?>
                                     <span class="role-badge" style="background:#f59e0b;color:#111827">
-                                        <?= (int)($article['verified_reviews'] ?? 0) ?>/<?= (int)($article['total_reviews'] ?? 0) ?> verified
+                                        <?= (int)($article['verified_reviews'] ?? 0) ?> verified
                                     </span>
                                 </div>
                                 <h3 style="font-size:16px;font-weight:700;font-family:Georgia,serif;margin-bottom:4px">

@@ -790,7 +790,7 @@ if ($verdict === '') {
     $verdict = $publishDecision === 'auto_publish'
         ? 'Reliable. Auto publish approved because the CNA/ST evidence is strong enough for direct publication.'
         : ($publishDecision === 'needs_review'
-            ? 'Needs Review. Do not publish yet. The draft needs manual revision or stronger evidence before it can move forward.'
+            ? 'Needs Review. The draft can move forward to category expert review before publication.'
             : 'Unreliable. Do not publish. The draft contains unsupported, false, or insufficiently verified information.');
 }
 
@@ -850,7 +850,7 @@ $whyNotPerfectDetails = buildWhyNotPerfectDetails(
 $_SESSION['article_ai_verification'] = [
     'fingerprint' => $fingerprint,
     'trust_score' => $trustScore,
-    'passed' => $publishDecision === 'auto_publish' && $trustScore >= 81,
+    'passed' => in_array($publishDecision, ['auto_publish', 'needs_review'], true) && $trustScore >= 60,
     'publish_decision' => $publishDecision,
     'summary' => $summary,
     'verdict' => $verdict,
