@@ -185,9 +185,7 @@ color:white;
 border:none;
 }
 
-.btn-primary:hover{
-background:linear-gradient(135deg, #0b1628 0%, #24345e 100%);
-}
+
 .btn-secondary{
 background:white;
 border:1px solid #d1d5db;
