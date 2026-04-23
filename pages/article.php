@@ -97,8 +97,6 @@ page_head($article->title, $isSystemAdmin);
         <?php dash_header(htmlspecialchars($article->categoryName), 'Article'); ?>
 
         <div class="page-content">
-            <?php flash_messages(); ?>
-
             <div class="article-detail">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-2">
@@ -224,6 +222,8 @@ page_head($article->title, $isSystemAdmin);
                     </h2>
 
                     <div class="card" style="margin-bottom:28px">
+                        <?php flash_messages(); ?>
+
                         <form method="POST">
                             <input type="hidden" name="action" value="comment">
                             <div class="form-group" style="margin-bottom:12px">
