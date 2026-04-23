@@ -39,9 +39,14 @@ if (mb_strlen($content) > 500) {
     redirect('/pages/profile.php', 'Feedback must be 500 characters or less.');
 }
 
+$feedbackLength = mb_strlen($content);
+if ($feedbackLength < 20) {
+    redirect('/pages/profile.php', 'Feedback must be at least 20 characters. Current character count: ' . $feedbackLength . '.');
+}
+
 $feedbackWordCount = feedback_word_count($content);
-if ($feedbackWordCount <= 20) {
-    redirect('/pages/profile.php', 'Feedback must be more than 20 words. Current word count: ' . $feedbackWordCount . '.');
+if ($feedbackWordCount <= 3) {
+    redirect('/pages/profile.php', 'Feedback must be more than 3 words. Current word count: ' . $feedbackWordCount . '.');
 }
 
 $moderationError = comment_moderation_reject($content, 'Feedback');

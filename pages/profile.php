@@ -268,10 +268,17 @@ page_head('Profile', in_array($user->role, ['system_admin', 'ai_trainer'], true)
     }
     if (feedbackForm && feedbackInput) {
         feedbackForm.addEventListener('submit', function(event) {
+            const charCount = feedbackInput.value.trim().length;
             const wordCount = countFeedbackWords(feedbackInput.value);
-            if (wordCount <= 20) {
+            if (charCount < 20) {
                 event.preventDefault();
-                alert('Feedback must be more than 20 words. Current word count: ' + wordCount + '.');
+                alert('Feedback must be at least 20 characters. Current character count: ' + charCount + '.');
+                feedbackInput.focus();
+                return;
+            }
+            if (wordCount <= 3) {
+                event.preventDefault();
+                alert('Feedback must be more than 3 words. Current word count: ' + wordCount + '.');
                 feedbackInput.focus();
             }
         });
