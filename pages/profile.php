@@ -257,9 +257,23 @@ page_head('Profile', in_array($user->role, ['system_admin', 'ai_trainer'], true)
     // ── Feedback char counter ─────────────────────────────────
     const feedbackInput = document.getElementById('feedbackContent');
     const feedbackCharCount = document.getElementById('feedbackCharCount');
+    const feedbackForm = document.querySelector('.feedback-form');
+    function countFeedbackWords(value) {
+        return (value.match(/[\p{L}\p{N}']+/gu) || []).length;
+    }
     if (feedbackInput && feedbackCharCount) {
         feedbackInput.addEventListener('input', function() {
             feedbackCharCount.textContent = this.value.length;
+        });
+    }
+    if (feedbackForm && feedbackInput) {
+        feedbackForm.addEventListener('submit', function(event) {
+            const wordCount = countFeedbackWords(feedbackInput.value);
+            if (wordCount <= 20) {
+                event.preventDefault();
+                alert('Feedback must be more than 20 words. Current word count: ' + wordCount + '.');
+                feedbackInput.focus();
+            }
         });
     }
 

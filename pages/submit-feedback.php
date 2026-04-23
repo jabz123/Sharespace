@@ -3,6 +3,13 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/comment_moderation_rules.php';
 
+function feedback_word_count(string $content): int {
+    $normalized = preg_replace("/[^\p{L}\p{N}']+/u", ' ', $content) ?? '';
+    $words = preg_split('/\s+/u', trim($normalized), -1, PREG_SPLIT_NO_EMPTY);
+
+    return count(array_filter($words ?: [], static fn($word) => preg_match('/[\p{L}\p{N}]/u', $word)));
+}
+
 $auth = new AuthController();
 $auth->requireAuth();
 $user = $auth->currentUser();
@@ -32,9 +39,9 @@ if (mb_strlen($content) > 500) {
     redirect('/pages/profile.php', 'Feedback must be 500 characters or less.');
 }
 
-preg_match_all("/[a-zA-Z0-9']+/u", $content, $feedbackWords);
-if (count($feedbackWords[0] ?? []) <= 20) {
-    redirect('/pages/profile.php', 'Feedback must be more than 20 words.');
+$feedbackWordCount = feedback_word_count($content);
+if ($feedbackWordCount <= 20) {
+    redirect('/pages/profile.php', 'Feedback must be more than 20 words. Current word count: ' . $feedbackWordCount . '.');
 }
 
 $moderationError = comment_moderation_reject($content, 'Feedback');
