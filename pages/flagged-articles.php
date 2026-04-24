@@ -79,7 +79,7 @@ $flaggedArticles = $assignedCategory
 page_head('Flagged Articles');
 ?>
 
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 <main>
 <?php flash_messages(); ?>

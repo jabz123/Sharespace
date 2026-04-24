@@ -27,7 +27,7 @@ $latestArticles = $homeCtrl->getLatest(6);
 page_head('Dashboard');
 ?>
 
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 <main>
 <?php dash_header('Welcome back, ' . htmlspecialchars($user->fullName), "Here's what's happening today"); ?>

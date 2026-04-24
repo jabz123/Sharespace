@@ -54,7 +54,7 @@ $reviewProgress = $detailArticle ? $adminCtrl->getExpertReviewProgress($detailAr
 page_head('Unverified Articles');
 ?>
 
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 <main>
 <?php flash_messages(); ?>

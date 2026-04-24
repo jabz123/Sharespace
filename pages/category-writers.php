@@ -41,7 +41,7 @@ if ($assignedCategory) {
 page_head('Category Writers');
 ?>
 
-<div class="dashboard-layout">
+<div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 <main>
 <?php flash_messages(); ?>
