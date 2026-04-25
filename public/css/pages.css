@@ -2516,19 +2516,25 @@ mark.highlight-contradicted {
    ═══════════════════════════════════════════════════════════════ */
 .toast {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  top: 24px;              /* move to top */
+  left: 50%;              /* center horizontally */
+  transform: translateX(-50%); /* true center */
+
   background: var(--navy-700);
   border: 1px solid var(--border-mid);
   border-radius: var(--r-md);
   padding: 12px 18px;
+
   display: flex;
   align-items: center;
   gap: 12px;
+
   font-size: 13px;
   color: var(--text-primary);
+
   box-shadow: var(--shadow-elevated);
   z-index: 9999;
+
   animation: toastIn 0.3s var(--ease);
 }
 .toast.hidden {
@@ -2541,16 +2547,6 @@ mark.highlight-contradicted {
   cursor: pointer;
   font-size: 14px;
   font-family: inherit;
-}
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* ─── UTILITIES ──────────────────────────────────────────────── */

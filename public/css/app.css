@@ -458,6 +458,60 @@ textarea {
   color: var(--muted);
 }
 
+
+/* ICON IMAGE */
+.icon-btn img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    filter: none; /* IMPORTANT: keep original color */
+}
+
+/* BUTTON BASE */
+.icon-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 8px;
+    transition: all 0.2s ease;
+}
+
+/* HOVER STATE */
+.icon-btn:hover {
+    background: rgba(245, 166, 35, 0.15);
+    border-color: rgba(245, 166, 35, 0.4);
+    box-shadow: 0 0 12px rgba(245, 166, 35, 0.25);
+}
+
+.icon-btn:hover img {
+    opacity: 0.9;
+}
+
+/* ACTIVE (SAVED) STATE */
+.icon-btn.active {
+    background: rgba(245, 166, 35, 0.18);
+    border-color: rgba(245, 166, 35, 0.5);
+    box-shadow: 0 0 16px rgba(245, 166, 35, 0.4);
+}
+
+.icon-btn.active img {
+    opacity: 1;
+    filter: none; /* ensures gold stays gold */
+}
+.highlight-reading {
+    background: rgba(245, 166, 35, 0.25);
+    border-left: 4px solid #f59e0b;
+    padding-left: 10px;
+    transition: all 0.3s ease;
+}
+.icon-btn.flagged {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border: none;
+}
+
 /* =========================================================
    CARDS / CONTENT
    ========================================================= */
