@@ -5,6 +5,26 @@ require_once __DIR__ . '/../entities/User.php';
 
 class UserController {
 
+    // top contributors by published article count
+    // for the top contributor shit
+    public function getTopContributors(int $limit = 3): array {
+        $limit = max(1, min(20, $limit));
+
+        return DB::query(
+            "SELECT
+                u.id,
+                u.full_name,
+                COUNT(a.id) AS article_count,
+                MAX(a.published_at) AS latest_published_at
+             FROM users u
+             INNER JOIN articles a ON a.author_id = u.id
+             WHERE a.status = 'published'
+             GROUP BY u.id
+             ORDER BY article_count DESC, latest_published_at DESC, u.full_name ASC
+             LIMIT $limit"
+        );
+    }
+
     // search users
     public function searchUsers(?string $keyword, int $limit, int $offset, int $currentUserId): array {
 

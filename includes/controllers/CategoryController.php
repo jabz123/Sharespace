@@ -15,6 +15,23 @@ class CategoryController {
         return $rows;
     }
 
+    // this is fot the trending topic shit
+    // get category with newest articles 
+    // returns only categories that currently have published articles
+    public function getByLatestPublishedArticle(int $limit = 6): array {
+        $limit = max(1, min(50, $limit));
+
+        return DB::query(
+            "SELECT c.*, MAX(a.published_at) AS latest_published_at
+             FROM categories c
+             INNER JOIN articles a ON a.category_id = c.id
+             WHERE a.status = 'published' AND a.published_at IS NOT NULL
+             GROUP BY c.id
+             ORDER BY latest_published_at DESC
+             LIMIT $limit"
+        );
+    }
+
     //returns single category by id, or null if not found
     public function getById(int $id): ?array {
         return DB::first(

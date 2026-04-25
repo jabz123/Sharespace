@@ -402,15 +402,28 @@ body:has(.sub-page-shell) {
 }
 .browse-featured-track {
   height: 4px;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.14);
   border-radius: 99px;
   overflow: hidden;
 }
 .browse-featured-track span {
   display: block;
   height: 100%;
+  min-width: 12px;
   background: linear-gradient(90deg, var(--amber), var(--amber-bright));
   border-radius: 99px;
+}
+.browse-featured-card.featured-trust-high .browse-featured-track span,
+.browse-featured-story.featured-trust-high .browse-featured-track span {
+  background: var(--success);
+}
+.browse-featured-card.featured-trust-mid .browse-featured-track span,
+.browse-featured-story.featured-trust-mid .browse-featured-track span {
+  background: var(--warning);
+}
+.browse-featured-card.featured-trust-low .browse-featured-track span,
+.browse-featured-story.featured-trust-low .browse-featured-track span {
+  background: var(--danger);
 }
 .browse-featured-footer {
   display: flex;

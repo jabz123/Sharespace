@@ -676,13 +676,9 @@ body:has(.user-dashboard-shell) {
   text-decoration: none;
 }
 .trending-dot {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--r-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
+  width: 10px;
+  height: 10px;
+  display: block;
   flex-shrink: 0;
 }
 .trending-label {
@@ -743,6 +739,10 @@ body:has(.user-dashboard-shell) {
   font-weight: 600;
   color: var(--text-primary);
   flex: 1;
+  text-decoration: none;
+}
+.contributor-name:hover {
+  color: var(--text-amber);
 }
 .contributor-count {
   font-size: 11.5px;
@@ -875,6 +875,8 @@ body:has(.user-dashboard-shell) {
   position: relative;
   height: 148px;
   flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 .card-image img {
   width: 100%;
@@ -1049,6 +1051,15 @@ body:has(.user-dashboard-shell) {
   height: 100%;
   background: linear-gradient(90deg, var(--success), #58edae);
   border-radius: 99px;
+}
+.article-card.trust-level-high .card-score-track span {
+  background: var(--success);
+}
+.article-card.trust-level-mid .card-score-track span {
+  background: var(--warning);
+}
+.article-card.trust-level-low .card-score-track span {
+  background: var(--danger);
 }
 
 .card-footer {

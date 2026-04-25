@@ -155,7 +155,7 @@ page_head('Browse Articles', $isSystemAdmin);
                         </p>
                     </div>
 
-                    <article class="browse-featured-story">
+                    <article class="browse-featured-story <?= ((int) $featuredArticle->trustScore >= 80) ? 'featured-trust-high' : (((int) $featuredArticle->trustScore >= 60) ? 'featured-trust-mid' : 'featured-trust-low') ?>">
                         <div class="browse-featured-media">
                             <?php if (!empty($featuredArticle->imagePath)): ?>
                                 <img src="/public/<?= htmlspecialchars($featuredArticle->imagePath) ?>" alt="">
@@ -383,7 +383,7 @@ page_head('Browse Articles', $isSystemAdmin);
             <section class="browse-story-stage">
                 <?php if ($featuredArticle): ?>
                     <?php $featuredComments = (new CommentController())->countByArticle($featuredArticle->id); ?>
-                    <article class="browse-featured-card">
+                    <article class="browse-featured-card <?= ((int) $featuredArticle->trustScore >= 80) ? 'featured-trust-high' : (((int) $featuredArticle->trustScore >= 60) ? 'featured-trust-mid' : 'featured-trust-low') ?>">
                         <div class="browse-featured-media">
                             <?php if (!empty($featuredArticle->imagePath)): ?>
                                 <img src="/public/<?= htmlspecialchars($featuredArticle->imagePath) ?>" alt="">

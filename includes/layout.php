@@ -255,6 +255,10 @@ function flash_messages(): void
                                                                             {
                                                                                 $currentUrl = $_SERVER['REQUEST_URI'];
                                                                                 $url = '/pages/article.php?id=' . $article->id . '&return=' . urlencode($currentUrl);
+                                                                                //trust score shit
+                                                                                $trustClass = ((int)$article->trustScore >= 80)
+                                                                                    ? 'trust-level-high'
+                                                                                    : (((int)$article->trustScore >= 60) ? 'trust-level-mid' : 'trust-level-low');
 
                                                                                 $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
                                                                                 $hasImage = !empty($article->imagePath);
@@ -262,7 +266,7 @@ function flash_messages(): void
                                                                                 $commentCount = $commentCtrl->countByArticle($article->id);
                                                                                     ?>
     <a href="<?= $url ?>" class="article-card-link">
-        <div class="article-card">
+        <div class="article-card <?= $trustClass ?>">
             <div class="card-top">
                 <span class="category-tag <?= category_theme_class($article->categoryName) ?>"><?= htmlspecialchars($article->categoryName) ?></span>
                 <?= trust_badge($article->trustScore) ?>
