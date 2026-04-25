@@ -1418,6 +1418,17 @@ body .browse-admin-shell .article-card {
 
 body .browse-admin-shell .article-card .card-image {
   background: #edf3fb !important;
+  height: 148px !important;           /* keep the same height as the dark theme */
+  overflow: hidden !important;
+  border-radius: 12px !important;     /* optional: gives rounded corners */
+  margin: 8px !important;             /* space around the image container */
+
+}
+
+body .browse-admin-shell .article-card .card-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;       /* crops the image nicely */
 }
 
 body .browse-admin-shell .article-card .card-title,
