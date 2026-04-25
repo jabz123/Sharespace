@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
-require_once __DIR__ . '/../includes/controllers/AITrainerController.php';
+require_once __DIR__ . '/../includes/controllers/AIVerificationController.php';
 
 $auth = new AuthController();
 $adminCtrl = new AdminController();
@@ -12,7 +12,7 @@ $auth->requireAuth();
 $user = $auth->currentUser();
 $adminCtrl->requireAdmin($user);
 
-$aiCtrl = new AITrainerController();
+$aiCtrl = new AIVerificationController();
 $stats = $aiCtrl->getDashboardStats();
 $recentAnalyses = $aiCtrl->getRecentAnalyses(8);
 
