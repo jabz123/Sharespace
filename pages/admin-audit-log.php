@@ -73,7 +73,6 @@ $actionMeta = [
 $roleMeta = [
     'system_admin'   => ['System Admin', '#1e3a8a'],
     'category_admin' => ['Category Expert', '#6d28d9'],
-    'ai_trainer'     => ['AI Model Trainer', '#be123c'],
     'premium'        => ['Registered User', '#047857'],
     'free'           => ['Free User', '#475569'],
     'unknown'        => ['Unknown', '#6b7280'],

@@ -69,38 +69,6 @@ function page_head(string $title, bool $useSystemAdminCss = false): void
             <link rel="stylesheet" href="/public/css/dashboard.css?v=<?= filemtime(__DIR__ . '/../public/css/dashboard.css') ?>" />
             <link rel="stylesheet" href="/public/css/pages.css?v=<?= filemtime(__DIR__ . '/../public/css/pages.css') ?>" />
         <?php endif; ?>
-        <style>
-            body.page-ai-trainer-dashboard .alert-success,
-            body.page-ai-trainer-datasets .alert-success,
-            body.page-ai-trainer-accuracy-metrics .alert-success,
-            body.page-ai-trainer-calibration .alert-success,
-            body.page-ai-trainer-home .alert-success {
-                background: #f0fff6 !important;
-                border: 1px solid #a3e6c0 !important;
-                color: #1a6040 !important;
-                font-weight: 700 !important;
-            }
-
-            body.page-ai-trainer-dashboard .alert-error,
-            body.page-ai-trainer-datasets .alert-error,
-            body.page-ai-trainer-accuracy-metrics .alert-error,
-            body.page-ai-trainer-calibration .alert-error,
-            body.page-ai-trainer-home .alert-error {
-                background: #fff0f2 !important;
-                border: 1px solid #fcc !important;
-                color: #8b1a2a !important;
-                font-weight: 700 !important;
-            }
-
-            body.page-ai-trainer-dashboard .alert,
-            body.page-ai-trainer-datasets .alert,
-            body.page-ai-trainer-accuracy-metrics .alert,
-            body.page-ai-trainer-calibration .alert,
-            body.page-ai-trainer-home .alert {
-                opacity: 1 !important;
-                text-shadow: none !important;
-            }
-        </style>
     </head>
 
     <body class="page-<?= htmlspecialchars($slug) ?>">
@@ -173,7 +141,7 @@ function sidebar(User $user): void
     <aside class="sidebar">
         <div class="sidebar-logo">
             <?php sharedspace_brand(
-                $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'ai_trainer' ? '/pages/ai-trainer-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php')),
+                $user->role === 'system_admin' ? '/pages/admin-dashboard.php' : ($user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php'),
                 'light',
                 'sidebar-brand'
             ); ?>
@@ -196,8 +164,6 @@ function sidebar(User $user): void
                     <span class="role-badge premium">Premium</span>
                 <?php elseif ($user->role === 'system_admin'): ?>
                     <span class="role-badge system-admin">System Admin</span>
-                <?php elseif ($user->role === 'ai_trainer'): ?>
-                    <span class="role-badge ai-trainer">AI Trainer</span>
                 <?php elseif ($user->role === 'category_admin'): ?>
                     <span class="role-badge category-admin">Category Expert</span>
                     <?php

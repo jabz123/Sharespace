@@ -20,7 +20,6 @@ $commentCtrl = new CommentController();
 $auth->requireAuth();
 $user = $auth->currentUser();
 $isSystemAdmin = $user->role === 'system_admin';
-$isTrainer = $user->role === 'ai_trainer';
 
 $category = $_GET['category'] ?? null;
 $sort = $_GET['sort'] ?? 'recent';
@@ -37,9 +36,9 @@ $featuredArticle = !empty($articles) ? $articles[0] : null;
 $feedArticles = !empty($articles) ? array_slice($articles, 1) : [];
 $activeSortLabel = $sort === 'trusted' ? 'Most trusted first' : 'Newest first';
 
-page_head('Browse Articles', $isSystemAdmin || $isTrainer);
+page_head('Browse Articles', $isSystemAdmin);
 ?>
-<?php if ($isSystemAdmin || $isTrainer): ?>
+<?php if ($isSystemAdmin): ?>
 <div class="dashboard-layout browse-admin-shell">
 
     <?php sidebar($user); ?>

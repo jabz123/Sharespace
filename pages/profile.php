@@ -33,11 +33,9 @@ $communityReviewCount = $feedbackStats && (int)$feedbackStats['review_count'] > 
     ? (int)$feedbackStats['review_count']
     : 1247;
 
-    //second param is to check if sysadmin or ai trainer cos ui is different for them. 
-    //if admin, load admin css with dff layout from layout.php
-page_head('Profile', in_array($user->role, ['system_admin', 'ai_trainer'], true));
+page_head('Profile', $user->role === 'system_admin');
 ?>
-<div class="dashboard-layout <?= in_array($user->role, ['system_admin', 'ai_trainer'], true) ? 'profile-admin-shell' : 'user-dashboard-shell' ?>">
+<div class="dashboard-layout <?= $user->role === 'system_admin' ? 'profile-admin-shell' : 'user-dashboard-shell' ?>">
     <?php sidebar($user); ?>
 
     <main>
