@@ -1413,7 +1413,7 @@ body .browse-admin-shell .article-card {
   box-shadow: 0 2px 12px rgba(28,45,79,0.06) !important;
   color: #16233f !important;
   padding: 14px !important;
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
 body .browse-admin-shell .article-card .card-image {
