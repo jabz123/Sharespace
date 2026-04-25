@@ -39,6 +39,7 @@ $articles = $articleCtrl->getByAuthorPaginated($userId, $perPage, $offset);
 //uses profile nmame as page title 
 page_head($profile['full_name']);
 ?>
+<link rel="stylesheet" href="/public/css/user-profile.css">
 <div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($currentUser); ?>
 
@@ -62,9 +63,9 @@ page_head($profile['full_name']);
         <div class="profile-info">
             <h2><?= htmlspecialchars($profile['full_name']) ?></h2>
 
-            <div class="profile-role <?= htmlspecialchars($profile['role']) ?>">
-                <?= ucfirst($profile['role']) ?>
-            </div>
+        <div class="role-badge role-<?= htmlspecialchars($profile['role']) ?>">
+        <?= ucfirst(str_replace('_', ' ', $profile['role'])) ?>
+        </div>
 
             <div class="profile-stats">
                 <?= (int)$profile['article_count'] ?>

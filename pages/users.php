@@ -24,6 +24,7 @@ $users = $userCtrl->searchUsers($search, $perPage, $offset, $user->id);
 
 page_head('Discover Users');
 ?>
+<link rel="stylesheet" href="/public/css/users.css">
 <div class="dashboard-layout user-dashboard-shell">
 <?php sidebar($user); ?>
 
@@ -34,17 +35,22 @@ page_head('Discover Users');
 <div class="page-content">
 
     <!-- SEARCH -->
-    <div class="users-search-box">
-        <form method="GET" class="users-search-form">
+   <div class="users-search-box">
+    <form method="GET" class="users-search-form">
+
+        <div class="search-input-wrapper">
+            <img src="/public/icons/searchicon.png" class="search-icon">
+
             <input
                 type="text"
                 name="search"
                 placeholder="Search users..."
                 value="<?= htmlspecialchars($search ?? '') ?>"
             >
-            <button type="submit">Search</button>
-        </form>
-    </div>
+        </div>
+
+    </form>
+</div>
 
     <!-- USERS GRID -->
     <div class="users-grid">
@@ -69,9 +75,9 @@ page_head('Discover Users');
                         <?= htmlspecialchars($u['full_name']) ?>
                     </div>
 
-                    <div class="user-role <?= htmlspecialchars($u['role']) ?>">
-                        <?= ucfirst($u['role']) ?>
-                    </div>
+                <div class="role-badge role-<?= htmlspecialchars($u['role']) ?>">
+                <?= ucfirst(str_replace('_', ' ', $u['role'])) ?>
+                </div>
 
                     <div class="user-articles">
                         <?= (int)$u['article_count'] ?> 

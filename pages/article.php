@@ -149,7 +149,8 @@ page_head($article->title, $isSystemAdmin);
                 <div class="article-meta">
                     <div class="author-avatar" style="width:42px;height:42px;font-size:16px"><?= htmlspecialchars($article->authorInitial()) ?></div>
                     <div>
-                        <p style="font-weight:600;font-size:14px"><?= htmlspecialchars($article->authorName) ?></p>
+                        <a href="/pages/user-profile.php?id=<?= $article->authorId ?>" style="font-weight:600;font-size:14px; text-decoration:none;
+                         color:inherit;"><?= htmlspecialchars($article->authorName) ?></a>
                         <p class="text-sm text-muted"><?= date('F j, Y g:i A', strtotime($article->publishedAt)) ?></p>
                     </div>
                 </div>
