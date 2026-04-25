@@ -276,6 +276,7 @@ page_head($article->title, $isSystemAdmin);
     </main>
 </div>
 
+<?php if (!$isSystemAdmin): ?>
 <div id="flagModal" class="modal hidden">
     <div class="modal-overlay"></div>
 
@@ -320,6 +321,7 @@ page_head($article->title, $isSystemAdmin);
         </form>
     </div>
 </div>
+<?php endif; ?>
 
 <script>
     const saveBtn = document.getElementById('saveBtn');

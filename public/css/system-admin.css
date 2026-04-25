@@ -1,12 +1,5 @@
 /* ================================================================
-   SYSTEM ADMIN PAGES
-   Styles isolated from app.css so system admin UI changes stay in
-   this file instead of the shared application stylesheet.
-   ================================================================ */
-/* ================================================================
-   LIGHT THEME PAGES — Admin Dashboard, Audit Log, Manage Landing
-   These pages use a clean white/light-blue theme.
-   All rules use !important to override dark global styles.
+   SYSTEM ADMIN PAGES – Light Theme
    ================================================================ */
 
 /* --- Base page backgrounds --- */
@@ -15,8 +8,6 @@ body.page-audit-log,
 body.page-manage-landing-page {
   background: #f0f5fc !important;
   color: #16233f !important;
-
-  /* reset key vars for inline var(...) usage */
   --fg: #16233f;
   --muted: #5a7090;
   --border: #dce8f4;
@@ -38,7 +29,6 @@ body.page-audit-log .dashboard-layout main,
 body.page-manage-landing-page .dashboard-layout main {
   background: #f0f5fc !important;
 }
-
 
 body.page-admin-dashboard .logo-text,
 body.page-audit-log .logo-text,
@@ -170,45 +160,30 @@ body.page-manage-landing-page .card {
   color: #16233f !important;
 }
 
-body.page-admin-dashboard .card h2,
-body.page-admin-dashboard .card h3,
-body.page-audit-log .card h2,
-body.page-audit-log .card h3,
-body.page-manage-landing-page .card h2,
-body.page-manage-landing-page .card h3,
-body.page-admin-dashboard h1,
-body.page-admin-dashboard h2,
-body.page-admin-dashboard h3,
-body.page-admin-dashboard h4,
-body.page-audit-log h1,
-body.page-audit-log h2,
-body.page-audit-log h3,
-body.page-audit-log h4,
-body.page-manage-landing-page h1,
-body.page-manage-landing-page h2,
-body.page-manage-landing-page h3,
-body.page-manage-landing-page h4,
-body.page-admin-dashboard strong,
-body.page-audit-log strong,
+body.page-admin-dashboard .card h2, body.page-admin-dashboard .card h3,
+body.page-audit-log .card h2, body.page-audit-log .card h3,
+body.page-manage-landing-page .card h2, body.page-manage-landing-page .card h3,
+body.page-admin-dashboard h1, body.page-admin-dashboard h2,
+body.page-admin-dashboard h3, body.page-admin-dashboard h4,
+body.page-audit-log h1, body.page-audit-log h2,
+body.page-audit-log h3, body.page-audit-log h4,
+body.page-manage-landing-page h1, body.page-manage-landing-page h2,
+body.page-manage-landing-page h3, body.page-manage-landing-page h4,
+body.page-admin-dashboard strong, body.page-audit-log strong,
 body.page-manage-landing-page strong {
   color: #16233f !important;
 }
 
-body.page-admin-dashboard .card p,
-body.page-audit-log .card p,
-body.page-manage-landing-page .card p,
-body.page-admin-dashboard p,
-body.page-audit-log p,
-body.page-manage-landing-page p,
-body.page-admin-dashboard .text-muted,
-body.page-audit-log .text-muted,
+body.page-admin-dashboard .card p, body.page-audit-log .card p,
+body.page-manage-landing-page .card p, body.page-admin-dashboard p,
+body.page-audit-log p, body.page-manage-landing-page p,
+body.page-admin-dashboard .text-muted, body.page-audit-log .text-muted,
 body.page-manage-landing-page .text-muted {
   color: #5a7090 !important;
 }
 
 /* --- Buttons --- */
-body.page-admin-dashboard .btn-ghost,
-body.page-audit-log .btn-ghost,
+body.page-admin-dashboard .btn-ghost, body.page-audit-log .btn-ghost,
 body.page-manage-landing-page .btn-ghost {
   background: #ffffff !important;
   color: #314766 !important;
@@ -223,8 +198,7 @@ body.page-manage-landing-page .btn-ghost:hover {
   border-color: #4a6ba8 !important;
 }
 
-body.page-admin-dashboard .btn-primary,
-body.page-audit-log .btn-primary,
+body.page-admin-dashboard .btn-primary, body.page-audit-log .btn-primary,
 body.page-manage-landing-page .btn-primary {
   background: #1c2d4f !important;
   color: #ffffff !important;
@@ -240,101 +214,80 @@ body.page-manage-landing-page .btn-primary:hover {
 }
 
 /* --- Tables --- */
-body.page-admin-dashboard table,
-body.page-audit-log table,
+body.page-admin-dashboard table, body.page-audit-log table,
 body.page-manage-landing-page table {
   color: #16233f !important;
 }
 
-body.page-admin-dashboard thead th,
-body.page-audit-log thead th,
+body.page-admin-dashboard thead th, body.page-audit-log thead th,
 body.page-manage-landing-page thead th {
   color: #5a7090 !important;
   border-bottom-color: #dce8f4 !important;
 }
 
-body.page-admin-dashboard tbody td,
-body.page-audit-log tbody td,
+body.page-admin-dashboard tbody td, body.page-audit-log tbody td,
 body.page-manage-landing-page tbody td {
   color: #16233f !important;
   border-bottom-color: #edf3fb !important;
 }
 
 /* --- Forms --- */
-body.page-admin-dashboard input[type='text'],
-body.page-admin-dashboard input[type='email'],
-body.page-admin-dashboard input[type='password'],
-body.page-admin-dashboard select,
-body.page-admin-dashboard textarea,
-body.page-audit-log input[type='text'],
-body.page-audit-log input[type='email'],
-body.page-audit-log select,
-body.page-audit-log textarea,
-body.page-manage-landing-page input[type='text'],
-body.page-manage-landing-page input[type='email'],
-body.page-manage-landing-page input[type='password'],
-body.page-manage-landing-page select,
-body.page-manage-landing-page textarea {
+body.page-admin-dashboard input[type='text'], body.page-admin-dashboard input[type='email'],
+body.page-admin-dashboard input[type='password'], body.page-admin-dashboard select,
+body.page-admin-dashboard textarea, body.page-audit-log input[type='text'],
+body.page-audit-log input[type='email'], body.page-audit-log select,
+body.page-audit-log textarea, body.page-manage-landing-page input[type='text'],
+body.page-manage-landing-page input[type='email'], body.page-manage-landing-page input[type='password'],
+body.page-manage-landing-page select, body.page-manage-landing-page textarea {
   background: #f7faff !important;
   border: 1px solid #c8d8ee !important;
   color: #16233f !important;
 }
 
-body.page-admin-dashboard input::placeholder,
-body.page-admin-dashboard textarea::placeholder,
-body.page-audit-log input::placeholder,
-body.page-audit-log textarea::placeholder,
-body.page-manage-landing-page input::placeholder,
-body.page-manage-landing-page textarea::placeholder {
+body.page-admin-dashboard input::placeholder, body.page-admin-dashboard textarea::placeholder,
+body.page-audit-log input::placeholder, body.page-audit-log textarea::placeholder,
+body.page-manage-landing-page input::placeholder, body.page-manage-landing-page textarea::placeholder {
   color: #7a9ab8 !important;
   opacity: 1 !important;
 }
 
-body.page-admin-dashboard label,
-body.page-audit-log label,
-body.page-manage-landing-page label,
-body.page-admin-dashboard .form-label,
-body.page-audit-log .form-label,
+body.page-admin-dashboard label, body.page-audit-log label, body.page-manage-landing-page label,
+body.page-admin-dashboard .form-label, body.page-audit-log .form-label,
 body.page-manage-landing-page .form-label {
   color: #314766 !important;
   font-weight: 600 !important;
 }
 
-body.page-audit-log select,
-body.page-admin-dashboard select,
-body.page-audit-log select option,
-body.page-admin-dashboard select option {
+body.page-audit-log select, body.page-admin-dashboard select,
+body.page-audit-log select option, body.page-admin-dashboard select option {
   background: #ffffff !important;
   color: #16233f !important;
   border: 1px solid #c8d8ee !important;
 }
 
 /* --- Alerts --- */
-body.page-admin-dashboard .alert,
-body.page-audit-log .alert,
+body.page-admin-dashboard .alert, body.page-audit-log .alert,
 body.page-manage-landing-page .alert {
   background: #f7faff !important;
   border-color: #c8d8ee !important;
   color: #16233f !important;
 }
 
-body.page-admin-dashboard .alert-error,
-body.page-audit-log .alert-error,
+body.page-admin-dashboard .alert-error, body.page-audit-log .alert-error,
 body.page-manage-landing-page .alert-error {
   background: #fff0f2 !important;
   border-color: #fcc !important;
   color: #8b1a2a !important;
 }
 
-body.page-admin-dashboard .alert-success,
-body.page-audit-log .alert-success,
+body.page-admin-dashboard .alert-success, body.page-audit-log .alert-success,
 body.page-manage-landing-page .alert-success {
   background: #f0fff6 !important;
   border-color: #a3e6c0 !important;
   color: #1a6040 !important;
 }
 
-/* --- Inline style correction helpers (keep order-sensitive) --- */
+/* --- Inline style correction helpers --- */
 body.page-admin-dashboard [style*='background:var(--primary)'],
 body.page-admin-dashboard [style*='background: var(--primary)'] {
   background: #1c2d4f !important;
@@ -482,11 +435,6 @@ body.page-browse-articles .browse-admin-shell main {
   font-size: 10px !important;
   letter-spacing: 0.08em !important;
 }
-/* .browse-admin-shell .user-avatar {
-  background: hsl(213, 56%, 36%) !important;
-  color: #ffffff !important;
-  border: 2px solid rgba(255, 255, 255, 0.2) !important;
-} */
 .browse-admin-shell .nav-link {
   color: #a8bdd8 !important;
   border-radius: 8px !important;
@@ -774,14 +722,10 @@ body.page-browse-articles .browse-admin-shell .dash-header {
   color: #5a7090 !important;
 }
 
-/* Article cards in browse-admin */
+/* Article cards in browse-admin (base layout, overridden below for full restoration) */
 .browse-admin-shell .browse-article-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
-}
-.browse-admin-shell .article-card {
-  padding: 0 !important;
-  overflow: hidden;
 }
 .browse-admin-shell .card-top {
   border-bottom: 1px solid #e8f0f8 !important;
@@ -1094,7 +1038,6 @@ body.page-profile .profile-admin-shell .btn-light {
 /* ================================================================
    SYSTEM ADMIN AI PAGES
    ================================================================ */
-
 body.page-ai-dashboard .nav-link,
 body.page-ai-calibration .nav-link {
   color: #a8bdd8 !important;
@@ -1304,7 +1247,6 @@ body.page-ai-calibration .btn-primary {
 /* ================================================================
    Global surface consistency for admin shells
    ================================================================ */
-
 body.page-admin-dashboard .dashboard-layout,
 body.page-manage-landing-page .dashboard-layout,
 body.page-audit-log .dashboard-layout,
@@ -1322,7 +1264,6 @@ body.page-ai-calibration .dashboard-layout main {
   min-height: 100vh !important;
   background: #f0f5fc !important;
 }
-
 
 /* responsive */
 @media (max-width: 1100px) {
@@ -1374,16 +1315,15 @@ body.page-ai-calibration .dashboard-layout main {
 }
 
 /* ================================================================
-   ADMIN BROWSE – LIGHT THEME OVERRIDES & CLEAR BUTTON FIX
+   ADMIN BROWSE – FINAL LIGHT THEME OVERRIDES (high specificity)
+   Includes clear button fix and full article card restoration
    ================================================================ */
-
-/* ------ ARTICLE CARDS (high specificity to beat unscoped rules) ------ */
 body.page-admin-dashboard .browse-admin-shell .article-card {
   background: #ffffff !important;
   border: 1px solid #dce8f4 !important;
   box-shadow: 0 2px 12px rgba(28,45,79,0.06) !important;
   color: #16233f !important;
-  padding: 14px !important;            /* reset the 0 padding from the admin shell override */
+  padding: 14px !important;
   overflow: visible !important;
 }
 
@@ -1420,7 +1360,6 @@ body.page-admin-dashboard .browse-admin-shell .article-card .trust-badge {
   color: #166534 !important;
 }
 
-/* Also fix the browse-overview, browse-controls, etc. cards */
 body.page-admin-dashboard .browse-admin-shell .browse-overview-card,
 body.page-admin-dashboard .browse-admin-shell .browse-controls-card,
 body.page-admin-dashboard .browse-admin-shell .browse-featured-card {
@@ -1430,7 +1369,6 @@ body.page-admin-dashboard .browse-admin-shell .browse-featured-card {
   color: #16233f !important;
 }
 
-/* ------ CLEAR BUTTON FIX (remove invert, set proper size) ------ */
 body.page-admin-dashboard .browse-admin-shell .clear-btn {
   display: inline-flex;
   align-items: center;
@@ -1445,7 +1383,7 @@ body.page-admin-dashboard .browse-admin-shell .clear-btn {
 body.page-admin-dashboard .browse-admin-shell .clear-btn img {
   width: 16px;
   height: 16px;
-  filter: none !important;   /* crucial: disable the invert filter applied by pages.css */
+  filter: none !important;
   opacity: 1;
 }
 
@@ -1453,9 +1391,143 @@ body.page-admin-dashboard .browse-admin-shell .clear-btn:hover {
   opacity: 1;
 }
 
-/* ------ General shell background ------ */
 body.page-admin-dashboard .browse-admin-shell {
   background: #f0f5fc !important;
   color: #16233f !important;
 }
 
+/* Hover effect for article cards on admin browse */
+.browse-admin-shell .article-card:hover {
+  border-color: #8fa9ca !important;
+  box-shadow: 0 8px 22px rgba(28,45,79,0.08) !important;
+  transform: translateY(-2px);
+}
+
+/* ================================================================
+   ADMIN BROWSE – FINAL LIGHT THEME OVERRIDES
+   (uses body prefix for weight, but NOT page-admin-dashboard)
+   ================================================================ */
+body .browse-admin-shell .article-card {
+  background: #ffffff !important;
+  border: 1px solid #dce8f4 !important;
+  box-shadow: 0 2px 12px rgba(28,45,79,0.06) !important;
+  color: #16233f !important;
+  padding: 14px !important;
+  overflow: visible !important;
+}
+
+body .browse-admin-shell .article-card .card-image {
+  background: #edf3fb !important;
+}
+
+body .browse-admin-shell .article-card .card-title,
+body .browse-admin-shell .article-card .card-title a,
+body .browse-admin-shell .article-card .author-name {
+  color: #16233f !important;
+}
+
+body .browse-admin-shell .article-card .card-excerpt,
+body .browse-admin-shell .article-card .card-time,
+body .browse-admin-shell .article-card .card-footer,
+body .browse-admin-shell .article-card .card-footer * {
+  color: #5a7090 !important;
+}
+
+body .browse-admin-shell .article-card .author-avatar {
+  background: #edf3fb !important;
+  border: 2px solid #c8d8ee !important;
+  color: #1c2d4f !important;
+}
+
+body .browse-admin-shell .article-card .category-tag {
+  border-radius: 999px;
+}
+
+body .browse-admin-shell .article-card .trust-badge {
+  background: #eaf9f0 !important;
+  border: 1px solid #bfe5cf !important;
+  color: #166534 !important;
+}
+
+body .browse-admin-shell .browse-overview-card,
+body .browse-admin-shell .browse-controls-card,
+body .browse-admin-shell .browse-featured-card {
+  background: #ffffff !important;
+  border: 1px solid #dce8f4 !important;
+  box-shadow: 0 2px 12px rgba(28,45,79,0.06) !important;
+  color: #16233f !important;
+}
+
+/* Clear button fix – no body class dependency */
+body .browse-admin-shell .clear-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 4px !important;
+  opacity: 0.65;
+  transition: opacity 0.15s;
+}
+body .browse-admin-shell .clear-btn img {
+  width: 16px !important;
+  height: 16px !important;
+  filter: none !important;
+  opacity: 1;
+}
+body .browse-admin-shell .clear-btn:hover {
+  opacity: 1;
+}
+
+body .browse-admin-shell {
+  background: #f0f5fc !important;
+  color: #16233f !important;
+}
+
+/* Hover effect for article cards on admin browse */
+.browse-admin-shell .article-card:hover {
+  border-color: #8fa9ca !important;
+  box-shadow: 0 8px 22px rgba(28,45,79,0.08) !important;
+  transform: translateY(-2px);
+}
+
+/* ================================================================
+   FLAG MODAL – Force it above the sidebar on admin pages
+   ================================================================ */
+.modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.modal.hidden {
+  display: none !important;
+}
+
+.modal-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 1 !important;
+}
+
+.modal-content {
+  position: relative !important;
+  z-index: 2 !important;
+  background: #ffffff !important;
+  border: 1px solid #dce8f4 !important;
+  border-radius: 12px !important;
+  padding: 32px 36px !important;
+  max-width: 480px !important;
+  width: 90% !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+}
+
+/* Ensure sidebar doesn’t overlap */
+.sidebar {
+  z-index: 100 !important;
+}
