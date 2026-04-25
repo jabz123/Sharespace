@@ -24,7 +24,7 @@ $settings = $aiCtrl->getCalibrationSettings();
 
 page_head('AI Calibration', true);
 ?>
-<div class="dashboard-layout admin-ai-shell">
+<div class="dashboard-layout">
 <?php sidebar($user); ?>
 <main>
 <?php dash_header('Calibration', 'Configure backend AI publishing thresholds'); ?>

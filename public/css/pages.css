@@ -736,6 +736,7 @@ body:has(.sub-page-shell) {
 }
 .article-body p {
   margin-bottom: 1.4em;
+  color: var(--text-primary);
 }
 .article-body h2,
 .article-body h3 {
