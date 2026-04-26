@@ -5,15 +5,7 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
 function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
-    if ($error) {
-        flash_set('flash_error', $error);
-    }
-    if ($success) {
-        flash_set('flash_success', $success);
-    }
-
-    header('Location: ' . $url, true, 303);
-    exit;
+    redirect($url, $error, $success);
 }
 
 function buildArticleVerificationFingerprint(array $input, int $userId): string {
@@ -192,13 +184,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             } else {
                 if ($isEdit) {
-                    $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
+                    try {
+                        $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
+                    } catch (Throwable $error) {
+                        error_log('Expert review resubmission failed: ' . $error->getMessage());
+                        pageRedirect('/pages/write.php?id=' . (int)$editId, 'Unable to submit this article for category expert review. Please try again.');
+                    }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
                         pageRedirect('/pages/article-submitted-review.php?id=' . (int)$editId);
                     }
                 } else {
-                    $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
+                    try {
+                        $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
+                    } catch (Throwable $error) {
+                        error_log('Expert review submission failed: ' . $error->getMessage());
+                        pageRedirect('/pages/write.php', 'Unable to submit this article for category expert review. Please try again.');
+                    }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
                         pageRedirect('/pages/article-submitted-review.php?id=' . (int)($result['id'] ?? 0));
@@ -1882,6 +1884,43 @@ if (improveGuideButton) {
     improveGuideButton.addEventListener('click', () => {
         const targetSection = contentFormGroup || (sourcesBox.style.display !== 'none' ? sourcesBox : areasBox);
         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+}
+
+const writeForm = document.getElementById('write-form');
+if (writeForm) {
+    writeForm.addEventListener('submit', async (event) => {
+        const submitter = event.submitter;
+        if (!submitter || submitter.value !== 'publish') {
+            return;
+        }
+
+        event.preventDefault();
+        submitter.disabled = true;
+
+        try {
+            const formData = new FormData(writeForm);
+            formData.set('action', 'publish');
+
+            const response = await fetch(writeForm.action, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            if (response.redirected) {
+                window.location.assign(response.url);
+                return;
+            }
+
+            const html = await response.text();
+            document.open();
+            document.write(html);
+            document.close();
+        } catch (error) {
+            submitter.disabled = false;
+            alert('Unable to submit this article right now. Please try again.');
+        }
     });
 }
 </script>

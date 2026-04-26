@@ -5,15 +5,7 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
 function actionRedirect(string $url, ?string $error = null, ?string $success = null): never {
-    if ($error) {
-        $_SESSION['flash_error'] = $error;
-    }
-    if ($success) {
-        $_SESSION['flash_success'] = $success;
-    }
-
-    header('Location: ' . $url, true, 303);
-    exit;
+    redirect($url, $error, $success);
 }
 
 $auth = new AuthController();
@@ -38,7 +30,12 @@ if (!in_array($action, ['verify_article', 'unverify_article'], true) || $article
 }
 
 $decision = $action === 'verify_article' ? 'verified' : 'unverified';
-$result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision);
+try {
+    $result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision);
+} catch (Throwable $error) {
+    error_log('Expert article review failed: ' . $error->getMessage());
+    actionRedirect('/pages/unverified-articles.php', 'Unable to review article. Please try again.');
+}
 
 if (isset($result['ok'])) {
     $message = $decision === 'verified'

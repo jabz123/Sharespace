@@ -4,15 +4,7 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
 function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
-    if ($error) {
-        flash_set('flash_error', $error);
-    }
-    if ($success) {
-        flash_set('flash_success', $success);
-    }
-
-    header('Location: ' . $url, true, 303);
-    exit;
+    redirect($url, $error, $success);
 }
 
 $auth = new AuthController();
@@ -31,7 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (in_array($action, ['verify_article', 'unverify_article'], true) && $articleId > 0) {
         $decision = $action === 'verify_article' ? 'verified' : 'unverified';
-        $result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision);
+        try {
+            $result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision);
+        } catch (Throwable $error) {
+            error_log('Expert article review failed: ' . $error->getMessage());
+            pageRedirect('/pages/unverified-articles.php', 'Unable to review article. Please try again.');
+        }
 
         if (isset($result['ok'])) {
             $message = $decision === 'verified'
@@ -82,13 +79,13 @@ page_head('Unverified Articles');
             <p style="font-size:14px;margin-top:8px"><?= htmlspecialchars($detailArticle->excerpt) ?></p>
 
             <div class="flex items-center gap-3 mt-6" style="flex-wrap:wrap">
-                <form method="POST" action="/pages/unverified-articles.php" target="_self" style="margin:0" onsubmit="return confirm('Verify this article? One category expert approval will publish it.')">
+                <form method="POST" action="/pages/unverified-articles.php" target="_self" style="margin:0" data-review-form="true" onsubmit="return confirm('Verify this article? One category expert approval will publish it.')">
                     <input type="hidden" name="action" value="verify_article">
                     <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
                     <button type="submit" class="btn btn-secondary btn-sm">Verify</button>
                 </form>
 
-                <form method="POST" action="/pages/unverified-articles.php" target="_self" style="margin:0" onsubmit="return confirm('Reject this article? It will be moved back to draft for the author.')">
+                <form method="POST" action="/pages/unverified-articles.php" target="_self" style="margin:0" data-review-form="true" onsubmit="return confirm('Reject this article? It will be moved back to draft for the author.')">
                     <input type="hidden" name="action" value="unverify_article">
                     <input type="hidden" name="article_id" value="<?= $detailArticle->id ?>">
                     <button type="submit" class="btn btn-danger btn-sm">Unverify</button>
@@ -183,5 +180,41 @@ page_head('Unverified Articles');
 <?php endif; ?>
 </main>
 </div>
+
+<script>
+document.querySelectorAll('form[data-review-form="true"]').forEach((form) => {
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin'
+            });
+
+            if (response.redirected) {
+                window.location.assign(response.url);
+                return;
+            }
+
+            const html = await response.text();
+            document.open();
+            document.write(html);
+            document.close();
+        } catch (error) {
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+            alert('Unable to complete this review action right now. Please try again.');
+        }
+    });
+});
+</script>
 
 <?php page_foot(); ?>
