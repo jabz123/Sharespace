@@ -8,6 +8,7 @@
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
+
 /* Avatar */
 .profile-avatar {
     width: 72px;
@@ -63,7 +64,9 @@
     font-weight: 600;
     padding: 4px 10px;
     border-radius: 999px;
-    margin-top: 4px;
+    margin-top: 2px;
+    margin-bottom: 10px;
+
 }
 
 /* 🟡 PREMIUM */
