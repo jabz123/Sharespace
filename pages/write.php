@@ -192,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
-                        pageRedirect('/pages/article-submitted-review.php?id=' . (int)$editId);
+                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category expert review.');
                     }
                 } else {
                     try {
@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
-                        pageRedirect('/pages/article-submitted-review.php?id=' . (int)($result['id'] ?? 0));
+                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category expert review.');
                     }
                 }
             }
