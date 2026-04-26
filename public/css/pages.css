@@ -93,34 +93,66 @@ body:has(.sub-page-shell) {
   max-width: 40ch;
 }
 
+/* ─── Browse Search Bar (matches dashboard style) ─── */
 .browse-hero-search {
   display: flex;
   align-items: center;
   gap: 8px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-mid);
-  border-radius: var(--r-md);
-  padding: 0 12px;
-  height: 42px;
-  transition: border-color 0.2s, background 0.2s;
+  border-radius: 999px;                     /* pill shape */
+  padding: 0 18px;
+  height: 42px;                             /* same height as dashboard */
   width: 100%;
+  max-width: 480px;                         /* slightly wider on browse, but still a pill */
+  overflow: hidden;                         /* clips inner input to round shape */
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
+
 .browse-hero-search:focus-within {
   border-color: var(--border-amber);
   background: rgba(245, 166, 35, 0.04);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12);
 }
+
 .browse-hero-search input {
-  background: none;
-  border: none;
+  background: none !important;
+  border: none !important;
   outline: none;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 14px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   flex: 1;
+  height: 100%;
+  line-height: 1;
+  padding: 0;
 }
+
 .browse-hero-search input::placeholder {
   color: var(--text-muted);
+  font-weight: 400;
 }
+
+/* Browse search icon – amber, matching dashboard */
+.browse-hero-search .search-btn {
+    color: var(--text-amber);
+    opacity: 0.9;
+    transition: opacity 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.browse-hero-search .search-btn:hover {
+    color: var(--amber-bright);
+    opacity: 1;
+}
+
+.browse-hero-search:focus-within .search-btn {
+    color: var(--amber-bright);
+    opacity: 1;
+}
+
 
 .search-input-wrapper {
   display: flex;
@@ -173,6 +205,35 @@ body:has(.sub-page-shell) {
   height: 18px;
   filter: invert(1);
 }
+
+/* Dashboard header search icon (the inline SVG) */
+.dash-search svg,
+.dash-search .search-icon {
+  color: var(--text-amber) !important;     /* warm amber */
+  opacity: 0.9 !important;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.dash-search:focus-within svg,
+.dash-search:focus-within .search-icon {
+  color: var(--amber-bright) !important;
+  opacity: 1 !important;
+}
+
+/* Browse page search button image (the magnifying glass) */
+.search-btn img {
+  filter: none !important;               /* remove any invert filter that dims it */
+  opacity: 1 !important;
+  width: 18px;
+  height: 18px;
+  transition: opacity 0.15s;
+}
+
+.search-btn:hover img {
+  opacity: 0.85;
+}
+
 
 .browse-hero-stats {
   display: flex;
@@ -2077,44 +2138,81 @@ mark.highlight-contradicted {
   margin-bottom: 14px;
 }
 
-/* Interests (profile) */
-.interests-grid {
+/* INTERESTS SECTION */
+.interests-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);   /* subtle separator */
+}
+
+.interests-section h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.interests-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* Grid of interest chips */
+.interest-grid-profile {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
-.user-dashboard-shell .interest-chip,
-.user-dashboard-shell .interest-chip-profile {
-  font-size: 12px;
+
+/* Individual chip styling */
+.interest-chip-profile {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
-  padding: 5px 13px;
+  padding: 6px 14px;
   cursor: pointer;
+  user-select: none;
   transition: all 0.15s;
 }
-.user-dashboard-shell .interest-chip:hover,
-.user-dashboard-shell .interest-chip-profile:hover {
+
+.interest-chip-profile:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
 }
-.user-dashboard-shell .interest-chip.selected,
-.user-dashboard-shell .interest-chip-profile.selected {
+
+/* Selected state */
+.interest-chip-profile.selected {
   background: var(--amber-dim);
   color: var(--text-amber);
   border-color: var(--border-amber);
 }
-.user-dashboard-shell .interests-counter {
+
+/* Counter line */
+.interests-counter {
   font-size: 12px;
   color: var(--text-muted);
-  margin-top: 4px;
-  margin-bottom: 12px;
+  margin: 8px 0 16px;
 }
-.user-dashboard-shell .interests-counter.error {
+
+.interests-counter.error {
   color: var(--danger);
+  font-weight: 600;
 }
+
+/* Save button */
+.btn-save-interests {
+  margin-top: 4px;
+}
+
 
 .profile-change-password,
 .profile-feedback-section {
@@ -2151,6 +2249,14 @@ mark.highlight-contradicted {
   background: rgba(255,255,255,0.08);
   color: var(--text-primary);
 }
+
+/* this is to hide checkboxes */
+.interest-checkbox-profile {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 
 /* Feedback panel (profile) */
 .feedback-card {

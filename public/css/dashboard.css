@@ -360,38 +360,50 @@ body:has(.user-dashboard-shell) {
   flex-shrink: 0;
 }
 
+/* re style search in dashbaord */
 .dash-search {
   display: flex;
   align-items: center;
   gap: 8px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-md);
-  padding: 0 14px;
-  height: 38px;
-  width: 260px;
-  transition: border-color 0.2s, background 0.2s;
+  border-radius: 999px;                     /* pill shape */
+  padding: 0 18px;
+  height: 42px;
+  width: 280px;
+  overflow: hidden;                          /*  clips the inner input to the pill */
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
+
 .dash-search:focus-within {
   border-color: var(--border-amber);
   background: rgba(245, 166, 35, 0.04);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12);
 }
+
 .dash-search input {
-  background: none;
-  border: none;
+  background: none !important;               /* no square background */
+  border: none !important;                   /* no square border */
   outline: none;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 14px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   flex: 1;
-  width: 100%;
+  height: 100%;                              /* fills the pill vertically */
+  line-height: 1;
+  padding: 0;                                /* no extra padding inside (we use the parent’s padding) */
 }
+
 .dash-search input::placeholder {
   color: var(--text-muted);
+  font-weight: 400;
 }
-.dash-search svg {
-  color: var(--text-muted);
+
+/* Optional search icon */
+.dash-search .search-icon {
   flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
 .dash-notif-btn {
@@ -539,6 +551,21 @@ body:has(.user-dashboard-shell) {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-mid);
+}
+
+.dashboard-spotlight:hover {
+  border-color: var(--border-amber);
+  box-shadow: var(--shadow-glow-amber), var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+/* Smooth zoom on the spotlight image when hovering */
+.dashboard-spotlight-media img {
+  transition: transform 0.4s var(--ease);
+}
+
+.dashboard-spotlight:hover .dashboard-spotlight-media img {
+  transform: scale(1.04);
 }
 
 .dashboard-spotlight-media {

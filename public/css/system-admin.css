@@ -1036,6 +1036,96 @@ body.page-profile .profile-admin-shell .btn-light {
 }
 
 /* ================================================================
+   ADMIN PROFILE – Interests chips (light theme, no checkboxes)
+   ================================================================ */
+
+/* Hide checkboxes completely */
+.interest-checkbox-profile {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Section spacing & separator */
+.profile-admin-shell .interests-section {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid #dce8f4;
+}
+
+.profile-admin-shell .interests-section h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #16233f;
+  margin-bottom: 8px;
+}
+
+.profile-admin-shell .interests-hint {
+  font-size: 14px;
+  color: #5a7090;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Grid of chips */
+.profile-admin-shell .interest-grid-profile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* Each chip */
+.profile-admin-shell .interest-chip-profile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #f7faff;
+  border: 1px solid #c8d8ee;
+  color: #314766;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+
+.profile-admin-shell .interest-chip-profile:hover {
+  background: #edf3fb;
+  border-color: #8fa9ca;
+  color: #16233f;
+}
+
+/* Selected chip – the key interactive state */
+.profile-admin-shell .interest-chip-profile.selected {
+  background: #dae6ff;
+  border-color: #1c2d4f;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(28,45,79,0.18);
+}
+
+/* Counter text */
+.profile-admin-shell .interests-counter {
+  font-size: 13px;
+  color: #5a7090;
+  margin: 8px 0 20px;
+}
+
+.profile-admin-shell .interests-counter.error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+/* Save button spacing */
+.profile-admin-shell .btn-save-interests {
+  margin-top: 4px;
+}
+
+/* ================================================================
    SYSTEM ADMIN AI PAGES
    ================================================================ */
 body.page-ai-dashboard .nav-link,
@@ -1414,6 +1504,7 @@ body .browse-admin-shell .article-card {
   color: #16233f !important;
   padding: 14px !important;
   overflow: hidden !important;
+  height: 100% !important;
 }
 
 body .browse-admin-shell .article-card .card-image {
@@ -1479,7 +1570,16 @@ body .browse-admin-shell .clear-btn {
   padding: 4px !important;
   opacity: 0.65;
   transition: opacity 0.15s;
+   position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
 }
+
+body .browse-admin-shell .search-input-wrapper {
+  position: relative !important;
+}
+
 body .browse-admin-shell .clear-btn img {
   width: 16px !important;
   height: 16px !important;
