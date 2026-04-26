@@ -1886,43 +1886,6 @@ if (improveGuideButton) {
         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 }
-
-const writeForm = document.getElementById('write-form');
-if (writeForm) {
-    writeForm.addEventListener('submit', async (event) => {
-        const submitter = event.submitter;
-        if (!submitter || submitter.value !== 'publish') {
-            return;
-        }
-
-        event.preventDefault();
-        submitter.disabled = true;
-
-        try {
-            const formData = new FormData(writeForm);
-            formData.set('action', 'publish');
-
-            const response = await fetch(writeForm.action, {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin'
-            });
-
-            if (response.redirected) {
-                window.location.assign(response.url);
-                return;
-            }
-
-            const html = await response.text();
-            document.open();
-            document.write(html);
-            document.close();
-        } catch (error) {
-            submitter.disabled = false;
-            alert('Unable to submit this article right now. Please try again.');
-        }
-    });
-}
 </script>
 
 <?php page_foot(); ?>
