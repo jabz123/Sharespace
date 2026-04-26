@@ -87,8 +87,8 @@ function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $m
         );
     }
 
-    if ($publishDecision === 'needs_review' && $trustScore < 81) {
-        $push('Aim to lift the trust score above 81 by grounding each key sentence in an exact CNA or ST article and removing broad unsupported conclusions.');
+    if ($publishDecision === 'needs_review' && $trustScore < 80) {
+        $push('Aim to lift the trust score to 80 or above by grounding each key sentence in an exact CNA or ST article and removing broad unsupported conclusions.');
     }
 
     if ($publishDecision === 'unreliable') {
@@ -776,7 +776,7 @@ $trustScore = max(0, min(100, $trustScore));
 
 $publishDecision = trim((string)($decoded['publish_decision'] ?? ''));
 if ($publishDecision === '') {
-    if ($trustScore >= 81) {
+    if ($trustScore >= 80) {
         $publishDecision = 'auto_publish';
     } elseif ($trustScore >= 60) {
         $publishDecision = 'needs_review';
