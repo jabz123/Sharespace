@@ -33,18 +33,15 @@ function redirect(string $url, ?string $error = null, ?string $success = null): 
 
     $target = $url;
 
-    $isPostRedirect = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST');
-
-    if (!$isPostRedirect && !headers_sent()) {
-        header('Location: ' . $target, true, 302);
+    if (!headers_sent()) {
+        $statusCode = (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') ? 303 : 302;
+        header('Location: ' . $target, true, $statusCode);
         exit;
     }
 
-    if (!headers_sent()) {
-        header('Content-Type: text/html; charset=UTF-8');
-        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-        header('Pragma: no-cache');
-    }
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
 
     $escapedTarget = htmlspecialchars($target, ENT_QUOTES, 'UTF-8');
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
