@@ -17,22 +17,6 @@ $currentInterests = $onboardCtrl->getInterests($user->id); // array of category 
 
 $allowedFeedbackRoles = ['free', 'premium', 'category_admin'];
 
-$feedbackStats = DB::first("
-    SELECT
-        ROUND(AVG(rating), 1) AS avg_rating,
-        COUNT(*) AS review_count
-    FROM site_feedback
-    WHERE is_approved = 1
-");
-
-$communityRating = $feedbackStats && $feedbackStats['avg_rating'] !== null
-    ? $feedbackStats['avg_rating']
-    : '4.6';
-
-$communityReviewCount = $feedbackStats && (int)$feedbackStats['review_count'] > 0
-    ? (int)$feedbackStats['review_count']
-    : 1247;
-
 page_head('Profile', $user->role === 'system_admin');
 ?>
 <div class="dashboard-layout <?= $user->role === 'system_admin' ? 'profile-admin-shell' : 'user-dashboard-shell' ?>">
@@ -212,14 +196,6 @@ page_head('Profile', $user->role === 'system_admin');
 
                             <div class="feedback-divider"></div>
 
-                            <div class="community-rating-block">
-                                <div class="community-rating-title">Community Rating</div>
-                                <div class="community-rating">
-                                    <span class="community-rating-star">★</span>
-                                    <strong><?= htmlspecialchars((string)$communityRating) ?></strong>
-                                    <span>based on <?= number_format($communityReviewCount) ?> reviews</span>
-                                </div>
-                            </div>
                         </div>
                     </aside>
                 <?php endif; ?>
