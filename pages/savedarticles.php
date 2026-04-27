@@ -59,7 +59,7 @@ page_head('Saved Articles');
                         Upgrade to access everything.
                     </p>
 
-                    <a href="/subscription.php" class="btn btn-primary">
+                    <a href="/pages/subscription.php" class="btn btn-primary">
                         Upgrade to Premium
                     </a>
 
