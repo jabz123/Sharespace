@@ -351,20 +351,20 @@ class AuthController {
     // returns ['ok' => true] or ['error' => '...']
     public function updateProfile(int $userId, array $input, array $avatarFile = []): array {
         $name  = trim($input['fullName'] ?? '');
-        $email = strtolower(trim($input['email'] ?? ''));
         $bio   = trim($input['bio'] ?? '');
 
         if (empty($name)) {
             return ['error' => 'Full name required.'];
         }
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return ['error' => 'A valid email address is required.'];
+        if (strlen($bio) > 150) {
+            return ['error' => 'Bio cannot exceed 150 characters.'];
         }
 
-        // check email is not alr taken by another user
-        if (DB::first('SELECT id FROM users WHERE email = ? AND id != ?', [$email, $userId])) {
-            return ['error' => 'That email is already in use by another account.'];
+        $currentUser = DB::first('SELECT email FROM users WHERE id = ?', [$userId]);
+        if (!$currentUser) {
+            return ['error' => 'User not found.'];
         }
+        $email = $currentUser['email'];
 
         // handle avatar upload
         $avatarPath = null; // null = no change

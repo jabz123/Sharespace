@@ -82,27 +82,42 @@ page_head('Profile', $user->role === 'system_admin');
                                 </p>
                             </div>
 
-                            <label for="fullName">Full Name</label>
-                            <input
-                                type="text"
-                                id="fullName"
-                                name="fullName"
-                                value="<?= htmlspecialchars($user->fullName) ?>"
-                                required>
+                            <div class="profile-field">
+                                <label for="fullName">Full Name:</label>
+                                <input
+                                    type="text"
+                                    id="fullName"
+                                    name="fullName"
+                                    value="<?= htmlspecialchars($user->fullName) ?>"
+                                    required>
+                            </div>
 
-                            <label for="email">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value="<?= htmlspecialchars($user->email) ?>"
-                                required>
+                            <div class="profile-field">
+                                <label for="email">Email:</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value="<?= htmlspecialchars($user->email) ?>"
+                                    readonly
+                                    aria-describedby="emailLockedNote"
+                                    required>
+                                <p class="profile-field-note" id="emailLockedNote">
+                                    NOTE: Email is not changeable
+                                </p>
+                            </div>
 
-                            <label for="bio">Bio</label>
-                            <textarea
-                                id="bio"
-                                name="bio"
-                                rows="6"><?= htmlspecialchars($user->bio) ?></textarea>
+                            <div class="profile-field">
+                                <label for="bio">Bio:</label>
+                                <textarea
+                                    id="bio"
+                                    name="bio"
+                                    rows="6"
+                                    maxlength="150"><?= htmlspecialchars($user->bio) ?></textarea>
+                                <div class="profile-bio-counter">
+                                    <span id="bioCounter"><?= strlen($user->bio) ?> / 150</span>
+                                </div>
+                            </div>
 
                             <div class="profile-actions">
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -256,6 +271,26 @@ page_head('Profile', $user->role === 'system_admin');
                 feedbackInput.focus();
             }
         });
+    }
+
+    // Bio char counter - mirrors onboarding bio limit
+    const bioInput = document.getElementById('bio');
+    const bioCounter = document.getElementById('bioCounter');
+    const BIO_MAX_LENGTH = 150;
+
+    function updateBioCounter() {
+        if (!bioInput || !bioCounter) return;
+
+        if (bioInput.value.length > BIO_MAX_LENGTH) {
+            bioInput.value = bioInput.value.slice(0, BIO_MAX_LENGTH);
+        }
+
+        bioCounter.textContent = bioInput.value.length + ' / ' + BIO_MAX_LENGTH;
+    }
+
+    if (bioInput && bioCounter) {
+        bioInput.addEventListener('input', updateBioCounter);
+        updateBioCounter();
     }
 
     // interest selection logic can choose max 3 with counter and save button enable/disable
