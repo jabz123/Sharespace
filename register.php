@@ -70,7 +70,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="password">Password</label>
                     <div class="input-icon" style="position:relative">
                         <input type="password" id="password" name="password" placeholder="Create a secure password" required style="padding-right:64px" />
-                        <button type="button" data-toggle-password="password" class="password-toggle">Show</button>
+                        <button type="button" data-toggle-password="password" data-icon-toggle="true" class="password-toggle" aria-label="Show password" title="Show password">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                                <circle cx="12" cy="12" r="3.25" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -78,7 +83,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="confirm_password">Confirm password</label>
                     <div class="input-icon" style="position:relative">
                         <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat your password" required style="padding-right:64px" />
-                        <button type="button" data-toggle-password="confirm_password" class="password-toggle">Show</button>
+                        <button type="button" data-toggle-password="confirm_password" data-icon-toggle="true" class="password-toggle" aria-label="Show password" title="Show password">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                                <circle cx="12" cy="12" r="3.25" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -111,6 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-<script src="/public/js/app.js"></script>
+<script src="/public/js/app.js?v=<?= filemtime(__DIR__ . '/public/js/app.js') ?>"></script>
 </body>
 </html>

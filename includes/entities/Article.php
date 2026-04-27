@@ -15,6 +15,7 @@ class Article {
     public string $content;
     public int    $authorId;
     public string $authorName;
+    public ?string $authorAvatarUrl;
     public int    $categoryId;
     public string $categoryName;
     public int    $trustScore;
@@ -40,6 +41,7 @@ class Article {
         $this->content       = $row['content'];
         $this->authorId      = (int)$row['author_id'];
         $this->authorName    = $row['author_name']   ?? '';
+        $this->authorAvatarUrl = $row['author_avatar_url'] ?? null;
         $this->categoryId    = (int)$row['category_id'];
         $this->categoryName  = $row['category_name'] ?? '';
         $this->trustScore    = (int)$row['trust_score'];

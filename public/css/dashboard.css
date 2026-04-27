@@ -296,6 +296,28 @@ body:has(.user-dashboard-shell) {
   mask-image: url('/public/icons/premium-svgrepo-com.svg');
 }
 
+.user-dashboard-shell .nav-icon-alerts::before {
+  -webkit-mask-image: url('/public/icons/unverified.svg');
+  mask-image: url('/public/icons/unverified.svg');
+}
+
+.user-dashboard-shell .nav-icon-library::before {
+  -webkit-mask-image: url('/public/icons/category.svg');
+  mask-image: url('/public/icons/category.svg');
+}
+
+.user-dashboard-shell .nav-icon-writers::before {
+  -webkit-mask-image: url('/public/icons/catWriter.svg');
+  mask-image: url('/public/icons/catWriter.svg');
+}
+
+.user-dashboard-shell .nav-icon-flags::before {
+  -webkit-mask-image: url('/public/icons/flag.png');
+  mask-image: url('/public/icons/flag.png');
+}
+
+
+
 .user-dashboard-shell .nav-icon-profile::before {
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z' clip-rule='evenodd'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z' clip-rule='evenodd'/%3E%3C/svg%3E");
@@ -381,6 +403,37 @@ body:has(.user-dashboard-shell) {
   box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12);
 }
 
+.dash-search .search-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-amber);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.9;
+  transition: color 0.15s, opacity 0.15s;
+}
+
+.dash-search .search-btn:hover,
+.dash-search:focus-within .search-btn {
+  color: var(--amber-bright);
+  opacity: 1;
+}
+
+.dash-search .search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
+
 .dash-search input {
   background: none !important;               /* no square background */
   border: none !important;                   /* no square border */
@@ -397,6 +450,30 @@ body:has(.user-dashboard-shell) {
 .dash-search input::placeholder {
   color: var(--text-muted);
   font-weight: 400;
+}
+
+.dash-search .clear-btn {
+  display: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.55;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.dash-search .clear-btn:hover {
+  opacity: 1;
+}
+
+.dash-search .clear-btn img {
+  width: 13px;
+  height: 13px;
+  display: block;
+  filter: invert(1);
 }
 
 /* Optional search icon */

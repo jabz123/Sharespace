@@ -195,7 +195,13 @@ page_head('Browse Articles', $isSystemAdmin);
 
                                 <div class="browse-featured-footer">
                                     <div class="browse-featured-author">
-                                        <span class="author-avatar"><?= htmlspecialchars($featuredArticle->authorInitial()) ?></span>
+                                        <span class="author-avatar">
+                                            <?php if (!empty($featuredArticle->authorAvatarUrl)): ?>
+                                                <img src="/public/<?= htmlspecialchars($featuredArticle->authorAvatarUrl) ?>" alt="<?= htmlspecialchars($featuredArticle->authorName) ?>">
+                                            <?php else: ?>
+                                                <?= htmlspecialchars($featuredArticle->authorInitial()) ?>
+                                            <?php endif; ?>
+                                        </span>
                                         <div>
                                             <div class="author-name"><?= htmlspecialchars($featuredArticle->authorName) ?></div>
                                             <div class="card-time"><?= relative_time($featuredArticle->publishedAt) ?></div>
@@ -431,7 +437,13 @@ page_head('Browse Articles', $isSystemAdmin);
 
                                 <div class="browse-featured-footer">
                                     <div class="browse-featured-author">
-                                        <span class="author-avatar"><?= htmlspecialchars($featuredArticle->authorInitial()) ?></span>
+                                        <span class="author-avatar">
+                                            <?php if (!empty($featuredArticle->authorAvatarUrl)): ?>
+                                                <img src="/public/<?= htmlspecialchars($featuredArticle->authorAvatarUrl) ?>" alt="<?= htmlspecialchars($featuredArticle->authorName) ?>">
+                                            <?php else: ?>
+                                                <?= htmlspecialchars($featuredArticle->authorInitial()) ?>
+                                            <?php endif; ?>
+                                        </span>
                                         <div>
                                             <div class="author-name"><?= htmlspecialchars($featuredArticle->authorName) ?></div>
                                             <div class="card-time"><?= relative_time($featuredArticle->publishedAt) ?></div>

@@ -14,6 +14,7 @@ class UserController {
             "SELECT
                 u.id,
                 u.full_name,
+                u.avatar_url,
                 COUNT(a.id) AS article_count,
                 MAX(a.published_at) AS latest_published_at
              FROM users u

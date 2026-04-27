@@ -5,7 +5,8 @@
 /* --- Base page backgrounds --- */
 body.page-admin-dashboard,
 body.page-audit-log,
-body.page-manage-landing-page {
+body.page-manage-landing-page,
+body.page-edit-password {
   background: #f0f5fc !important;
   color: #16233f !important;
   --fg: #16233f;
@@ -26,7 +27,8 @@ body.page-manage-landing-page {
 
 body.page-admin-dashboard .dashboard-layout main,
 body.page-audit-log .dashboard-layout main,
-body.page-manage-landing-page .dashboard-layout main {
+body.page-manage-landing-page .dashboard-layout main,
+body.page-edit-password .dashboard-layout main {
   background: #f0f5fc !important;
 }
 
@@ -39,7 +41,8 @@ body.page-manage-landing-page .logo-text {
 
 body.page-admin-dashboard .logo-link,
 body.page-audit-log .logo-link,
-body.page-manage-landing-page .logo-link {
+body.page-manage-landing-page .logo-link,
+body.page-edit-password .logo-link {
   color: #ffffff !important;
 }
 
@@ -52,7 +55,8 @@ body.page-manage-landing-page .logo-link {
 
 body.page-admin-dashboard .user-name,
 body.page-audit-log .user-name,
-body.page-manage-landing-page .user-name {
+body.page-manage-landing-page .user-name,
+body.page-edit-password .user-name {
   color: #ffffff !important;
   font-size: 14px !important;
   font-weight: 600 !important;
@@ -60,7 +64,8 @@ body.page-manage-landing-page .user-name {
 
 body.page-admin-dashboard .role-badge,
 body.page-audit-log .role-badge,
-body.page-manage-landing-page .role-badge {
+body.page-manage-landing-page .role-badge,
+body.page-edit-password .role-badge {
   background: rgba(255, 255, 255, 0.12) !important;
   color: #c8d8f8 !important;
   font-size: 10px !important;
@@ -68,15 +73,27 @@ body.page-manage-landing-page .role-badge {
 }
 
 .user-avatar {
-  background: hsl(213, 56%, 36%) !important;
-  color: #ffffff !important;
-  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  background: #24345e !important;
+  background-image: url('/public/icons/sharedspace-badge.svg') !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  color: transparent !important;
+  border-color: rgba(247, 169, 27, 0.45) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.sidebar-user .user-avatar img {
+  display: none !important;
 }
 
 /* --- Nav links --- */
 body.page-admin-dashboard .nav-link,
 body.page-audit-log .nav-link,
-body.page-manage-landing-page .nav-link {
+body.page-manage-landing-page .nav-link,
+body.page-edit-password .nav-link {
   color: #a8bdd8 !important;
   border-radius: 8px !important;
   font-weight: 600 !important;
@@ -84,53 +101,125 @@ body.page-manage-landing-page .nav-link {
 
 body.page-admin-dashboard .nav-link:hover,
 body.page-audit-log .nav-link:hover,
-body.page-manage-landing-page .nav-link:hover {
+body.page-manage-landing-page .nav-link:hover,
+body.page-edit-password .nav-link:hover {
   background: rgba(255, 255, 255, 0.09) !important;
   color: #ffffff !important;
 }
 
 body.page-admin-dashboard .nav-link.active,
 body.page-audit-log .nav-link.active,
-body.page-manage-landing-page .nav-link.active {
+body.page-manage-landing-page .nav-link.active,
+body.page-edit-password .nav-link.active {
   background: rgba(255, 255, 255, 0.14) !important;
   color: #ffffff !important;
 }
 
 body.page-admin-dashboard .nav-link.active::before,
 body.page-audit-log .nav-link.active::before,
-body.page-manage-landing-page .nav-link.active::before {
+body.page-manage-landing-page .nav-link.active::before,
+body.page-edit-password .nav-link.active::before {
   background: #f5a623 !important;
 }
 
 body.page-admin-dashboard .nav-link.logout,
 body.page-audit-log .nav-link.logout,
-body.page-manage-landing-page .nav-link.logout {
+body.page-manage-landing-page .nav-link.logout,
+body.page-edit-password .nav-link.logout {
   color: #7a8ea8 !important;
 }
 
 body.page-admin-dashboard .nav-link.logout:hover,
 body.page-audit-log .nav-link.logout:hover,
-body.page-manage-landing-page .nav-link.logout:hover {
+body.page-manage-landing-page .nav-link.logout:hover,
+body.page-edit-password .nav-link.logout:hover {
   color: #ff8fa3 !important;
   background: rgba(255, 107, 138, 0.12) !important;
 }
 
 body.page-admin-dashboard .sidebar-footer,
 body.page-audit-log .sidebar-footer,
-body.page-manage-landing-page .sidebar-footer {
+body.page-manage-landing-page .sidebar-footer,
+body.page-edit-password .sidebar-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 body.page-admin-dashboard .nav-icon,
 body.page-audit-log .nav-icon,
-body.page-manage-landing-page .nav-icon {
+body.page-manage-landing-page .nav-icon,
+body.page-edit-password .nav-icon {
   opacity: 0.7 !important;
+}
+
+.sidebar .nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 0.78 !important;
+}
+
+.sidebar .nav-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.sidebar .nav-icon-home::before {
+  -webkit-mask-image: url('/public/icons/home-svgrepo-com.svg');
+  mask-image: url('/public/icons/home-svgrepo-com.svg');
+}
+
+.sidebar .nav-icon-browse::before {
+  -webkit-mask-image: url('/public/icons/browse-svgrepo-com.svg');
+  mask-image: url('/public/icons/browse-svgrepo-com.svg');
+}
+
+.sidebar .nav-icon-landing::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm2 0v4h12V5H6zm0 6v8h5v-8H6zm7 0v3h5v-3h-5zm0 5v3h5v-3h-5z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm2 0v4h12V5H6zm0 6v8h5v-8H6zm7 0v3h5v-3h-5zm0 5v3h5v-3h-5z'/%3E%3C/svg%3E");
+}
+
+.sidebar .nav-icon-audit::before {
+  -webkit-mask-image: url('/public/icons/article-svgrepo-com.svg');
+  mask-image: url('/public/icons/article-svgrepo-com.svg');
+}
+
+.sidebar .nav-icon-ai::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2l1.45 4.35L18 8l-4.55 1.65L12 14l-1.45-4.35L6 8l4.55-1.65L12 2zm6.5 9l.9 2.7L22 14.5l-2.6.8-.9 2.7-.9-2.7-2.6-.8 2.6-.8.9-2.7zM6.5 13l1.05 3.15L11 17.5l-3.45 1.35L6.5 22l-1.05-3.15L2 17.5l3.45-1.35L6.5 13z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2l1.45 4.35L18 8l-4.55 1.65L12 14l-1.45-4.35L6 8l4.55-1.65L12 2zm6.5 9l.9 2.7L22 14.5l-2.6.8-.9 2.7-.9-2.7-2.6-.8 2.6-.8.9-2.7zM6.5 13l1.05 3.15L11 17.5l-3.45 1.35L6.5 22l-1.05-3.15L2 17.5l3.45-1.35L6.5 13z'/%3E%3C/svg%3E");
+}
+
+.sidebar .nav-icon-settings::before {
+  -webkit-mask-image: url('/public/icons/category.svg');
+  mask-image: url('/public/icons/category.svg');
+}
+
+.sidebar .nav-icon-profile::before {
+  -webkit-mask-image: url('/public/icons/profile-round-1342-svgrepo-com.svg');
+  mask-image: url('/public/icons/profile-round-1342-svgrepo-com.svg');
+}
+
+.sidebar .nav-icon-logout::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M3 3a1 1 0 00-1 1v16a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M3 3a1 1 0 00-1 1v16a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z' clip-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 /* --- Header --- */
 body.page-admin-dashboard .dash-header,
 body.page-audit-log .dash-header,
-body.page-manage-landing-page .dash-header {
+body.page-manage-landing-page .dash-header,
+body.page-edit-password .dash-header {
   background: #ffffff !important;
   border-bottom: 1px solid #dde6f5 !important;
   backdrop-filter: none !important;
@@ -373,6 +462,58 @@ body.page-manage-landing-page table td {
 }
 body.page-manage-landing-page hr {
   border-color: #dce8f4 !important;
+}
+
+/* Edit password admin view */
+body.page-edit-password .page-content {
+  max-width: 460px !important;
+  padding: 36px 32px !important;
+}
+
+body.page-edit-password form {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+body.page-edit-password form label {
+  display: block !important;
+  margin-top: 10px !important;
+  color: #16233f !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+body.page-edit-password input[type='password'] {
+  display: block !important;
+  width: 100% !important;
+  min-height: 44px !important;
+  margin: 0 0 8px !important;
+  padding: 10px 14px !important;
+  background: #ffffff !important;
+  border: 1px solid #b9cbe2 !important;
+  border-radius: 8px !important;
+  color: #16233f !important;
+  box-shadow: 0 1px 2px rgba(28, 45, 79, 0.05) !important;
+  box-sizing: border-box !important;
+}
+
+body.page-edit-password input[type='password']:focus {
+  border-color: #1c2d4f !important;
+  box-shadow: 0 0 0 3px rgba(28, 45, 79, 0.14) !important;
+  outline: none !important;
+}
+
+body.page-edit-password .btn-primary {
+  width: max-content !important;
+  margin-top: 14px !important;
+  background: #1c2d4f !important;
+  color: #ffffff !important;
+  border: 0 !important;
+}
+
+body.page-edit-password .page-content a {
+  color: #1c2d4f !important;
+  font-weight: 600 !important;
 }
 
 /* Audit-specific */
@@ -1322,16 +1463,16 @@ body.page-ai-calibration .btn-primary {
 
 /* nav icon helpers */
 .nav-icon-ai {
-  background: #38bdf8;
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.16);
+  background: transparent !important;
+  box-shadow: none !important;
 }
 .nav-icon-metrics {
   background: #22c55e;
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
 }
 .nav-icon-settings {
-  background: #f87171;
-  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* ================================================================

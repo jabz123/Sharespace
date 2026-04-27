@@ -5,6 +5,8 @@ require_once __DIR__ . '/../includes/db.php';
 
 header('Content-Type: application/json');
 
+DB::ensureSiteFeedbackSentimentColumns();
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed.']);

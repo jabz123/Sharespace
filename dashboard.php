@@ -60,11 +60,19 @@ page_head('Dashboard');
             </div>
             <div class="dash-header-right">
                 <form class="dash-search" action="/pages/browse.php" method="GET">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="M21 21l-4.35-4.35" />
-                    </svg>
-                    <input type="text" name="search" placeholder="Search articles, topics, users…" autocomplete="off">
+                    <button type="submit" class="search-btn" aria-label="Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="M21 21l-4.35-4.35" />
+                        </svg>
+                    </button>
+
+                    <div class="search-input-wrapper">
+                        <input type="text" id="searchInput" name="search" placeholder="Search articles, topics, users…" autocomplete="off">
+                        <button type="button" id="clearSearch" class="clear-btn" aria-label="Clear search">
+                            <img src="/public/icons/clearicon.png" alt="">
+                        </button>
+                    </div>
                 </form>
                 <button class="dash-notif-btn" aria-label="Notifications">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -213,7 +221,13 @@ page_head('Dashboard');
                             <div class="contributor-list">
                                 <?php foreach ($topContributors as $c): ?>
                                     <div class="contributor-item">
-                                        <a class="contributor-avatar" href="/pages/user-profile.php?id=<?= (int) $c['id'] ?>" aria-label="View <?= htmlspecialchars($c['full_name']) ?>'s profile"><?= htmlspecialchars(strtoupper(substr($c['full_name'], 0, 1))) ?></a>
+                                        <a class="contributor-avatar" href="/pages/user-profile.php?id=<?= (int) $c['id'] ?>" aria-label="View <?= htmlspecialchars($c['full_name']) ?>'s profile">
+                                            <?php if (!empty($c['avatar_url'])): ?>
+                                                <img src="/public/<?= htmlspecialchars($c['avatar_url']) ?>" alt="<?= htmlspecialchars($c['full_name']) ?>">
+                                            <?php else: ?>
+                                                <?= htmlspecialchars(strtoupper(substr($c['full_name'], 0, 1))) ?>
+                                            <?php endif; ?>
+                                        </a>
                                         <a class="contributor-name" href="/pages/user-profile.php?id=<?= (int) $c['id'] ?>"><?= htmlspecialchars($c['full_name']) ?></a>
                                         <span class="contributor-count"><?= (int) $c['article_count'] ?> stories</span>
                                     </div>

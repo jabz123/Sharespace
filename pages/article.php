@@ -121,19 +121,19 @@ page_head($article->title, $isSystemAdmin);
                                 <img src="/public/icons/flag.png" alt="Flag article">
                             </button>
                             <div style="position: relative;">
-                            <button class="icon-btn" id="shareBtn" title="Share">
-                                <img src="/public/icons/share.png" alt="Share article">
-                            </button>
-                            </div>  
-                            <div id="shareMenu" class="share-menu hidden">
-                            <button class="share-option" data-platform="whatsapp">WhatsApp</button>
-                            <button class="share-option" data-platform="telegram">Telegram</button>
-                            <button class="share-option" data-platform="twitter">Twitter</button>
-                            <button class="share-option" data-platform="email">Email</button>
-                            <button class="share-option" data-platform="print">Print</button>
-                            <button class="share-option" data-platform="copy">Copy Link</button>
+                                <button class="icon-btn" id="shareBtn" title="Share">
+                                    <img src="/public/icons/share.png" alt="Share article">
+                                </button>
                             </div>
-                                                </div>
+                            <div id="shareMenu" class="share-menu hidden">
+                                <button class="share-option" data-platform="whatsapp">WhatsApp</button>
+                                <button class="share-option" data-platform="telegram">Telegram</button>
+                                <button class="share-option" data-platform="twitter">Twitter</button>
+                                <button class="share-option" data-platform="email">Email</button>
+                                <button class="share-option" data-platform="print">Print</button>
+                                <button class="share-option" data-platform="copy">Copy Link</button>
+                            </div>
+                        </div>
                     <?php endif; ?>
                 </div>
 
@@ -147,7 +147,13 @@ page_head($article->title, $isSystemAdmin);
                 </h1>
 
                 <div class="article-meta">
-                    <div class="author-avatar" style="width:42px;height:42px;font-size:16px"><?= htmlspecialchars($article->authorInitial()) ?></div>
+                    <div class="author-avatar" style="width:42px;height:42px;font-size:16px">
+                        <?php if (!empty($article->authorAvatarUrl)): ?>
+                            <img src="/public/<?= htmlspecialchars($article->authorAvatarUrl) ?>" alt="<?= htmlspecialchars($article->authorName) ?>">
+                        <?php else: ?>
+                            <?= htmlspecialchars($article->authorInitial()) ?>
+                        <?php endif; ?>
+                    </div>
                     <div>
                         <a href="/pages/user-profile.php?id=<?= $article->authorId ?>" style="font-weight:600;font-size:14px; text-decoration:none;
                          color:inherit;"><?= htmlspecialchars($article->authorName) ?></a>
@@ -222,28 +228,24 @@ page_head($article->title, $isSystemAdmin);
                         Comments <span style="font-size:14px;font-weight:400;color:var(--muted)">(<?= count($comments) ?>)</span>
                     </h2>
 
-                    <div class="card" style="margin-bottom:28px">
+                    <div class="comment-form-card">
                         <?php flash_messages(); ?>
 
                         <form method="POST" id="commentForm">
                             <input type="hidden" name="action" value="comment">
                             <div class="form-group" style="margin-bottom:12px">
-                                <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block">
-                                    Leave a comment as <span style="color:var(--primary)"><?= htmlspecialchars($user->fullName) ?></span>
+                                <label class="comment-form-label">
+                                    Leave a comment as <span><?= htmlspecialchars($user->fullName) ?></span>
                                 </label>
                                 <textarea name="comment_body" id="commentBody" rows="3"
-                                    placeholder="Share your thoughts on this article..."
-                                    style="width:100%;resize:vertical"
-                                    required></textarea>
+                                    placeholder="Share your thoughts on this article..." required></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
                         </form>
                     </div>
 
                     <?php if (empty($comments)): ?>
-                        <p class="text-muted" style="text-align:center;padding:32px 0">
-                            No comments yet. Be the first to share your thoughts.
-                        </p>
+                        <p class="text-muted comments-empty">No comments yet. Be the first to share your thoughts.</p>
                     <?php else: ?>
                         <div style="display:flex;flex-direction:column;gap:16px">
                             <?php foreach ($comments as $comment):
@@ -260,68 +262,68 @@ page_head($article->title, $isSystemAdmin);
                                             <form method="POST" style="margin:0">
                                                 <input type="hidden" name="action" value="delete_comment">
                                                 <input type="hidden" name="comment_id" value="<?= $comment->id ?>">
-                                                <button type="submit" class="btn btn-ghost btn-sm"
-                                                    style="font-size:11px;padding:2px 8px;color:var(--muted)"
+                                                <button type="submit" class="btn btn-ghost btn-sm comment-remove-btn"
                                                     onclick="return confirm('Delete this comment?')">Remove</button>
                                             </form>
                                         <?php endif; ?>
                                     </div>
-                                    <p style="font-size:14px;line-height:1.6;color:var(--fg);margin:0"><?= nl2br(htmlspecialchars($comment->content)) ?></p>
+                                    <p class="comment-body"><?= nl2br(htmlspecialchars($comment->content)) ?></p>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
+
         </div>
     </main>
 </div>
 
 <?php if (!$isSystemAdmin): ?>
-<div id="flagModal" class="modal hidden">
-    <div class="modal-overlay"></div>
+    <div id="flagModal" class="modal hidden">
+        <div class="modal-overlay"></div>
 
-    <div class="modal-content">
-        <h2>Report Article</h2>
-        <p class="modal-sub">Help us keep SharedSpace safe and reliable.</p>
+        <div class="modal-content">
+            <h2>Report Article</h2>
+            <p class="modal-sub">Help us keep SharedSpace safe and reliable.</p>
 
-        <form id="flagForm">
-            <input type="hidden" name="article_id" value="<?= $article->id ?>">
+            <form id="flagForm">
+                <input type="hidden" name="article_id" value="<?= $article->id ?>">
 
-            <div class="form-group">
-                <label>Select a reason</label>
-                <?php foreach ($flagReasonOptions as $index => $flagReason): ?>
-                    <label>
-                        <input
-                            type="radio"
-                            name="reason"
-                            value="<?= htmlspecialchars($flagReason) ?>"
-                            <?= $index === 0 ? 'required' : '' ?>>
-                        <?= htmlspecialchars($flagReason) ?>
-                    </label>
-                <?php endforeach; ?>
-            </div>
+                <div class="form-group">
+                    <label>Select a reason</label>
+                    <?php foreach ($flagReasonOptions as $index => $flagReason): ?>
+                        <label>
+                            <input
+                                type="radio"
+                                name="reason"
+                                value="<?= htmlspecialchars($flagReason) ?>"
+                                <?= $index === 0 ? 'required' : '' ?>>
+                            <?= htmlspecialchars($flagReason) ?>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
 
-            <div class="form-group">
-                <label>Tell us more</label>
-                <textarea
-                    name="details"
-                    id="flagDetails"
-                    rows="3"
-                    placeholder="Please explain clearly what is wrong with this article."
-                    maxlength="400"
-                    required></textarea>
-                <small id="charCount">0/400</small>
-                <small>Use 20 to 400 characters, more than 3 words, and avoid vague, heavily misspelled, or symbol-only text.</small>
-            </div>
+                <div class="form-group">
+                    <label>Tell us more</label>
+                    <textarea
+                        name="details"
+                        id="flagDetails"
+                        rows="3"
+                        placeholder="Please explain clearly what is wrong with this article."
+                        maxlength="400"
+                        required></textarea>
+                    <small id="charCount">0/400</small>
+                    <small>Use 20 to 400 characters, more than 3 words, and avoid vague, heavily misspelled, or symbol-only text.</small>
+                </div>
 
-            <div class="modal-actions">
-                <button type="button" id="closeModal" class="btn btn-ghost">Cancel</button>
-                <button type="submit" class="btn btn-danger">Submit Report</button>
-            </div>
-        </form>
+                <div class="modal-actions">
+                    <button type="button" id="closeModal" class="btn btn-ghost">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 <?php endif; ?>
 
 <script>

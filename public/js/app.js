@@ -5,6 +5,15 @@ document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
         const target = document.getElementById(btn.dataset.togglePassword);
         if (!target) return;
         target.type = target.type === 'password' ? 'text' : 'password';
+        const label = target.type === 'password' ? 'Show password' : 'Hide password';
+
+        if (btn.dataset.iconToggle === 'true') {
+            btn.setAttribute('aria-label', label);
+            btn.setAttribute('title', label);
+            btn.classList.toggle('is-visible', target.type === 'text');
+            return;
+        }
+
         btn.textContent = target.type === 'password' ? 'Show' : 'Hide';
     });
 });
