@@ -1117,80 +1117,125 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 }
 
 /* ================================================================
-   PROFILE ADMIN SHELL
+   ADMIN PROFILE – Full user-style layout (light theme)
    ================================================================ */
-body.page-profile .profile-admin-shell {
-  --fg: #16233f;
-  --muted: #5a7090;
-  --border: #dce8f4;
-  --card: #ffffff;
-  --bg: #f0f5fc;
-  --secondary: #edf3fb;
-  --primary: #1c2d4f;
-  --primary-mid: #253c68;
-  background: #f0f5fc !important;
-  color: #16233f !important;
+
+/* --- Layout (mirror user profile grid) --- */
+.profile-admin-shell .profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
 }
 
-body.page-profile .profile-admin-shell main {
-  background: #f0f5fc !important;
+.profile-admin-shell .profile-main {
+  background: transparent !important;   /* override the shell background */
 }
-body.page-profile .profile-admin-shell .dash-header {
+
+.profile-admin-shell .profile {
   background: #ffffff !important;
-  border-bottom: 1px solid #dde6f5 !important;
-  backdrop-filter: none !important;
+  border: 1px solid #dce8f4 !important;
+  box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
+  border-radius: 14px !important;
+  padding: 28px !important;
 }
-body.page-profile .profile-admin-shell .dash-title,
-body.page-profile .profile-admin-shell .profile-header h2,
-body.page-profile .profile-admin-shell .profile label {
-  color: #16233f !important;
+
+.profile-admin-shell .profile-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #dce8f4;
 }
-body.page-profile .profile-admin-shell .dash-subtitle,
-body.page-profile .profile-admin-shell .profile-upload-note,
-body.page-profile .profile-admin-shell .text-muted {
-  color: #5a7090 !important;
+
+.profile-admin-shell .profile-header h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: #16233f;
+  margin-bottom: 4px;
 }
-body.page-profile .profile-admin-shell .profile input[type='text'],
-body.page-profile .profile-admin-shell .profile input[type='email'],
-body.page-profile .profile-admin-shell .profile textarea {
-  background: #f7faff !important;
-  border: 1px solid #c8d8ee !important;
-  color: #16233f !important;
+
+/* --- Avatar upload area --- */
+.profile-admin-shell .image-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
 }
-body.page-profile .profile-admin-shell .profile-password-btn {
-  background: #edf3fb !important;
-  border: 1px solid #c8d8ee !important;
-  color: #314766 !important;
+
+.profile-admin-shell .profile-avatar-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1c3370, #0d1e42);
+  border: 2px solid #f5a623;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #f5a623;
+  overflow: hidden;
+  flex-shrink: 0;
 }
-body.page-profile .profile-admin-shell .profile-password-btn:hover {
-  background: #e2ebf7 !important;
-  color: #16233f !important;
+
+.profile-admin-shell .profile-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-body.page-profile .profile-admin-shell .btn-dark {
+
+.profile-admin-shell .image-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Already have .btn-dark and .btn-light in the admin shell – ensure they look right */
+.profile-admin-shell .btn-dark {
   background: #1c2d4f !important;
   color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
 }
-body.page-profile .profile-admin-shell .btn-light {
+.profile-admin-shell .btn-light {
   background: #edf3fb !important;
   color: #314766 !important;
   border: 1px solid #c8d8ee !important;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 16px;
 }
 
-/* ================================================================
-   ADMIN PROFILE – Interests chips (light theme, no checkboxes)
-   ================================================================ */
-
-/* Hide checkboxes completely */
-.interest-checkbox-profile {
-  position: absolute !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+/* --- Actions row (Save Changes / Edit Password) --- */
+.profile-admin-shell .profile-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
-/* Section spacing & separator */
+.profile-admin-shell .profile-password-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #c4d4e8;
+  color: #314766;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+.profile-admin-shell .profile-password-btn:hover {
+  background: #edf3fb;
+  color: #16233f;
+}
+
+/* --- Interests section --- */
 .profile-admin-shell .interests-section {
-  margin-top: 32px;
-  padding-top: 28px;
+  margin-top: 28px;
+  padding-top: 24px;
   border-top: 1px solid #dce8f4;
 }
 
@@ -1202,70 +1247,74 @@ body.page-profile .profile-admin-shell .btn-light {
   margin-bottom: 8px;
 }
 
-.profile-admin-shell .interests-hint {
-  font-size: 14px;
-  color: #5a7090;
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-
-/* Grid of chips */
 .profile-admin-shell .interest-grid-profile {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
-/* Each chip */
 .profile-admin-shell .interest-chip-profile {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 60px;
-  padding: 8px 18px;
-  border-radius: 999px;
-  background: #f7faff;
-  border: 1px solid #c8d8ee;
-  color: #314766;
   font-size: 13px;
   font-weight: 600;
+  color: #314766;
+  background: #f7faff;
+  border: 1px solid #c8d8ee;
+  border-radius: 999px;
+  padding: 6px 14px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s;
 }
-
 .profile-admin-shell .interest-chip-profile:hover {
   background: #edf3fb;
   border-color: #8fa9ca;
   color: #16233f;
 }
-
-/* Selected chip – the key interactive state */
 .profile-admin-shell .interest-chip-profile.selected {
   background: #dae6ff;
   border-color: #1c2d4f;
-  color: #ffffff;
+  color: #16233f;
   box-shadow: 0 2px 8px rgba(28,45,79,0.18);
 }
 
-/* Counter text */
 .profile-admin-shell .interests-counter {
   font-size: 13px;
   color: #5a7090;
   margin: 8px 0 20px;
 }
-
 .profile-admin-shell .interests-counter.error {
   color: #b91c1c;
   font-weight: 600;
 }
 
-/* Save button spacing */
 .profile-admin-shell .btn-save-interests {
-  margin-top: 4px;
+  background: #1c2d4f !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.profile-admin-shell .btn-save-interests:hover {
+  background: #253c68 !important;
 }
 
+
+/* --- Hide checkboxes inside interest chips (already done, but reinforce) --- */
+.profile-admin-shell .interest-checkbox-profile {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* --- Responsive adjustments for admin profile --- */
+@media (max-width: 1200px) {
+  .profile-admin-shell .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
 /* ================================================================
    SYSTEM ADMIN AI PAGES
    ================================================================ */
