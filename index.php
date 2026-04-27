@@ -28,6 +28,9 @@ $testimonials = DB::query("
     SELECT id, user_id, name, role, rating, content, created_at
     FROM site_feedback
     WHERE is_approved = 1
+      AND rating >= 4
+      AND sentiment_label = 'positive'
+      AND sentiment_status = 'aligned'
     ORDER BY created_at DESC
     LIMIT 4
 ");
