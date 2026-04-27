@@ -296,6 +296,28 @@ body:has(.user-dashboard-shell) {
   mask-image: url('/public/icons/premium-svgrepo-com.svg');
 }
 
+.user-dashboard-shell .nav-icon-alerts::before {
+  -webkit-mask-image: url('/public/icons/unverified.svg');
+  mask-image: url('/public/icons/unverified.svg');
+}
+
+.user-dashboard-shell .nav-icon-library::before {
+  -webkit-mask-image: url('/public/icons/category.svg');
+  mask-image: url('/public/icons/category.svg');
+}
+
+.user-dashboard-shell .nav-icon-writers::before {
+  -webkit-mask-image: url('/public/icons/catWriter.svg');
+  mask-image: url('/public/icons/catWriter.svg');
+}
+
+.user-dashboard-shell .nav-icon-flags::before {
+  -webkit-mask-image: url('/public/icons/flag.png');
+  mask-image: url('/public/icons/flag.png');
+}
+
+
+
 .user-dashboard-shell .nav-icon-profile::before {
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z' clip-rule='evenodd'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z' clip-rule='evenodd'/%3E%3C/svg%3E");

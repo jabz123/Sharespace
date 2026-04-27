@@ -119,7 +119,7 @@ function sidebar(User $user): void
             ['href' => '/pages/unverified-articles.php', 'key' => 'alerts', 'label' => 'Unverified Articles'],
             ['href' => '/pages/category-articles.php', 'key' => 'library', 'label' => 'Category Articles'],
             ['href' => '/pages/category-writers.php', 'key' => 'writers', 'label' => 'Category Writers'],
-            ['href' => '/pages/flagged-articles.php', 'key' => 'alerts', 'label' => 'Flagged Articles'],
+            ['href' => '/pages/flagged-articles.php', 'key' => 'flags', 'label' => 'Flagged Articles'],
             ['href' => '/pages/my-articles.php', 'key' => 'articles', 'label' => 'My Articles'],
             ['href' => '/pages/write.php', 'key' => 'compose', 'label' => 'Write Article'],
             ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
