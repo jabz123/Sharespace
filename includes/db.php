@@ -10,6 +10,7 @@ class DB {
     private static ?PDO $pdo = null;
     private static bool $categoryExpertsReady = false;
     private static bool $articleReviewWorkflowReady = false;
+    private static bool $siteFeedbackSentimentReady = false;
 
     public static function get(): PDO { //returns db connection using PDO
         if (self::$pdo === null) {
@@ -157,5 +158,34 @@ class DB {
         }
 
         self::$articleReviewWorkflowReady = true;
+    }
+
+    public static function ensureSiteFeedbackSentimentColumns(): void {
+        if (self::$siteFeedbackSentimentReady) {
+            return;
+        }
+
+        if (!self::columnExists('site_feedback', 'sentiment_label')) {
+            self::execute(
+                'ALTER TABLE site_feedback
+                 ADD COLUMN sentiment_label VARCHAR(32) DEFAULT NULL'
+            );
+        }
+
+        if (!self::columnExists('site_feedback', 'sentiment_score')) {
+            self::execute(
+                'ALTER TABLE site_feedback
+                 ADD COLUMN sentiment_score DECIMAL(4,3) DEFAULT NULL'
+            );
+        }
+
+        if (!self::columnExists('site_feedback', 'sentiment_status')) {
+            self::execute(
+                "ALTER TABLE site_feedback
+                 ADD COLUMN sentiment_status VARCHAR(32) NOT NULL DEFAULT 'pending'"
+            );
+        }
+
+        self::$siteFeedbackSentimentReady = true;
     }
 }

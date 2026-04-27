@@ -24,6 +24,7 @@ $steps = DB::query("SELECT * FROM landing_steps ORDER BY display_order ASC");
 $plans = DB::query("SELECT * FROM landing_pricing_plans ORDER BY display_order ASC");
 $pricingFeatures = DB::query("SELECT * FROM landing_pricing_features ORDER BY display_order ASC");
 
+DB::ensureSiteFeedbackSentimentColumns();
 $testimonials = DB::query("
     SELECT id, user_id, name, role, rating, content, created_at
     FROM site_feedback

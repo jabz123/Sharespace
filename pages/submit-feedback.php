@@ -3,6 +3,8 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/comment_moderation_rules.php';
 
+DB::ensureSiteFeedbackSentimentColumns();
+
 function feedback_word_count(string $content): int {
     $normalized = preg_replace("/[^\p{L}\p{N}']+/u", ' ', $content) ?? '';
     $words = preg_split('/\s+/u', trim($normalized), -1, PREG_SPLIT_NO_EMPTY);

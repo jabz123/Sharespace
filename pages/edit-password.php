@@ -6,9 +6,11 @@ $auth = new AuthController();
 $auth->requireAuth();
 $user = $auth->currentUser();
 
-page_head('Edit Password');
+$isSystemAdmin = $user->role === 'system_admin';
+
+page_head('Edit Password', $isSystemAdmin);
 ?>
-<div class="dashboard-layout">
+<div class="dashboard-layout <?= $isSystemAdmin ? '' : 'user-dashboard-shell' ?>">
     <?php sidebar($user); ?>
     <main>
         <?php dash_header('Edit Password', 'Change your account password'); ?>

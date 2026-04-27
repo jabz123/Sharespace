@@ -1340,6 +1340,54 @@ select option {
   color: var(--text-primary);
 }
 
+/* Edit password */
+body.page-edit-password .user-dashboard-shell .page-content {
+  max-width: 460px;
+  padding: 36px 32px;
+}
+
+body.page-edit-password .user-dashboard-shell form {
+  display: grid;
+  gap: 10px;
+}
+
+body.page-edit-password .user-dashboard-shell form label {
+  display: block;
+  margin-top: 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+body.page-edit-password .user-dashboard-shell input[type='password'] {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 0 0 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--r-md);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+body.page-edit-password .user-dashboard-shell input[type='password']:focus {
+  border-color: var(--border-amber);
+  background: rgba(245, 166, 35, 0.03);
+  outline: none;
+}
+
+body.page-edit-password .user-dashboard-shell .btn-primary {
+  width: max-content;
+  margin-top: 14px;
+}
+
+body.page-edit-password .user-dashboard-shell .page-content a {
+  color: var(--amber);
+  font-weight: 600;
+}
+
 .write-actions {
   display: flex;
   align-items: center;   /* vertically center the buttons */
