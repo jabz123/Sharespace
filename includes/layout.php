@@ -313,7 +313,11 @@ function flash_messages(): void
             <div class="card-footer">
                 <div class="footer-left">
                     <div class="author-avatar">
-                        <?= htmlspecialchars($article->authorInitial()) ?>
+                        <?php if (!empty($article->authorAvatarUrl)): ?>
+                            <img src="/public/<?= htmlspecialchars($article->authorAvatarUrl) ?>" alt="<?= htmlspecialchars($article->authorName) ?>">
+                        <?php else: ?>
+                            <?= htmlspecialchars($article->authorInitial()) ?>
+                        <?php endif; ?>
                     </div>
 
                     <div class="author-info">

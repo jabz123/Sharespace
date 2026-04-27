@@ -147,7 +147,13 @@ page_head($article->title, $isSystemAdmin);
                 </h1>
 
                 <div class="article-meta">
-                    <div class="author-avatar" style="width:42px;height:42px;font-size:16px"><?= htmlspecialchars($article->authorInitial()) ?></div>
+                    <div class="author-avatar" style="width:42px;height:42px;font-size:16px">
+                        <?php if (!empty($article->authorAvatarUrl)): ?>
+                            <img src="/public/<?= htmlspecialchars($article->authorAvatarUrl) ?>" alt="<?= htmlspecialchars($article->authorName) ?>">
+                        <?php else: ?>
+                            <?= htmlspecialchars($article->authorInitial()) ?>
+                        <?php endif; ?>
+                    </div>
                     <div>
                         <a href="/pages/user-profile.php?id=<?= $article->authorId ?>" style="font-weight:600;font-size:14px; text-decoration:none;
                          color:inherit;"><?= htmlspecialchars($article->authorName) ?></a>

@@ -16,7 +16,7 @@ class HomepageController {
     public function getRecommendedByInterest($userId) {
 
         $rows = DB::query(
-        "SELECT a.*, u.full_name author_name, c.name category_name,
+        "SELECT a.*, u.full_name author_name, u.avatar_url AS author_avatar_url, c.name category_name,
         COUNT(DISTINCT v.id) AS view_count,
         COUNT(DISTINCT f.id) AS flag_count
         FROM articles a
@@ -50,7 +50,8 @@ class HomepageController {
     public function getPopularByAgeGroup($userId) {
        $rows = DB::query(
         "SELECT a.*, 
-        u.full_name AS author_name, 
+        u.full_name AS author_name,
+        u.avatar_url AS author_avatar_url,
         c.name AS category_name,
         COUNT(DISTINCT v.id) AS age_group_views,
         (SELECT COUNT(*) FROM article_views v2 WHERE v2.article_id = a.id) AS view_count,
@@ -81,7 +82,8 @@ class HomepageController {
     public function getPopularByGender($userId) {
         $rows = DB::query(
         "SELECT a.*, 
-        u.full_name AS author_name, 
+        u.full_name AS author_name,
+        u.avatar_url AS author_avatar_url,
         c.name AS category_name,
         COUNT(DISTINCT v.id) AS gender_views,
         (SELECT COUNT(*) 
@@ -113,7 +115,7 @@ class HomepageController {
     //added date as filter to only show articles from last month. rn is on 1 month onyl
     public function getLatest(int $limit = 6) {
         $rows = DB::query(
-        "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+        "SELECT a.*, u.full_name AS author_name, u.avatar_url AS author_avatar_url, c.name AS category_name,
         COUNT(DISTINCT v.id) AS view_count,
         COUNT(DISTINCT f.id) AS flag_count
         FROM articles a

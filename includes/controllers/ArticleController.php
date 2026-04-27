@@ -96,7 +96,7 @@ class ArticleController {
     // 
     public function getById(int $id): ?Article {
         $row = DB::first(
-            'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+            'SELECT a.*, u.full_name AS author_name, u.avatar_url AS author_avatar_url, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count
              FROM articles a
              JOIN users u ON u.id = a.author_id
@@ -383,7 +383,7 @@ class ArticleController {
 
     public function getByCategory($category = null, $sort = 'recent', $search = null, $limit = 12, $offset = 0): array {
 
-        $sql = 'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
+        $sql = 'SELECT a.*, u.full_name AS author_name, u.avatar_url AS author_avatar_url, c.name AS category_name,
                 COUNT(DISTINCT v.id) AS view_count,
                 COUNT(DISTINCT f.id) AS flag_count
                 FROM articles a
