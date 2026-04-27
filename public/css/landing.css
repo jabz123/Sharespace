@@ -11,7 +11,7 @@
   --bg-1: #07101b;
   --bg-2: #0d1320;
 
-  --surface: rgba(12, 18, 30, 0.78);
+  --surface: rgba(12, 18, 30, 0.88);
   --surface-strong: rgba(15, 17, 24, 0.94);
   --surface-soft: rgba(255, 255, 255, 0.05);
   --surface-border: rgba(255, 255, 255, 0.08);
@@ -29,8 +29,8 @@
   --success: #8ee28a;
   --success-bg: rgba(142, 226, 138, 0.12);
 
-  --shadow-deep: 0 28px 80px rgba(0, 0, 0, 0.48);
-  --shadow-soft: 0 18px 36px rgba(0, 0, 0, 0.28);
+  --shadow-deep: 0 18px 42px rgba(0, 0, 0, 0.38);
+  --shadow-soft: 0 12px 26px rgba(0, 0, 0, 0.24);
 
   --radius-xl: 28px;
   --radius-lg: 20px;
@@ -87,10 +87,11 @@ img {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 100;
-  background: rgba(7, 10, 16, 0.82);
-  backdrop-filter: blur(18px);
+  /* solid enough to look glassy, but no blur because chrome hates that while scrolling */
+  background: rgba(7, 10, 16, 0.94);
   border-bottom: 1px solid rgba(255, 184, 73, 0.08);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transform: translateZ(0);
 }
 .navbar::after {
   content: '';
@@ -104,7 +105,7 @@ img {
   box-shadow: 0 0 22px rgba(245, 201, 106, 0.35);
 }
 .navbar.scrolled {
-  background: rgba(5, 8, 14, 0.92);
+  background: rgba(5, 8, 14, 0.98);
 }
 
 .nav-inner {
@@ -273,7 +274,6 @@ img {
     linear-gradient(90deg, transparent 0%, rgba(255, 173, 70, 0.08) 12%, rgba(255, 193, 98, 0.95) 50%, rgba(255, 173, 70, 0.08) 88%, transparent 100%);
   box-shadow: 0 0 24px rgba(255, 173, 70, 0.25), 0 0 70px rgba(255, 173, 70, 0.18);
   pointer-events: none;
-  filter: blur(0.4px);
 }
 
 .starfield,
@@ -289,11 +289,12 @@ img {
 }
 
 .starfield {
-  mix-blend-mode: screen;
+  /* blend mode looked nice, but it makes the whole hero repaint harder */
+  opacity: 0.72;
 }
 
 .starfield-back {
-  opacity: 0.58;
+  opacity: 0.32;
   background-image:
     radial-gradient(circle at 8% 14%, rgba(195, 214, 244, 0.32) 0 0.68px, transparent 1.08px),
     radial-gradient(circle at 16% 62%, rgba(255, 220, 184, 0.22) 0 0.66px, transparent 1.05px),
@@ -307,7 +308,7 @@ img {
 }
 
 .starfield-mid {
-  opacity: 0.8;
+  opacity: 0.54;
   background-image:
     radial-gradient(circle at 10% 18%, rgba(255, 252, 246, 0.8) 0 0.95px, transparent 1.42px),
     radial-gradient(circle at 18% 48%, rgba(205, 223, 255, 0.72) 0 0.9px, transparent 1.38px),
@@ -322,7 +323,7 @@ img {
 }
 
 .starfield-front {
-  opacity: 0.92;
+  display: none;
   background-image:
     radial-gradient(circle at 9% 20%, rgba(255, 255, 255, 0.98) 0 1.15px, transparent 1.75px),
     radial-gradient(circle at 19% 56%, rgba(218, 231, 255, 0.9) 0 1.08px, transparent 1.68px),
@@ -357,7 +358,6 @@ img {
   background:
     radial-gradient(circle at 50% 50%, rgba(255, 214, 148, 0.34) 0%, rgba(255, 170, 66, 0.12) 28%, transparent 62%),
     radial-gradient(circle at 56% 46%, rgba(208, 222, 255, 0.18) 0%, transparent 52%);
-  filter: blur(1px);
 }
 
 .planet {
@@ -471,22 +471,22 @@ img {
 .blob-right,
 .blob-left {
   z-index: 0;
-  filter: blur(42px);
-  opacity: 0.12;
+  /* fake the soft glow with gradients instead of a live blur */
+  opacity: 0.16;
 }
 .blob-right {
   width: 320px;
   height: 320px;
   right: -100px;
   top: 160px;
-  background: radial-gradient(circle, rgba(255, 178, 68, 0.36), transparent 68%);
+  background: radial-gradient(circle, rgba(255, 178, 68, 0.18) 0%, rgba(255, 178, 68, 0.08) 42%, transparent 70%);
 }
 .blob-left {
   width: 260px;
   height: 260px;
   left: -80px;
   bottom: 120px;
-  background: radial-gradient(circle, rgba(70, 97, 170, 0.28), transparent 68%);
+  background: radial-gradient(circle, rgba(70, 97, 170, 0.16) 0%, rgba(70, 97, 170, 0.08) 44%, transparent 72%);
 }
 
 /* Hero content */
@@ -595,13 +595,16 @@ img {
   width: min(980px, 100%);
   padding: 34px 34px 30px;
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
+  /* same glass vibe, but cheaper while scrolling */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.035)),
+    rgba(10, 15, 26, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(255, 200, 120, 0.16),
-    inset 0 0 20px rgba(255, 255, 255, 0.05);
+    0 16px 42px rgba(0, 0, 0, 0.42),
+    0 0 26px rgba(255, 200, 120, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  contain: paint;
 }
 .preview-window::before {
   content: '';
@@ -622,8 +625,7 @@ img {
   height: 14px;
   transform: translateX(-50%);
   background: linear-gradient(90deg, transparent, rgba(245, 201, 106, 0.84), transparent);
-  box-shadow: 0 0 26px rgba(245, 201, 106, 0.34);
-  filter: blur(0.4px);
+  box-shadow: 0 0 18px rgba(245, 201, 106, 0.24);
 }
 
 .orbital-swimmer {
@@ -913,22 +915,34 @@ img {
   gap: 20px;
 }
 
+.pricing-grid {
+  /* only two cards here, so keep them nicely centered */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 426px));
+  justify-content: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .feature-card,
 .review-card,
 .pricing-card,
 .step-card {
   padding: 26px;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
+  /* cheaper card glass, keeps the same dark/gold style */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.035)),
+    rgba(12, 18, 30, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.34),
-    inset 0 0 20px rgba(255, 255, 255, 0.04);
+    0 12px 32px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  contain: paint;
 }
 
 .feature-icon-box,
 .step-icon-box {
+  position: relative;
   width: 56px;
   height: 56px;
   border-radius: 16px;
@@ -938,6 +952,10 @@ img {
   background: rgba(255, 200, 120, 0.08);
   border: 1px solid rgba(255, 200, 120, 0.16);
   margin-bottom: 18px;
+}
+
+.step-icon-box {
+  margin-bottom: 0;
 }
 .feature-icon-box img,
 .step-icon-box img {
@@ -973,11 +991,13 @@ img {
   position: relative;
   display: inline-flex;
   align-items: center;
+  margin-bottom: 18px;
 }
 .step-num {
   position: absolute;
-  right: -12px;
-  bottom: -10px;
+  /* tuck the number onto the icon so it feels attached */
+  right: -14px;
+  bottom: -8px;
   min-width: 28px;
   min-height: 28px;
   padding: 0 9px;
@@ -989,6 +1009,8 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.24);
 }
 .step-connector {
   position: absolute;
@@ -1005,7 +1027,7 @@ img {
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: var(--shadow-deep);
+  box-shadow: var(--shadow-soft);
 }
 
 /* Reviews */
@@ -1054,12 +1076,18 @@ img {
 }
 
 /* Pricing */
+.pricing-card {
+  /* keeps both pricing buttons sitting on the same line */
+  display: flex;
+  flex-direction: column;
+}
+
 .pricing-card.popular {
   border-color: rgba(245, 201, 106, 0.32);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.34),
-    0 0 34px rgba(245, 201, 106, 0.16),
-    inset 0 0 20px rgba(255, 255, 255, 0.04);
+    0 14px 34px rgba(0, 0, 0, 0.3),
+    0 0 22px rgba(245, 201, 106, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .popular-badge {
@@ -1094,7 +1122,7 @@ img {
   list-style: none;
   display: grid;
   gap: 12px;
-  margin: 24px 0;
+  margin: 24px 0 auto;
 }
 .pricing-features li {
   color: var(--text-soft);
@@ -1115,6 +1143,7 @@ img {
 
 .btn-hero-full,
 .btn-outline-full {
+  margin-top: 24px;
   min-height: 52px;
   width: 100%;
   padding: 0 20px;
@@ -1238,9 +1267,13 @@ img {
 @media (max-width: 1100px) {
   .preview-cards,
   .features-grid,
-  .pricing-grid,
   .steps-grid {
     grid-template-columns: 1fr;
+  }
+
+  .pricing-grid {
+    grid-template-columns: minmax(0, 426px);
+    justify-content: center;
   }
 
   .reviews-grid,
