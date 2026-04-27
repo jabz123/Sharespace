@@ -1284,6 +1284,44 @@ body:has(.sub-page-shell) {
   gap: 24px;
   align-items: start;
 }
+.write-editor-shell .image-upload-container {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.write-editor-shell .image-preview {
+  width: min(100%, 520px);
+  height: 300px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-mid);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.write-editor-shell .image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+.write-editor-shell .image-preview span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.write-editor-shell .write-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.write-editor-shell .write-field-head .profile-bio-counter {
+  margin-top: 0;
+}
+.write-editor-shell .write-field-head label {
+  margin-bottom: 6px;
+}
 .write-form-panel {
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);

@@ -344,8 +344,19 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 </div>
 
                 <div class="form-group">
-                    <label>Brief description</label>
-                    <input type="text" name="excerpt" value="<?= htmlspecialchars($val['excerpt']) ?>" required>
+                    <div class="write-field-head">
+                        <label for="excerpt">Brief description</label>
+                        <div class="profile-bio-counter">
+                            <span id="excerptCounter"><?= strlen((string)$val['excerpt']) ?> / 200</span>
+                        </div>
+                    </div>
+                    <input
+                        type="text"
+                        id="excerpt"
+                        name="excerpt"
+                        maxlength="200"
+                        value="<?= htmlspecialchars($val['excerpt']) ?>"
+                        required>
                 </div>
 
                 <div class="form-group">
@@ -768,6 +779,26 @@ function removeImage() {
     document.getElementById('articleImageInput').value = '';
     document.getElementById('imagePreview').innerHTML = '<span>No image selected</span>';
     document.getElementById('removeImageFlag').value = '1';
+}
+
+// Brief description char counter - same style pattern as profile bio counter
+const excerptInput = document.getElementById('excerpt');
+const excerptCounter = document.getElementById('excerptCounter');
+const EXCERPT_MAX_LENGTH = 200;
+
+function updateExcerptCounter() {
+    if (!excerptInput || !excerptCounter) return;
+
+    if (excerptInput.value.length > EXCERPT_MAX_LENGTH) {
+        excerptInput.value = excerptInput.value.slice(0, EXCERPT_MAX_LENGTH);
+    }
+
+    excerptCounter.textContent = excerptInput.value.length + ' / ' + EXCERPT_MAX_LENGTH;
+}
+
+if (excerptInput && excerptCounter) {
+    excerptInput.addEventListener('input', updateExcerptCounter);
+    updateExcerptCounter();
 }
 
 function escapeHtml(value) {
