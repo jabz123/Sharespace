@@ -1608,6 +1608,11 @@ mark.highlight-contradicted {
   padding: 28px;
   backdrop-filter: blur(12px);
 }
+.user-dashboard-shell .ai-results-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 .user-dashboard-shell .ai-results-head {
   display: flex;
   align-items: center;
@@ -1646,6 +1651,89 @@ mark.highlight-contradicted {
 .user-dashboard-shell .ai-state-card .text-muted {
   font-size: 12.5px;
   color: var(--text-muted);
+}
+.user-dashboard-shell .ai-overview-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.user-dashboard-shell .ai-overview-grid {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+.user-dashboard-shell .ai-score-wrap {
+  display: flex;
+  justify-content: center;
+}
+.user-dashboard-shell .ai-overview-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.user-dashboard-shell .ai-overview-kicker,
+.user-dashboard-shell .ai-results-footer-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-amber);
+}
+.user-dashboard-shell .ai-overview-copy h4 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text-primary);
+  margin: 0;
+}
+.user-dashboard-shell .ai-overview-copy p {
+  margin: 0;
+}
+.user-dashboard-shell .ai-overview-copy #aiSummary {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+.user-dashboard-shell .ai-source-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+.user-dashboard-shell .ai-overview-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.user-dashboard-shell .ai-meta-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  min-width: 0;
+}
+.user-dashboard-shell .ai-meta-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.user-dashboard-shell .ai-meta-card strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary);
 }
 
 /* areas / stats */
@@ -1718,15 +1806,15 @@ mark.highlight-contradicted {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
+  margin-top: 16px;
 }
 .user-dashboard-shell .ai-pill {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border-radius: 999px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border: 1px solid;
 }
 .user-dashboard-shell .ai-pill-supported {
@@ -1748,14 +1836,13 @@ mark.highlight-contradicted {
 .user-dashboard-shell .ai-breakdown-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 24px;
+  gap: 12px;
 }
 .user-dashboard-shell .ai-stat-card {
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-md);
-  padding: 14px 12px;
+  padding: 16px 14px;
   text-align: center;
 }
 .user-dashboard-shell .ai-stat-card strong {
@@ -1853,6 +1940,29 @@ mark.highlight-contradicted {
   margin-bottom: 10px;
   overflow: hidden;
 }
+.user-dashboard-shell .ai-results-dashboard > .ai-section {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  margin-bottom: 0;
+}
+.user-dashboard-shell .ai-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.user-dashboard-shell .ai-section-head h4 {
+  margin: 0 0 4px;
+}
+.user-dashboard-shell .ai-section-head p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
 .user-dashboard-shell .ai-area-summary {
   display: flex;
   align-items: center;
@@ -1913,6 +2023,7 @@ mark.highlight-contradicted {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   margin-top: 12px;
+  padding: 0 12px 12px;
 }
 .user-dashboard-shell .ai-source-card {
   background: rgba(255,255,255,0.03);
@@ -1987,13 +2098,92 @@ mark.highlight-contradicted {
 }
 
 .user-dashboard-shell .ai-success-box {
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-radius: var(--r-md);
   font-size: 13px;
   font-weight: 600;
   color: var(--success);
   background: var(--success-bg);
   border: 1px solid var(--success-border);
+}
+.user-dashboard-shell .ai-results-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.user-dashboard-shell .ai-metric-list {
+  display: grid;
+  gap: 12px;
+}
+.user-dashboard-shell .ai-metric-row {
+  display: grid;
+  gap: 8px;
+}
+.user-dashboard-shell .ai-metric-label-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.user-dashboard-shell .ai-metric-label-line .text-muted {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.user-dashboard-shell .progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.user-dashboard-shell .progress-bar > div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f5a623 0%, #ffd163 100%);
+  transition: width 0.35s ease;
+}
+
+@media (max-width: 1100px) {
+  .user-dashboard-shell .ai-overview-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .user-dashboard-shell .ai-overview-copy {
+    align-items: center;
+  }
+
+  .user-dashboard-shell .ai-overview-meta,
+  .user-dashboard-shell .ai-breakdown-grid,
+  .user-dashboard-shell .ai-sources-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-dashboard-shell .ai-verification-card {
+    padding: 20px 16px;
+  }
+
+  .user-dashboard-shell .ai-results-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .user-dashboard-shell .ai-last-checked {
+    white-space: normal;
+  }
+
+  .user-dashboard-shell .ai-overview-copy h4 {
+    font-size: 24px;
+  }
+
+  .user-dashboard-shell .ai-meta-card strong {
+    font-size: 15px;
+  }
 }
 
 /* ─── WRITE PAGE BUTTONS ─────────────────────────────────────── */

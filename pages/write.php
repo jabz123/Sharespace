@@ -446,31 +446,57 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                     <div id="ai-result" class="ai-results-dashboard" style="display:<?= $hasCurrentVerification ? 'block' : 'none' ?>;">
                         <section class="ai-overview-card">
-                            <div class="ai-score-ring" id="aiScoreRing" style="--score: <?= max(0, min(100, (int)$initialTrustScore)) ?>;">
-                                <div class="ai-score-ring-inner">
-                                    <span id="aiTrustScore"><?= (int)$initialTrustScore ?>%</span>
-                                    <span>Trust Score</span>
+                            <div class="ai-overview-grid">
+                                <div class="ai-score-wrap">
+                                    <div class="ai-score-ring" id="aiScoreRing" style="--score: <?= max(0, min(100, (int)$initialTrustScore)) ?>;">
+                                        <div class="ai-score-ring-inner">
+                                            <span id="aiTrustScore"><?= (int)$initialTrustScore ?>%</span>
+                                            <span>Trust Score</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="ai-overview-copy">
+                                    <span class="ai-overview-kicker">Verification Summary</span>
+                                    <h4 id="aiVerdictHeadline"><?=
+                                        htmlspecialchars(
+                                            $initialDecision === 'auto_publish'
+                                                ? 'Reliable'
+                                                : ($initialDecision === 'needs_review'
+                                                    ? 'Needs Review'
+                                                    : ($initialDecision === 'unreliable' ? 'Unreliable' : 'Waiting for verification'))
+                                        )
+                                    ?></h4>
+                                    <p id="aiSummary"><?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?></p>
+                                    <p id="aiSourceLabel" class="ai-source-label" style="display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
                                 </div>
                             </div>
 
-                            <div class="ai-overview-copy">
-                                <h4 id="aiVerdictHeadline"><?=
-                                    htmlspecialchars(
+                            <div class="ai-overview-meta">
+                                <div class="ai-meta-card">
+                                    <span class="ai-meta-label">Publishing Path</span>
+                                    <strong id="aiDecisionSummary"><?= htmlspecialchars(
                                         $initialDecision === 'auto_publish'
-                                            ? 'Reliable'
+                                            ? 'Auto publish'
                                             : ($initialDecision === 'needs_review'
-                                                ? 'Needs Review'
-                                                : ($initialDecision === 'unreliable' ? 'Unreliable' : 'Waiting for verification'))
-                                    )
-                                ?></h4>
-                                <p id="aiSummary"><?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?></p>
-                                <p id="aiSourceLabel" class="ai-source-label" style="display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
-
-                                <div id="aiClaimSummaryBox" class="ai-pill-row" style="display:<?= $initialClaimSummary['total'] > 0 ? 'flex' : 'none' ?>;">
-                                    <span id="aiClaimSupportedBadge" class="ai-pill ai-pill-supported"><?= (int)($initialClaimSummary['supported'] ?? 0) ?> Supported</span>
-                                    <span id="aiClaimContradictedBadge" class="ai-pill ai-pill-contradicted"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?> Contradicted</span>
-                                    <span id="aiClaimWeakBadge" class="ai-pill ai-pill-weak"><?= (int)($initialClaimSummary['weak'] ?? 0) ?> Needs Support</span>
+                                                ? 'Category expert review'
+                                                : ($initialDecision === 'unreliable' ? 'Revise and rerun' : 'Awaiting verification'))
+                                    ) ?></strong>
                                 </div>
+                                <div class="ai-meta-card">
+                                    <span class="ai-meta-label">Matched Sources</span>
+                                    <strong id="aiMatchedSourceCount"><?= count($initialMatchedSources) ?></strong>
+                                </div>
+                                <div class="ai-meta-card">
+                                    <span class="ai-meta-label">Claims Checked</span>
+                                    <strong id="aiTotalClaimsInline"><?= (int)($initialClaimSummary['total'] ?? 0) ?></strong>
+                                </div>
+                            </div>
+
+                            <div id="aiClaimSummaryBox" class="ai-pill-row" style="display:<?= $initialClaimSummary['total'] > 0 ? 'flex' : 'none' ?>;">
+                                <span id="aiClaimSupportedBadge" class="ai-pill ai-pill-supported"><?= (int)($initialClaimSummary['supported'] ?? 0) ?> Supported</span>
+                                <span id="aiClaimContradictedBadge" class="ai-pill ai-pill-contradicted"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?> Contradicted</span>
+                                <span id="aiClaimWeakBadge" class="ai-pill ai-pill-weak"><?= (int)($initialClaimSummary['weak'] ?? 0) ?> Needs Support</span>
                             </div>
                         </section>
 
@@ -634,6 +660,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         <section id="aiMetricsBox" class="ai-section">
                             <div class="ai-section-head">
                                 <h4>Metric Breakdown</h4>
+                                <p>See how the overall score is distributed across the verification rubric.</p>
                             </div>
                             <div class="ai-metric-list">
                                 <div class="ai-metric-row">
@@ -662,6 +689,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         <section id="aiWhyNotPerfectBox" class="ai-section" style="display:none;">
                             <div class="ai-section-head">
                                 <h4>Why Not 100?</h4>
+                                <p>These are the remaining gaps preventing a perfect reliability score.</p>
                             </div>
                             <ul id="aiWhyNotPerfectList" class="ai-guidance-list">
                                 <?php foreach ($initialWhyNotPerfectDetails as $item): ?>
@@ -707,6 +735,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         </section>
 
                         <div class="ai-results-footer">
+                            <span class="ai-results-footer-kicker">Publishing Recommendation</span>
                             <div class="ai-success-box" id="aiVerdictBox">
                                 <?= $initialVerdict !== '' ? htmlspecialchars($initialVerdict) : 'Waiting for verification.' ?>
                             </div>
@@ -778,6 +807,19 @@ function headlineForDecision(decision, trustScore) {
     return 'Awaiting Review';
 }
 
+function summaryForDecision(decision, trustScore) {
+    if (decision === 'auto_publish' && trustScore >= autoPublishThreshold) {
+        return 'Auto publish';
+    }
+    if (decision === 'needs_review' && trustScore >= needsReviewThreshold) {
+        return 'Category expert review';
+    }
+    if (decision === 'unreliable') {
+        return 'Revise and rerun';
+    }
+    return 'Awaiting verification';
+}
+
 function setLastCheckedLabel(message) {
     aiLastChecked.textContent = message;
 }
@@ -823,6 +865,9 @@ const initialContentText = <?= json_encode((string)$val['content']) ?>;
 const aiLastChecked = document.getElementById('aiLastChecked');
 const aiScoreRing = document.getElementById('aiScoreRing');
 const aiVerdictHeadline = document.getElementById('aiVerdictHeadline');
+const aiDecisionSummary = document.getElementById('aiDecisionSummary');
+const aiMatchedSourceCount = document.getElementById('aiMatchedSourceCount');
+const aiTotalClaimsInline = document.getElementById('aiTotalClaimsInline');
 const claimSummaryBox = document.getElementById('aiClaimSummaryBox');
 const claimSupportedBadge = document.getElementById('aiClaimSupportedBadge');
 const claimWeakBadge = document.getElementById('aiClaimWeakBadge');
@@ -942,6 +987,9 @@ function renderClaimSummary(summary) {
         contradictedCount.textContent = '0';
         weakCount.textContent = '0';
         totalClaimsCount.textContent = '0';
+        if (aiTotalClaimsInline) {
+            aiTotalClaimsInline.textContent = '0';
+        }
         return;
     }
 
@@ -952,6 +1000,9 @@ function renderClaimSummary(summary) {
     contradictedCount.textContent = String(contradicted);
     weakCount.textContent = String(weak);
     totalClaimsCount.textContent = String(total);
+    if (aiTotalClaimsInline) {
+        aiTotalClaimsInline.textContent = String(total);
+    }
     claimSummaryBox.style.display = 'flex';
 }
 
@@ -1406,6 +1457,9 @@ function renderMatchedSources(items) {
     if (!Array.isArray(items) || items.length === 0) {
         sourcesList.innerHTML = '';
         sourcesBox.style.display = 'none';
+        if (aiMatchedSourceCount) {
+            aiMatchedSourceCount.textContent = '0';
+        }
         if (sourcesCountLabel) {
             sourcesCountLabel.textContent = '0 sources matched';
         }
@@ -1414,6 +1468,9 @@ function renderMatchedSources(items) {
 
     if (sourcesCountLabel) {
         sourcesCountLabel.textContent = `${items.length} source${items.length === 1 ? '' : 's'} matched`;
+    }
+    if (aiMatchedSourceCount) {
+        aiMatchedSourceCount.textContent = String(items.length);
     }
 
     sourcesList.innerHTML = items.map((source) => {
@@ -1781,6 +1838,9 @@ async function runAICheck() {
         document.getElementById('aiTrustScore').textContent = `${trustScore}%`;
         setScoreRing(trustScore);
         aiVerdictHeadline.textContent = headlineForDecision(decision, trustScore);
+        if (aiDecisionSummary) {
+            aiDecisionSummary.textContent = summaryForDecision(decision, trustScore);
+        }
         document.getElementById('aiSummary').textContent = data.summary || 'Verification completed.';
         setLastCheckedLabel(data.cached_result ? 'Last checked: Just now (cached)' : 'Last checked: Just now');
 
@@ -1862,6 +1922,9 @@ setPublishLockState(
 );
 setScoreRing(<?= (int)$initialTrustScore ?>);
 aiVerdictHeadline.textContent = headlineForDecision(initialDecision, <?= (int)$initialTrustScore ?>);
+if (aiDecisionSummary) {
+    aiDecisionSummary.textContent = summaryForDecision(initialDecision, <?= (int)$initialTrustScore ?>);
+}
 setLastCheckedLabel(<?= json_encode($hasCurrentVerification ? 'Last checked: Just now' : 'Waiting for fact check') ?>);
 applyVerdictState(initialDecision, <?= json_encode($initialVerdict !== '' ? $initialVerdict : 'Waiting for verification.') ?>);
 renderClaimSummary(<?= json_encode($initialClaimSummary) ?>);
