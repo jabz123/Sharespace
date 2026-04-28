@@ -1318,25 +1318,20 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 /* ================================================================
    SYSTEM ADMIN AI PAGES
    ================================================================ */
-body.page-ai-dashboard .nav-link,
-body.page-ai-calibration .nav-link {
+body.page-ai-dashboard .nav-link {
   color: #a8bdd8 !important;
 }
 body.page-ai-dashboard .nav-link:hover,
-body.page-ai-calibration .nav-link:hover,
-body.page-ai-dashboard .nav-link.active,
-body.page-ai-calibration .nav-link.active {
+body.page-ai-dashboard .nav-link.active {
   background: rgba(255, 255, 255, 0.14) !important;
   color: #ffffff !important;
 }
 
-body.page-ai-dashboard .dash-header,
-body.page-ai-calibration .dash-header {
+body.page-ai-dashboard .dash-header {
   background: #ffffff !important;
   border-bottom: 1px solid #dde6f5 !important;
 }
-body.page-ai-dashboard .dash-subtitle,
-body.page-ai-calibration .dash-subtitle {
+body.page-ai-dashboard .dash-subtitle {
   color: #5a7090 !important;
 }
 
@@ -1436,75 +1431,7 @@ body.page-ai-calibration .dash-subtitle {
   color: #dc2626;
 }
 
-.admin-ai-form {
-  display: grid;
-  gap: 28px;
-  max-width: 1120px;
-}
-.admin-ai-form h2 {
-  color: #16233f;
-  margin-bottom: 6px;
-}
-.admin-ai-form p {
-  color: #5a7090;
-  margin-bottom: 14px;
-}
-.admin-ai-form label,
-.admin-ai-weight-row output {
-  color: #16233f;
-  font-weight: 700;
-}
-.admin-ai-form input[type='range'] {
-  width: 100%;
-  accent-color: #1c2d4f;
-}
-.admin-ai-weight-row {
-  display: grid;
-  grid-template-columns: 180px minmax(180px, 1fr) 56px;
-  align-items: center;
-  gap: 16px;
-  padding-top: 18px;
-}
-
-.admin-ai-switch-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-}
-.admin-ai-switch-row input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-.admin-ai-switch {
-  position: relative;
-  width: 58px;
-  height: 30px;
-  border-radius: 999px;
-  background: #d1d5db;
-}
-.admin-ai-switch::after {
-  content: '';
-  position: absolute;
-  left: 3px;
-  top: 3px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 1px 5px rgba(15, 23, 42, 0.18);
-  transition: transform 0.15s;
-}
-.admin-ai-switch-row input:checked + .admin-ai-switch {
-  background: #1c2d4f;
-}
-.admin-ai-switch-row input:checked + .admin-ai-switch::after {
-  transform: translateX(28px);
-}
-
-body.page-ai-dashboard .btn-primary,
-body.page-ai-calibration .btn-primary {
+body.page-ai-dashboard .btn-primary {
   background: #1c2d4f !important;
   color: #ffffff !important;
   border: 0 !important;
@@ -1531,7 +1458,6 @@ body.page-admin-dashboard .dashboard-layout,
 body.page-manage-landing-page .dashboard-layout,
 body.page-audit-log .dashboard-layout,
 body.page-ai-dashboard .dashboard-layout,
-body.page-ai-calibration .dashboard-layout,
 body.page-browse-articles .browse-admin-shell {
   background: #f0f5fc !important;
 }
@@ -1539,8 +1465,7 @@ body.page-browse-articles .browse-admin-shell {
 body.page-admin-dashboard .dashboard-layout main,
 body.page-manage-landing-page .dashboard-layout main,
 body.page-audit-log .dashboard-layout main,
-body.page-ai-dashboard .dashboard-layout main,
-body.page-ai-calibration .dashboard-layout main {
+body.page-ai-dashboard .dashboard-layout main {
   min-height: 100vh !important;
   background: #f0f5fc !important;
 }
@@ -1860,7 +1785,6 @@ body.page-admin-dashboard .hamburger-btn,
 body.page-audit-log .hamburger-btn,
 body.page-manage-landing-page .hamburger-btn,
 body.page-ai-dashboard .hamburger-btn,
-body.page-ai-calibration .hamburger-btn,
 body.page-edit-password .hamburger-btn,
 .browse-admin-shell .hamburger-btn {
   display: none !important;
@@ -1871,7 +1795,6 @@ body.page-edit-password .hamburger-btn,
   body.page-audit-log .hamburger-btn,
   body.page-manage-landing-page .hamburger-btn,
   body.page-ai-dashboard .hamburger-btn,
-  body.page-ai-calibration .hamburger-btn,
   body.page-edit-password .hamburger-btn,
   .browse-admin-shell .hamburger-btn {
     display: flex !important;
@@ -1885,7 +1808,6 @@ body.page-admin-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(1)
 body.page-audit-log .hamburger-btn[aria-expanded="true"] span:nth-child(1),
 body.page-manage-landing-page .hamburger-btn[aria-expanded="true"] span:nth-child(1),
 body.page-ai-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(1),
-body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(1),
 .browse-admin-shell .hamburger-btn[aria-expanded="true"] span:nth-child(1) {
   transform: none !important;
 }
@@ -1893,7 +1815,6 @@ body.page-admin-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(2)
 body.page-audit-log .hamburger-btn[aria-expanded="true"] span:nth-child(2),
 body.page-manage-landing-page .hamburger-btn[aria-expanded="true"] span:nth-child(2),
 body.page-ai-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(2),
-body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(2),
 .browse-admin-shell .hamburger-btn[aria-expanded="true"] span:nth-child(2) {
   opacity: 1 !important;
   width: 18px !important;
@@ -1902,7 +1823,6 @@ body.page-admin-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(3)
 body.page-audit-log .hamburger-btn[aria-expanded="true"] span:nth-child(3),
 body.page-manage-landing-page .hamburger-btn[aria-expanded="true"] span:nth-child(3),
 body.page-ai-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(3),
-body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(3),
 .browse-admin-shell .hamburger-btn[aria-expanded="true"] span:nth-child(3) {
   transform: none !important;
 }
@@ -1913,7 +1833,6 @@ body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(3),
   body.page-audit-log .sidebar,
   body.page-manage-landing-page .sidebar,
   body.page-ai-dashboard .sidebar,
-  body.page-ai-calibration .sidebar,
   body.page-edit-password .sidebar,
   .browse-admin-shell .sidebar {
     transform: translateX(-100%) !important;
@@ -1924,7 +1843,6 @@ body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(3),
   body.page-audit-log .sidebar.sidebar-open,
   body.page-manage-landing-page .sidebar.sidebar-open,
   body.page-ai-dashboard .sidebar.sidebar-open,
-  body.page-ai-calibration .sidebar.sidebar-open,
   body.page-edit-password .sidebar.sidebar-open,
   .browse-admin-shell .sidebar.sidebar-open {
     transform: translateX(0) !important;

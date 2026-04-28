@@ -73,7 +73,6 @@ function page_head(string $title, bool $useSystemAdminCss = false): void
             body.page-ai-trainer-dashboard .alert-success,
             body.page-ai-trainer-datasets .alert-success,
             body.page-ai-trainer-accuracy-metrics .alert-success,
-            body.page-ai-trainer-calibration .alert-success,
             body.page-ai-trainer-home .alert-success {
                 background: #f0fff6 !important;
                 border: 1px solid #a3e6c0 !important;
@@ -84,7 +83,6 @@ function page_head(string $title, bool $useSystemAdminCss = false): void
             body.page-ai-trainer-dashboard .alert-error,
             body.page-ai-trainer-datasets .alert-error,
             body.page-ai-trainer-accuracy-metrics .alert-error,
-            body.page-ai-trainer-calibration .alert-error,
             body.page-ai-trainer-home .alert-error {
                 background: #fff0f2 !important;
                 border: 1px solid #fcc !important;
@@ -95,7 +93,6 @@ function page_head(string $title, bool $useSystemAdminCss = false): void
             body.page-ai-trainer-dashboard .alert,
             body.page-ai-trainer-datasets .alert,
             body.page-ai-trainer-accuracy-metrics .alert,
-            body.page-ai-trainer-calibration .alert,
             body.page-ai-trainer-home .alert {
                 opacity: 1 !important;
                 text-shadow: none !important;
@@ -140,7 +137,6 @@ function sidebar(User $user): void
             ['href' => '/pages/admin-landing.php',    'key' => 'landing', 'label' => 'Manage Landing Page'],
             ['href' => '/pages/admin-audit-log.php',  'key' => 'audit',   'label' => 'Audit Log'],
             ['href' => '/pages/admin-ai-dashboard.php', 'key' => 'ai', 'label' => 'AI Dashboard'],
-            ['href' => '/pages/admin-ai-calibration.php', 'key' => 'settings', 'label' => 'Calibration'],
             ['href' => '/pages/profile.php',          'key' => 'profile', 'label' => 'Profile'],
 
         ];
