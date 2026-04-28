@@ -1827,13 +1827,20 @@ mark.highlight-contradicted {
 .user-dashboard-shell .ai-area-stat.is-total strong,
 .user-dashboard-shell .ai-area-stat.is-total span { color: var(--text-amber); }
 
+.user-dashboard-shell .ai-areas-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
 .user-dashboard-shell .ai-impact-card {
   background: rgba(255,107,138,0.08);
   border: 1px solid rgba(255,107,138,0.2);
   border-radius: var(--r-md);
-  padding: 8px 14px;
+  padding: 10px 14px;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
 }
 .user-dashboard-shell .ai-impact-label {
   font-size: 10px;
@@ -1854,6 +1861,13 @@ mark.highlight-contradicted {
 .user-dashboard-shell .ai-impact-note {
   font-size: 9.5px;
   color: var(--text-muted);
+}
+.user-dashboard-shell .ai-area-stat-impact {
+  min-width: 0;
+}
+.user-dashboard-shell .ai-area-stat-impact strong,
+.user-dashboard-shell .ai-area-stat-impact .ai-impact-label {
+  color: var(--danger);
 }
 
 .user-dashboard-shell .ai-pill-row {
@@ -2227,6 +2241,7 @@ mark.highlight-contradicted {
   }
 
   .user-dashboard-shell .ai-overview-meta,
+  .user-dashboard-shell .ai-areas-summary,
   .user-dashboard-shell .ai-breakdown-grid,
   .user-dashboard-shell .ai-sources-grid {
     grid-template-columns: 1fr;

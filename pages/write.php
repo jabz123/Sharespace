@@ -545,11 +545,6 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                     <h4>Areas to Improve</h4>
                                     <p id="aiAreasSubtitle">These issues are affecting your score. Addressing them can improve the accuracy and reliability of your article.</p>
                                 </div>
-                                <div class="ai-impact-card">
-                                    <span class="ai-impact-label">Score Impact</span>
-                                    <strong id="aiImpactValue">-0%</strong>
-                                    <span class="ai-impact-note">from perfect score</span>
-                                </div>
                             </div>
                             <div id="aiAreasSummary" class="ai-areas-summary"></div>
                             <div id="aiAreasGroups" class="ai-areas-groups"></div>
@@ -911,7 +906,6 @@ const areasBox = document.getElementById('aiAreasBox');
 const areasSummary = document.getElementById('aiAreasSummary');
 const areasGroups = document.getElementById('aiAreasGroups');
 const areasSubtitle = document.getElementById('aiAreasSubtitle');
-const impactValue = document.getElementById('aiImpactValue');
 const improveGuideCard = document.getElementById('aiImproveGuideCard');
 const improveGuideText = document.getElementById('aiImproveGuideText');
 const improveGuideButton = document.getElementById('aiImproveGuideButton');
@@ -1387,12 +1381,16 @@ function renderAreasToImprove({ trustScore = 0, claims = [], whyItems = [], sugg
     }
 
     const scoreDelta = Math.max(0, 100 - (Number(trustScore) || 0));
-    impactValue.textContent = `-${scoreDelta}%`;
     areasSubtitle.textContent = contradictionList.length > 0
         ? 'These issues are affecting your score. Fix the contradictions first, then strengthen weaker evidence.'
         : 'These issues are affecting your score. Addressing them can improve the accuracy and reliability of your article.';
 
     areasSummary.innerHTML = `
+        <div class="ai-impact-card ai-area-stat ai-area-stat-impact">
+            <span class="ai-impact-label">Score Impact</span>
+            <strong id="aiImpactValue">-${scoreDelta}%</strong>
+            <span class="ai-impact-note">from perfect score</span>
+        </div>
         <div class="ai-area-stat is-contradicted">
             <strong>${contradictionList.length}</strong>
             <span>Contradictions</span>
