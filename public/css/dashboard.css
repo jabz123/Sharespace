@@ -548,7 +548,7 @@ body:has(.user-dashboard-shell) {
 }
 .dashboard-stat-card span {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   line-height: 1.35;
 }
 
@@ -561,7 +561,15 @@ body:has(.user-dashboard-shell) {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-mid);
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  cursor: pointer;
 }
+.dashboard-spotlight:hover {
+  border-color: var(--border-amber);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-amber), var(--shadow-card);
+}
+
 
 .dashboard-spotlight-media {
   position: absolute;
@@ -698,8 +706,8 @@ body:has(.user-dashboard-shell) {
   text-decoration: none;
 }
 .trending-dot {
-  width: 28px;
-  height: 28px;
+  width: 10px;
+  height: 10px;
   border-radius: var(--r-sm);
   display: flex;
   align-items: center;

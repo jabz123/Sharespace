@@ -397,19 +397,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!hamburger || !sidebar || !overlay) return;
 
-    function openSidebar() {
-        sidebar.classList.add('sidebar-open');
-        overlay.classList.add('active');
-        hamburger.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden'; // prevent scroll behind overlay
-    }
+        // Ensure clean state on page load
+    hamburger.setAttribute('aria-expanded', 'false');
+    sidebar.classList.remove('sidebar-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
 
-    function closeSidebar() {
-        sidebar.classList.remove('sidebar-open');
-        overlay.classList.remove('active');
-        hamburger.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-    }
+
+function openSidebar() {
+    sidebar.classList.add('sidebar-open');
+    overlay.classList.add('active');
+    hamburger.setAttribute('aria-expanded', 'true');
+    hamburger.style.visibility = 'hidden';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    sidebar.classList.remove('sidebar-open');
+    overlay.classList.remove('active');
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.style.visibility = 'visible';
+    document.body.style.overflow = '';
+}
 
     hamburger.addEventListener('click', function () {
         if (sidebar.classList.contains('sidebar-open')) {

@@ -1855,3 +1855,78 @@ body .browse-admin-shell {
     margin-left: 0 !important;
   }
 }
+
+body.page-admin-dashboard .hamburger-btn,
+body.page-audit-log .hamburger-btn,
+body.page-manage-landing-page .hamburger-btn,
+body.page-ai-dashboard .hamburger-btn,
+body.page-ai-calibration .hamburger-btn,
+body.page-edit-password .hamburger-btn,
+.browse-admin-shell .hamburger-btn {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  body.page-admin-dashboard .hamburger-btn,
+  body.page-audit-log .hamburger-btn,
+  body.page-manage-landing-page .hamburger-btn,
+  body.page-ai-dashboard .hamburger-btn,
+  body.page-ai-calibration .hamburger-btn,
+  body.page-edit-password .hamburger-btn,
+  .browse-admin-shell .hamburger-btn {
+    display: flex !important;
+    /* always start as hamburger (3 lines), never X */
+    aria-expanded: false;
+  }
+}
+
+/* ADD this new rule — force the spans to never show as X on admin pages */
+body.page-admin-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(1),
+body.page-audit-log .hamburger-btn[aria-expanded="true"] span:nth-child(1),
+body.page-manage-landing-page .hamburger-btn[aria-expanded="true"] span:nth-child(1),
+body.page-ai-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(1),
+body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(1),
+.browse-admin-shell .hamburger-btn[aria-expanded="true"] span:nth-child(1) {
+  transform: none !important;
+}
+body.page-admin-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(2),
+body.page-audit-log .hamburger-btn[aria-expanded="true"] span:nth-child(2),
+body.page-manage-landing-page .hamburger-btn[aria-expanded="true"] span:nth-child(2),
+body.page-ai-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(2),
+body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(2),
+.browse-admin-shell .hamburger-btn[aria-expanded="true"] span:nth-child(2) {
+  opacity: 1 !important;
+  width: 18px !important;
+}
+body.page-admin-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(3),
+body.page-audit-log .hamburger-btn[aria-expanded="true"] span:nth-child(3),
+body.page-manage-landing-page .hamburger-btn[aria-expanded="true"] span:nth-child(3),
+body.page-ai-dashboard .hamburger-btn[aria-expanded="true"] span:nth-child(3),
+body.page-ai-calibration .hamburger-btn[aria-expanded="true"] span:nth-child(3),
+.browse-admin-shell .hamburger-btn[aria-expanded="true"] span:nth-child(3) {
+  transform: none !important;
+}
+
+/* ── Mobile admin: ensure sidebar starts off-canvas ── */
+@media (max-width: 768px) {
+  body.page-admin-dashboard .sidebar,
+  body.page-audit-log .sidebar,
+  body.page-manage-landing-page .sidebar,
+  body.page-ai-dashboard .sidebar,
+  body.page-ai-calibration .sidebar,
+  body.page-edit-password .sidebar,
+  .browse-admin-shell .sidebar {
+    transform: translateX(-100%) !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  body.page-admin-dashboard .sidebar.sidebar-open,
+  body.page-audit-log .sidebar.sidebar-open,
+  body.page-manage-landing-page .sidebar.sidebar-open,
+  body.page-ai-dashboard .sidebar.sidebar-open,
+  body.page-ai-calibration .sidebar.sidebar-open,
+  body.page-edit-password .sidebar.sidebar-open,
+  .browse-admin-shell .sidebar.sidebar-open {
+    transform: translateX(0) !important;
+  }
+}
