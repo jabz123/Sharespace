@@ -1832,3 +1832,26 @@ body .browse-admin-shell {
 .sidebar {
   z-index: 100 !important;
 }
+
+/* ================================================================
+   MOBILE – Admin specific
+   ================================================================ */
+@media (max-width: 768px) {
+  .hamburger span {
+    background: #16233f;        /* dark blue for light admin header */
+  }
+
+  body.page-admin-dashboard .dashboard-layout main,
+  body.page-audit-log .dashboard-layout main,
+  body.page-manage-landing-page .dashboard-layout main {
+    margin-left: 0 !important;
+  }
+
+  body.page-admin-dashboard .page-content {
+    padding: 16px 16px 40px;
+  }
+
+  .browse-admin-shell .dashboard-layout main {
+    margin-left: 0 !important;
+  }
+}

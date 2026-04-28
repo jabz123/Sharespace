@@ -54,7 +54,10 @@ page_head('Dashboard');
 
         <!-- DASH HEADER -->
         <header class="dash-header">
-            <div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+                <span></span><span></span><span></span>
+            </button>
+            <div style="flex:1;min-width:0">
                 <h1 class="dash-title">Welcome back, <?= htmlspecialchars($user->fullName) ?> 👋</h1>
                 <p class="dash-subtitle">Your tailored brief for today's verified stories.</p>
             </div>

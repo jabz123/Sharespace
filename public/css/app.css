@@ -169,6 +169,8 @@ h4,
 
 .role-badge {
   display: inline-block;
+  margin-top: 3px;
+  padding: 2px 8px;
   border-radius: 99px;
   font-size: 10px;
   font-weight: 600;
@@ -271,6 +273,9 @@ h4,
   border-bottom: 1px solid rgba(11, 22, 40, 0.08);
   background: rgba(255, 255, 255, 0.58);
   backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .dash-title {
@@ -456,113 +461,6 @@ textarea {
   color: var(--muted);
 }
 
-.password-toggle {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #64748b;
-  cursor: pointer;
-}
-
-.password-toggle svg {
-  width: 23px;
-  height: 23px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.password-toggle[data-icon-toggle='true'] {
-  font-size: 0;
-}
-
-.password-toggle[data-icon-toggle='true'] svg {
-  display: none;
-}
-
-.password-toggle[data-icon-toggle='true']::before {
-  content: '';
-  width: 23px;
-  height: 23px;
-  background: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z'/%3E%3Ccircle cx='12' cy='12' r='3.25'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z'/%3E%3Ccircle cx='12' cy='12' r='3.25'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-}
-
-.password-toggle[data-icon-toggle='true'].is-visible::before {
-  -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z'/%3E%3Ccircle cx='12' cy='12' r='3.25'/%3E%3Cpath d='M4 20 20 4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z'/%3E%3Ccircle cx='12' cy='12' r='3.25'/%3E%3Cpath d='M4 20 20 4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-}
-
-.password-toggle:hover {
-  color: #0f172a;
-}
-
-
-/* ICON IMAGE */
-.icon-btn img {
-    width: 25px;
-    height: 25px;
-    object-fit: contain;
-    opacity: 0.6;
-    transition: all 0.2s ease;
-    filter: none; /* IMPORTANT: keep original color */
-}
-
-/* BUTTON BASE */
-.icon-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 8px;
-    transition: all 0.2s ease;
-}
-
-/* HOVER STATE */
-.icon-btn:hover {
-    background: rgba(245, 166, 35, 0.15);
-    border-color: rgba(245, 166, 35, 0.4);
-    box-shadow: 0 0 12px rgba(245, 166, 35, 0.25);
-}
-
-.icon-btn:hover img {
-    opacity: 0.9;
-}
-
-/* ACTIVE (SAVED) STATE */
-.icon-btn.active {
-    background: rgba(245, 166, 35, 0.18);
-    border-color: rgba(245, 166, 35, 0.5);
-    box-shadow: 0 0 16px rgba(245, 166, 35, 0.4);
-}
-
-.icon-btn.active img {
-    opacity: 1;
-    filter: none; /* ensures gold stays gold */
-}
-.highlight-reading {
-    background: rgba(245, 166, 35, 0.25);
-    border-left: 4px solid #f59e0b;
-    padding-left: 10px;
-    transition: all 0.3s ease;
-}
-.icon-btn.flagged {
-    opacity: 0.5;
-    cursor: not-allowed;
-    border: none;
-}
-
 /* =========================================================
    CARDS / CONTENT
    ========================================================= */
@@ -699,13 +597,6 @@ textarea {
   font-size: 11px;
   font-weight: 700;
   color: #fff;
-}
-
-.author-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
 }
 
 .locked-overlay {
@@ -985,6 +876,143 @@ textarea {
 @media (max-width: 600px) {
   .grid-3,
   .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   HAMBURGER BUTTON
+   Hidden on desktop, visible on mobile.
+   ========================================================= */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid var(--border, rgba(148,163,184,0.22));
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 8px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  z-index: 200;
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--fg, #0b1628);
+  border-radius: 2px;
+  transition: transform 0.22s ease, opacity 0.22s ease, width 0.22s ease;
+  transform-origin: center;
+}
+
+.hamburger-btn:hover {
+  background: var(--border, rgba(148,163,184,0.14));
+}
+
+/* Animate to X when sidebar is open */
+.hamburger-btn[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger-btn[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+  width: 0;
+}
+.hamburger-btn[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* =========================================================
+   SIDEBAR OVERLAY (mobile backdrop)
+   ========================================================= */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 20, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+}
+
+/* =========================================================
+   MOBILE SIDEBAR BEHAVIOUR  (≤ 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+
+  /* Show hamburger */
+  .hamburger-btn {
+    display: flex;
+  }
+
+  /* Sidebar slides off-canvas to the left by default */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    width: var(--sidebar-w, 260px) !important;
+    /* Override any display:none from theme CSS */
+    display: flex !important;
+  }
+
+  /* Sidebar open state */
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  /* Overlay: block layout but pointer-events off until active */
+  .sidebar-overlay {
+    display: block;
+    pointer-events: none;
+  }
+
+  .sidebar-overlay.active {
+    pointer-events: auto;
+  }
+
+  /* Main content fills full width — no left margin */
+  .dashboard-layout main {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  /* Tighten header padding on mobile */
+  .dash-header {
+    padding: 18px 20px;
+    gap: 14px;
+  }
+
+  .page-content {
+    padding: 20px 18px 32px;
+  }
+
+  .dash-title {
+    font-size: 22px;
+  }
+
+  /* Tighten article grid */
+  .article-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Write page — stack columns */
+  .write-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Profile layout — stack columns */
+  .profile-layout {
     grid-template-columns: 1fr;
   }
 }
