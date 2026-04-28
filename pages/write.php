@@ -63,7 +63,7 @@ function persistArticleVerification(int $articleId, int $authorId, array $verifi
 
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
-$autoPublishTrustScore = 80;
+$autoPublishTrustScore = 81;
 $needsReviewTrustScore = 60;
 
 $auth->requireAuth();
@@ -192,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
-                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category expert review.');
+                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category admin review.');
                     }
                 } else {
                     try {
@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
-                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category expert review.');
+                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category admin review.');
                     }
                 }
             }
@@ -418,13 +418,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         if ($verificationPassed && $initialDecision === 'auto_publish' && $initialTrustScore >= $autoPublishTrustScore) {
                             echo 'AI verification passed. This article will publish immediately.';
                         } elseif ($initialDecision === 'needs_review') {
-                            echo 'Needs Review. You can submit this article for category expert review.';
+                            echo 'Needs Review. You can submit this article for category admin review.';
                         } elseif ($verificationPassed) {
-                            echo 'AI verification passed. Submit this article for category expert review.';
+                            echo 'AI verification passed. Submit this article for category admin review.';
                         } elseif ($initialDecision === 'unreliable') {
                             echo 'Unreliable. Fix the highlighted misinformation or unsupported claims before trying again.';
                         } else {
-                            echo 'Run AI Fact Check. Results from 60% to 79% go to category expert review, and 80% or above publishes directly.';
+                            echo 'Run AI Fact Check. Results from 60% to 80% go to category admin review, and 81% or above publishes directly.';
                         }
                         ?>
                     </p>
@@ -443,7 +443,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                     <div id="ai-empty" class="ai-state-card" style="display:<?= $hasCurrentVerification ? 'none' : 'block' ?>;">
                         <p>Click "AI Fact Check" to analyze your article's credibility before publishing.</p>
-                        <p class="text-muted">Add an exact CNA or ST article URL if you have one. 60% to 79% sends the article for category expert review, 80% or above publishes directly, and anything below 60% is Unreliable.</p>
+                        <p class="text-muted">Add an exact CNA or ST article URL if you have one. 60% to 80% sends the article for category admin review, 81% or above publishes directly, and anything below 60% is Unreliable.</p>
                     </div>
 
                     <div id="ai-loading" class="ai-state-card" style="display:none;">
@@ -490,7 +490,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                         $initialDecision === 'auto_publish'
                                             ? 'Auto publish'
                                             : ($initialDecision === 'needs_review'
-                                                ? 'Category expert review'
+                                                ? 'Category admin review'
                                                 : ($initialDecision === 'unreliable' ? 'Revise and rerun' : 'Awaiting verification'))
                                     ) ?></strong>
                                 </div>
@@ -843,7 +843,7 @@ function summaryForDecision(decision, trustScore) {
         return 'Auto publish';
     }
     if (decision === 'needs_review' && trustScore >= needsReviewThreshold) {
-        return 'Category expert review';
+        return 'Category admin review';
     }
     if (decision === 'unreliable') {
         return 'Revise and rerun';
@@ -940,7 +940,7 @@ function setPublishLockState(isUnlocked, message) {
     publishStatus.textContent = message;
 }
 
-function invalidateVerification(message = 'Content changed. Run AI Fact Check again. 60% to 79% goes to review, and 80% or above publishes directly.') {
+function invalidateVerification(message = 'Content changed. Run AI Fact Check again. 60% to 80% goes to category admin review, and 81% or above publishes directly.') {
     trustScoreInput.value = '0';
     setPublishLockState(false, message);
     contentSentenceMap = new Map();
@@ -1804,12 +1804,12 @@ function messageForDecision(decision) {
         return 'AI verification passed. This article will publish immediately.';
     }
     if (decision === 'needs_review') {
-        return 'Needs Review. You can submit this article for category expert review.';
+        return 'Needs Review. You can submit this article for category admin review.';
     }
     if (decision === 'unreliable') {
         return 'Unreliable. Fix the highlighted misinformation or unsupported claims before trying again.';
     }
-    return 'Run AI Fact Check. 60% to 79% goes to review, and 80% or above publishes directly.';
+    return 'Run AI Fact Check. 60% to 80% goes to category admin review, and 81% or above publishes directly.';
 }
 
 async function runAICheck() {
