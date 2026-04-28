@@ -256,9 +256,10 @@ body:has(.sub-page-shell) {
 }
 
 .filter-row {
-  display: flex;
+   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
   flex-wrap: wrap;
   padding: 16px 0 8px;
 }
@@ -1082,6 +1083,14 @@ body:has(.sub-page-shell) {
   background: rgba(255, 107, 138, 0.2);
 }
 
+/*flagged articles style*/
+.flagged-report-card {
+  background: rgba(255, 231, 231, 0.055);
+  border: 1px solid var(--border-mid);
+}
+
+
+
 /* ═══════════════════════════════════════════════════════════════
    MY ARTICLES PAGE
    ═══════════════════════════════════════════════════════════════ */
@@ -1186,10 +1195,15 @@ body:has(.sub-page-shell) {
 }
 .my-article-actions {
   display: flex;
+  flex-direction: row;
   gap: 8px;
   flex-shrink: 0;
-  align-items: flex-start;
+  align-items: center;
   padding-top: 2px;
+}
+.my-article-actions form {
+  display: flex;
+  margin: 0;
 }
 .my-article-delete-btn {
   color: var(--danger) !important;

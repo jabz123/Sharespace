@@ -1072,6 +1072,12 @@ body:has(.user-dashboard-shell) {
   background: linear-gradient(90deg, var(--success), #58edae);
   border-radius: 99px;
 }
+.card-score-track span.track-mid {
+  background: linear-gradient(90deg, var(--warning), #ffd060);
+}
+.card-score-track span.track-low {
+  background: linear-gradient(90deg, var(--danger), #ff9eb8);
+}
 
 .card-footer {
   padding: 10px 14px;
