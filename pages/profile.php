@@ -4,15 +4,14 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/OnboardingController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
-
-$auth         = new AuthController();
+$auth = new AuthController();
 $auth->requireAuth();
-$user         = $auth->currentUser();
+$user = $auth->currentUser();
 
-$onboardCtrl  = new OnboardingController();
-$articleCtrl  = new ArticleController();
+$onboardCtrl = new OnboardingController();
+$articleCtrl = new ArticleController();
 
-$allCategories    = $articleCtrl->getAllCategories();
+$allCategories = $articleCtrl->getAllCategories();
 $currentInterests = $onboardCtrl->getInterests($user->id); // array of category IDs
 
 $allowedFeedbackRoles = ['free', 'premium', 'category_admin'];

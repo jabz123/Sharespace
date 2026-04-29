@@ -6,7 +6,7 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
-$auth      = new AuthController();
+$auth = new AuthController();
 $adminCtrl = new AdminController();
 
 $auth->requireAuth();
@@ -15,29 +15,29 @@ $adminCtrl->requireAdmin($user);
 
 // pagination
 $perPage = 25;
-$page    = max(1, (int)($_GET['page'] ?? 1));
-$offset  = ($page - 1) * $perPage;
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$offset = ($page - 1) * $perPage;
 
 // optional action-type filter
 $filterAction = trim($_GET['filter'] ?? '');
 
 // fetch
-$entries    = $adminCtrl->getAuditLog($perPage, $offset, $filterAction ?: null);
+$entries = $adminCtrl->getAuditLog($perPage, $offset, $filterAction ?: null);
 $totalCount = $adminCtrl->getAuditLogCount($filterAction ?: null);
-$totalPages = (int)ceil($totalCount / $perPage);
+$totalPages = (int) ceil($totalCount / $perPage);
 
 // action → [display label, badge bg colour]
 $actionMeta = [
-    'suspend_article'   => ['suspend article',   '#e07b39'],
+    'suspend_article' => ['suspend article',   '#e07b39'],
     'unsuspend_article' => ['unsuspend article', '#3b82f6'],
-    'delete_article'    => ['delete article',    '#ef4444'],
-    'suspend_user'      => ['suspend user',      '#e07b39'],
-    'reinstate_user'    => ['reinstate user',    '#22c55e'],
-    'create_category'   => ['create category',   '#111827'],
-    'update_category'   => ['update category',   '#6b7280'],
-    'delete_category'   => ['delete category',   '#ef4444'],
-    'assign_role'       => ['assign role',       '#6b7280'],
-    'unassign_role'     => ['unassign role',     '#9ca3af'],
+    'delete_article' => ['delete article',    '#ef4444'],
+    'suspend_user' => ['suspend user',      '#e07b39'],
+    'reinstate_user' => ['reinstate user',    '#22c55e'],
+    'create_category' => ['create category',   '#111827'],
+    'update_category' => ['update category',   '#6b7280'],
+    'delete_category' => ['delete category',   '#ef4444'],
+    'assign_role' => ['assign role',       '#6b7280'],
+    'unassign_role' => ['unassign role',     '#9ca3af'],
 ];
 
 page_head('Audit Log', true);
@@ -103,9 +103,9 @@ page_head('Audit Log', true);
                 <tbody>
                 <?php foreach ($entries as $entry): ?>
                     <?php
-                    $meta             = $actionMeta[$entry['action']] ?? [str_replace('_', ' ', $entry['action']), '#6b7280'];
+                    $meta = $actionMeta[$entry['action']] ?? [str_replace('_', ' ', $entry['action']), '#6b7280'];
                     [$label, $colour] = $meta;
-                    $ts               = date('M j, Y g:i A', strtotime($entry['created_at']));
+                    $ts = date('M j, Y g:i A', strtotime($entry['created_at']));
                     ?>
                     <tr style="border-bottom:1px solid var(--border)">
                         <!-- action badge -->
@@ -150,22 +150,22 @@ page_head('Audit Log', true);
             </span>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
                 <?php if ($page > 1): ?>
-                    <a href="?page=<?= $page - 1 ?><?= $filterAction ? '&filter='.urlencode($filterAction) : '' ?>"
+                    <a href="?page=<?= $page - 1 ?><?= $filterAction ? '&filter=' . urlencode($filterAction) : '' ?>"
                        class="btn btn-ghost btn-sm">&laquo; Prev</a>
                 <?php endif; ?>
 
                 <?php
                 // show a sliding window of page numbers
                 $start = max(1, $page - 2);
-                $end   = min($totalPages, $page + 2);
-                for ($p = $start; $p <= $end; $p++): ?>
-                    <a href="?page=<?= $p ?><?= $filterAction ? '&filter='.urlencode($filterAction) : '' ?>"
+            $end = min($totalPages, $page + 2);
+            for ($p = $start; $p <= $end; $p++): ?>
+                    <a href="?page=<?= $p ?><?= $filterAction ? '&filter=' . urlencode($filterAction) : '' ?>"
                        class="btn btn-sm <?= $p === $page ? 'btn-primary' : 'btn-ghost' ?>"
                        style="min-width:34px;text-align:center"><?= $p ?></a>
                 <?php endfor; ?>
 
                 <?php if ($page < $totalPages): ?>
-                    <a href="?page=<?= $page + 1 ?><?= $filterAction ? '&filter='.urlencode($filterAction) : '' ?>"
+                    <a href="?page=<?= $page + 1 ?><?= $filterAction ? '&filter=' . urlencode($filterAction) : '' ?>"
                        class="btn btn-ghost btn-sm">Next &raquo;</a>
                 <?php endif; ?>
             </div>

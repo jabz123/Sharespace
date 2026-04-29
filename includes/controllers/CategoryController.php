@@ -6,19 +6,21 @@
 
 require_once __DIR__ . '/../db.php';
 
-class CategoryController {
-    
+class CategoryController
+{
     // get all categories
     // returns array of categories
-    public function getAll(): array {
+    public function getAll(): array
+    {
         $rows = DB::query('SELECT * FROM categories ORDER BY name');
         return $rows;
     }
 
     // this is fot the trending topic shit
-    // get category with newest articles 
+    // get category with newest articles
     // returns only categories that currently have published articles
-    public function getByLatestPublishedArticle(int $limit = 6): array {
+    public function getByLatestPublishedArticle(int $limit = 6): array
+    {
         $limit = max(1, min(50, $limit));
 
         return DB::query(
@@ -33,7 +35,8 @@ class CategoryController {
     }
 
     //returns single category by id, or null if not found
-    public function getById(int $id): ?array {
+    public function getById(int $id): ?array
+    {
         return DB::first(
             'SELECT * FROM categories WHERE id = ?',
             [$id]
@@ -42,8 +45,9 @@ class CategoryController {
 
     //create new category
     //return ['ok' => true] or ['error' => '...']
-    public function create(string $name, string $description): array {
-        $name        = trim($name);
+    public function create(string $name, string $description): array
+    {
+        $name = trim($name);
         $description = trim($description);
 
         if (empty($name)) {
@@ -70,8 +74,9 @@ class CategoryController {
 
     //update existing category
     //return ['ok' => true] or ['error' => '...']
-    public function update(int $id, string $name, string $description): array {
-        $name        = trim($name);
+    public function update(int $id, string $name, string $description): array
+    {
+        $name = trim($name);
         $description = trim($description);
 
         if (empty($name)) {
@@ -98,7 +103,8 @@ class CategoryController {
 
     //delete category, can only delete if no articles exist
     //return ['ok' => true] or ['error' => '...']
-    public function delete(int $id): array {
+    public function delete(int $id): array
+    {
         $articleCount = DB::first(
             'SELECT COUNT(*) AS count FROM articles WHERE category_id = ?',
             [$id]

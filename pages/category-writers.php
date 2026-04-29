@@ -21,7 +21,7 @@ if ($user->role !== 'category_admin') {
 }
 
 // get the category this admin is assigned to
-$assignedCategory = assigned_category_for_expert((int)$user->id);
+$assignedCategory = assigned_category_for_expert((int) $user->id);
 
 // fetch all writers who have at least one published article in this category,
 // along with their article count for that category
@@ -34,7 +34,7 @@ if ($assignedCategory) {
          WHERE a.category_id = ? AND a.status = \'published\'
          GROUP BY u.id, u.full_name, u.avatar_url, u.bio
          ORDER BY article_count DESC, u.full_name ASC',
-        [(int)$assignedCategory['id']]
+        [(int) $assignedCategory['id']]
     );
 }
 
@@ -77,9 +77,9 @@ dash_header('Category Writers', $subtitle);
         <div class="writer-grid" id="writerGrid">
             <?php foreach ($writers as $writer):
                 $initial = strtoupper(mb_substr($writer['full_name'], 0, 1)) ?: '?';
-                $articleWord = (int)$writer['article_count'] === 1 ? 'article' : 'articles';
-                $writerUrl = '/pages/writer-articles.php?writer_id=' . (int)$writer['id'];
-            ?>
+                $articleWord = (int) $writer['article_count'] === 1 ? 'article' : 'articles';
+                $writerUrl = '/pages/writer-articles.php?writer_id=' . (int) $writer['id'];
+                ?>
             <a href="<?= $writerUrl ?>" class="writer-card-link" data-name="<?= htmlspecialchars(strtolower($writer['full_name'])) ?>">
             <div class="writer-card">
                 <div class="writer-avatar-lg">
@@ -92,7 +92,7 @@ dash_header('Category Writers', $subtitle);
                 </div>
                 <div class="writer-name"><?= htmlspecialchars($writer['full_name']) ?></div>
                 <div class="writer-article-count">
-                    <?= (int)$writer['article_count'] ?> <?= htmlspecialchars($assignedCategory['name']) ?> <?= $articleWord ?>
+                    <?= (int) $writer['article_count'] ?> <?= htmlspecialchars($assignedCategory['name']) ?> <?= $articleWord ?>
                 </div>
                 <?php if (!empty($writer['bio'])): ?>
                     <div class="writer-bio"><em><?= htmlspecialchars($writer['bio']) ?></em></div>

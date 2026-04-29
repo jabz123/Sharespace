@@ -31,7 +31,7 @@ $error = null;
 //post login form
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $auth->login(
-        $_POST['email']    ?? '',
+        $_POST['email'] ?? '',
         $_POST['password'] ?? ''
     );
 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // get login user
         $user = $auth->currentUser();
-        
+
         // system_admin users skip onboarding and go straight to admin dashboard
         if ($user->role === 'system_admin') {
             header('Location: /pages/admin-dashboard.php');
@@ -96,7 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <?php $successMsg = flash('flash_success'); if ($successMsg): ?>
+            <?php $successMsg = flash('flash_success');
+if ($successMsg): ?>
                 <div class="alert alert-success">
                     <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0;margin-top:1px"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                     <?= htmlspecialchars($successMsg) ?>

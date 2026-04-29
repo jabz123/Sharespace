@@ -7,15 +7,15 @@
 // allows users to delete their own comments
 // returns comment entities or result arrays, no html output
 
-
 require_once __DIR__ . '/../entities/Comment.php';
 require_once __DIR__ . '/../AuditLogger.php';
 require_once __DIR__ . '/../comment_moderation_rules.php';
 
-class CommentController {
-
+class CommentController
+{
     //return all comments for article. show oldest first
-    public function getForArticle(int $articleId): array {
+    public function getForArticle(int $articleId): array
+    {
         $rows = DB::query(
             'SELECT cm.*, u.full_name AS commenter_name
              FROM comments cm
@@ -24,10 +24,11 @@ class CommentController {
              ORDER BY cm.created_at ASC',
             [$articleId]
         );
-        return array_map(fn($r) => new Comment($r), $rows);
+        return array_map(fn ($r) => new Comment($r), $rows);
     }
     //return number of comments for an article
-    public function countByArticle(int $articleId): int {
+    public function countByArticle(int $articleId): int
+    {
         return (int) DB::query(
             'SELECT COUNT(*) AS count 
             FROM comments 
@@ -37,7 +38,8 @@ class CommentController {
     }
 
     //post comment on article, validate and insert into db
-    public function post(int $articleId, int $userId, string $body): array {
+    public function post(int $articleId, int $userId, string $body): array
+    {
         $body = trim($body);
         if ($body === '') {
             return ['error' => 'Comment cannot be empty.'];
@@ -62,7 +64,8 @@ class CommentController {
     }
 
     //delete comment from article. only can delete own comment
-    public function delete(int $commentId, int $requestingUserId): array {
+    public function delete(int $commentId, int $requestingUserId): array
+    {
         $comment = DB::first(
             'SELECT article_id FROM comments WHERE id = ? AND user_id = ?',
             [$commentId, $requestingUserId]

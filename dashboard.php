@@ -7,11 +7,11 @@ require_once __DIR__ . '/includes/controllers/HomepageController.php';
 require_once __DIR__ . '/includes/controllers/CategoryController.php';
 require_once __DIR__ . '/includes/controllers/UserController.php';
 
-$auth        = new AuthController();
+$auth = new AuthController();
 $articleCtrl = new ArticleController();
-$homeCtrl    = new HomepageController();
+$homeCtrl = new HomepageController();
 $categoryCtrl = new CategoryController();
-$userCtrl    = new UserController();
+$userCtrl = new UserController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
@@ -21,12 +21,12 @@ if ($user->role === 'category_admin') {
     exit;
 }
 
-$recommended      = $homeCtrl->getRecommendedByInterest($user->id);
+$recommended = $homeCtrl->getRecommendedByInterest($user->id);
 $ageGroupArticles = $homeCtrl->getPopularByAgeGroup($user->id);
-$genderArticles   = $homeCtrl->getPopularByGender($user->id);
-$latestArticles   = $homeCtrl->getLatest(6);
+$genderArticles = $homeCtrl->getPopularByGender($user->id);
+$latestArticles = $homeCtrl->getLatest(6);
 $spotlight = $latestArticles[0] ?? null;
-$recommendedFeed  = $recommended;
+$recommendedFeed = $recommended;
 
 // remove spotlight article taking from $recommanded article section
 // if ($spotlight && !empty($recommended) && $recommended[0]->id === $spotlight->id) {
@@ -35,7 +35,7 @@ $recommendedFeed  = $recommended;
 
 $credibilityPool = array_filter(array_merge($recommended, $ageGroupArticles, $genderArticles, $latestArticles));
 $averageTrust = !empty($credibilityPool)
-    ? (int) round(array_sum(array_map(fn($a) => (int) $a->trustScore, $credibilityPool)) / count($credibilityPool))
+    ? (int) round(array_sum(array_map(fn ($a) => (int) $a->trustScore, $credibilityPool)) / count($credibilityPool))
     : 0;
 
 /* top contributor shit */
@@ -188,16 +188,16 @@ page_head('Dashboard');
                                 '#a855f7',   // violet
                             ];
 
-                            $trendingTopics = [];
-                            foreach ($allCategories as $index => $cat) {
-                                $trendingTopics[] = [
-                                    'label' => htmlspecialchars($cat['name']),
-                                    'color' => $categoryColors[$index % count($categoryColors)],
-                                    'href'  => '/pages/browse.php?category=' . urlencode(strtolower($cat['name'])),
-                                ];
-                            }
+$trendingTopics = [];
+foreach ($allCategories as $index => $cat) {
+    $trendingTopics[] = [
+        'label' => htmlspecialchars($cat['name']),
+        'color' => $categoryColors[$index % count($categoryColors)],
+        'href' => '/pages/browse.php?category=' . urlencode(strtolower($cat['name'])),
+    ];
+}
 
-                            foreach ($trendingTopics as $t): ?>
+foreach ($trendingTopics as $t): ?>
                                 <a href="<?= $t['href'] ?>" class="trending-item">
                                     <svg class="trending-dot" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
                                         <circle cx="5" cy="5" r="4" fill="<?= $t['color'] ?>" />

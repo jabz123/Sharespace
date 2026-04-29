@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$body      = json_decode(file_get_contents('php://input'), true);
-$articleId = (int)($body['article_id'] ?? 0);
+$body = json_decode(file_get_contents('php://input'), true);
+$articleId = (int) ($body['article_id'] ?? 0);
 
 // check for valid article ID in db
 if (!$articleId) {
@@ -76,12 +76,12 @@ $cacheTtlSeconds = 1800; // 30 minutes
 
 if (is_file($cacheFile)) {
     $cachedRaw = @file_get_contents($cacheFile);
-    $cached = json_decode((string)$cachedRaw, true);
+    $cached = json_decode((string) $cachedRaw, true);
 
     if (
         is_array($cached) &&
         isset($cached['created_at'], $cached['data']) &&
-        (time() - (int)$cached['created_at'] <= $cacheTtlSeconds)
+        (time() - (int) $cached['created_at'] <= $cacheTtlSeconds)
     ) {
         echo json_encode($cached['data']);
         exit;
@@ -90,7 +90,7 @@ if (is_file($cacheFile)) {
 
 // cap excerpt size to reduce token usage and rate limit pressure
 //should reduce error 429 shit
-$excerptRaw = (string)($article['excerpt'] ?? '');
+$excerptRaw = (string) ($article['excerpt'] ?? '');
 $safeExcerpt = function_exists('mb_substr')
     ? mb_substr($excerptRaw, 0, 700)
     : substr($excerptRaw, 0, 700);
@@ -132,7 +132,7 @@ foreach ($models as $model) {
         $payload = [
             'model' => $model,
             'messages' => [
-                ['role' => 'user', 'content' => $prompt]
+                ['role' => 'user', 'content' => $prompt],
             ],
             'temperature' => 0.2,
             'max_tokens' => 260,
@@ -148,7 +148,7 @@ foreach ($models as $model) {
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $apiKey,
                 'HTTP-Referer: https://sharedspace.srv1502312.hstgr.cloud',
-                'X-Title: SharedSpace'
+                'X-Title: SharedSpace',
             ],
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 30,
@@ -156,12 +156,12 @@ foreach ($models as $model) {
 
         $response = curl_exec($ch);
         $curlErr = curl_error($ch);
-        $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         $finalResponse = $response;
         $finalHttpCode = $httpCode;
-        $lastErrorBody = json_decode((string)$response, true);
+        $lastErrorBody = json_decode((string) $response, true);
 
         if ($curlErr) {
             error_log("OpenRouter cURL error [{$model} attempt {$attempt}]: {$curlErr}");
@@ -175,7 +175,7 @@ foreach ($models as $model) {
         // Retry transient statuses
         if (in_array($httpCode, [429, 500, 502, 503, 504], true)) {
             // exponential-ish backoff: 1.5s, 3s, 6s
-            $sleepMicros = (int)(pow(2, $attempt) * 750000);
+            $sleepMicros = (int) (pow(2, $attempt) * 750000);
             usleep($sleepMicros);
             continue;
         }
@@ -194,21 +194,21 @@ if (!$finalResponse || $finalHttpCode !== 200) {
     }
 
     error_log('OpenRouter API HTTP code: ' . $finalHttpCode);
-    error_log('OpenRouter API response: ' . (string)$finalResponse);
+    error_log('OpenRouter API response: ' . (string) $finalResponse);
 
     http_response_code(502);
     echo json_encode([
         'error' => 'AI provider is unavailable right now. Please try again later.',
         'code' => $finalHttpCode,
-        'details' => $lastErrorBody
+        'details' => $lastErrorBody,
     ]);
     exit;
 }
 
 // Parse response
-$data = json_decode((string)$finalResponse, true);
+$data = json_decode((string) $finalResponse, true);
 $rawText = $data['choices'][0]['message']['content'] ?? '';
-$rawText = trim((string)$rawText);
+$rawText = trim((string) $rawText);
 
 // strip possible code fences
 $rawText = preg_replace('/^```json\s*/i', '', $rawText);
@@ -226,16 +226,16 @@ if (!$result || !isset($result['summary'])) {
 
 // normalize output
 $out = [
-    'summary' => (string)($result['summary'] ?? ''),
+    'summary' => (string) ($result['summary'] ?? ''),
     'key_points' => is_array($result['key_points'] ?? null) ? $result['key_points'] : [],
-    'tone' => (string)($result['tone'] ?? 'Informative'),
-    'read_time' => (string)($result['read_time'] ?? '3 min read'),
+    'tone' => (string) ($result['tone'] ?? 'Informative'),
+    'read_time' => (string) ($result['read_time'] ?? '3 min read'),
 ];
 
 // cache result (best effort)
 @file_put_contents($cacheFile, json_encode([
     'created_at' => time(),
-    'data' => $out
+    'data' => $out,
 ]), LOCK_EX);
 
 echo json_encode($out);

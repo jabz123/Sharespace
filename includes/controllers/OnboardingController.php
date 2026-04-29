@@ -1,4 +1,5 @@
 <?php
+
 // onboarding page shown during first login of a account
 // this page updates to db based on user answer on the onboarding form
 
@@ -10,7 +11,7 @@ class OnboardingController
     public function isCompleted(int $userId): bool
     {
         $row = DB::first(
-            "SELECT onboarding_completed FROM users WHERE id = ?",
+            'SELECT onboarding_completed FROM users WHERE id = ?',
             [$userId]
         );
         return $row && $row['onboarding_completed'] == 1;
@@ -42,17 +43,17 @@ class OnboardingController
 
         //update user profile
         DB::execute(
-            "UPDATE users
+            'UPDATE users
              SET age_group = ?, gender = ?, bio = ?, onboarding_completed = 1
-             WHERE id = ?",
+             WHERE id = ?',
             [$ageGroup, $gender, $bio, $userId]
         );
 
         //insert interests
         foreach ($interests as $categoryId) {
             DB::execute(
-                "INSERT INTO user_interests (user_id, category_id)
-                 VALUES (?, ?)",
+                'INSERT INTO user_interests (user_id, category_id)
+                 VALUES (?, ?)',
                 [$userId, $categoryId]
             );
         }
@@ -64,7 +65,7 @@ class OnboardingController
     public function getInterests(int $userId): array
     {
         $rows = DB::query(
-            "SELECT category_id FROM user_interests WHERE user_id = ?",
+            'SELECT category_id FROM user_interests WHERE user_id = ?',
             [$userId]
         );
         return array_column($rows, 'category_id');
@@ -80,15 +81,15 @@ class OnboardingController
 
         // delete old interests then re-insert
         DB::execute(
-            "DELETE FROM user_interests WHERE user_id = ?",
+            'DELETE FROM user_interests WHERE user_id = ?',
             [$userId]
         );
 
         foreach ($interests as $categoryId) {
             DB::execute(
-                "INSERT INTO user_interests (user_id, category_id)
-                 VALUES (?, ?)",
-                [$userId, (int)$categoryId]
+                'INSERT INTO user_interests (user_id, category_id)
+                 VALUES (?, ?)',
+                [$userId, (int) $categoryId]
             );
         }
 

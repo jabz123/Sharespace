@@ -72,12 +72,12 @@ if ($approval === null) {
 }
 
 DB::execute(
-    "UPDATE site_feedback
+    'UPDATE site_feedback
      SET sentiment_label = ?,
          sentiment_score = ?,
          sentiment_status = ?,
          is_approved = ?
-     WHERE id = ?",
+     WHERE id = ?',
     [$label, $numericScore, $status, $approval, $feedbackId]
 );
 

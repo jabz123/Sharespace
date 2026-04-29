@@ -14,12 +14,15 @@ require_once __DIR__ . '/../entities/User.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../AuditLogger.php';
 
-class AdminController {
-    private function ensureCategoryExpertTable(): void {
+class AdminController
+{
+    private function ensureCategoryExpertTable(): void
+    {
         DB::ensureCategoryExpertsTable();
     }
 
-    public function getAssignedCategoryForExpert(int $userId): ?array {
+    public function getAssignedCategoryForExpert(int $userId): ?array
+    {
         $this->ensureCategoryExpertTable();
 
         return DB::first(
@@ -33,7 +36,8 @@ class AdminController {
         );
     }
 
-    public function getAssignedCategoriesForExpert(int $userId): array {
+    public function getAssignedCategoriesForExpert(int $userId): array
+    {
         $this->ensureCategoryExpertTable();
 
         return DB::query(
@@ -50,7 +54,8 @@ class AdminController {
     // GUARD
     // ─────────────────────────────────────────────
 
-    public function requireAdmin(User $user): void {
+    public function requireAdmin(User $user): void
+    {
         if ($user->role !== 'system_admin') {
             header('Location: /dashboard.php');
             exit;
@@ -62,7 +67,8 @@ class AdminController {
     // ─────────────────────────────────────────────
 
     // get all articles with author + category info, newest first
-    public function getAllArticles(): array {
+    public function getAllArticles(): array
+    {
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count
@@ -74,11 +80,12 @@ class AdminController {
              GROUP BY a.id
              ORDER BY a.published_at DESC'
         );
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
     // get single article by id (no author restriction)
-    public function getArticleById(int $id): ?Article {
+    public function getArticleById(int $id): ?Article
+    {
         $row = DB::first(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count
@@ -94,7 +101,8 @@ class AdminController {
     }
 
     // sets article status to 'suspended' — hides from all users
-    public function suspendArticle(int $articleId): array {
+    public function suspendArticle(int $articleId): array
+    {
         if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
             return ['error' => 'Article not found.'];
         }
@@ -103,7 +111,8 @@ class AdminController {
     }
 
     // restores article status back to 'published'
-    public function unsuspendArticle(int $articleId): array {
+    public function unsuspendArticle(int $articleId): array
+    {
         if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
             return ['error' => 'Article not found.'];
         }
@@ -112,7 +121,8 @@ class AdminController {
     }
 
     // delete article: no author_id restriction
-    public function deleteArticle(int $articleId): array {
+    public function deleteArticle(int $articleId): array
+    {
         $affected = DB::execute('DELETE FROM articles WHERE id = ?', [$articleId]);
         if ($affected === 0) {
             return ['error' => 'Article not found.'];
@@ -121,9 +131,10 @@ class AdminController {
     }
 
     // get all categories (used in dropdowns)
-    public function getAllCategories(): array {
+    public function getAllCategories(): array
+    {
         $rows = DB::query('SELECT * FROM categories ORDER BY name');
-        return array_map(fn($r) => new Category($r), $rows);
+        return array_map(fn ($r) => new Category($r), $rows);
     }
 
     // ─────────────────────────────────────────────
@@ -131,20 +142,23 @@ class AdminController {
     // ─────────────────────────────────────────────
 
     // get all users, newest first
-    public function getAllUsers(): array {
+    public function getAllUsers(): array
+    {
         $rows = DB::query('SELECT * FROM users ORDER BY created_at DESC');
-        return array_map(fn($r) => new User($r), $rows);
+        return array_map(fn ($r) => new User($r), $rows);
     }
 
     // get single user by id
-    public function getUserById(int $id): ?User {
+    public function getUserById(int $id): ?User
+    {
         $row = DB::first('SELECT * FROM users WHERE id = ?', [$id]);
         return $row ? new User($row) : null;
     }
 
     // update user suspension status only
     // is_suspended: 1 = suspend, omitted = 0 = unsuspend
-    public function updateUser(int $userId, array $input): array {
+    public function updateUser(int $userId, array $input): array
+    {
         $isSuspended = isset($input['is_suspended']) ? 1 : 0;
 
         if (!DB::first('SELECT id FROM users WHERE id = ?', [$userId])) {
@@ -160,13 +174,14 @@ class AdminController {
     }
 
     // summary counts for admin dashboard overview cards
-    public function getStats(): array {
+    public function getStats(): array
+    {
         $totalArticles = DB::first(
             "SELECT COUNT(*) AS cnt FROM articles WHERE status IN ('published', 'suspended')"
         )['cnt'] ?? 0;
-        $totalUsers   = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
+        $totalUsers = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
         $premiumUsers = DB::first("SELECT COUNT(*) AS cnt FROM users WHERE role = 'premium'")['cnt'] ?? 0;
-        $suspended    = DB::first('SELECT COUNT(*) AS cnt FROM users WHERE is_suspended = 1')['cnt'] ?? 0;
+        $suspended = DB::first('SELECT COUNT(*) AS cnt FROM users WHERE is_suspended = 1')['cnt'] ?? 0;
 
         return compact('totalArticles', 'totalUsers', 'premiumUsers', 'suspended');
     }
@@ -176,7 +191,8 @@ class AdminController {
     // ─────────────────────────────────────────────
 
     // get all categories with article count
-    public function getAllCategoriesWithCount(): array {
+    public function getAllCategoriesWithCount(): array
+    {
         return DB::query(
             'SELECT c.*, COUNT(a.id) AS article_count
              FROM categories c
@@ -187,8 +203,9 @@ class AdminController {
     }
 
     // create a new category
-    public function createCategory(array $input): array {
-        $name        = trim($input['name']        ?? '');
+    public function createCategory(array $input): array
+    {
+        $name = trim($input['name'] ?? '');
         $description = trim($input['description'] ?? '');
 
         if (!$name) {
@@ -207,8 +224,9 @@ class AdminController {
     }
 
     // update an existing category
-    public function updateCategory(int $categoryId, array $input): array {
-        $name        = trim($input['name']        ?? '');
+    public function updateCategory(int $categoryId, array $input): array
+    {
+        $name = trim($input['name'] ?? '');
         $description = trim($input['description'] ?? '');
 
         if (!$name) {
@@ -230,7 +248,8 @@ class AdminController {
     }
 
     // delete a category — only if no articles use it
-    public function deleteCategory(int $categoryId): array {
+    public function deleteCategory(int $categoryId): array
+    {
         $count = DB::first(
             'SELECT COUNT(*) AS cnt FROM articles WHERE category_id = ?',
             [$categoryId]
@@ -265,7 +284,8 @@ class AdminController {
     // ─────────────────────────────────────────────
 
     // get all categories with their assigned expert (if any)
-    public function getCategoriesWithExperts(): array {
+    public function getCategoriesWithExperts(): array
+    {
         $this->ensureCategoryExpertTable();
 
         $categories = DB::query(
@@ -283,16 +303,16 @@ class AdminController {
 
         $expertsByCategory = [];
         foreach ($assignments as $assignment) {
-            $categoryId = (int)$assignment['category_id'];
+            $categoryId = (int) $assignment['category_id'];
             $expertsByCategory[$categoryId][] = [
-                'user_id' => (int)$assignment['user_id'],
+                'user_id' => (int) $assignment['user_id'],
                 'full_name' => $assignment['full_name'],
                 'email' => $assignment['email'],
             ];
         }
 
         foreach ($categories as &$category) {
-            $category['experts'] = $expertsByCategory[(int)$category['id']] ?? [];
+            $category['experts'] = $expertsByCategory[(int) $category['id']] ?? [];
             $primaryExpert = $category['experts'][0] ?? null;
             $category['admin_user_id'] = $primaryExpert['user_id'] ?? null;
             $category['expert_name'] = $primaryExpert['full_name'] ?? null;
@@ -305,7 +325,8 @@ class AdminController {
 
     // get all users eligible to be category experts
     // returns free users + existing category_admin users (so they show in the dropdown)
-    public function getEligibleExperts(): array {
+    public function getEligibleExperts(): array
+    {
         $this->ensureCategoryExpertTable();
 
         return DB::query(
@@ -321,7 +342,8 @@ class AdminController {
     // - sets categories.admin_user_id
     // - promotes user role to 'category_admin'
     // - if category already had a different expert, demotes the old one first
-    public function assignExpert(int $categoryId, int $userId): array {
+    public function assignExpert(int $categoryId, int $userId): array
+    {
         $this->ensureCategoryExpertTable();
 
         if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
@@ -331,7 +353,7 @@ class AdminController {
         if (!$user) {
             return ['error' => 'User not found.'];
         }
-        if ((int)($user['is_suspended'] ?? 0) === 1) {
+        if ((int) ($user['is_suspended'] ?? 0) === 1) {
             return ['error' => 'Suspended users cannot be assigned as category experts.'];
         }
 
@@ -355,7 +377,7 @@ class AdminController {
         );
         DB::execute(
             'UPDATE categories SET admin_user_id = ? WHERE id = ?',
-            [(int)($primaryExpert['user_id'] ?? $userId), $categoryId]
+            [(int) ($primaryExpert['user_id'] ?? $userId), $categoryId]
         );
 
         return ['ok' => true];
@@ -364,7 +386,8 @@ class AdminController {
     // unassign the expert from a category
     // - clears categories.admin_user_id
     // - demotes user back to 'free' only if they have no other category assigned
-    public function unassignExpert(int $categoryId, int $userId = 0): array {
+    public function unassignExpert(int $categoryId, int $userId = 0): array
+    {
         $this->ensureCategoryExpertTable();
 
         if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
@@ -379,7 +402,7 @@ class AdminController {
                  LIMIT 1',
                 [$categoryId]
             );
-            $userId = (int)($primaryExpert['user_id'] ?? 0);
+            $userId = (int) ($primaryExpert['user_id'] ?? 0);
         }
 
         if ($userId <= 0 || !DB::first('SELECT id FROM users WHERE id = ?', [$userId])) {
@@ -404,7 +427,7 @@ class AdminController {
         );
         DB::execute(
             'UPDATE categories SET admin_user_id = ? WHERE id = ?',
-            [$primaryExpert ? (int)$primaryExpert['user_id'] : null, $categoryId]
+            [$primaryExpert ? (int) $primaryExpert['user_id'] : null, $categoryId]
         );
 
         $this->demoteExpertIfUnused($userId);
@@ -413,7 +436,8 @@ class AdminController {
     }
 
     // helper: demote a user back to 'free' if they are not assigned to any other category
-    private function demoteExpertIfUnused(int $userId): void {
+    private function demoteExpertIfUnused(int $userId): void
+    {
         $this->ensureCategoryExpertTable();
 
         $stillAssigned = DB::first(
@@ -425,7 +449,8 @@ class AdminController {
         }
     }
 
-    public function getUnverifiedArticlesForExpert(int $userId): array {
+    public function getUnverifiedArticlesForExpert(int $userId): array
+    {
         DB::ensureArticleReviewWorkflow();
 
         return DB::query(
@@ -454,7 +479,8 @@ class AdminController {
         );
     }
 
-    public function getUnverifiedArticleForExpert(int $userId, int $articleId): ?array {
+    public function getUnverifiedArticleForExpert(int $userId, int $articleId): ?array
+    {
         DB::ensureArticleReviewWorkflow();
 
         return DB::first(
@@ -471,7 +497,8 @@ class AdminController {
         );
     }
 
-    public function getExpertReviewProgress(int $articleId): array {
+    public function getExpertReviewProgress(int $articleId): array
+    {
         DB::ensureArticleReviewWorkflow();
 
         return DB::query(
@@ -484,7 +511,8 @@ class AdminController {
         );
     }
 
-    public function reviewPendingArticle(int $articleId, int $expertId, string $decision): array {
+    public function reviewPendingArticle(int $articleId, int $expertId, string $decision): array
+    {
         DB::ensureArticleReviewWorkflow();
 
         $decision = $decision === 'unverified' ? 'unverified' : 'verified';
@@ -533,9 +561,9 @@ class AdminController {
                     [$articleId]
                 );
 
-                $hasVerifiedExpert = (int)($summary['total_reviews'] ?? 0) > 0
-                    && (int)($summary['verified_reviews'] ?? 0) >= 1
-                    && (int)($summary['unverified_reviews'] ?? 0) === 0;
+                $hasVerifiedExpert = (int) ($summary['total_reviews'] ?? 0) > 0
+                    && (int) ($summary['verified_reviews'] ?? 0) >= 1
+                    && (int) ($summary['unverified_reviews'] ?? 0) === 0;
 
                 if ($hasVerifiedExpert) {
                     DB::execute(
@@ -566,7 +594,8 @@ class AdminController {
 
     // get all articles with at least one flag in a given category
     // returns Article[] sorted by flag count descending
-    public function getFlaggedArticlesByCategory(int $categoryId): array {
+    public function getFlaggedArticlesByCategory(int $categoryId): array
+    {
         $rows = DB::query(
             "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count,
@@ -581,23 +610,25 @@ class AdminController {
              ORDER BY flag_count DESC, a.published_at DESC",
             [$categoryId]
         );
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
     // get all individual flag reports for a specific article
-    public function getFlagsByArticle(int $articleId): array {
+    public function getFlagsByArticle(int $articleId): array
+    {
         return DB::query(
-            "SELECT f.*, u.full_name AS reporter_name
+            'SELECT f.*, u.full_name AS reporter_name
              FROM article_flags f
              JOIN users u ON u.id = f.user_id
              WHERE f.article_id = ?
-             ORDER BY f.created_at DESC",
+             ORDER BY f.created_at DESC',
             [$articleId]
         );
     }
 
     // dismiss all flags for an article — article stays published
-    public function dismissFlags(int $articleId): array {
+    public function dismissFlags(int $articleId): array
+    {
         if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
             return ['error' => 'Article not found.'];
         }
@@ -606,7 +637,8 @@ class AdminController {
     }
 
     // confirm flags: suspend the article and clear its flags
-    public function confirmFlag(int $articleId): array {
+    public function confirmFlag(int $articleId): array
+    {
         if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
             return ['error' => 'Article not found.'];
         }
@@ -616,7 +648,8 @@ class AdminController {
     }
 
     // dismiss flags and restore a suspended article back to published
-    public function restoreAndDismissFlags(int $articleId): array {
+    public function restoreAndDismissFlags(int $articleId): array
+    {
         if (!DB::first('SELECT id FROM articles WHERE id = ?', [$articleId])) {
             return ['error' => 'Article not found.'];
         }
@@ -632,16 +665,17 @@ class AdminController {
     // Returns all stats needed for the dashboard analytics bar:
     // totalArticles, totalUsers, totalCategories,
     // flaggedArticles, suspendedArticles, premiumUsers
-    public function getExtendedStats(): array {
-        $totalArticles     = DB::first(
+    public function getExtendedStats(): array
+    {
+        $totalArticles = DB::first(
             "SELECT COUNT(*) AS cnt FROM articles WHERE status IN ('published','suspended')"
         )['cnt'] ?? 0;
 
-        $totalUsers        = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
+        $totalUsers = DB::first('SELECT COUNT(*) AS cnt FROM users')['cnt'] ?? 0;
 
-        $totalCategories   = DB::first('SELECT COUNT(*) AS cnt FROM categories')['cnt'] ?? 0;
+        $totalCategories = DB::first('SELECT COUNT(*) AS cnt FROM categories')['cnt'] ?? 0;
 
-        $flaggedArticles   = DB::first(
+        $flaggedArticles = DB::first(
             'SELECT COUNT(DISTINCT article_id) AS cnt FROM article_flags'
         )['cnt'] ?? 0;
 
@@ -649,17 +683,22 @@ class AdminController {
             "SELECT COUNT(*) AS cnt FROM articles WHERE status = 'suspended'"
         )['cnt'] ?? 0;
 
-        $premiumUsers      = DB::first(
+        $premiumUsers = DB::first(
             "SELECT COUNT(*) AS cnt FROM users WHERE role = 'premium'"
         )['cnt'] ?? 0;
 
-        $suspended         = DB::first(
+        $suspended = DB::first(
             'SELECT COUNT(*) AS cnt FROM users WHERE is_suspended = 1'
         )['cnt'] ?? 0;
 
         return compact(
-            'totalArticles', 'totalUsers', 'totalCategories',
-            'flaggedArticles', 'suspendedArticles', 'premiumUsers', 'suspended'
+            'totalArticles',
+            'totalUsers',
+            'totalCategories',
+            'flaggedArticles',
+            'suspendedArticles',
+            'premiumUsers',
+            'suspended'
         );
     }
 
@@ -693,7 +732,8 @@ class AdminController {
     }
 
     // Total count of audit log rows. Optional $filterAction scopes the count.
-    public function getAuditLogCount(?string $filterAction = null, ?string $filterRole = null): int {
+    public function getAuditLogCount(?string $filterAction = null, ?string $filterRole = null): int
+    {
         return AuditLogger::count($filterAction, $filterRole);
     }
 }

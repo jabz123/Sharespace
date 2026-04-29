@@ -16,9 +16,9 @@ $plan = DB::first(
     "SELECT * FROM landing_pricing_plans WHERE name = 'Premium' LIMIT 1"
 );
 $features = $plan ? DB::query(
-    "SELECT * FROM landing_pricing_features
+    'SELECT * FROM landing_pricing_features
      WHERE plan_id = ? AND is_included = 1
-     ORDER BY display_order ASC",
+     ORDER BY display_order ASC',
     [$plan['id']]
 ) : [];
 

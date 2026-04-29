@@ -5,7 +5,6 @@
 //css will be called through page_head function. it is at the top of every page.
 //to make sure the cache is refreshed when changes are made.
 
-
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/controllers/AuthController.php';
@@ -46,10 +45,10 @@ function assigned_category_for_expert(int $userId): ?array
 function page_head(string $title, bool $useSystemAdminCss = false): void
 {
     $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title), '-'));
-    //this slug is used in the body class to allow page-specific css targeting without 
-    //needing to create separate css files for every page. 
+    //this slug is used in the body class to allow page-specific css targeting without
+    //needing to create separate css files for every page.
 
-?>
+    ?>
     <!DOCTYPE html>
     <html lang="en">
 
@@ -165,7 +164,7 @@ function sidebar(User $user): void
             ['href' => '/pages/users.php', 'key' => 'users', 'label' => 'Discover Users'],
         ];
     }
-?>
+    ?>
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
@@ -198,7 +197,7 @@ function sidebar(User $user): void
                 <?php elseif ($user->role === 'category_admin'): ?>
                     <span class="role-badge category-admin">Category Expert</span>
                     <?php
-                    $assignedCategory = assigned_category_for_expert((int)$user->id);
+                    $assignedCategory = assigned_category_for_expert((int) $user->id);
                     if ($assignedCategory): ?>
                         <span class="role-badge category-name"><?= htmlspecialchars($assignedCategory['name']) ?></span>
                     <?php endif; ?>
@@ -250,51 +249,51 @@ function flash_messages(): void
     $err = flash('flash_error');
     $ok = flash('flash_success');
     if ($err): ?><div class="alert alert-error"><?= htmlspecialchars($err) ?></div><?php endif;
-                                                                                if ($ok): ?><div class="alert alert-success"><?= htmlspecialchars($ok) ?></div><?php endif;
-                                                                                                                                                        }
+    if ($ok): ?><div class="alert alert-success"><?= htmlspecialchars($ok) ?></div><?php endif;
+}
 
-                                                                                                                                                        function category_theme_class(string $name): string
-                                                                                                                                                        {
-                                                                                                                                                            return match (strtolower(trim($name))) {
-                                                                                                                                                                'politics' => 'category-politics',
-                                                                                                                                                                'health' => 'category-health',
-                                                                                                                                                                'economy', 'business', 'finance' => 'category-economy',
-                                                                                                                                                                'sports' => 'category-sports',
-                                                                                                                                                                'games', 'gaming', 'technology', 'tech' => 'category-games',
-                                                                                                                                                                default => 'category-default',
-                                                                                                                                                            };
-                                                                                                                                                        }
+function category_theme_class(string $name): string
+{
+    return match (strtolower(trim($name))) {
+        'politics' => 'category-politics',
+        'health' => 'category-health',
+        'economy', 'business', 'finance' => 'category-economy',
+        'sports' => 'category-sports',
+        'games', 'gaming', 'technology', 'tech' => 'category-games',
+        default => 'category-default',
+    };
+}
 
-                                                                                                                                                        function trust_badge(int $score): string
-                                                                                                                                                        {
-                                                                                                                                                            $cls = $score >= 80 ? 'high' : ($score >= 60 ? 'mid' : 'low');
-                                                                                                                                                            return "<span class=\"trust-badge trust-{$cls}\">{$score}%</span>";
-                                                                                                                                                        }
+function trust_badge(int $score): string
+{
+    $cls = $score >= 80 ? 'high' : ($score >= 60 ? 'mid' : 'low');
+    return "<span class=\"trust-badge trust-{$cls}\">{$score}%</span>";
+}
 
-                                                                                                                                                        function relative_time(string $dateStr): string
-                                                                                                                                                        {
-                                                                                                                                                            $diff = time() - strtotime($dateStr);
-                                                                                                                                                            $hours = (int)($diff / 3600);
-                                                                                                                                                            if ($hours < 1) {
-                                                                                                                                                                return 'Just now';
-                                                                                                                                                            }
-                                                                                                                                                            if ($hours < 24) {
-                                                                                                                                                                return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
-                                                                                                                                                            }
-                                                                                                                                                            $days = (int)($hours / 24);
-                                                                                                                                                            return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
-                                                                                                                                                        }
+function relative_time(string $dateStr): string
+{
+    $diff = time() - strtotime($dateStr);
+    $hours = (int) ($diff / 3600);
+    if ($hours < 1) {
+        return 'Just now';
+    }
+    if ($hours < 24) {
+        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+    }
+    $days = (int) ($hours / 24);
+    return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+}
 
-                                                                                                                                                        function article_card(Article $article, User $user): void
-                                                                                                                                                        {
-                                                                                                                                                            $currentUrl = $_SERVER['REQUEST_URI'];
-                                                                                                                                                            $url = '/pages/article.php?id=' . $article->id . '&return=' . urlencode($currentUrl);
+function article_card(Article $article, User $user): void
+{
+    $currentUrl = $_SERVER['REQUEST_URI'];
+    $url = '/pages/article.php?id=' . $article->id . '&return=' . urlencode($currentUrl);
 
-                                                                                                                                                            $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
-                                                                                                                                                            $hasImage = !empty($article->imagePath);
-                                                                                                                                                            $commentCtrl = new CommentController();
-                                                                                                                                                            $commentCount = $commentCtrl->countByArticle($article->id);
-                                                                                                                                                                ?>
+    $isPremiumUser = $user->role === 'premium' || $user->role === 'system_admin' || $user->role === 'category_admin';
+    $hasImage = !empty($article->imagePath);
+    $commentCtrl = new CommentController();
+    $commentCount = $commentCtrl->countByArticle($article->id);
+    ?>
     <a href="<?= $url ?>" class="article-card-link">
         <div class="article-card">
             <div class="card-top">
@@ -322,24 +321,24 @@ function flash_messages(): void
             <p class="card-excerpt">
                 <?php
                                                                                                                                                             $excerpt = $article->excerpt;
-                                                                                                                                                            if (mb_strlen($excerpt, 'UTF-8') > 120) {
-                                                                                                                                                                echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
-                                                                                                                                                            } else {
-                                                                                                                                                                echo htmlspecialchars($excerpt);
-                                                                                                                                                            }
-                ?>
+    if (mb_strlen($excerpt, 'UTF-8') > 120) {
+        echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
+    } else {
+        echo htmlspecialchars($excerpt);
+    }
+    ?>
             </p>
 
             <div class="card-credibility">
                 <div class="card-credibility-row">
                     <span class="card-verified-pill">Verified</span>
-                    <span class="card-score-copy"><?= (int)$article->trustScore ?>% credibility</span>
+                    <span class="card-score-copy"><?= (int) $article->trustScore ?>% credibility</span>
                 </div>
                 <?php
-                                                                                                                                                            $trackClass = ((int)$article->trustScore >= 80) ? 'track-high' : (((int)$article->trustScore >= 60) ? 'track-mid' : 'track-low');
-                ?>
+                                                                                                                                                $trackClass = ((int) $article->trustScore >= 80) ? 'track-high' : (((int) $article->trustScore >= 60) ? 'track-mid' : 'track-low');
+    ?>
                 <div class="card-score-track">
-                    <span class="<?= $trackClass ?>" style="width:<?= max(12, min(100, (int)$article->trustScore)) ?>%"></span>
+                    <span class="<?= $trackClass ?>" style="width:<?= max(12, min(100, (int) $article->trustScore)) ?>%"></span>
                 </div>
 
             </div>
@@ -376,4 +375,4 @@ function flash_messages(): void
         </div>
     </a>
 <?php
-                                                                                                                                                        }
+}

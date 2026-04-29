@@ -15,15 +15,15 @@ if ($user->role !== 'category_admin') {
     exit;
 }
 
-$assignedCategory = assigned_category_for_expert((int)$user->id);
+$assignedCategory = assigned_category_for_expert((int) $user->id);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     $action = $_POST['action'] ?? '';
-    $articleId = (int)($_POST['article_id'] ?? 0);
+    $articleId = (int) ($_POST['article_id'] ?? 0);
 
     $belongs = $articleId ? DB::first(
         'SELECT id FROM articles WHERE id = ? AND category_id = ?',
-        [$articleId, (int)$assignedCategory['id']]
+        [$articleId, (int) $assignedCategory['id']]
     ) : null;
 
     if (!$belongs) {
@@ -58,14 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     }
 }
 
-$detailId = (int)($_GET['id'] ?? 0);
+$detailId = (int) ($_GET['id'] ?? 0);
 $detailArticle = null;
 $flagReports = [];
 
 if ($detailId && $assignedCategory) {
     $detailArticle = $adminCtrl->getArticleById($detailId);
 
-    if (!$detailArticle || $detailArticle->categoryId !== (int)$assignedCategory['id']) {
+    if (!$detailArticle || $detailArticle->categoryId !== (int) $assignedCategory['id']) {
         $detailArticle = null;
     } else {
         $flagReports = $adminCtrl->getFlagsByArticle($detailId);
@@ -73,7 +73,7 @@ if ($detailId && $assignedCategory) {
 }
 
 $flaggedArticles = $assignedCategory
-    ? $adminCtrl->getFlaggedArticlesByCategory((int)$assignedCategory['id'])
+    ? $adminCtrl->getFlaggedArticlesByCategory((int) $assignedCategory['id'])
     : [];
 
 page_head('Flagged Articles');

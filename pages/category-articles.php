@@ -7,7 +7,7 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 require_once __DIR__ . '/../includes/db.php';
 
-$auth        = new AuthController();
+$auth = new AuthController();
 $articleCtrl = new ArticleController();
 
 // ensure user is logged in
@@ -23,13 +23,13 @@ if ($user->role !== 'category_admin') {
 }
 
 // get the category this admin is assigned to
-$assignedCategory = assigned_category_for_expert((int)$user->id);
+$assignedCategory = assigned_category_for_expert((int) $user->id);
 
 $search = trim($_GET['search'] ?? '') ?: null;
 
 // fetch all articles for the assigned category
 $articles = $assignedCategory
-    ? $articleCtrl->getAllByCategory((int)$assignedCategory['id'], $search)
+    ? $articleCtrl->getAllByCategory((int) $assignedCategory['id'], $search)
     : [];
 
 page_head('Category Articles');
@@ -40,8 +40,8 @@ page_head('Category Articles');
 
         <?php
         $subtitle = $assignedCategory ? htmlspecialchars($assignedCategory['name']) . ' – all articles in your category' : '';
-        dash_header('Category Articles', $subtitle);
-        ?>
+dash_header('Category Articles', $subtitle);
+?>
 
         <div class="page-content">
 

@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 error_reporting(E_ALL);
@@ -21,20 +22,20 @@ if (!$user || $user->role !== 'free') {
 
 try {
     $session = \Stripe\Checkout\Session::create([
-        'mode'                => 'subscription',
+        'mode' => 'subscription',
         'payment_method_types' => ['card'],
-        'line_items'          => [[
-            'price'    => STRIPE_PRICE_ID,
+        'line_items' => [[
+            'price' => STRIPE_PRICE_ID,
             'quantity' => 1,
         ]],
-        'customer_email'      => $user->email,
-        'metadata'            => ['user_id' => $user->id],
+        'customer_email' => $user->email,
+        'metadata' => ['user_id' => $user->id],
         'success_url' => 'https://sharedspace.tech/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}', //http://47.128.202.6
-        'cancel_url'  => 'https://sharedspace.tech/subscribe-cancel.php', //http://47.128.202.6
+        'cancel_url' => 'https://sharedspace.tech/subscribe-cancel.php', //http://47.128.202.6
     ]);
 
     header('Location: ' . $session->url);
     exit;
 } catch (\Exception $e) {
-    die("Error: " . $e->getMessage());
+    die('Error: ' . $e->getMessage());
 }

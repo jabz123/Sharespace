@@ -13,7 +13,7 @@ class AIVerificationController
     private function ensureSchema(): void
     {
         DB::execute(
-            "CREATE TABLE IF NOT EXISTS ai_trainer_analyses (
+            'CREATE TABLE IF NOT EXISTS ai_trainer_analyses (
                 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 article_id INT NOT NULL,
                 trust_score TINYINT NOT NULL DEFAULT 80,
@@ -28,30 +28,30 @@ class AIVerificationController
                 CONSTRAINT fk_ai_trainer_article
                     FOREIGN KEY (article_id) REFERENCES articles(id)
                     ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
     }
 
     private function seedMissingAnalyses(): void
     {
         $articles = DB::query(
-            "SELECT a.id, a.trust_score
+            'SELECT a.id, a.trust_score
              FROM articles a
              LEFT JOIN ai_trainer_analyses ata ON ata.article_id = a.id
-             WHERE ata.id IS NULL"
+             WHERE ata.id IS NULL'
         );
 
         foreach ($articles as $article) {
-            $trust = max(0, min(100, (int)($article['trust_score'] ?? 80)));
+            $trust = max(0, min(100, (int) ($article['trust_score'] ?? 80)));
             $factual = max(0, min(100, $trust + 4));
             $source = max(0, min(100, $trust - 2));
             $bias = max(0, min(100, $trust - 6));
 
             DB::execute(
-                "INSERT INTO ai_trainer_analyses
+                'INSERT INTO ai_trainer_analyses
                     (article_id, trust_score, factual_accuracy, source_quality, bias_detection, analysed_at)
-                 VALUES (?, ?, ?, ?, ?, NOW())",
-                [(int)$article['id'], $trust, $factual, $source, $bias]
+                 VALUES (?, ?, ?, ?, ?, NOW())',
+                [(int) $article['id'], $trust, $factual, $source, $bias]
             );
         }
     }
@@ -59,19 +59,19 @@ class AIVerificationController
     public function getDashboardStats(): array
     {
         $row = DB::first(
-            "SELECT
+            'SELECT
                 COUNT(*) AS total_articles,
                 ROUND(COALESCE(AVG(trust_score), 0)) AS average_trust_score,
                 SUM(CASE WHEN trust_score >= 80 THEN 1 ELSE 0 END) AS high_credibility,
                 SUM(CASE WHEN trust_score < 60 THEN 1 ELSE 0 END) AS low_credibility
-             FROM ai_trainer_analyses"
+             FROM ai_trainer_analyses'
         ) ?? [];
 
         return [
-            'totalArticles' => (int)($row['total_articles'] ?? 0),
-            'averageTrustScore' => (int)($row['average_trust_score'] ?? 0),
-            'highCredibility' => (int)($row['high_credibility'] ?? 0),
-            'lowCredibility' => (int)($row['low_credibility'] ?? 0),
+            'totalArticles' => (int) ($row['total_articles'] ?? 0),
+            'averageTrustScore' => (int) ($row['average_trust_score'] ?? 0),
+            'highCredibility' => (int) ($row['high_credibility'] ?? 0),
+            'lowCredibility' => (int) ($row['low_credibility'] ?? 0),
         ];
     }
 

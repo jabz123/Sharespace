@@ -28,19 +28,19 @@ page_head('AI Dashboard', true);
     <section class="admin-ai-stat-grid">
         <article class="admin-ai-stat-card">
             <span>Total Articles Analyzed</span>
-            <strong><?= (int)$stats['totalArticles'] ?></strong>
+            <strong><?= (int) $stats['totalArticles'] ?></strong>
         </article>
         <article class="admin-ai-stat-card">
             <span>Average Trust Score</span>
-            <strong><?= (int)$stats['averageTrustScore'] ?>%</strong>
+            <strong><?= (int) $stats['averageTrustScore'] ?>%</strong>
         </article>
         <article class="admin-ai-stat-card">
             <span>High Credibility</span>
-            <strong><?= (int)$stats['highCredibility'] ?></strong>
+            <strong><?= (int) $stats['highCredibility'] ?></strong>
         </article>
         <article class="admin-ai-stat-card">
             <span>Low Credibility</span>
-            <strong><?= (int)$stats['lowCredibility'] ?></strong>
+            <strong><?= (int) $stats['lowCredibility'] ?></strong>
         </article>
     </section>
 
@@ -57,7 +57,7 @@ page_head('AI Dashboard', true);
         <?php else: ?>
             <div class="admin-ai-list">
                 <?php foreach ($recentAnalyses as $analysis): ?>
-                    <?php $score = (int)$analysis['trust_score']; ?>
+                    <?php $score = (int) $analysis['trust_score']; ?>
                     <div class="admin-ai-list-row">
                         <div>
                             <strong><?= htmlspecialchars($analysis['title']) ?></strong>

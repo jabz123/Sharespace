@@ -1,4 +1,5 @@
 <?php
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -11,7 +12,7 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/CategoryController.php';
 require_once __DIR__ . '/../includes/AuditLogger.php';
 
-$auth    = new AuthController();
+$auth = new AuthController();
 $catCtrl = new CategoryController();
 
 // check authorization - system_admin only
@@ -32,24 +33,24 @@ $result = null;
 
 if ($action === 'create') {
     $result = $catCtrl->create(
-        $_POST['name']        ?? '',
+        $_POST['name'] ?? '',
         $_POST['description'] ?? ''
     );
     if (($result['ok'] ?? false) === true) {
         AuditLogger::log($user->id, 'create_category', 'Category', DB::lastId(), 'Created category: ' . ($_POST['name'] ?? ''));
     }
 } elseif ($action === 'update') {
-    $categoryId = (int)($_POST['category_id'] ?? 0);
+    $categoryId = (int) ($_POST['category_id'] ?? 0);
     $result = $catCtrl->update(
         $categoryId,
-        $_POST['name']        ?? '',
+        $_POST['name'] ?? '',
         $_POST['description'] ?? ''
     );
     if (($result['ok'] ?? false) === true) {
         AuditLogger::log($user->id, 'update_category', 'Category', $categoryId, 'Updated category: ' . ($_POST['name'] ?? ''));
     }
 } elseif ($action === 'delete') {
-    $categoryId = (int)($_POST['category_id'] ?? 0);
+    $categoryId = (int) ($_POST['category_id'] ?? 0);
     $result = $catCtrl->delete($categoryId);
     if (($result['ok'] ?? false) === true) {
         AuditLogger::log($user->id, 'delete_category', 'Category', $categoryId, 'Deleted category ID ' . $categoryId);

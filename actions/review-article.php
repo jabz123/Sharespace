@@ -4,7 +4,8 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
-function actionRedirect(string $url, ?string $error = null, ?string $success = null): never {
+function actionRedirect(string $url, ?string $error = null, ?string $success = null): never
+{
     redirect($url, $error, $success);
 }
 
@@ -23,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $action = $_POST['action'] ?? '';
-$articleId = (int)($_POST['article_id'] ?? 0);
+$articleId = (int) ($_POST['article_id'] ?? 0);
 
 if (!in_array($action, ['verify_article', 'unverify_article'], true) || $articleId <= 0) {
     actionRedirect('/pages/unverified-articles.php', 'Unable to review article.');
@@ -31,7 +32,7 @@ if (!in_array($action, ['verify_article', 'unverify_article'], true) || $article
 
 $decision = $action === 'verify_article' ? 'verified' : 'unverified';
 try {
-    $result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision);
+    $result = $adminCtrl->reviewPendingArticle($articleId, (int) $user->id, $decision);
 } catch (Throwable $error) {
     error_log('Expert article review failed: ' . $error->getMessage());
     actionRedirect('/pages/unverified-articles.php', 'Unable to review article. Please try again.');

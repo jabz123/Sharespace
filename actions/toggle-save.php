@@ -1,4 +1,5 @@
 <?php
+
 // toggle save / unsave article (AJAX endpoint)
 
 // include required files
@@ -23,7 +24,7 @@ if (empty($_SESSION['user_id'])) {
 
 // get data
 $userId = $_SESSION['user_id'];
-$articleId = (int)($_POST['article_id'] ?? 0);
+$articleId = (int) ($_POST['article_id'] ?? 0);
 
 if (!$articleId) {
     echo json_encode(['error' => 'Invalid article']);
@@ -38,11 +39,11 @@ try {
 
     echo json_encode([
         'success' => true,
-        'saved' => $saved
+        'saved' => $saved,
     ]);
 
 } catch (Exception $e) {
     echo json_encode([
-        'error' => 'Something went wrong'
+        'error' => 'Something went wrong',
     ]);
 }

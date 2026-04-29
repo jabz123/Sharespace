@@ -12,7 +12,7 @@ $currentUser = $auth->currentUser();
 $userCtrl = new UserController();
 $articleCtrl = new ArticleController();
 
-$userId = (int)($_GET['id'] ?? 0);
+$userId = (int) ($_GET['id'] ?? 0);
 
 if (!$userId) {
     redirect('/pages/users.php', 'Invalid user.');
@@ -25,7 +25,7 @@ if (!$profile) {
 }
 
 // pagination
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 10;
 $offset = ($page - 1) * $perPage;
 
@@ -36,7 +36,7 @@ $totalPages = (int) ceil($totalArticles / $perPage);
 // paginated articles
 $articles = $articleCtrl->getByAuthorPaginated($userId, $perPage, $offset);
 
-//uses profile nmame as page title 
+//uses profile nmame as page title
 page_head($profile['full_name']);
 ?>
 <link rel="stylesheet" href="/public/css/user-profile.css">
@@ -68,7 +68,7 @@ page_head($profile['full_name']);
         </div>
 
             <div class="profile-stats">
-                <?= (int)$profile['article_count'] ?>
+                <?= (int) $profile['article_count'] ?>
                 <?= $profile['article_count'] == 1 ? 'Article' : 'Articles' ?>
             </div>
 

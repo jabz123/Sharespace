@@ -19,7 +19,7 @@ if ($filter === 'draft') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
-    $result = $articleCtrl->delete((int)($_POST['article_id'] ?? 0), $user->id);
+    $result = $articleCtrl->delete((int) ($_POST['article_id'] ?? 0), $user->id);
     if (isset($result['ok'])) {
         redirect('/pages/my-articles.php', null, 'Article deleted.');
     }

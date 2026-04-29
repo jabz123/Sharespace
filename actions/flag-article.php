@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/article_flag_rules.php';
 require_once __DIR__ . '/../includes/AuditLogger.php';
@@ -11,10 +12,10 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
-$userId    = $_SESSION['user_id'];
-$articleId = (int)($_POST['article_id'] ?? 0);
-$reason    = trim($_POST['reason'] ?? '');
-$details   = trim($_POST['details'] ?? '');
+$userId = $_SESSION['user_id'];
+$articleId = (int) ($_POST['article_id'] ?? 0);
+$reason = trim($_POST['reason'] ?? '');
+$details = trim($_POST['details'] ?? '');
 $allowedReasons = article_flag_reason_options();
 
 // ===== VALIDATION =====
@@ -49,10 +50,9 @@ if ($detailsError !== null) {
     exit;
 }
 
-
 // ===== PREVENT DUPLICATE FLAG =====
 $existing = DB::first(
-    "SELECT id FROM article_flags WHERE user_id = ? AND article_id = ?",
+    'SELECT id FROM article_flags WHERE user_id = ? AND article_id = ?',
     [$userId, $articleId]
 );
 
@@ -61,11 +61,10 @@ if ($existing) {
     exit;
 }
 
-
 // ===== INSERT FLAG =====
 DB::execute(
-    "INSERT INTO article_flags (user_id, article_id, reason, details, created_at)
-     VALUES (?, ?, ?, ?, NOW())",
+    'INSERT INTO article_flags (user_id, article_id, reason, details, created_at)
+     VALUES (?, ?, ?, ?, NOW())',
     [$userId, $articleId, $reason, $details]
 );
 

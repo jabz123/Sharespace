@@ -6,49 +6,64 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
-$auth      = new AuthController();
+$auth = new AuthController();
 $adminCtrl = new AdminController();
 
 $auth->requireAuth();
 $user = $auth->currentUser();
 $adminCtrl->requireAdmin($user);
 
-// active tab 
+// active tab
 $tab = $_GET['tab'] ?? 'articles';
 
-// handle all POST actions 
+// handle all POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    // ARTICLE ACTIONS 
+    // ARTICLE ACTIONS
     if ($action === 'suspend_article') {
-        $articleId = (int)($_POST['article_id'] ?? 0);
-        $result    = $adminCtrl->suspendArticle($articleId);
+        $articleId = (int) ($_POST['article_id'] ?? 0);
+        $result = $adminCtrl->suspendArticle($articleId);
         if (isset($result['ok'])) {
-            $adminCtrl->logAction($user->id, 'suspend_article', 'Article', $articleId,
-                "Suspended article pending fact-check review (ID: {$articleId})");
+            $adminCtrl->logAction(
+                $user->id,
+                'suspend_article',
+                'Article',
+                $articleId,
+                "Suspended article pending fact-check review (ID: {$articleId})"
+            );
             redirect('/pages/admin-dashboard.php?tab=articles', null, 'Article suspended.');
         }
         redirect('/pages/admin-dashboard.php?tab=articles', $result['error']);
     }
 
     if ($action === 'unsuspend_article') {
-        $articleId = (int)($_POST['article_id'] ?? 0);
-        $result    = $adminCtrl->unsuspendArticle($articleId);
+        $articleId = (int) ($_POST['article_id'] ?? 0);
+        $result = $adminCtrl->unsuspendArticle($articleId);
         if (isset($result['ok'])) {
-            $adminCtrl->logAction($user->id, 'unsuspend_article', 'Article', $articleId,
-                "Restored article back to published (ID: {$articleId})");
+            $adminCtrl->logAction(
+                $user->id,
+                'unsuspend_article',
+                'Article',
+                $articleId,
+                "Restored article back to published (ID: {$articleId})"
+            );
             redirect('/pages/admin-dashboard.php?tab=articles', null, 'Article restored to published.');
         }
         redirect('/pages/admin-dashboard.php?tab=articles', $result['error']);
     }
 
     if ($action === 'delete_article') {
-        $articleId = (int)($_POST['article_id'] ?? 0);
-        $result    = $adminCtrl->deleteArticle($articleId);
+        $articleId = (int) ($_POST['article_id'] ?? 0);
+        $result = $adminCtrl->deleteArticle($articleId);
         if (isset($result['ok'])) {
-            $adminCtrl->logAction($user->id, 'delete_article', 'Article', $articleId,
-                "Deleted article (ID: {$articleId})");
+            $adminCtrl->logAction(
+                $user->id,
+                'delete_article',
+                'Article',
+                $articleId,
+                "Deleted article (ID: {$articleId})"
+            );
             redirect('/pages/admin-dashboard.php?tab=articles', null, 'Article deleted.');
         }
         redirect('/pages/admin-dashboard.php?tab=articles', $result['error']);
@@ -56,52 +71,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // USER ACTIONS
     if ($action === 'update_user') {
-        $userId       = (int)($_POST['user_id'] ?? 0);
+        $userId = (int) ($_POST['user_id'] ?? 0);
         $isSuspending = isset($_POST['is_suspended']);
-        $result       = $adminCtrl->updateUser($userId, $_POST);
+        $result = $adminCtrl->updateUser($userId, $_POST);
         if (isset($result['ok'])) {
             if ($isSuspending) {
-                $adminCtrl->logAction($user->id, 'suspend_user', 'User', $userId,
-                    "Suspended user for policy violation (ID: {$userId})");
+                $adminCtrl->logAction(
+                    $user->id,
+                    'suspend_user',
+                    'User',
+                    $userId,
+                    "Suspended user for policy violation (ID: {$userId})"
+                );
             } else {
-                $adminCtrl->logAction($user->id, 'reinstate_user', 'User', $userId,
-                    "Reinstated user after appeal review (ID: {$userId})");
+                $adminCtrl->logAction(
+                    $user->id,
+                    'reinstate_user',
+                    'User',
+                    $userId,
+                    "Reinstated user after appeal review (ID: {$userId})"
+                );
             }
             redirect('/pages/admin-dashboard.php?tab=users', null, 'User updated successfully.');
         }
         redirect('/pages/admin-dashboard.php?tab=users', $result['error']);
     }
 
-    // CATEGORY ACTIONS 
+    // CATEGORY ACTIONS
     if ($action === 'create_category') {
         $result = $adminCtrl->createCategory($_POST);
         if (isset($result['ok'])) {
             $catName = htmlspecialchars(trim($_POST['name'] ?? ''));
-            $adminCtrl->logAction($user->id, 'create_category', 'Category', null,
-                "Created category: {$catName}");
+            $adminCtrl->logAction(
+                $user->id,
+                'create_category',
+                'Category',
+                null,
+                "Created category: {$catName}"
+            );
             redirect('/pages/admin-dashboard.php?tab=categories', null, 'Category created successfully.');
         }
         redirect('/pages/admin-dashboard.php?tab=categories', $result['error']);
     }
 
     if ($action === 'update_category') {
-        $categoryId = (int)($_POST['category_id'] ?? 0);
-        $result     = $adminCtrl->updateCategory($categoryId, $_POST);
+        $categoryId = (int) ($_POST['category_id'] ?? 0);
+        $result = $adminCtrl->updateCategory($categoryId, $_POST);
         if (isset($result['ok'])) {
             $catName = htmlspecialchars(trim($_POST['name'] ?? ''));
-            $adminCtrl->logAction($user->id, 'update_category', 'Category', $categoryId,
-                "Updated {$catName} category description");
+            $adminCtrl->logAction(
+                $user->id,
+                'update_category',
+                'Category',
+                $categoryId,
+                "Updated {$catName} category description"
+            );
             redirect('/pages/admin-dashboard.php?tab=categories', null, 'Category updated successfully.');
         }
         redirect('/pages/admin-dashboard.php?tab=categories', $result['error']);
     }
 
     if ($action === 'delete_category') {
-        $categoryId = (int)($_POST['category_id'] ?? 0);
-        $result     = $adminCtrl->deleteCategory($categoryId);
+        $categoryId = (int) ($_POST['category_id'] ?? 0);
+        $result = $adminCtrl->deleteCategory($categoryId);
         if (isset($result['ok'])) {
-            $adminCtrl->logAction($user->id, 'delete_category', 'Category', $categoryId,
-                "Deleted category (ID: {$categoryId})");
+            $adminCtrl->logAction(
+                $user->id,
+                'delete_category',
+                'Category',
+                $categoryId,
+                "Deleted category (ID: {$categoryId})"
+            );
             redirect('/pages/admin-dashboard.php?tab=categories', null, 'Category deleted successfully.');
         }
         redirect('/pages/admin-dashboard.php?tab=categories', $result['error']);
@@ -109,32 +149,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // CATEGORY EXPERT ACTIONS
     if ($action === 'assign_expert') {
-        $categoryId = (int)($_POST['category_id'] ?? 0);
-        $expertId   = (int)($_POST['user_id']     ?? 0);
-        $result     = $adminCtrl->assignExpert($categoryId, $expertId);
+        $categoryId = (int) ($_POST['category_id'] ?? 0);
+        $expertId = (int) ($_POST['user_id'] ?? 0);
+        $result = $adminCtrl->assignExpert($categoryId, $expertId);
         if (isset($result['ok'])) {
-            $adminCtrl->logAction($user->id, 'assign_role', 'User', $expertId,
-                "Assigned category_admin role (user ID: {$expertId}, category ID: {$categoryId})");
+            $adminCtrl->logAction(
+                $user->id,
+                'assign_role',
+                'User',
+                $expertId,
+                "Assigned category_admin role (user ID: {$expertId}, category ID: {$categoryId})"
+            );
             redirect('/pages/admin-dashboard.php?tab=experts', null, 'Category expert assigned successfully.');
         }
         redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
     }
 
     if ($action === 'unassign_expert') {
-        $categoryId = (int)($_POST['category_id'] ?? 0);
-        $expertId   = (int)($_POST['user_id'] ?? 0);
-        $result     = $adminCtrl->unassignExpert($categoryId, $expertId);
+        $categoryId = (int) ($_POST['category_id'] ?? 0);
+        $expertId = (int) ($_POST['user_id'] ?? 0);
+        $result = $adminCtrl->unassignExpert($categoryId, $expertId);
         if (isset($result['ok'])) {
-            $adminCtrl->logAction($user->id, 'unassign_role', 'User', $expertId ?: null,
-                "Unassigned category_admin from category (category ID: {$categoryId}, user ID: {$expertId})");
+            $adminCtrl->logAction(
+                $user->id,
+                'unassign_role',
+                'User',
+                $expertId ?: null,
+                "Unassigned category_admin from category (category ID: {$categoryId}, user ID: {$expertId})"
+            );
             redirect('/pages/admin-dashboard.php?tab=experts', null, 'Category expert removed.');
         }
         redirect('/pages/admin-dashboard.php?tab=experts', $result['error']);
     }
 }
 
-// load data depending on tab 
-$stats      = $adminCtrl->getExtendedStats();
+// load data depending on tab
+$stats = $adminCtrl->getExtendedStats();
 $categories = $adminCtrl->getAllCategories();
 
 if ($tab === 'users') {
@@ -142,8 +192,8 @@ if ($tab === 'users') {
 } elseif ($tab === 'categories') {
     $allCategories = $adminCtrl->getAllCategoriesWithCount();
 } elseif ($tab === 'experts') {
-    $expertCategories  = $adminCtrl->getCategoriesWithExperts();
-    $eligibleExperts   = $adminCtrl->getEligibleExperts();
+    $expertCategories = $adminCtrl->getCategoriesWithExperts();
+    $eligibleExperts = $adminCtrl->getEligibleExperts();
 } else {
     $allArticles = $adminCtrl->getAllArticles();
 }
@@ -168,7 +218,7 @@ page_head('Admin Dashboard', true);
         ['icon' => '🚩', 'value' => $stats['flaggedArticles'],   'label' => 'Flagged Articles'],
         ['icon' => '🛡️', 'value' => $stats['suspendedArticles'], 'label' => 'Suspended Articles'],
     ];
-    ?>
+?>
     <div style="display:flex;gap:0;margin-bottom:28px;background:var(--primary);border-radius:12px;overflow:hidden;flex-wrap:wrap">
         <?php foreach ($statItems as $i => $item): ?>
         <div style="flex:1;min-width:120px;padding:18px 20px;display:flex;align-items:center;gap:12px;
@@ -185,11 +235,11 @@ page_head('Admin Dashboard', true);
     <!-- TAB BUTTONS -->
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
         <a href="/pages/admin-dashboard.php?tab=articles"
-           class="btn <?= $tab === 'articles'   ? 'btn-primary' : 'btn-ghost' ?>">
+           class="btn <?= $tab === 'articles' ? 'btn-primary' : 'btn-ghost' ?>">
             Manage Articles
         </a>
         <a href="/pages/admin-dashboard.php?tab=users"
-           class="btn <?= $tab === 'users'      ? 'btn-primary' : 'btn-ghost' ?>">
+           class="btn <?= $tab === 'users' ? 'btn-primary' : 'btn-ghost' ?>">
             Manage Users
         </a>
         <a href="/pages/admin-dashboard.php?tab=categories"
@@ -197,7 +247,7 @@ page_head('Admin Dashboard', true);
             Manage Categories
         </a>
         <a href="/pages/admin-dashboard.php?tab=experts"
-           class="btn <?= $tab === 'experts'    ? 'btn-primary' : 'btn-ghost' ?>">
+           class="btn <?= $tab === 'experts' ? 'btn-primary' : 'btn-ghost' ?>">
             Manage Category Experts
         </a>
     </div>
@@ -319,7 +369,7 @@ page_head('Admin Dashboard', true);
                     <?php foreach ($allUsers as $u): ?>
                         <tr style="border-bottom:1px solid var(--border);
                             <?= $u->id === $user->id ? 'background:var(--primary-lt)' : '' ?>
-                            <?= $u->isSuspended      ? ';opacity:0.55'               : '' ?>">
+                            <?= $u->isSuspended ? ';opacity:0.55' : '' ?>">
                             <td style="padding:12px 8px;color:var(--muted)">#<?= $u->id ?></td>
                             <td style="padding:12px 8px;font-weight:600">
                                 <?= htmlspecialchars($u->fullName) ?>
@@ -330,13 +380,13 @@ page_head('Admin Dashboard', true);
                             <td style="padding:12px 8px;color:var(--muted)"><?= htmlspecialchars($u->email) ?></td>
                             <td style="padding:12px 8px">
                                 <?php
-                                $roleStyle = match($u->role) {
-                                    'system_admin'   => 'background:var(--primary);color:#fff',
-                                    'premium'        => 'background:var(--warning);color:#fff',
-                                    'category_admin' => 'background:#7c3aed;color:#fff',
-                                    default          => ''
-                                };
-                                ?>
+                            $roleStyle = match($u->role) {
+                                'system_admin' => 'background:var(--primary);color:#fff',
+                                'premium' => 'background:var(--warning);color:#fff',
+                                'category_admin' => 'background:#7c3aed;color:#fff',
+                                default => ''
+                            };
+                        ?>
                                 <span class="role-badge" style="<?= $roleStyle ?>">
                                     <?= htmlspecialchars($u->roleLabel()) ?>
                                 </span>
@@ -561,7 +611,7 @@ page_head('Admin Dashboard', true);
                                                 <form method="POST" style="margin-top:6px">
                                                     <input type="hidden" name="action" value="unassign_expert">
                                                     <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
-                                                    <input type="hidden" name="user_id" value="<?= (int)$assignedExpert['user_id'] ?>">
+                                                    <input type="hidden" name="user_id" value="<?= (int) $assignedExpert['user_id'] ?>">
                                                     <button type="submit" class="btn btn-ghost btn-sm"
                                                             style="color:var(--danger)"
                                                             onclick="return confirm('Remove \'<?= htmlspecialchars(addslashes($assignedExpert['full_name'])) ?>\' as expert for \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?')">
@@ -603,14 +653,14 @@ page_head('Admin Dashboard', true);
                                                     <option value="">— choose a user —</option>
                                                     <?php foreach ($eligibleExperts as $expert): ?>
                                                     <?php
-                                                    $alreadyAssigned = false;
-                                                    foreach ($cat['experts'] as $assignedExpert) {
-                                                        if ((int)$assignedExpert['user_id'] === (int)$expert['id']) {
-                                                            $alreadyAssigned = true;
-                                                            break;
+                                            $alreadyAssigned = false;
+                                                        foreach ($cat['experts'] as $assignedExpert) {
+                                                            if ((int) $assignedExpert['user_id'] === (int) $expert['id']) {
+                                                                $alreadyAssigned = true;
+                                                                break;
+                                                            }
                                                         }
-                                                    }
-                                                    ?>
+                                                        ?>
                                                     <option value="<?= $expert['id'] ?>"
                                                         <?= $alreadyAssigned ? 'disabled' : ($expert['id'] == $cat['admin_user_id'] ? 'selected' : '') ?>>
                                                         <?= htmlspecialchars($expert['full_name']) ?>

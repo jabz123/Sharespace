@@ -26,20 +26,20 @@ class User
 
     public function __construct(array $row)
     {
-        $this->id          = (int)$row['id'];
-        $this->email       = $row['email'];
-        $this->fullName    = $row['full_name'] ?? '';
-        $this->role        = $row['role']       ?? 'free';
-        $this->isPremium   = (bool)($row['is_premium']   ?? false);
-        $this->isSuspended = (bool)($row['is_suspended'] ?? false);
-        $this->createdAt   = $row['created_at'] ?? '';
-        $this->gender      = $row['gender']     ?? '';
-        $this->bio         = $row['bio']        ?? '';
-        $this->avatarUrl   = $row['avatar_url'] ?? '';
+        $this->id = (int) $row['id'];
+        $this->email = $row['email'];
+        $this->fullName = $row['full_name'] ?? '';
+        $this->role = $row['role'] ?? 'free';
+        $this->isPremium = (bool) ($row['is_premium'] ?? false);
+        $this->isSuspended = (bool) ($row['is_suspended'] ?? false);
+        $this->createdAt = $row['created_at'] ?? '';
+        $this->gender = $row['gender'] ?? '';
+        $this->bio = $row['bio'] ?? '';
+        $this->avatarUrl = $row['avatar_url'] ?? '';
 
-        $this->stripe_customer_id     = $row['stripe_customer_id']     ?? null;
+        $this->stripe_customer_id = $row['stripe_customer_id'] ?? null;
         $this->stripe_subscription_id = $row['stripe_subscription_id'] ?? null;
-        $this->subscribed_at          = $row['subscribed_at']          ?? null;
+        $this->subscribed_at = $row['subscribed_at'] ?? null;
         $this->subscription_cancel_at = $row['subscription_cancel_at'] ?? null;
     }
 

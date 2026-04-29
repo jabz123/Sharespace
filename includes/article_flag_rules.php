@@ -98,7 +98,7 @@ function validate_article_flag_language(string $details): ?string
             return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
         }
 
-        $collapsedPattern = '/' . implode('[^a-z0-9]*', array_map(static fn($char) => preg_quote($char, '/'), str_split($term))) . '/i';
+        $collapsedPattern = '/' . implode('[^a-z0-9]*', array_map(static fn ($char) => preg_quote($char, '/'), str_split($term))) . '/i';
         if (preg_match($collapsedPattern, $normalized) || preg_match($collapsedPattern, $deobfuscated)) {
             return 'Details contain inappropriate or offensive language. Please rewrite the report respectfully.';
         }
@@ -228,7 +228,7 @@ function moderation_word_count(string $content): int
     $normalized = preg_replace("/[^\p{L}\p{N}']+/u", ' ', $content) ?? '';
     $words = preg_split('/\s+/u', trim($normalized), -1, PREG_SPLIT_NO_EMPTY);
 
-    return count(array_filter($words ?: [], static fn($word) => preg_match('/[\p{L}\p{N}]/u', $word)));
+    return count(array_filter($words ?: [], static fn ($word) => preg_match('/[\p{L}\p{N}]/u', $word)));
 }
 
 function validate_article_flag_details(string $details, int $minLen = 20, int $maxLen = 400): ?string

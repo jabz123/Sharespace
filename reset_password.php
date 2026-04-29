@@ -6,9 +6,9 @@ require_once __DIR__ . '/includes/db.php';
 $token = $_GET['token'] ?? '';
 
 $user = DB::first(
-    "SELECT id FROM users
+    'SELECT id FROM users
      WHERE reset_token = ?
-     AND reset_expires > NOW()",
+     AND reset_expires > NOW()',
     [$token]
 );
 
@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Password must be at least 6 characters.';
     } else {
         DB::execute(
-            "UPDATE users
+            'UPDATE users
              SET password = ?, reset_token = NULL, reset_expires = NULL
-             WHERE id = ?",
+             WHERE id = ?',
             [password_hash($password, PASSWORD_BCRYPT), $user['id']]
         );
 

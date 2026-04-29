@@ -9,17 +9,21 @@ require_once __DIR__ . '/../entities/Article.php';
 require_once __DIR__ . '/../entities/Category.php';
 require_once __DIR__ . '/../AuditLogger.php';
 
-class ArticleController {
-    private function ensureReviewWorkflow(): void {
+class ArticleController
+{
+    private function ensureReviewWorkflow(): void
+    {
         DB::ensureArticleReviewWorkflow();
     }
 
-    private function resolveTrustScore(array $input): int {
-        $score = (int)($input['trust_score'] ?? 80);
+    private function resolveTrustScore(array $input): int
+    {
+        $score = (int) ($input['trust_score'] ?? 80);
         return max(0, min(100, $score));
     }
 
-    private function assignedExpertIdsForCategory(int $categoryId): array {
+    private function assignedExpertIdsForCategory(int $categoryId): array
+    {
         $this->ensureReviewWorkflow();
 
         $rows = DB::query(
@@ -30,10 +34,11 @@ class ArticleController {
             [$categoryId]
         );
 
-        return array_map(fn($row) => (int)$row['user_id'], $rows);
+        return array_map(fn ($row) => (int) $row['user_id'], $rows);
     }
 
-    private function initializeExpertReviews(int $articleId, int $categoryId): array {
+    private function initializeExpertReviews(int $articleId, int $categoryId): array
+    {
         $expertIds = $this->assignedExpertIdsForCategory($categoryId);
         if (empty($expertIds)) {
             return ['error' => 'This category has no assigned experts yet. Ask an admin to assign category experts before publishing.'];
@@ -51,7 +56,8 @@ class ArticleController {
         return ['ok' => true];
     }
 
-    public function clearReviewNotice(int $articleId, int $authorId): void {
+    public function clearReviewNotice(int $articleId, int $authorId): void
+    {
         $this->ensureReviewWorkflow();
 
         DB::execute(
@@ -65,7 +71,8 @@ class ArticleController {
     //returns n most recently published articles
     //maybe change this to recommended or some shit in future ig
     //returns Article[] array of objects
-    public function getRecent(int $limit = 6): array {
+    public function getRecent(int $limit = 6): array
+    {
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
             COUNT(DISTINCT v.id) AS view_count,
@@ -82,19 +89,20 @@ class ArticleController {
             [$limit]
         );
 
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
     //returns n most recently published articles for ladning page preview.
     //returns Article[] array of objects
-    public function getPreview(int $limit = 3): array {
+    public function getPreview(int $limit = 3): array
+    {
         return $this->getRecent($limit);
     }
 
-
     //returns single article by id, or null if nothing found
-    // 
-    public function getById(int $id): ?Article {
+    //
+    public function getById(int $id): ?Article
+    {
         $row = DB::first(
             'SELECT a.*, u.full_name AS author_name, u.avatar_url AS author_avatar_url, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count
@@ -109,33 +117,34 @@ class ArticleController {
         return $row ? new Article($row) : null;
     }
 
-    // edit articles including article draft 
-    public function getByIdForAuthor(int $id, int $userId): ?Article {
-    $this->ensureReviewWorkflow();
-    $row = DB::first(
-            "SELECT a.*, u.full_name AS author_name, c.name AS category_name
+    // edit articles including article draft
+    public function getByIdForAuthor(int $id, int $userId): ?Article
+    {
+        $this->ensureReviewWorkflow();
+        $row = DB::first(
+            'SELECT a.*, u.full_name AS author_name, c.name AS category_name
             FROM articles a
             JOIN users u ON u.id = a.author_id
             JOIN categories c ON c.id = a.category_id
-            WHERE a.id = ? AND a.author_id = ?",
+            WHERE a.id = ? AND a.author_id = ?',
             [$id, $userId]
         );
 
         return $row ? new Article($row) : null;
     }
 
-
     //return all categories for write article
     //returns Category[] array
-    public function getAllCategories(): array {
+    public function getAllCategories(): array
+    {
         $rows = DB::query('SELECT * FROM categories ORDER BY name');
-        return array_map(fn($r) => new Category($r), $rows);
+        return array_map(fn ($r) => new Category($r), $rows);
     }
-
 
     //returns all articles written by specific user, sort by date newest first
     //return Article[] array
-    public function getByAuthor(int $authorId): array {
+    public function getByAuthor(int $authorId): array
+    {
         $this->ensureReviewWorkflow();
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name,
@@ -149,11 +158,12 @@ class ArticleController {
              ORDER BY a.published_at DESC',
             [$authorId]
         );
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
     //returns all draft articles written by specific user
     //return Article[] array
-    public function getDraftsByAuthor(int $authorId): array {
+    public function getDraftsByAuthor(int $authorId): array
+    {
         $this->ensureReviewWorkflow();
         $rows = DB::query(
             'SELECT a.*, u.full_name AS author_name, c.name AS category_name
@@ -164,10 +174,11 @@ class ArticleController {
             ORDER BY a.updated_at DESC',
             [$authorId]
         );
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
-    public function getPendingByAuthor(int $authorId): array {
+    public function getPendingByAuthor(int $authorId): array
+    {
         $this->ensureReviewWorkflow();
 
         $rows = DB::query(
@@ -179,18 +190,19 @@ class ArticleController {
              ORDER BY a.updated_at DESC',
             [$authorId]
         );
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
     //update existing article only author ownselfd can update
     //return ['ok' => true] or ['error' => '...']
-    public function update(int $articleId, int $authorId, array $input): array {
+    public function update(int $articleId, int $authorId, array $input): array
+    {
         $this->ensureReviewWorkflow();
-        $title      = trim($input['title']       ?? '');
-        $excerpt    = trim($input['excerpt']     ?? '');
-        $content    = trim($input['content']     ?? '');
-        $sourceUrl  = trim($input['source_url']  ?? '');
-        $categoryId = (int)($input['category_id'] ?? 0);
+        $title = trim($input['title'] ?? '');
+        $excerpt = trim($input['excerpt'] ?? '');
+        $content = trim($input['content'] ?? '');
+        $sourceUrl = trim($input['source_url'] ?? '');
+        $categoryId = (int) ($input['category_id'] ?? 0);
         $status = $input['status'] ?? null;
         $trustScore = $this->resolveTrustScore($input);
 
@@ -232,7 +244,8 @@ class ArticleController {
 
     //delete article, only author ownself can delete. comments also will all delete
     //also return ['ok' => true] or ['error' => '...']
-    public function delete(int $articleId, int $authorId): array {
+    public function delete(int $articleId, int $authorId): array
+    {
         $article = DB::first(
             'SELECT title FROM articles WHERE id = ? AND author_id = ?',
             [$articleId, $authorId]
@@ -251,31 +264,32 @@ class ArticleController {
         return ['ok' => true];
     }
 
-    //vvalidate article written by user and insert into db, returns result array with ok or error 
-    
-    public function publish(int $authorId, array $input): array {
+    //vvalidate article written by user and insert into db, returns result array with ok or error
+
+    public function publish(int $authorId, array $input): array
+    {
         $this->ensureReviewWorkflow();
-        $title      = trim($input['title']       ?? '');
-        $excerpt    = trim($input['excerpt']     ?? '');
-        $content    = trim($input['content']     ?? '');
-        $sourceUrl  = trim($input['source_url']  ?? '');
-        $categoryId = (int)($input['category_id'] ?? 0);
+        $title = trim($input['title'] ?? '');
+        $excerpt = trim($input['excerpt'] ?? '');
+        $content = trim($input['content'] ?? '');
+        $sourceUrl = trim($input['source_url'] ?? '');
+        $categoryId = (int) ($input['category_id'] ?? 0);
         $imagePath = $input['image_path'] ?? null;
         $trustScore = $this->resolveTrustScore($input);
-       
+
         if (!$title || !$excerpt || !$content || !$categoryId) {
             return ['error' => 'All fields are required.'];
         }
-       
+
         if (!DB::first('SELECT id FROM categories WHERE id = ?', [$categoryId])) {
             return ['error' => 'Invalid category selected.'];
         }
 
         DB::execute(
-        'INSERT INTO articles (title, excerpt, content, source_url, author_id, category_id, trust_score, image_path, status, published_at)
+            'INSERT INTO articles (title, excerpt, content, source_url, author_id, category_id, trust_score, image_path, status, published_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-        [$title, $excerpt, $content, ($sourceUrl !== '' ? $sourceUrl : null), $authorId, $categoryId, $trustScore, $imagePath, 'published']
-         );
+            [$title, $excerpt, $content, ($sourceUrl !== '' ? $sourceUrl : null), $authorId, $categoryId, $trustScore, $imagePath, 'published']
+        );
 
         $articleId = DB::lastId();
         AuditLogger::log($authorId, 'submit_content', 'Article', $articleId, 'Published article: ' . $title);
@@ -283,15 +297,16 @@ class ArticleController {
         return ['ok' => true, 'id' => $articleId];
     }
 
-    public function submitForExpertReview(int $authorId, array $input): array {
+    public function submitForExpertReview(int $authorId, array $input): array
+    {
         $this->ensureReviewWorkflow();
 
-        $title      = trim($input['title'] ?? '');
-        $excerpt    = trim($input['excerpt'] ?? '');
-        $content    = trim($input['content'] ?? '');
-        $sourceUrl  = trim($input['source_url'] ?? '');
-        $categoryId = (int)($input['category_id'] ?? 0);
-        $imagePath  = $input['image_path'] ?? null;
+        $title = trim($input['title'] ?? '');
+        $excerpt = trim($input['excerpt'] ?? '');
+        $content = trim($input['content'] ?? '');
+        $sourceUrl = trim($input['source_url'] ?? '');
+        $categoryId = (int) ($input['category_id'] ?? 0);
+        $imagePath = $input['image_path'] ?? null;
         $trustScore = $this->resolveTrustScore($input);
 
         if (!$title || !$excerpt || !$content || !$categoryId) {
@@ -330,16 +345,17 @@ class ArticleController {
         }
     }
 
-    public function resubmitForExpertReview(int $articleId, int $authorId, array $input): array {
+    public function resubmitForExpertReview(int $articleId, int $authorId, array $input): array
+    {
         $this->ensureReviewWorkflow();
 
-        $title      = trim($input['title'] ?? '');
-        $excerpt    = trim($input['excerpt'] ?? '');
-        $content    = trim($input['content'] ?? '');
-        $sourceUrl  = trim($input['source_url'] ?? '');
-        $categoryId = (int)($input['category_id'] ?? 0);
+        $title = trim($input['title'] ?? '');
+        $excerpt = trim($input['excerpt'] ?? '');
+        $content = trim($input['content'] ?? '');
+        $sourceUrl = trim($input['source_url'] ?? '');
+        $categoryId = (int) ($input['category_id'] ?? 0);
         $trustScore = $this->resolveTrustScore($input);
-        $imagePath  = $input['image_path'] ?? null;
+        $imagePath = $input['image_path'] ?? null;
 
         if (!$title || !$excerpt || !$content || !$categoryId) {
             return ['error' => 'All fields are required.'];
@@ -381,7 +397,8 @@ class ArticleController {
         }
     }
 
-    public function getByCategory($category = null, $sort = 'recent', $search = null, $limit = 12, $offset = 0): array {
+    public function getByCategory($category = null, $sort = 'recent', $search = null, $limit = 12, $offset = 0): array
+    {
 
         $sql = 'SELECT a.*, u.full_name AS author_name, u.avatar_url AS author_avatar_url, c.name AS category_name,
                 COUNT(DISTINCT v.id) AS view_count,
@@ -392,7 +409,6 @@ class ArticleController {
                 LEFT JOIN article_views v ON v.article_id = a.id
                 LEFT JOIN article_flags f ON f.article_id = a.id
                 WHERE a.status = "published"';
-                
 
         $conditions = [];
         $params = [];
@@ -425,11 +441,11 @@ class ArticleController {
 
         $rows = DB::query($sql, $params);
 
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
-    
 
-    public function countByCategory($category = null, $search = null): int {
+    public function countByCategory($category = null, $search = null): int
+    {
 
         $sql = "SELECT COUNT(*) as total
                 FROM articles a
@@ -439,12 +455,12 @@ class ArticleController {
         $params = [];
 
         if ($category) {
-            $sql .= " AND LOWER(c.name) = ?";
+            $sql .= ' AND LOWER(c.name) = ?';
             $params[] = strtolower($category);
         }
 
         if ($search) {
-            $sql .= " AND a.title LIKE ?";
+            $sql .= ' AND a.title LIKE ?';
             $params[] = "%$search%";
         }
 
@@ -454,7 +470,8 @@ class ArticleController {
     // returns all articles (published + suspended) for a given author in a given category
     // used by category admin's writer-articles page
     // returns Article[] array
-    public function getByAuthorAndCategory(int $authorId, int $categoryId): array {
+    public function getByAuthorAndCategory(int $authorId, int $categoryId): array
+    {
         $rows = DB::query(
             "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count,
@@ -469,14 +486,15 @@ class ArticleController {
              ORDER BY a.published_at DESC",
             [$authorId, $categoryId]
         );
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
     // returns all articles (published + suspended) for a given category id
     // optionally filters by a search term matching title or author name
     // used by category admin's category articles page
     // returns Article[] array
-    public function getAllByCategory(int $categoryId, ?string $search = null): array {
+    public function getAllByCategory(int $categoryId, ?string $search = null): array
+    {
         $sql = "SELECT a.*, u.full_name AS author_name, c.name AS category_name,
              COUNT(DISTINCT v.id) AS view_count,
              COUNT(DISTINCT f.id) AS flag_count
@@ -490,54 +508,56 @@ class ArticleController {
         $params = [$categoryId];
 
         if ($search) {
-            $sql .= " AND (a.title LIKE ? OR u.full_name LIKE ?)";
+            $sql .= ' AND (a.title LIKE ? OR u.full_name LIKE ?)';
             $params[] = "%$search%";
             $params[] = "%$search%";
         }
 
-        $sql .= " GROUP BY a.id ORDER BY a.published_at DESC";
+        $sql .= ' GROUP BY a.id ORDER BY a.published_at DESC';
 
         $rows = DB::query($sql, $params);
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
-public function saveDraft(int $authorId, array $input): array {
-    $this->ensureReviewWorkflow();
-    $trustScore = $this->resolveTrustScore($input);
-    $sourceUrl = trim($input['source_url'] ?? '');
+    public function saveDraft(int $authorId, array $input): array
+    {
+        $this->ensureReviewWorkflow();
+        $trustScore = $this->resolveTrustScore($input);
+        $sourceUrl = trim($input['source_url'] ?? '');
 
-    DB::execute(
-        'INSERT INTO articles (title, excerpt, content, source_url, author_id, category_id, trust_score, image_path, status)
+        DB::execute(
+            'INSERT INTO articles (title, excerpt, content, source_url, author_id, category_id, trust_score, image_path, status)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [
-            $input['title'] ?? '',
-            $input['excerpt'] ?? '',
-            $input['content'] ?? '',
-            ($sourceUrl !== '' ? $sourceUrl : null),
-            $authorId,
-            $input['category_id'] ?? null,
-            $trustScore,
-            $input['image_path'] ?? null,
-            'draft'
-        ]
-    );
+            [
+                $input['title'] ?? '',
+                $input['excerpt'] ?? '',
+                $input['content'] ?? '',
+                ($sourceUrl !== '' ? $sourceUrl : null),
+                $authorId,
+                $input['category_id'] ?? null,
+                $trustScore,
+                $input['image_path'] ?? null,
+                'draft',
+            ]
+        );
 
-    $articleId = DB::lastId();
-    AuditLogger::log($authorId, 'save_draft', 'Article', $articleId, 'Saved draft: ' . ($input['title'] ?? 'Untitled draft'));
+        $articleId = DB::lastId();
+        AuditLogger::log($authorId, 'save_draft', 'Article', $articleId, 'Saved draft: ' . ($input['title'] ?? 'Untitled draft'));
 
-    return ['ok' => true, 'id' => $articleId];
-}
+        return ['ok' => true, 'id' => $articleId];
+    }
     // save article function
-    public function toggleSave(int $userId, int $articleId): bool {
-        
+    public function toggleSave(int $userId, int $articleId): bool
+    {
+
         $existing = DB::first(
-            "SELECT id FROM saved_articles WHERE user_id = ? AND article_id = ?",
+            'SELECT id FROM saved_articles WHERE user_id = ? AND article_id = ?',
             [$userId, $articleId]
         );
 
         if ($existing) {
             DB::execute(
-                "DELETE FROM saved_articles WHERE user_id = ? AND article_id = ?",
+                'DELETE FROM saved_articles WHERE user_id = ? AND article_id = ?',
                 [$userId, $articleId]
             );
             AuditLogger::log($userId, 'remove_bookmark', 'Article', $articleId, 'Removed bookmark for article ID ' . $articleId);
@@ -545,7 +565,7 @@ public function saveDraft(int $authorId, array $input): array {
         }
 
         DB::execute(
-            "INSERT INTO saved_articles (user_id, article_id) VALUES (?, ?)",
+            'INSERT INTO saved_articles (user_id, article_id) VALUES (?, ?)',
             [$userId, $articleId]
         );
 
@@ -554,10 +574,10 @@ public function saveDraft(int $authorId, array $input): array {
         return true; // now saved
     }
 
-
     // get saved articles for current user
-    public function getSavedArticles(int $userId, int $limit = null): array {
-        $sql = "
+    public function getSavedArticles(int $userId, int $limit = null): array
+    {
+        $sql = '
             SELECT 
             a.*,
             u.full_name AS author_name,
@@ -576,34 +596,37 @@ public function saveDraft(int $authorId, array $input): array {
             WHERE s.user_id = ?
             GROUP BY a.id, s.created_at
             ORDER BY s.created_at DESC
-        ";
+        ';
         if ($limit) {
-            $sql .= " LIMIT " . (int)$limit;
+            $sql .= ' LIMIT ' . (int) $limit;
         }
         $rows = DB::query($sql, [$userId]);
-        return array_map(fn($row) => new Article($row), $rows);
-}
+        return array_map(fn ($row) => new Article($row), $rows);
+    }
 
-    public function countSavedArticles(int $userId): int {
-    $row = DB::first(
-        "SELECT COUNT(*) as total FROM saved_articles WHERE user_id = ?",
-        [$userId]
-    );
+    public function countSavedArticles(int $userId): int
+    {
+        $row = DB::first(
+            'SELECT COUNT(*) as total FROM saved_articles WHERE user_id = ?',
+            [$userId]
+        );
 
-    return (int)$row['total'];
-}
+        return (int) $row['total'];
+    }
     // use for user-profile pagination
-    public function countByAuthor(int $authorId): int {
+    public function countByAuthor(int $authorId): int
+    {
         $result = DB::first(
-            "SELECT COUNT(*) as total FROM articles WHERE author_id = ?",
+            'SELECT COUNT(*) as total FROM articles WHERE author_id = ?',
             [$authorId]
         );
 
-        return (int)($result['total'] ?? 0);
+        return (int) ($result['total'] ?? 0);
     }
 
     // use for user-profile pagination
-    public function getByAuthorPaginated(int $authorId, int $limit, int $offset): array {
+    public function getByAuthorPaginated(int $authorId, int $limit, int $offset): array
+    {
 
         $rows = DB::query(
             "SELECT 
@@ -625,7 +648,7 @@ public function saveDraft(int $authorId, array $input): array {
             [$authorId, $limit, $offset]
         );
 
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
- }
+}

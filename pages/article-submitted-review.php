@@ -6,7 +6,7 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 $auth = new AuthController();
 $auth->requireAuth();
 $user = $auth->currentUser();
-$articleId = (int)($_GET['id'] ?? 0);
+$articleId = (int) ($_GET['id'] ?? 0);
 $homeUrl = $user->role === 'category_admin' ? '/pages/category-admin-dashboard.php' : '/dashboard.php';
 
 page_head('Article Submitted for Review');

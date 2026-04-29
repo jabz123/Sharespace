@@ -5,9 +5,10 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 
 header('Content-Type: application/json');
 
-function buildArticleVerificationFingerprint(array $input, int $userId): string {
+function buildArticleVerificationFingerprint(array $input, int $userId): string
+{
     $normalize = static function ($value): string {
-        return trim(str_replace(["\r\n", "\r"], "\n", (string)$value));
+        return trim(str_replace(["\r\n", "\r"], "\n", (string) $value));
     };
 
     $payload = [
@@ -15,14 +16,15 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
         'title' => $normalize($input['title'] ?? ''),
         'excerpt' => $normalize($input['excerpt'] ?? ''),
         'content' => $normalize($input['content'] ?? ''),
-        'category_id' => (int)($input['category_id'] ?? 0),
+        'category_id' => (int) ($input['category_id'] ?? 0),
         'source_url' => $normalize($input['source_url'] ?? ''),
     ];
 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
-function decodeStoredVerificationPayload(?string $rawPayload): ?array {
+function decodeStoredVerificationPayload(?string $rawPayload): ?array
+{
     if (!is_string($rawPayload) || trim($rawPayload) === '') {
         return null;
     }
@@ -31,7 +33,8 @@ function decodeStoredVerificationPayload(?string $rawPayload): ?array {
     return is_array($decoded) ? $decoded : null;
 }
 
-function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $metrics, int $trustScore, string $publishDecision): array {
+function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $metrics, int $trustScore, string $publishDecision): array
+{
     $suggestions = [];
     $seen = [];
 
@@ -76,10 +79,10 @@ function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $m
     }
 
     $weakClaims = array_values(array_filter($claims, static function ($claim): bool {
-        return is_array($claim) && (float)($claim['match_score'] ?? 1) <= 0.5;
+        return is_array($claim) && (float) ($claim['match_score'] ?? 1) <= 0.5;
     }));
     if (!empty($weakClaims)) {
-        $example = trim((string)($weakClaims[0]['text'] ?? ''));
+        $example = trim((string) ($weakClaims[0]['text'] ?? ''));
         $push(
             $example !== ''
                 ? 'Rewrite or attribute weakly supported claims such as: "' . $example . '".'
@@ -102,12 +105,14 @@ function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $m
     return array_slice($suggestions, 0, 5);
 }
 
-function normalizeWhitespace(string $value): string {
+function normalizeWhitespace(string $value): string
+{
     $value = trim(str_replace(["\r\n", "\r"], "\n", $value));
     return preg_replace('/\s+/', ' ', $value) ?? $value;
 }
 
-function tokenizeForSentenceMatch(string $value): array {
+function tokenizeForSentenceMatch(string $value): array
+{
     $normalized = strtolower(normalizeWhitespace($value));
     $normalized = preg_replace('/[^a-z0-9\s]/', ' ', $normalized) ?? $normalized;
     $parts = preg_split('/\s+/', trim($normalized)) ?: [];
@@ -124,18 +129,19 @@ function tokenizeForSentenceMatch(string $value): array {
     }));
 }
 
-function extractDraftSentences(string $content): array {
+function extractDraftSentences(string $content): array
+{
     $paragraphs = array_values(array_filter(
         preg_split("/\n{2,}/", trim(str_replace(["\r\n", "\r"], "\n", $content))) ?: [],
-        static fn($paragraph): bool => trim((string)$paragraph) !== ''
+        static fn ($paragraph): bool => trim((string) $paragraph) !== ''
     ));
     $sentences = [];
     $sentenceIndex = 0;
 
     foreach ($paragraphs as $paragraphIndex => $paragraph) {
-        $parts = preg_split('/(?<=[.!?])\s+/', trim((string)$paragraph)) ?: [];
+        $parts = preg_split('/(?<=[.!?])\s+/', trim((string) $paragraph)) ?: [];
         foreach ($parts as $part) {
-            $text = trim((string)$part);
+            $text = trim((string) $part);
             if ($text === '') {
                 continue;
             }
@@ -157,8 +163,9 @@ function extractDraftSentences(string $content): array {
     return $sentences;
 }
 
-function matchClaimToSentence(array $claim, array $sentences): array {
-    $claimText = trim((string)($claim['text'] ?? ''));
+function matchClaimToSentence(array $claim, array $sentences): array
+{
+    $claimText = trim((string) ($claim['text'] ?? ''));
     if ($claimText === '' || empty($sentences)) {
         return [null, null, null];
     }
@@ -166,9 +173,9 @@ function matchClaimToSentence(array $claim, array $sentences): array {
     $claimLower = strtolower(normalizeWhitespace($claimText));
     $claimTokens = array_unique(array_merge(
         tokenizeForSentenceMatch($claimText),
-        tokenizeForSentenceMatch((string)($claim['subject'] ?? '')),
-        tokenizeForSentenceMatch((string)($claim['value'] ?? '')),
-        tokenizeForSentenceMatch((string)($claim['time'] ?? ''))
+        tokenizeForSentenceMatch((string) ($claim['subject'] ?? '')),
+        tokenizeForSentenceMatch((string) ($claim['value'] ?? '')),
+        tokenizeForSentenceMatch((string) ($claim['time'] ?? ''))
     ));
 
     $bestSentence = null;
@@ -176,7 +183,7 @@ function matchClaimToSentence(array $claim, array $sentences): array {
 
     foreach ($sentences as $sentence) {
         $score = 0.0;
-        $sentenceLower = (string)($sentence['normalized_lower'] ?? '');
+        $sentenceLower = (string) ($sentence['normalized_lower'] ?? '');
 
         if ($sentenceLower !== '' && ($sentenceLower === $claimLower || str_contains($sentenceLower, $claimLower) || str_contains($claimLower, $sentenceLower))) {
             $score += 5.0;
@@ -209,7 +216,8 @@ function matchClaimToSentence(array $claim, array $sentences): array {
     ];
 }
 
-function normalizeClaims(array $decoded, string $content = ''): array {
+function normalizeClaims(array $decoded, string $content = ''): array
+{
     $claims = is_array($decoded['claims'] ?? null) ? $decoded['claims'] : [];
     $normalized = [];
     $sentences = extractDraftSentences($content);
@@ -219,13 +227,13 @@ function normalizeClaims(array $decoded, string $content = ''): array {
             continue;
         }
 
-        $text = trim((string)($claim['text'] ?? ''));
+        $text = trim((string) ($claim['text'] ?? ''));
         if ($text === '') {
             continue;
         }
 
-        $matchScore = max(0, min(1, (float)($claim['match_score'] ?? 0)));
-        $confidence = max(0, min(1, (float)($claim['confidence'] ?? 0)));
+        $matchScore = max(0, min(1, (float) ($claim['match_score'] ?? 0)));
+        $confidence = max(0, min(1, (float) ($claim['confidence'] ?? 0)));
 
         $status = 'supported';
         if ($matchScore <= 0.2) {
@@ -238,14 +246,14 @@ function normalizeClaims(array $decoded, string $content = ''): array {
 
         $normalized[] = [
             'text' => $text,
-            'subject' => ($claim['subject'] ?? null) !== null ? trim((string)$claim['subject']) : null,
-            'value' => ($claim['value'] ?? null) !== null ? trim((string)$claim['value']) : null,
-            'time' => ($claim['time'] ?? null) !== null ? trim((string)$claim['time']) : null,
+            'subject' => ($claim['subject'] ?? null) !== null ? trim((string) $claim['subject']) : null,
+            'value' => ($claim['value'] ?? null) !== null ? trim((string) $claim['value']) : null,
+            'time' => ($claim['time'] ?? null) !== null ? trim((string) $claim['time']) : null,
             'match_score' => $matchScore,
             'confidence' => $confidence,
-            'source' => ($claim['source'] ?? null) !== null ? trim((string)$claim['source']) : null,
-            'reason' => trim((string)($claim['reason'] ?? '')),
-            'importance' => trim((string)($claim['importance'] ?? 'minor')),
+            'source' => ($claim['source'] ?? null) !== null ? trim((string) $claim['source']) : null,
+            'reason' => trim((string) ($claim['reason'] ?? '')),
+            'importance' => trim((string) ($claim['importance'] ?? 'minor')),
             'status' => $status,
             'claim_key' => substr(sha1($text . '|' . $status), 0, 12),
             'draft_sentence' => $draftSentence,
@@ -257,8 +265,9 @@ function normalizeClaims(array $decoded, string $content = ''): array {
     return array_slice($normalized, 0, 8);
 }
 
-function detectSourceType(?string $url): string {
-    $value = strtolower(trim((string)$url));
+function detectSourceType(?string $url): string
+{
+    $value = strtolower(trim((string) $url));
     if ($value === '') {
         return 'article';
     }
@@ -274,7 +283,8 @@ function detectSourceType(?string $url): string {
     return 'article';
 }
 
-function normalizeMatchedSources(array $decoded): array {
+function normalizeMatchedSources(array $decoded): array
+{
     $sources = is_array($decoded['matched_sources'] ?? null) ? $decoded['matched_sources'] : [];
     $normalized = [];
 
@@ -283,19 +293,19 @@ function normalizeMatchedSources(array $decoded): array {
             continue;
         }
 
-        $url = trim((string)($source['url'] ?? ''));
-        $title = trim((string)($source['title'] ?? $source['name'] ?? ''));
+        $url = trim((string) ($source['url'] ?? ''));
+        $title = trim((string) ($source['title'] ?? $source['name'] ?? ''));
         if ($url === '' && $title === '') {
             continue;
         }
 
         $normalized[] = [
-            'name' => trim((string)($source['name'] ?? '')),
+            'name' => trim((string) ($source['name'] ?? '')),
             'title' => $title,
             'url' => $url !== '' ? $url : null,
-            'match_type' => trim((string)($source['match_type'] ?? 'related')),
-            'relevance_note' => trim((string)($source['relevance_note'] ?? '')),
-            'snippet' => trim((string)($source['snippet'] ?? '')),
+            'match_type' => trim((string) ($source['match_type'] ?? 'related')),
+            'relevance_note' => trim((string) ($source['relevance_note'] ?? '')),
+            'snippet' => trim((string) ($source['snippet'] ?? '')),
             'source_type' => detectSourceType($url),
         ];
     }
@@ -303,7 +313,8 @@ function normalizeMatchedSources(array $decoded): array {
     return array_slice($normalized, 0, 6);
 }
 
-function buildClaimSummary(array $claims): array {
+function buildClaimSummary(array $claims): array
+{
     $summary = [
         'supported' => 0,
         'weak' => 0,
@@ -316,7 +327,7 @@ function buildClaimSummary(array $claims): array {
             continue;
         }
 
-        $status = trim((string)($claim['status'] ?? 'supported'));
+        $status = trim((string) ($claim['status'] ?? 'supported'));
         if (!isset($summary[$status])) {
             $status = 'supported';
         }
@@ -328,12 +339,13 @@ function buildClaimSummary(array $claims): array {
     return $summary;
 }
 
-function buildWhyExampleFromClaim(?array $claim, string $label): ?array {
+function buildWhyExampleFromClaim(?array $claim, string $label): ?array
+{
     if (!is_array($claim)) {
         return null;
     }
 
-    $text = trim((string)($claim['draft_sentence'] ?? $claim['text'] ?? ''));
+    $text = trim((string) ($claim['draft_sentence'] ?? $claim['text'] ?? ''));
     if ($text === '') {
         return null;
     }
@@ -342,26 +354,27 @@ function buildWhyExampleFromClaim(?array $claim, string $label): ?array {
         'type' => 'claim',
         'label' => $label,
         'text' => $text,
-        'reason' => trim((string)($claim['reason'] ?? '')),
-        'highlight_key' => ($claim['sentence_key'] ?? null) !== null ? trim((string)$claim['sentence_key']) : null,
-        'source' => ($claim['source'] ?? null) !== null ? trim((string)$claim['source']) : null,
+        'reason' => trim((string) ($claim['reason'] ?? '')),
+        'highlight_key' => ($claim['sentence_key'] ?? null) !== null ? trim((string) $claim['sentence_key']) : null,
+        'source' => ($claim['source'] ?? null) !== null ? trim((string) $claim['source']) : null,
     ];
 }
 
-function buildWhyExampleFromSource(?array $source, string $label): ?array {
+function buildWhyExampleFromSource(?array $source, string $label): ?array
+{
     if (!is_array($source)) {
         return null;
     }
 
-    $title = trim((string)($source['title'] ?? $source['name'] ?? ''));
+    $title = trim((string) ($source['title'] ?? $source['name'] ?? ''));
     if ($title === '') {
         return null;
     }
 
     $reasonParts = [];
-    $name = trim((string)($source['name'] ?? ''));
-    $sourceType = trim((string)($source['source_type'] ?? ''));
-    $matchType = trim((string)($source['match_type'] ?? ''));
+    $name = trim((string) ($source['name'] ?? ''));
+    $sourceType = trim((string) ($source['source_type'] ?? ''));
+    $matchType = trim((string) ($source['match_type'] ?? ''));
 
     if ($name !== '') {
         $reasonParts[] = $name;
@@ -378,11 +391,12 @@ function buildWhyExampleFromSource(?array $source, string $label): ?array {
         'label' => $label,
         'text' => $title,
         'reason' => implode(' - ', $reasonParts),
-        'url' => ($source['url'] ?? null) !== null ? trim((string)$source['url']) : null,
+        'url' => ($source['url'] ?? null) !== null ? trim((string) $source['url']) : null,
     ];
 }
 
-function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, array $claims, array $matchedSources): array {
+function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, array $claims, array $matchedSources): array
+{
     $reasons = [];
     $seen = [];
     $maxima = [
@@ -402,9 +416,9 @@ function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, 
         $reasons[] = $message;
     };
 
-    $weakClaims = count(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'weak'));
-    $contradictedClaims = count(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'contradicted'));
-    $hasCommentaryEvidence = count(array_filter($matchedSources, static fn($source): bool => is_array($source) && in_array(($source['source_type'] ?? 'article'), ['commentary', 'opinion', 'analysis'], true))) > 0;
+    $weakClaims = count(array_filter($claims, static fn ($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'weak'));
+    $contradictedClaims = count(array_filter($claims, static fn ($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'contradicted'));
+    $hasCommentaryEvidence = count(array_filter($matchedSources, static fn ($source): bool => is_array($source) && in_array(($source['source_type'] ?? 'article'), ['commentary', 'opinion', 'analysis'], true))) > 0;
 
     if ($contradictedClaims > 0) {
         $push('Contradicted claim(s) still lowered the score.');
@@ -412,19 +426,19 @@ function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, 
     if ($weakClaims > 0) {
         $push($weakClaims . ' claim(s) are only partially supported by CNA/ST.');
     }
-    if (($maxima['source_quality'] - (int)($rubricMetrics['source_quality'] ?? 0)) > 0) {
+    if (($maxima['source_quality'] - (int) ($rubricMetrics['source_quality'] ?? 0)) > 0) {
         $push('Source quality is not at the maximum, so the evidence could still be stronger or more directly corroborated.');
     }
-    if (($maxima['completeness'] - (int)($rubricMetrics['completeness'] ?? 0)) > 0 || in_array('missing_context', $flags, true)) {
+    if (($maxima['completeness'] - (int) ($rubricMetrics['completeness'] ?? 0)) > 0 || in_array('missing_context', $flags, true)) {
         $push('Some context or reporting detail is still missing.');
     }
-    if (($maxima['bias_detection'] - (int)($rubricMetrics['bias_detection'] ?? 0)) > 0 || in_array('high_bias', $flags, true)) {
+    if (($maxima['bias_detection'] - (int) ($rubricMetrics['bias_detection'] ?? 0)) > 0 || in_array('high_bias', $flags, true)) {
         $push('Some wording is still interpretive or less neutral than ideal.');
     }
-    if (($maxima['logical_consistency'] - (int)($rubricMetrics['logical_consistency'] ?? 0)) > 0) {
+    if (($maxima['logical_consistency'] - (int) ($rubricMetrics['logical_consistency'] ?? 0)) > 0) {
         $push('The article can still be clearer in how it connects evidence to conclusions.');
     }
-    if (($maxima['factual_accuracy'] - (int)($rubricMetrics['factual_accuracy'] ?? 0)) > 0) {
+    if (($maxima['factual_accuracy'] - (int) ($rubricMetrics['factual_accuracy'] ?? 0)) > 0) {
         $push('Not every important claim is fully or exactly confirmed by the matched CNA/ST sources.');
     }
     if ($hasCommentaryEvidence) {
@@ -441,7 +455,8 @@ function buildWhyNotPerfect(array $rubricMetrics, array $metrics, array $flags, 
     return array_slice($reasons, 0, 5);
 }
 
-function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $flags, array $claims, array $matchedSources): array {
+function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $flags, array $claims, array $matchedSources): array
+{
     $details = [];
     $seen = [];
     $maxima = [
@@ -459,7 +474,7 @@ function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $
         }
 
         $filteredExamples = array_values(array_filter($examples, static function ($example): bool {
-            return is_array($example) && trim((string)($example['text'] ?? '')) !== '';
+            return is_array($example) && trim((string) ($example['text'] ?? '')) !== '';
         }));
 
         $seen[$message] = true;
@@ -469,8 +484,8 @@ function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $
         ];
     };
 
-    $weakClaims = array_values(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'weak'));
-    $contradictedClaims = array_values(array_filter($claims, static fn($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'contradicted'));
+    $weakClaims = array_values(array_filter($claims, static fn ($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'weak'));
+    $contradictedClaims = array_values(array_filter($claims, static fn ($claim): bool => is_array($claim) && ($claim['status'] ?? '') === 'contradicted'));
     $coreClaimsNeedingWork = array_values(array_filter($claims, static function ($claim): bool {
         return is_array($claim)
             && in_array(($claim['status'] ?? ''), ['weak', 'contradicted'], true)
@@ -478,8 +493,8 @@ function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $
     }));
     $sourceExamples = [];
     foreach ($matchedSources as $source) {
-        $matchType = strtolower(trim((string)($source['match_type'] ?? '')));
-        $sourceType = strtolower(trim((string)($source['source_type'] ?? 'article')));
+        $matchType = strtolower(trim((string) ($source['match_type'] ?? '')));
+        $sourceType = strtolower(trim((string) ($source['source_type'] ?? 'article')));
         if ($matchType !== 'direct' || in_array($sourceType, ['commentary', 'opinion', 'analysis'], true)) {
             $example = buildWhyExampleFromSource($source, 'Source example');
             if ($example !== null) {
@@ -496,14 +511,14 @@ function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $
         }
     }
 
-    if (($maxima['source_quality'] - (int)($rubricMetrics['source_quality'] ?? 0)) > 0) {
+    if (($maxima['source_quality'] - (int) ($rubricMetrics['source_quality'] ?? 0)) > 0) {
         $push(
             'Source quality is not at the maximum, so the evidence could still be stronger or more directly corroborated.',
             $sourceExamples
         );
     }
 
-    if (($maxima['completeness'] - (int)($rubricMetrics['completeness'] ?? 0)) > 0 || in_array('missing_context', $flags, true)) {
+    if (($maxima['completeness'] - (int) ($rubricMetrics['completeness'] ?? 0)) > 0 || in_array('missing_context', $flags, true)) {
         $examples = [];
         if (!empty($coreClaimsNeedingWork[0])) {
             $example = buildWhyExampleFromClaim($coreClaimsNeedingWork[0], 'Context to add');
@@ -521,7 +536,7 @@ function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $
         $push('Some context or reporting detail is still missing.', $examples);
     }
 
-    if (($maxima['bias_detection'] - (int)($rubricMetrics['bias_detection'] ?? 0)) > 0 || in_array('high_bias', $flags, true)) {
+    if (($maxima['bias_detection'] - (int) ($rubricMetrics['bias_detection'] ?? 0)) > 0 || in_array('high_bias', $flags, true)) {
         $examples = [];
         foreach (array_slice(array_merge($weakClaims, $coreClaimsNeedingWork), 0, 2) as $claim) {
             $example = buildWhyExampleFromClaim($claim, 'Interpretive wording');
@@ -533,7 +548,7 @@ function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $
         $push('Some wording is still interpretive or less neutral than ideal.', $examples);
     }
 
-    if (($maxima['logical_consistency'] - (int)($rubricMetrics['logical_consistency'] ?? 0)) > 0) {
+    if (($maxima['logical_consistency'] - (int) ($rubricMetrics['logical_consistency'] ?? 0)) > 0) {
         $examples = [];
         foreach (array_slice(array_merge($weakClaims, $contradictedClaims), 0, 2) as $claim) {
             $example = buildWhyExampleFromClaim($claim, 'Clarify this sentence');
@@ -545,7 +560,7 @@ function buildWhyNotPerfectDetails(array $rubricMetrics, array $metrics, array $
         $push('The article can still be clearer in how it connects evidence to conclusions.', $examples);
     }
 
-    if (($maxima['factual_accuracy'] - (int)($rubricMetrics['factual_accuracy'] ?? 0)) > 0) {
+    if (($maxima['factual_accuracy'] - (int) ($rubricMetrics['factual_accuracy'] ?? 0)) > 0) {
         $examples = [];
         foreach (array_slice(array_merge($contradictedClaims, $coreClaimsNeedingWork, $weakClaims), 0, 2) as $claim) {
             $example = buildWhyExampleFromClaim($claim, 'Not fully confirmed');
@@ -583,13 +598,13 @@ if (!is_array($body)) {
     exit;
 }
 
-$title = trim((string)($body['title'] ?? ''));
-$excerpt = trim((string)($body['excerpt'] ?? ''));
-$content = trim((string)($body['content'] ?? ''));
-$category = trim((string)($body['category'] ?? ''));
-$categoryId = (int)($body['category_id'] ?? 0);
-$sourceUrl = trim((string)($body['source_url'] ?? ''));
-$articleId = (int)($body['article_id'] ?? 0);
+$title = trim((string) ($body['title'] ?? ''));
+$excerpt = trim((string) ($body['excerpt'] ?? ''));
+$content = trim((string) ($body['content'] ?? ''));
+$category = trim((string) ($body['category'] ?? ''));
+$categoryId = (int) ($body['category_id'] ?? 0);
+$sourceUrl = trim((string) ($body['source_url'] ?? ''));
+$articleId = (int) ($body['article_id'] ?? 0);
 
 if ($title === '' || $excerpt === '' || $content === '') {
     http_response_code(422);
@@ -609,7 +624,7 @@ $fingerprint = buildArticleVerificationFingerprint([
     'content' => $content,
     'category_id' => $categoryId,
     'source_url' => $sourceUrl,
-], (int)$user->id);
+], (int) $user->id);
 
 $existingVerification = $_SESSION['article_ai_verification'] ?? null;
 $hasCachedVerification = is_array($existingVerification)
@@ -622,7 +637,7 @@ if ($articleId > 0) {
          FROM articles
          WHERE id = ? AND author_id = ?
          LIMIT 1',
-        [$articleId, (int)$user->id]
+        [$articleId, (int) $user->id]
     );
 
     if ($articleRow && ($articleRow['verification_fingerprint'] ?? '') === $fingerprint) {
@@ -637,10 +652,10 @@ if ($articleId > 0) {
 
 if ($hasCachedVerification) {
     echo json_encode([
-        'trust_score' => max(0, min(100, (int)($existingVerification['trust_score'] ?? 0))),
-        'publish_decision' => trim((string)($existingVerification['publish_decision'] ?? '')),
-        'summary' => trim((string)($existingVerification['summary'] ?? 'Verification reused from the latest unchanged draft.')),
-        'verdict' => trim((string)($existingVerification['verdict'] ?? 'Verification reused from the latest unchanged draft.')),
+        'trust_score' => max(0, min(100, (int) ($existingVerification['trust_score'] ?? 0))),
+        'publish_decision' => trim((string) ($existingVerification['publish_decision'] ?? '')),
+        'summary' => trim((string) ($existingVerification['summary'] ?? 'Verification reused from the latest unchanged draft.')),
+        'verdict' => trim((string) ($existingVerification['verdict'] ?? 'Verification reused from the latest unchanged draft.')),
         'metrics' => is_array($existingVerification['metrics'] ?? null) ? $existingVerification['metrics'] : [
             'factual_accuracy' => 0,
             'source_quality' => 0,
@@ -656,7 +671,7 @@ if ($hasCachedVerification) {
             'completeness' => 0,
         ],
         'source_url' => $sourceUrl,
-        'source_label' => trim((string)($existingVerification['source_label'] ?? '')),
+        'source_label' => trim((string) ($existingVerification['source_label'] ?? '')),
         'misinformation_highlights' => is_array($existingVerification['misinformation_highlights'] ?? null)
             ? $existingVerification['misinformation_highlights']
             : [],
@@ -685,10 +700,10 @@ if ($hasCachedVerification) {
 
 $webhookUrl = '';
 if (defined('N8N_VERIFY_WEBHOOK_URL')) {
-    $webhookUrl = trim((string)N8N_VERIFY_WEBHOOK_URL);
+    $webhookUrl = trim((string) N8N_VERIFY_WEBHOOK_URL);
 }
 if ($webhookUrl === '') {
-    $webhookUrl = trim((string)(getenv('N8N_VERIFY_WEBHOOK_URL') ?: ''));
+    $webhookUrl = trim((string) (getenv('N8N_VERIFY_WEBHOOK_URL') ?: ''));
 }
 if ($webhookUrl === '') {
     $webhookUrl = 'https://n8n.srv1502312.hstgr.cloud/webhook/sharedspace-ai-verify';
@@ -717,7 +732,7 @@ curl_setopt_array($ch, [
 ]);
 
 $response = curl_exec($ch);
-$httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
 curl_close($ch);
 
@@ -756,25 +771,25 @@ if ($httpCode >= 400) {
 
 $metrics = $decoded['metrics'] ?? [];
 $normalizedMetrics = [
-    'factual_accuracy' => max(0, min(100, (int)($metrics['factual_accuracy'] ?? $decoded['factual_accuracy'] ?? 0))),
-    'source_quality' => max(0, min(100, (int)($metrics['source_quality'] ?? $decoded['source_quality'] ?? 0))),
-    'bias_detection' => max(0, min(100, (int)($metrics['bias_detection'] ?? $decoded['bias_detection'] ?? 0))),
-    'logical_consistency' => max(0, min(100, (int)($metrics['logical_consistency'] ?? $decoded['logical_consistency'] ?? 0))),
-    'completeness' => max(0, min(100, (int)($metrics['completeness'] ?? $decoded['completeness'] ?? 0))),
+    'factual_accuracy' => max(0, min(100, (int) ($metrics['factual_accuracy'] ?? $decoded['factual_accuracy'] ?? 0))),
+    'source_quality' => max(0, min(100, (int) ($metrics['source_quality'] ?? $decoded['source_quality'] ?? 0))),
+    'bias_detection' => max(0, min(100, (int) ($metrics['bias_detection'] ?? $decoded['bias_detection'] ?? 0))),
+    'logical_consistency' => max(0, min(100, (int) ($metrics['logical_consistency'] ?? $decoded['logical_consistency'] ?? 0))),
+    'completeness' => max(0, min(100, (int) ($metrics['completeness'] ?? $decoded['completeness'] ?? 0))),
 ];
 $rawRubricMetrics = is_array($decoded['rubric_metrics'] ?? null) ? $decoded['rubric_metrics'] : [];
 $normalizedRubricMetrics = [
-    'factual_accuracy' => max(0, min(45, (int)($rawRubricMetrics['A_factual_accuracy'] ?? round(($normalizedMetrics['factual_accuracy'] / 100) * 45)))),
-    'source_quality' => max(0, min(25, (int)($rawRubricMetrics['S_source_quality'] ?? round(($normalizedMetrics['source_quality'] / 100) * 25)))),
-    'bias_detection' => max(0, min(10, (int)($rawRubricMetrics['B_bias'] ?? round(($normalizedMetrics['bias_detection'] / 100) * 10)))),
-    'logical_consistency' => max(0, min(10, (int)($rawRubricMetrics['L_logic'] ?? round(($normalizedMetrics['logical_consistency'] / 100) * 10)))),
-    'completeness' => max(0, min(10, (int)($rawRubricMetrics['C_completeness'] ?? round(($normalizedMetrics['completeness'] / 100) * 10)))),
+    'factual_accuracy' => max(0, min(45, (int) ($rawRubricMetrics['A_factual_accuracy'] ?? round(($normalizedMetrics['factual_accuracy'] / 100) * 45)))),
+    'source_quality' => max(0, min(25, (int) ($rawRubricMetrics['S_source_quality'] ?? round(($normalizedMetrics['source_quality'] / 100) * 25)))),
+    'bias_detection' => max(0, min(10, (int) ($rawRubricMetrics['B_bias'] ?? round(($normalizedMetrics['bias_detection'] / 100) * 10)))),
+    'logical_consistency' => max(0, min(10, (int) ($rawRubricMetrics['L_logic'] ?? round(($normalizedMetrics['logical_consistency'] / 100) * 10)))),
+    'completeness' => max(0, min(10, (int) ($rawRubricMetrics['C_completeness'] ?? round(($normalizedMetrics['completeness'] / 100) * 10)))),
 ];
 
-$trustScore = (int)($decoded['trust_score'] ?? array_sum($normalizedMetrics) / 5);
+$trustScore = (int) ($decoded['trust_score'] ?? array_sum($normalizedMetrics) / 5);
 $trustScore = max(0, min(100, $trustScore));
 
-$publishDecision = trim((string)($decoded['publish_decision'] ?? ''));
+$publishDecision = trim((string) ($decoded['publish_decision'] ?? ''));
 if ($publishDecision === '') {
     if ($trustScore >= 81) {
         $publishDecision = 'auto_publish';
@@ -785,7 +800,7 @@ if ($publishDecision === '') {
     }
 }
 
-$verdict = trim((string)($decoded['verdict'] ?? ''));
+$verdict = trim((string) ($decoded['verdict'] ?? ''));
 if ($verdict === '') {
     $verdict = $publishDecision === 'auto_publish'
         ? 'Reliable. Auto publish approved because the CNA/ST evidence is strong enough for direct publication.'
@@ -794,7 +809,7 @@ if ($verdict === '') {
             : 'Unreliable. Do not publish. The draft contains unsupported, false, or insufficiently verified information.');
 }
 
-$summary = trim((string)($decoded['summary'] ?? ''));
+$summary = trim((string) ($decoded['summary'] ?? ''));
 if ($summary === '') {
     $summary = 'AI verification completed successfully.';
 }
@@ -806,9 +821,9 @@ if (is_array($decoded['misinformation_highlights'] ?? null)) {
             continue;
         }
 
-        $reason = trim((string)($item['reason'] ?? ''));
-        $line = trim((string)($item['line'] ?? ''));
-        $source = trim((string)($item['source'] ?? ''));
+        $reason = trim((string) ($item['reason'] ?? ''));
+        $line = trim((string) ($item['line'] ?? ''));
+        $source = trim((string) ($item['source'] ?? ''));
 
         if ($reason === '' && $line === '') {
             continue;
@@ -857,7 +872,7 @@ $_SESSION['article_ai_verification'] = [
     'metrics' => $normalizedMetrics,
     'rubric_metrics' => $normalizedRubricMetrics,
     'source_url' => $sourceUrl,
-    'source_label' => trim((string)($decoded['source_label'] ?? '')),
+    'source_label' => trim((string) ($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
     'improvement_suggestions' => $improvementSuggestions,
     'claims' => $claims,
@@ -876,7 +891,7 @@ if ($articleId > 0) {
             $fingerprint,
             json_encode($_SESSION['article_ai_verification'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             $articleId,
-            (int)$user->id,
+            (int) $user->id,
         ]
     );
 }
@@ -889,7 +904,7 @@ echo json_encode([
     'metrics' => $normalizedMetrics,
     'rubric_metrics' => $normalizedRubricMetrics,
     'source_url' => $sourceUrl,
-    'source_label' => trim((string)($decoded['source_label'] ?? '')),
+    'source_label' => trim((string) ($decoded['source_label'] ?? '')),
     'misinformation_highlights' => $misinformationHighlights,
     'improvement_suggestions' => $improvementSuggestions,
     'claims' => $claims,

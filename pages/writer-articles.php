@@ -7,7 +7,7 @@ require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 require_once __DIR__ . '/../includes/db.php';
 
-$auth        = new AuthController();
+$auth = new AuthController();
 $articleCtrl = new ArticleController();
 
 // ensure user is logged in
@@ -23,14 +23,14 @@ if ($user->role !== 'category_admin') {
 }
 
 // get the category this admin is assigned to
-$assignedCategory = assigned_category_for_expert((int)$user->id);
+$assignedCategory = assigned_category_for_expert((int) $user->id);
 
 if (!$assignedCategory) {
     header('Location: /pages/category-writers.php');
     exit;
 }
 
-$writerId = (int)($_GET['writer_id'] ?? 0);
+$writerId = (int) ($_GET['writer_id'] ?? 0);
 
 if (!$writerId) {
     header('Location: /pages/category-writers.php');
@@ -49,9 +49,9 @@ if (!$writer) {
 }
 
 // fetch all articles by this writer in the admin's category
-$articles = $articleCtrl->getByAuthorAndCategory($writerId, (int)$assignedCategory['id']);
+$articles = $articleCtrl->getByAuthorAndCategory($writerId, (int) $assignedCategory['id']);
 
-$initial     = strtoupper(mb_substr($writer['full_name'], 0, 1)) ?: '?';
+$initial = strtoupper(mb_substr($writer['full_name'], 0, 1)) ?: '?';
 $articleWord = count($articles) === 1 ? 'article' : 'articles';
 
 page_head(htmlspecialchars($writer['full_name']) . ' – Articles');

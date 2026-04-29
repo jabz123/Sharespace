@@ -1,4 +1,5 @@
 <?php
+
 // handles profile update form submission including avatar upload and interests
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
@@ -16,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // handle interests update (separate form on the profile page)
 if (isset($_POST['update_interests'])) {
     $onboardCtrl = new OnboardingController();
-    $interests    = $_POST['interests'] ?? [];
-    $result       = $onboardCtrl->updateInterests($user->id, $interests);
+    $interests = $_POST['interests'] ?? [];
+    $result = $onboardCtrl->updateInterests($user->id, $interests);
 
     if (isset($result['ok'])) {
         redirect('/pages/profile.php', null, 'Interests updated successfully!');
@@ -27,7 +28,7 @@ if (isset($_POST['update_interests'])) {
 
 // handle regular profile update (name, email, bio, avatar)
 $avatarFile = $_FILES['avatar'] ?? [];
-$result     = $auth->updateProfile($user->id, $_POST, $avatarFile);
+$result = $auth->updateProfile($user->id, $_POST, $avatarFile);
 
 if (isset($result['ok'])) {
     redirect('/pages/profile.php', null, 'Profile updated successfully!');

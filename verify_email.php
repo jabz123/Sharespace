@@ -2,17 +2,17 @@
 require_once __DIR__ . '/includes/db.php';
 
 if (!isset($_GET['token'])) {
-    die("Invalid verification link.");
+    die('Invalid verification link.');
 }
 
 $token = $_GET['token'];
-$user = DB::first("SELECT id FROM users WHERE verification_token = ?", [$token]);
+$user = DB::first('SELECT id FROM users WHERE verification_token = ?', [$token]);
 
 if (!$user) {
-    die("Invalid or expired verification link.");
+    die('Invalid or expired verification link.');
 }
 
-DB::execute("UPDATE users SET email_verified = 1, verification_token = NULL WHERE id = ?", [$user['id']]);
+DB::execute('UPDATE users SET email_verified = 1, verification_token = NULL WHERE id = ?', [$user['id']]);
 ?>
 <!DOCTYPE html>
 <html lang="en">

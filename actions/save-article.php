@@ -4,7 +4,8 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
-function actionRedirect(string $url, ?string $error = null, ?string $success = null): never {
+function actionRedirect(string $url, ?string $error = null, ?string $success = null): never
+{
     if ($error) {
         $_SESSION['flash_error'] = $error;
     }
@@ -16,9 +17,10 @@ function actionRedirect(string $url, ?string $error = null, ?string $success = n
     exit;
 }
 
-function buildArticleVerificationFingerprint(array $input, int $userId): string {
+function buildArticleVerificationFingerprint(array $input, int $userId): string
+{
     $normalize = static function ($value): string {
-        return trim(str_replace(["\r\n", "\r"], "\n", (string)$value));
+        return trim(str_replace(["\r\n", "\r"], "\n", (string) $value));
     };
 
     $payload = [
@@ -26,14 +28,15 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
         'title' => $normalize($input['title'] ?? ''),
         'excerpt' => $normalize($input['excerpt'] ?? ''),
         'content' => $normalize($input['content'] ?? ''),
-        'category_id' => (int)($input['category_id'] ?? 0),
+        'category_id' => (int) ($input['category_id'] ?? 0),
         'source_url' => $normalize($input['source_url'] ?? ''),
     ];
 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
-function resolveStoredArticleVerification(?Article $article, string $fingerprint): ?array {
+function resolveStoredArticleVerification(?Article $article, string $fingerprint): ?array
+{
     if (!$article) {
         return null;
     }
@@ -51,7 +54,8 @@ function resolveStoredArticleVerification(?Article $article, string $fingerprint
     return is_array($decoded) ? $decoded : null;
 }
 
-function persistArticleVerification(int $articleId, int $authorId, array $verification): void {
+function persistArticleVerification(int $articleId, int $authorId, array $verification): void
+{
     if ($articleId <= 0 || empty($verification['fingerprint'])) {
         return;
     }
@@ -61,7 +65,7 @@ function persistArticleVerification(int $articleId, int $authorId, array $verifi
          SET verification_fingerprint = ?, verification_payload = ?, verification_checked_at = NOW()
          WHERE id = ? AND author_id = ?',
         [
-            (string)$verification['fingerprint'],
+            (string) $verification['fingerprint'],
             json_encode($verification, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             $articleId,
             $authorId,
@@ -80,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     actionRedirect('/pages/write.php');
 }
 
-$editId = (int)($_GET['id'] ?? 0);
+$editId = (int) ($_GET['id'] ?? 0);
 $article = null;
 $isEdit = false;
 
@@ -95,7 +99,7 @@ if ($editId > 0) {
 $canUploadImage = ($user->role === 'premium' || $user->role === 'category_admin');
 $action = $_POST['action'] ?? 'publish';
 $imagePath = $article->imagePath ?? null;
-$requestFingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+$requestFingerprint = buildArticleVerificationFingerprint($_POST, (int) $user->id);
 $requestVerification = $_SESSION['article_ai_verification'] ?? null;
 $hasRequestVerification = is_array($requestVerification)
     && (($requestVerification['fingerprint'] ?? '') === $requestFingerprint);
@@ -136,9 +140,9 @@ if ($action === 'draft') {
     }
 
     if (isset($result['ok'])) {
-        $savedArticleId = $isEdit ? $editId : (int)($result['id'] ?? 0);
+        $savedArticleId = $isEdit ? $editId : (int) ($result['id'] ?? 0);
         if ($hasRequestVerification && $savedArticleId > 0) {
-            persistArticleVerification($savedArticleId, (int)$user->id, $requestVerification);
+            persistArticleVerification($savedArticleId, (int) $user->id, $requestVerification);
         }
         actionRedirect('/pages/my-articles.php', null, 'Draft saved!');
     }
@@ -146,7 +150,7 @@ if ($action === 'draft') {
     actionRedirect($isEdit ? '/pages/write.php?id=' . $editId : '/pages/write.php', $result['error'] ?? 'Unable to save draft.');
 }
 
-$fingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+$fingerprint = buildArticleVerificationFingerprint($_POST, (int) $user->id);
 $verification = $_SESSION['article_ai_verification'] ?? null;
 $storedVerification = $isEdit ? resolveStoredArticleVerification($article, $fingerprint) : null;
 if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $fingerprint)) {
@@ -155,8 +159,8 @@ if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $
 }
 $isVerificationCurrent = is_array($verification)
     && ($verification['fingerprint'] ?? '') === $fingerprint;
-$verifiedTrustScore = $isVerificationCurrent ? (int)($verification['trust_score'] ?? 0) : 0;
-$verifiedDecision = $isVerificationCurrent ? trim((string)($verification['publish_decision'] ?? '')) : '';
+$verifiedTrustScore = $isVerificationCurrent ? (int) ($verification['trust_score'] ?? 0) : 0;
+$verifiedDecision = $isVerificationCurrent ? trim((string) ($verification['publish_decision'] ?? '')) : '';
 $hasPassingVerification = $isVerificationCurrent
     && !empty($verification['passed'])
     && $verifiedTrustScore >= $autoPublishTrustScore

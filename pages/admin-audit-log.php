@@ -6,7 +6,7 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
-$auth      = new AuthController();
+$auth = new AuthController();
 $adminCtrl = new AdminController();
 
 $auth->requireAuth();
@@ -15,8 +15,8 @@ $adminCtrl->requireAdmin($user);
 
 // pagination
 $perPage = 25;
-$page    = max(1, (int)($_GET['page'] ?? 1));
-$offset  = ($page - 1) * $perPage;
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$offset = ($page - 1) * $perPage;
 
 // optional action-type filter
 $filterAction = trim($_GET['filter'] ?? '');
@@ -29,56 +29,57 @@ $totalPages = 0;
 $auditError = null;
 
 try {
-    $entries    = $adminCtrl->getAuditLog($perPage, $offset, $filterAction ?: null, $filterRole ?: null);
+    $entries = $adminCtrl->getAuditLog($perPage, $offset, $filterAction ?: null, $filterRole ?: null);
     $totalCount = $adminCtrl->getAuditLogCount($filterAction ?: null, $filterRole ?: null);
-    $totalPages = (int)ceil($totalCount / $perPage);
+    $totalPages = (int) ceil($totalCount / $perPage);
 } catch (Throwable $e) {
     $auditError = 'The audit log is not available yet on this environment. Please ensure the audit_log table exists and try again.';
 }
 
 // action → [display label, badge bg colour]
 $actionMeta = [
-    'login'             => ['login',             '#2563eb'],
-    'logout'            => ['logout',            '#64748b'],
-    'register'          => ['registered',        '#16a34a'],
-    'update_profile'    => ['update profile',    '#0f766e'],
-    'change_password'   => ['change password',   '#7c3aed'],
-    'failed_login'      => ['failed login',      '#f97316'],
+    'login' => ['login',             '#2563eb'],
+    'logout' => ['logout',            '#64748b'],
+    'register' => ['registered',        '#16a34a'],
+    'update_profile' => ['update profile',    '#0f766e'],
+    'change_password' => ['change password',   '#7c3aed'],
+    'failed_login' => ['failed login',      '#f97316'],
     'failed_login_5_times' => ['5 failed logins', '#dc2626'],
-    'suspend_article'   => ['suspend article',   '#e07b39'],
+    'suspend_article' => ['suspend article',   '#e07b39'],
     'unsuspend_article' => ['unsuspend article', '#3b82f6'],
-    'delete_article'    => ['delete article',    '#ef4444'],
-    'suspend_user'      => ['suspend user',      '#e07b39'],
-    'reinstate_user'    => ['reinstate user',    '#22c55e'],
-    'create_category'   => ['create category',   '#111827'],
-    'update_category'   => ['update category',   '#6b7280'],
-    'delete_category'   => ['delete category',   '#ef4444'],
-    'assign_role'       => ['assign role',       '#6b7280'],
-    'unassign_role'     => ['unassign role',     '#9ca3af'],
-    'submit_content'    => ['submit content',    '#0891b2'],
-    'update_content'    => ['edit content',      '#0ea5e9'],
-    'delete_content'    => ['delete content',    '#ef4444'],
-    'save_draft'        => ['save draft',        '#64748b'],
+    'delete_article' => ['delete article',    '#ef4444'],
+    'suspend_user' => ['suspend user',      '#e07b39'],
+    'reinstate_user' => ['reinstate user',    '#22c55e'],
+    'create_category' => ['create category',   '#111827'],
+    'update_category' => ['update category',   '#6b7280'],
+    'delete_category' => ['delete category',   '#ef4444'],
+    'assign_role' => ['assign role',       '#6b7280'],
+    'unassign_role' => ['unassign role',     '#9ca3af'],
+    'submit_content' => ['submit content',    '#0891b2'],
+    'update_content' => ['edit content',      '#0ea5e9'],
+    'delete_content' => ['delete content',    '#ef4444'],
+    'save_draft' => ['save draft',        '#64748b'],
     'review_category_content' => ['review content', '#9333ea'],
-    'post_comment'      => ['post comment',      '#14b8a6'],
-    'delete_comment'    => ['delete comment',    '#f43f5e'],
-    'save_bookmark'     => ['save bookmark',     '#f59e0b'],
-    'remove_bookmark'   => ['remove bookmark',   '#78716c'],
-    'flag_article'      => ['flag article',      '#f97316'],
-    'upload_dataset'    => ['upload dataset',    '#4f46e5'],
-    'train_model'       => ['train model',       '#7c3aed'],
+    'post_comment' => ['post comment',      '#14b8a6'],
+    'delete_comment' => ['delete comment',    '#f43f5e'],
+    'save_bookmark' => ['save bookmark',     '#f59e0b'],
+    'remove_bookmark' => ['remove bookmark',   '#78716c'],
+    'flag_article' => ['flag article',      '#f97316'],
+    'upload_dataset' => ['upload dataset',    '#4f46e5'],
+    'train_model' => ['train model',       '#7c3aed'],
     'update_model_settings' => ['model settings', '#0f172a'],
 ];
 
 $roleMeta = [
-    'system_admin'   => ['System Admin', '#1e3a8a'],
+    'system_admin' => ['System Admin', '#1e3a8a'],
     'category_admin' => ['Category Expert', '#6d28d9'],
-    'premium'        => ['Registered User', '#047857'],
-    'free'           => ['Free User', '#475569'],
-    'unknown'        => ['Unknown', '#6b7280'],
+    'premium' => ['Registered User', '#047857'],
+    'free' => ['Free User', '#475569'],
+    'unknown' => ['Unknown', '#6b7280'],
 ];
 
-function audit_page_href(int $page, string $filterAction, string $filterRole): string {
+function audit_page_href(int $page, string $filterAction, string $filterRole): string
+{
     $params = ['page' => $page];
     if ($filterAction !== '') {
         $params['filter'] = $filterAction;
@@ -89,7 +90,8 @@ function audit_page_href(int $page, string $filterAction, string $filterRole): s
     return '?' . http_build_query($params);
 }
 
-function audit_format_sgt(string $timestamp): string {
+function audit_format_sgt(string $timestamp): string
+{
     try {
         return (new DateTimeImmutable($timestamp, new DateTimeZone('UTC')))
             ->setTimezone(new DateTimeZone('Asia/Singapore'))
@@ -185,14 +187,14 @@ page_head('Audit Log', true);
                 <tbody>
                 <?php foreach ($entries as $entry): ?>
                     <?php
-                    $meta             = $actionMeta[$entry['action']] ?? [str_replace('_', ' ', $entry['action']), '#6b7280'];
+                    $meta = $actionMeta[$entry['action']] ?? [str_replace('_', ' ', $entry['action']), '#6b7280'];
                     [$label, $colour] = $meta;
-                    $actorRole        = $entry['resolved_actor_role'] ?? $entry['actor_role'] ?? 'unknown';
-                    $role             = $roleMeta[$actorRole] ?? [str_replace('_', ' ', $actorRole), '#6b7280'];
+                    $actorRole = $entry['resolved_actor_role'] ?? $entry['actor_role'] ?? 'unknown';
+                    $role = $roleMeta[$actorRole] ?? [str_replace('_', ' ', $actorRole), '#6b7280'];
                     [$roleLabel, $roleColour] = $role;
-                    $actorName        = $entry['actor_name_display'] ?? $entry['admin_name'] ?? 'Unknown user';
-                    $actorEmail       = $entry['actor_email_display'] ?? '';
-                    $ts               = audit_format_sgt($entry['created_at']);
+                    $actorName = $entry['actor_name_display'] ?? $entry['admin_name'] ?? 'Unknown user';
+                    $actorEmail = $entry['actor_email_display'] ?? '';
+                    $ts = audit_format_sgt($entry['created_at']);
                     ?>
                     <tr style="border-bottom:1px solid var(--border)">
                         <!-- action badge -->
@@ -253,8 +255,8 @@ page_head('Audit Log', true);
                 <?php
                 // show a sliding window of page numbers
                 $start = max(1, $page - 2);
-                $end   = min($totalPages, $page + 2);
-                for ($p = $start; $p <= $end; $p++): ?>
+            $end = min($totalPages, $page + 2);
+            for ($p = $start; $p <= $end; $p++): ?>
                     <a href="<?= audit_page_href($p, $filterAction, $filterRole) ?>"
                        class="btn btn-sm <?= $p === $page ? 'btn-primary' : 'btn-ghost' ?>"
                        style="min-width:34px;text-align:center"><?= $p ?></a>

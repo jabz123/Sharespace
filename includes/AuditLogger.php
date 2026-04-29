@@ -2,10 +2,12 @@
 
 require_once __DIR__ . '/db.php';
 
-class AuditLogger {
+class AuditLogger
+{
     private static bool $schemaReady = false;
 
-    public static function ensureSchema(): void {
+    public static function ensureSchema(): void
+    {
         if (self::$schemaReady) {
             return;
         }
@@ -13,7 +15,7 @@ class AuditLogger {
         $table = DB::first("SHOW TABLES LIKE 'audit_log'");
         if (!$table) {
             DB::execute(
-                "CREATE TABLE audit_log (
+                'CREATE TABLE audit_log (
                     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     admin_id INT NULL,
                     actor_id INT NULL,
@@ -30,14 +32,14 @@ class AuditLogger {
                     KEY idx_action (action),
                     KEY idx_actor_role (actor_role),
                     KEY idx_created_at (created_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
             );
             self::$schemaReady = true;
             return;
         }
 
         $columns = array_column(DB::query('SHOW COLUMNS FROM audit_log'), 'Field');
-        $has = fn(string $column): bool => in_array($column, $columns, true);
+        $has = fn (string $column): bool => in_array($column, $columns, true);
 
         try {
             DB::execute('ALTER TABLE audit_log MODIFY admin_id INT NULL');
@@ -161,12 +163,13 @@ class AuditLogger {
         );
     }
 
-    public static function count(?string $filterAction = null, ?string $filterRole = null): int {
+    public static function count(?string $filterAction = null, ?string $filterRole = null): int
+    {
         self::ensureSchema();
 
         [$whereSql, $params] = self::filters($filterAction, $filterRole);
 
-        return (int)(DB::first(
+        return (int) (DB::first(
             "SELECT COUNT(*) AS cnt
              FROM audit_log al
              LEFT JOIN users u ON u.id = COALESCE(al.actor_id, al.admin_id)
@@ -187,18 +190,19 @@ class AuditLogger {
             return 0;
         }
 
-        return (int)(DB::first(
-            "SELECT COUNT(*) AS cnt
+        return (int) (DB::first(
+            'SELECT COUNT(*) AS cnt
              FROM audit_log
              WHERE action = ?
                AND target_type = ?
                AND target_id = ?
-               AND created_at >= DATE_SUB(NOW(), INTERVAL " . max(1, $minutes) . " MINUTE)",
+               AND created_at >= DATE_SUB(NOW(), INTERVAL ' . max(1, $minutes) . ' MINUTE)',
             [$action, $targetType, $targetId]
         )['cnt'] ?? 0);
     }
 
-    private static function filters(?string $filterAction, ?string $filterRole): array {
+    private static function filters(?string $filterAction, ?string $filterRole): array
+    {
         $conditions = [];
         $params = [];
 

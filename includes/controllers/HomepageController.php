@@ -1,5 +1,6 @@
 <?php
-// function for homepage. 
+
+// function for homepage.
 // reco users articles based on their interests
 // reco users articles that their age grp ppl viewed mostly
 // reco users articles based on their gender
@@ -8,15 +9,17 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../entities/Article.php';
 
-class HomepageController {  
-// recommended articles based on user's chosen interests
-// shows 1 top article per category
+class HomepageController
+{
+    // recommended articles based on user's chosen interests
+    // shows 1 top article per category
 
-//added date as filter to only show articles from last month. rn is on 1 month onyl
-    public function getRecommendedByInterest($userId) {
+    //added date as filter to only show articles from last month. rn is on 1 month onyl
+    public function getRecommendedByInterest($userId)
+    {
 
         $rows = DB::query(
-        "SELECT a.*, u.full_name author_name, u.avatar_url AS author_avatar_url, c.name category_name,
+            "SELECT a.*, u.full_name author_name, u.avatar_url AS author_avatar_url, c.name category_name,
         COUNT(DISTINCT v.id) AS view_count,
         COUNT(DISTINCT f.id) AS flag_count
         FROM articles a
@@ -29,7 +32,9 @@ class HomepageController {
         AND a.published_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
         GROUP BY a.id
         ORDER BY view_count DESC, a.published_at DESC
-        ", [$userId]);
+        ",
+            [$userId]
+        );
         $unique = [];
         $usedCategories = [];
 
@@ -38,18 +43,19 @@ class HomepageController {
                 $unique[] = $r;
                 $usedCategories[$r['category_id']] = true;
             }
-            if (count($unique) == 3) break;
+            if (count($unique) == 3) {
+                break;
+            }
         }
-        return array_map(fn($r) => new Article($r), $unique);
+        return array_map(fn ($r) => new Article($r), $unique);
     }
-
-
 
     // articles people in same age group are reading
     //added date as filter to only show articles from last month. rn is on 1 month onyl
-    public function getPopularByAgeGroup($userId) {
-       $rows = DB::query(
-        "SELECT a.*, 
+    public function getPopularByAgeGroup($userId)
+    {
+        $rows = DB::query(
+            "SELECT a.*, 
         u.full_name AS author_name,
         u.avatar_url AS author_avatar_url,
         c.name AS category_name,
@@ -70,18 +76,19 @@ class HomepageController {
         GROUP BY a.id
         ORDER BY age_group_views DESC
         LIMIT 3
-        ", [$userId]);
+        ",
+            [$userId]
+        );
 
-        return array_map(fn($r) => new Article($r), $rows);
-}
-
-
+        return array_map(fn ($r) => new Article($r), $rows);
+    }
 
     // articles popular with same gender readers
     //added date as filter to only show articles from last month. rn is on 1 month onyl
-    public function getPopularByGender($userId) {
+    public function getPopularByGender($userId)
+    {
         $rows = DB::query(
-        "SELECT a.*, 
+            "SELECT a.*, 
         u.full_name AS author_name,
         u.avatar_url AS author_avatar_url,
         c.name AS category_name,
@@ -104,18 +111,19 @@ class HomepageController {
         GROUP BY a.id
         ORDER BY gender_views DESC
         LIMIT 3
-        ", [$userId]);
+        ",
+            [$userId]
+        );
 
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
-
-
 
     // newest articles on the platform
     //added date as filter to only show articles from last month. rn is on 1 month onyl
-    public function getLatest(int $limit = 6) {
+    public function getLatest(int $limit = 6)
+    {
         $rows = DB::query(
-        "SELECT a.*, u.full_name AS author_name, u.avatar_url AS author_avatar_url, c.name AS category_name,
+            "SELECT a.*, u.full_name AS author_name, u.avatar_url AS author_avatar_url, c.name AS category_name,
         COUNT(DISTINCT v.id) AS view_count,
         COUNT(DISTINCT f.id) AS flag_count
         FROM articles a
@@ -130,7 +138,7 @@ class HomepageController {
         LIMIT $limit"
         );
 
-        return array_map(fn($r) => new Article($r), $rows);
+        return array_map(fn ($r) => new Article($r), $rows);
     }
 
 }

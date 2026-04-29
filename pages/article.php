@@ -13,7 +13,7 @@ $auth->requireAuth();
 $user = $auth->currentUser();
 $isSystemAdmin = $user->role === 'system_admin';
 
-$id = (int)($_GET['id'] ?? 0);
+$id = (int) ($_GET['id'] ?? 0);
 $article = $id ? $articleCtrl->getById($id) : null;
 
 if (!$article) {
@@ -32,18 +32,18 @@ $premiumPlan = DB::first(
 );
 
 $isSaved = DB::first(
-    "SELECT id FROM saved_articles WHERE user_id = ? AND article_id = ?",
+    'SELECT id FROM saved_articles WHERE user_id = ? AND article_id = ?',
     [$user->id, $article->id]
 ) ? true : false;
 
 $alreadyFlagged = DB::first(
-    "SELECT id FROM article_flags WHERE user_id = ? AND article_id = ?",
+    'SELECT id FROM article_flags WHERE user_id = ? AND article_id = ?',
     [$user->id, $article->id]
 ) !== null;
 
 DB::execute(
-    "INSERT IGNORE INTO article_views (user_id, article_id)
-     VALUES (?, ?)",
+    'INSERT IGNORE INTO article_views (user_id, article_id)
+     VALUES (?, ?)',
     [$user->id, $article->id]
 );
 
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'delete_comment') {
-        $commentCtrl->delete((int)($_POST['comment_id'] ?? 0), $user->id);
+        $commentCtrl->delete((int) ($_POST['comment_id'] ?? 0), $user->id);
         header('Location: ' . $url);
         exit;
     }
@@ -195,8 +195,8 @@ page_head($article->title, $isSystemAdmin);
                 <div class="article-body">
                     <?php
                     $isPremiumUser = in_array($user->role, ['premium', 'system_admin', 'category_admin'], true);
-                    $isPremiumArticle = !empty($article->imagePath);
-                    ?>
+$isPremiumArticle = !empty($article->imagePath);
+?>
 
                     <?php if ($isPremiumUser || !$isPremiumArticle): ?>
                         <?= $article->renderContent() ?>
@@ -250,7 +250,7 @@ page_head($article->title, $isSystemAdmin);
                         <div style="display:flex;flex-direction:column;gap:16px">
                             <?php foreach ($comments as $comment):
                                 $canDelete = $comment->userId === $user->id;
-                            ?>
+                                ?>
                                 <div class="card" style="padding:16px 20px">
                                     <div class="flex items-center gap-3" style="margin-bottom:10px">
                                         <div class="author-avatar" style="width:34px;height:34px;font-size:13px;flex-shrink:0"><?= htmlspecialchars($comment->initial()) ?></div>

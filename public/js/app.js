@@ -130,7 +130,9 @@ if (flagForm && flagBtn && flagModal) {
         const detailsValue = (detailsInput?.value || '').trim();
 
         if (detailsValue.length < minFlagDetailsLength) {
-            alert(`Please enter at least ${minFlagDetailsLength} characters so we can review the report properly.`);
+            alert(
+                `Please enter at least ${minFlagDetailsLength} characters so we can review the report properly.`
+            );
             if (detailsInput) detailsInput.focus();
             return;
         }
@@ -147,7 +149,7 @@ if (flagForm && flagBtn && flagModal) {
         try {
             const res = await fetch('/actions/flag-article.php', {
                 method: 'POST',
-                body: formData
+                body: formData,
             });
 
             const data = await res.json();
@@ -177,7 +179,9 @@ if (commentForm && commentBody) {
 
         if (commentValue.length < minFlagDetailsLength) {
             event.preventDefault();
-            alert(`Please enter at least ${minFlagDetailsLength} characters before posting your comment.`);
+            alert(
+                `Please enter at least ${minFlagDetailsLength} characters before posting your comment.`
+            );
             commentBody.focus();
             return;
         }
@@ -226,7 +230,7 @@ function highlightParagraph(index) {
         paragraphs[index].classList.add('highlight-reading');
         paragraphs[index].scrollIntoView({
             behavior: 'smooth',
-            block: 'center'
+            block: 'center',
         });
     }
 }
@@ -285,105 +289,104 @@ function stopReading() {
 }
 
 // share article func
-document.addEventListener("DOMContentLoaded", () => {
-    const shareBtn = document.getElementById("shareBtn");
-    const shareMenu = document.getElementById("shareMenu");
+document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('shareBtn');
+    const shareMenu = document.getElementById('shareMenu');
 
     if (!shareBtn || !shareMenu) return;
 
     // Toggle menu
-    shareBtn.addEventListener("click", async (e) => {
-    e.stopPropagation();
+    shareBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
 
-    // Get clean URL
-    const url = new URL(window.location.href);
-    url.searchParams.delete("return");
-    const shareUrl = url.toString();
+        // Get clean URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('return');
+        const shareUrl = url.toString();
 
-    const title = document.title;
+        const title = document.title;
 
-    // ✅ Native mobile share (if supported)
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        // ✅ Native mobile share (if supported)
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    if (navigator.share && isMobile) {
-        try {
-            await navigator.share({
-                title: title,
-                text: title,
-                url: shareUrl
-            });
-        } catch (err) {
-            // User cancelled → do nothing
+        if (navigator.share && isMobile) {
+            try {
+                await navigator.share({
+                    title: title,
+                    text: title,
+                    url: shareUrl,
+                });
+            } catch (err) {
+                // User cancelled → do nothing
+            }
+            return;
         }
-        return;
-    }
 
-    // ❌ Fallback → show your menu (desktop)
-    shareMenu.classList.toggle("hidden");
-});
+        // ❌ Fallback → show your menu (desktop)
+        shareMenu.classList.toggle('hidden');
+    });
 
     // Close when clicking outside
-    document.addEventListener("click", () => {
-        shareMenu.classList.add("hidden");
+    document.addEventListener('click', () => {
+        shareMenu.classList.add('hidden');
     });
 });
 
-
 // detect if share link to platform or copy link and proceed to share its link to the selected platform
-document.addEventListener("DOMContentLoaded", () => {
-    const shareOptions = document.querySelectorAll(".share-option");
+document.addEventListener('DOMContentLoaded', () => {
+    const shareOptions = document.querySelectorAll('.share-option');
 
-    shareOptions.forEach(option => {
-        option.addEventListener("click", async (e) => {
+    shareOptions.forEach((option) => {
+        option.addEventListener('click', async (e) => {
             const platform = option.dataset.platform;
 
             // Get clean URL (remove &return=...)
             const url = new URL(window.location.href);
-            url.searchParams.delete("return");
+            url.searchParams.delete('return');
 
             const shareUrl = url.toString();
 
-            if (platform === "copy") {
+            if (platform === 'copy') {
                 try {
                     await navigator.clipboard.writeText(shareUrl);
-                    showToast("Link copied!");
+                    showToast('Link copied!');
                 } catch (err) {
-                    showToast("Failed to copy link");
+                    showToast('Failed to copy link');
                 }
             }
-    
-            if (platform === "whatsapp") {
-            const title = document.title;
-            const text = `${shareUrl}\n\n${title}`;
 
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            if (platform === 'whatsapp') {
+                const title = document.title;
+                const text = `${shareUrl}\n\n${title}`;
 
-            window.open(whatsappUrl, "_blank");
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+                window.open(whatsappUrl, '_blank');
             }
 
-            if (platform === "telegram") {
-            const title = document.title;
-            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent("\n" + title)}`;
-            window.open(telegramUrl, "_blank");
-            shareMenu.classList.add("hidden");
+            if (platform === 'telegram') {
+                const title = document.title;
+                const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('\n' + title)}`;
+                window.open(telegramUrl, '_blank');
+                shareMenu.classList.add('hidden');
             }
-            if (platform === "email") {
-            const title = document.title;
-            const subject = encodeURIComponent("Check out this article on SharedSpace");
-            const body = encodeURIComponent(`${shareUrl}\n\n${title}`);
-            const mailtoUrl = `mailto:?subject=${subject}&body=${body}`;
-            window.location.href = mailtoUrl;
-            shareMenu.classList.add("hidden");
+            if (platform === 'email') {
+                const title = document.title;
+                const subject = encodeURIComponent('Check out this article on SharedSpace');
+                const body = encodeURIComponent(`${shareUrl}\n\n${title}`);
+                const mailtoUrl = `mailto:?subject=${subject}&body=${body}`;
+                window.location.href = mailtoUrl;
+                shareMenu.classList.add('hidden');
             }
-            if (platform === "twitter") {
-            const title = document.title;
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}`;
-            window.open(twitterUrl, "_blank");
-            shareMenu.classList.add("hidden");
+            if (platform === 'twitter') {
+                const title = document.title;
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}`;
+                window.open(twitterUrl, '_blank');
+                shareMenu.classList.add('hidden');
             }
-            if (platform === "print") {
-            window.print();
-            shareMenu.classList.add("hidden");
+            if (platform === 'print') {
+                window.print();
+                shareMenu.classList.add('hidden');
             }
         });
     });
@@ -392,33 +395,32 @@ document.addEventListener("DOMContentLoaded", () => {
 // ── Mobile sidebar toggle ──────────────────────────────────────────────────
 (function () {
     var hamburger = document.getElementById('hamburgerBtn');
-    var sidebar   = document.getElementById('sidebar');
-    var overlay   = document.getElementById('sidebarOverlay');
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
 
     if (!hamburger || !sidebar || !overlay) return;
 
-        // Ensure clean state on page load
+    // Ensure clean state on page load
     hamburger.setAttribute('aria-expanded', 'false');
     sidebar.classList.remove('sidebar-open');
     overlay.classList.remove('active');
     document.body.style.overflow = '';
 
+    function openSidebar() {
+        sidebar.classList.add('sidebar-open');
+        overlay.classList.add('active');
+        hamburger.setAttribute('aria-expanded', 'true');
+        hamburger.style.visibility = 'hidden';
+        document.body.style.overflow = 'hidden';
+    }
 
-function openSidebar() {
-    sidebar.classList.add('sidebar-open');
-    overlay.classList.add('active');
-    hamburger.setAttribute('aria-expanded', 'true');
-    hamburger.style.visibility = 'hidden';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeSidebar() {
-    sidebar.classList.remove('sidebar-open');
-    overlay.classList.remove('active');
-    hamburger.setAttribute('aria-expanded', 'false');
-    hamburger.style.visibility = 'visible';
-    document.body.style.overflow = '';
-}
+    function closeSidebar() {
+        sidebar.classList.remove('sidebar-open');
+        overlay.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.style.visibility = 'visible';
+        document.body.style.overflow = '';
+    }
 
     hamburger.addEventListener('click', function () {
         if (sidebar.classList.contains('sidebar-open')) {

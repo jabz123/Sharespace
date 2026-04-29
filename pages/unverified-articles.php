@@ -3,7 +3,8 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
 
-function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
+function pageRedirect(string $url, ?string $error = null, ?string $success = null): never
+{
     redirect($url, $error, $success);
 }
 
@@ -19,12 +20,12 @@ if ($user->role !== 'category_admin') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    $articleId = (int)($_POST['article_id'] ?? 0);
+    $articleId = (int) ($_POST['article_id'] ?? 0);
 
     if (in_array($action, ['verify_article', 'unverify_article'], true) && $articleId > 0) {
         $decision = $action === 'verify_article' ? 'verified' : 'unverified';
         try {
-            $result = $adminCtrl->reviewPendingArticle($articleId, (int)$user->id, $decision);
+            $result = $adminCtrl->reviewPendingArticle($articleId, (int) $user->id, $decision);
         } catch (Throwable $error) {
             error_log('Expert article review failed: ' . $error->getMessage());
             pageRedirect('/pages/unverified-articles.php', 'Unable to review article. Please try again.');
@@ -41,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$detailId = (int)($_GET['id'] ?? 0);
-$assignedCategories = $adminCtrl->getAssignedCategoriesForExpert((int)$user->id);
-$unverifiedArticles = $adminCtrl->getUnverifiedArticlesForExpert((int)$user->id);
-$detailRow = $detailId ? $adminCtrl->getUnverifiedArticleForExpert((int)$user->id, $detailId) : null;
+$detailId = (int) ($_GET['id'] ?? 0);
+$assignedCategories = $adminCtrl->getAssignedCategoriesForExpert((int) $user->id);
+$unverifiedArticles = $adminCtrl->getUnverifiedArticlesForExpert((int) $user->id);
+$detailRow = $detailId ? $adminCtrl->getUnverifiedArticleForExpert((int) $user->id, $detailId) : null;
 $detailArticle = $detailRow ? new Article($detailRow) : null;
 $reviewProgress = $detailArticle ? $adminCtrl->getExpertReviewProgress($detailArticle->id) : [];
 
@@ -98,7 +99,7 @@ page_head('Unverified Articles');
             <div style="display:flex;flex-direction:column;gap:10px">
                 <?php foreach ($reviewProgress as $reviewer): ?>
                     <?php
-                    $status = strtolower((string)($reviewer['status'] ?? 'pending'));
+                    $status = strtolower((string) ($reviewer['status'] ?? 'pending'));
                     $badgeStyle = $status === 'verified'
                         ? 'background:#22c55e;color:#111827;'
                         : ($status === 'unverified'
@@ -152,9 +153,9 @@ page_head('Unverified Articles');
                             <div style="flex:1;min-width:0">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="category-tag <?= category_theme_class($article['category_name']) ?>"><?= htmlspecialchars($article['category_name']) ?></span>
-                                    <?= trust_badge((int)$article['trust_score']) ?>
+                                    <?= trust_badge((int) $article['trust_score']) ?>
                                     <span class="role-badge" style="background:#f59e0b;color:#111827">
-                                        <?= (int)($article['verified_reviews'] ?? 0) ?> verified
+                                        <?= (int) ($article['verified_reviews'] ?? 0) ?> verified
                                     </span>
                                 </div>
                                 <h3 style="font-size:16px;font-weight:700;font-family:Georgia,serif;margin-bottom:4px">
@@ -169,7 +170,7 @@ page_head('Unverified Articles');
                             </div>
 
                             <div class="flex items-center gap-2" style="flex-wrap:wrap">
-                                <a href="/pages/unverified-articles.php?id=<?= (int)$article['id'] ?>" class="btn btn-ghost btn-sm">Review</a>
+                                <a href="/pages/unverified-articles.php?id=<?= (int) $article['id'] ?>" class="btn btn-ghost btn-sm">Review</a>
                             </div>
                         </div>
                     </div>

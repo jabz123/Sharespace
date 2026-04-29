@@ -19,10 +19,10 @@ if ($auth->currentUser()) {
 $previewArticles = $articleCtrl->getPreview(3);
 $hero = DB::first("SELECT * FROM landing_sections WHERE section_key = 'hero'");
 $demoVideo = DB::first("SELECT * FROM landing_sections WHERE section_key = 'demo_video'");
-$features = DB::query("SELECT * FROM landing_features ORDER BY display_order ASC");
-$steps = DB::query("SELECT * FROM landing_steps ORDER BY display_order ASC");
-$plans = DB::query("SELECT * FROM landing_pricing_plans ORDER BY display_order ASC");
-$pricingFeatures = DB::query("SELECT * FROM landing_pricing_features ORDER BY display_order ASC");
+$features = DB::query('SELECT * FROM landing_features ORDER BY display_order ASC');
+$steps = DB::query('SELECT * FROM landing_steps ORDER BY display_order ASC');
+$plans = DB::query('SELECT * FROM landing_pricing_plans ORDER BY display_order ASC');
+$pricingFeatures = DB::query('SELECT * FROM landing_pricing_features ORDER BY display_order ASC');
 
 DB::ensureSiteFeedbackSentimentColumns();
 $testimonials = DB::query("
@@ -38,14 +38,18 @@ $testimonials = DB::query("
 
 function score_class(int $score): string
 {
-    if ($score >= 80) return 'score-high';
-    if ($score >= 60) return 'score-mid';
+    if ($score >= 80) {
+        return 'score-high';
+    }
+    if ($score >= 60) {
+        return 'score-mid';
+    }
     return 'score-low';
 }
 
 function youtubeEmbedUrl(?string $url): string
 {
-    $url = trim((string)$url);
+    $url = trim((string) $url);
 
     if ($url === '') {
         return '';
@@ -224,12 +228,12 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                             <p class="preview-excerpt">
                                 <?php
                                 $excerpt = $article->excerpt;
-                                if (mb_strlen($excerpt, 'UTF-8') > 120) {
-                                    echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
-                                } else {
-                                    echo htmlspecialchars($excerpt);
-                                }
-                                ?>
+                        if (mb_strlen($excerpt, 'UTF-8') > 120) {
+                            echo htmlspecialchars(mb_substr($excerpt, 0, 120, 'UTF-8')) . '...';
+                        } else {
+                            echo htmlspecialchars($excerpt);
+                        }
+                        ?>
                             </p>
 
                             <div class="preview-footer">
@@ -375,7 +379,7 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
                         </p>
 
                         <div class="review-footer">
-                            <div class="review-stars"><?= (int)$testimonial['rating'] ?>/5 rating</div>
+                            <div class="review-stars"><?= (int) $testimonial['rating'] ?>/5 rating</div>
                         </div>
                     </div>
                 <?php endforeach; ?>

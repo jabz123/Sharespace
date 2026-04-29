@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/article_flag_rules.php';
 
 function comment_moderation_reject(string $comment, string $label = 'Comment'): ?string

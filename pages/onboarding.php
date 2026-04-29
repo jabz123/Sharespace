@@ -14,13 +14,13 @@ $articleCtrl = new ArticleController();
 $user = $auth->currentUser();
 
 if (!$user) {
-    header("Location: /login.php");
+    header('Location: /login.php');
     exit;
 }
 
 // prevent users who completed onboarding from returning here
 if ($onboardCtrl->isCompleted($user->id)) {
-    header("Location: /dashboard.php");
+    header('Location: /dashboard.php');
     exit;
 }
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_POST['interests'] ?? []
     );
     if (isset($result['ok'])) {
-        header("Location: /dashboard.php");
+        header('Location: /dashboard.php');
         exit;
     }
     $error = $result['error'];

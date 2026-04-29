@@ -24,7 +24,7 @@ $isSystemAdmin = $user->role === 'system_admin';
 $category = $_GET['category'] ?? null;
 $sort = $_GET['sort'] ?? 'recent';
 $search = $_GET['search'] ?? null;
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 12;
 $offset = ($page - 1) * $perPage;
 $totalArticles = $articleCtrl->countByCategory($category, $search);
@@ -354,7 +354,7 @@ page_head('Browse Articles', $isSystemAdmin);
 
                         <div class="browse-hero-stats">
                             <div class="browse-hero-stat">
-                                <strong><?= (int)$totalArticles ?></strong>
+                                <strong><?= (int) $totalArticles ?></strong>
                                 <span>Verified stories</span>
                             </div>
                             <div class="browse-hero-stat">
@@ -405,7 +405,7 @@ page_head('Browse Articles', $isSystemAdmin);
                                 <div class="browse-featured-overlay"></div>
                                 <div class="browse-featured-topline">
                                     <span class="browse-featured-tag">Top story</span>
-                                    <span class="browse-featured-score"><?= (int)$featuredArticle->trustScore ?>%</span>
+                                    <span class="browse-featured-score"><?= (int) $featuredArticle->trustScore ?>%</span>
                                 </div>
                             </div>
 
@@ -428,10 +428,10 @@ page_head('Browse Articles', $isSystemAdmin);
                                 <div class="browse-featured-credibility">
                                     <div class="browse-featured-cred-head">
                                         <span>Credibility score</span>
-                                        <span><?= (int)$featuredArticle->trustScore ?>%</span>
+                                        <span><?= (int) $featuredArticle->trustScore ?>%</span>
                                     </div>
                                     <div class="browse-featured-track">
-                                        <span style="width: <?= max(12, min(100, (int)$featuredArticle->trustScore)) ?>%"></span>
+                                        <span style="width: <?= max(12, min(100, (int) $featuredArticle->trustScore)) ?>%"></span>
                                     </div>
                                 </div>
 
@@ -451,8 +451,8 @@ page_head('Browse Articles', $isSystemAdmin);
                                     </div>
 
                                     <div class="browse-featured-stats">
-                                        <span><?= (int)$featuredArticle->viewCount ?> views</span>
-                                        <span><?= (int)$featuredComments ?> comments</span>
+                                        <span><?= (int) $featuredArticle->viewCount ?> views</span>
+                                        <span><?= (int) $featuredComments ?> comments</span>
                                     </div>
                                 </div>
                             </div>

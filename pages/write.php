@@ -4,13 +4,15 @@ require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 
-function pageRedirect(string $url, ?string $error = null, ?string $success = null): never {
+function pageRedirect(string $url, ?string $error = null, ?string $success = null): never
+{
     redirect($url, $error, $success);
 }
 
-function buildArticleVerificationFingerprint(array $input, int $userId): string {
+function buildArticleVerificationFingerprint(array $input, int $userId): string
+{
     $normalize = static function ($value): string {
-        return trim(str_replace(["\r\n", "\r"], "\n", (string)$value));
+        return trim(str_replace(["\r\n", "\r"], "\n", (string) $value));
     };
 
     $payload = [
@@ -18,14 +20,15 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string 
         'title' => $normalize($input['title'] ?? ''),
         'excerpt' => $normalize($input['excerpt'] ?? ''),
         'content' => $normalize($input['content'] ?? ''),
-        'category_id' => (int)($input['category_id'] ?? 0),
+        'category_id' => (int) ($input['category_id'] ?? 0),
         'source_url' => $normalize($input['source_url'] ?? ''),
     ];
 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
-function resolveStoredArticleVerification(?Article $article, string $fingerprint): ?array {
+function resolveStoredArticleVerification(?Article $article, string $fingerprint): ?array
+{
     if (!$article) {
         return null;
     }
@@ -43,7 +46,8 @@ function resolveStoredArticleVerification(?Article $article, string $fingerprint
     return is_array($decoded) ? $decoded : null;
 }
 
-function persistArticleVerification(int $articleId, int $authorId, array $verification): void {
+function persistArticleVerification(int $articleId, int $authorId, array $verification): void
+{
     if ($articleId <= 0 || empty($verification['fingerprint'])) {
         return;
     }
@@ -53,7 +57,7 @@ function persistArticleVerification(int $articleId, int $authorId, array $verifi
          SET verification_fingerprint = ?, verification_payload = ?, verification_checked_at = NOW()
          WHERE id = ? AND author_id = ?',
         [
-            (string)$verification['fingerprint'],
+            (string) $verification['fingerprint'],
             json_encode($verification, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             $articleId,
             $authorId,
@@ -72,7 +76,7 @@ $canUploadImage = ($user->role === 'premium' || $user->role === 'category_admin'
 
 $categories = $articleCtrl->getAllCategories();
 
-$editId = (int)($_GET['id'] ?? 0);
+$editId = (int) ($_GET['id'] ?? 0);
 $article = null;
 $isEdit = false;
 
@@ -94,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $isEdit && $article && $article->re
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? 'publish';
     $imagePath = $article->imagePath ?? null;
-    $requestFingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+    $requestFingerprint = buildArticleVerificationFingerprint($_POST, (int) $user->id);
     $requestVerification = $_SESSION['article_ai_verification'] ?? null;
     $hasRequestVerification = is_array($requestVerification)
         && (($requestVerification['fingerprint'] ?? '') === $requestFingerprint);
@@ -135,14 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (isset($result['ok'])) {
-            $savedArticleId = $isEdit ? $editId : (int)($result['id'] ?? 0);
+            $savedArticleId = $isEdit ? $editId : (int) ($result['id'] ?? 0);
             if ($hasRequestVerification && $savedArticleId > 0) {
-                persistArticleVerification($savedArticleId, (int)$user->id, $requestVerification);
+                persistArticleVerification($savedArticleId, (int) $user->id, $requestVerification);
             }
             pageRedirect('/pages/my-articles.php', null, 'Draft saved!');
         }
     } else {
-        $fingerprint = buildArticleVerificationFingerprint($_POST, (int)$user->id);
+        $fingerprint = buildArticleVerificationFingerprint($_POST, (int) $user->id);
         $verification = $_SESSION['article_ai_verification'] ?? null;
         $storedVerification = $isEdit ? resolveStoredArticleVerification($article, $fingerprint) : null;
         if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $fingerprint)) {
@@ -151,8 +155,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $isVerificationCurrent = is_array($verification)
             && ($verification['fingerprint'] ?? '') === $fingerprint;
-        $verifiedTrustScore = $isVerificationCurrent ? (int)($verification['trust_score'] ?? 0) : 0;
-        $verifiedDecision = $isVerificationCurrent ? trim((string)($verification['publish_decision'] ?? '')) : '';
+        $verifiedTrustScore = $isVerificationCurrent ? (int) ($verification['trust_score'] ?? 0) : 0;
+        $verifiedDecision = $isVerificationCurrent ? trim((string) ($verification['publish_decision'] ?? '')) : '';
         $hasPassingVerification = $isVerificationCurrent
             && !empty($verification['passed'])
             && $verifiedTrustScore >= $needsReviewTrustScore
@@ -188,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
                     } catch (Throwable $error) {
                         error_log('Expert review resubmission failed: ' . $error->getMessage());
-                        pageRedirect('/pages/write.php?id=' . (int)$editId, 'Unable to submit this article for category expert review. Please try again.');
+                        pageRedirect('/pages/write.php?id=' . (int) $editId, 'Unable to submit this article for category expert review. Please try again.');
                     }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
@@ -221,7 +225,7 @@ $currentVerificationInput = [
     'source_url' => $_POST['source_url'] ?? ($article?->sourceUrl ?? ''),
 ];
 $verification = $_SESSION['article_ai_verification'] ?? null;
-$verificationFingerprint = buildArticleVerificationFingerprint($currentVerificationInput, (int)$user->id);
+$verificationFingerprint = buildArticleVerificationFingerprint($currentVerificationInput, (int) $user->id);
 $storedVerification = $isEdit ? resolveStoredArticleVerification($article, $verificationFingerprint) : null;
 if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $verificationFingerprint)) {
     $verification = $storedVerification;
@@ -231,19 +235,19 @@ $hasCurrentVerification = is_array($verification)
     && ($verification['fingerprint'] ?? '') === $verificationFingerprint;
 $verificationPassed = $hasCurrentVerification
     && !empty($verification['passed'])
-    && (int)($verification['trust_score'] ?? 0) >= $needsReviewTrustScore
-    && in_array(trim((string)($verification['publish_decision'] ?? '')), ['auto_publish', 'needs_review'], true);
+    && (int) ($verification['trust_score'] ?? 0) >= $needsReviewTrustScore
+    && in_array(trim((string) ($verification['publish_decision'] ?? '')), ['auto_publish', 'needs_review'], true);
 $initialDecision = $hasCurrentVerification
-    ? trim((string)($verification['publish_decision'] ?? ''))
+    ? trim((string) ($verification['publish_decision'] ?? ''))
     : '';
 $initialTrustScore = $hasCurrentVerification
-    ? (int)($verification['trust_score'] ?? 0)
-    : (int)($_POST['trust_score'] ?? 0);
+    ? (int) ($verification['trust_score'] ?? 0)
+    : (int) ($_POST['trust_score'] ?? 0);
 $initialSummary = $hasCurrentVerification
-    ? trim((string)($verification['summary'] ?? ''))
+    ? trim((string) ($verification['summary'] ?? ''))
     : '';
 $initialVerdict = $hasCurrentVerification
-    ? trim((string)($verification['verdict'] ?? ''))
+    ? trim((string) ($verification['verdict'] ?? ''))
     : '';
 $initialMetrics = $hasCurrentVerification && is_array($verification['metrics'] ?? null)
     ? $verification['metrics']
@@ -264,7 +268,7 @@ $initialRubricMetrics = $hasCurrentVerification && is_array($verification['rubri
         'completeness' => 0,
     ];
 $initialSourceLabel = $hasCurrentVerification
-    ? trim((string)($verification['source_label'] ?? ''))
+    ? trim((string) ($verification['source_label'] ?? ''))
     : '';
 $initialHighlights = $hasCurrentVerification && is_array($verification['misinformation_highlights'] ?? null)
     ? $verification['misinformation_highlights']
@@ -297,7 +301,7 @@ $val = [
     'trust_score' => $initialTrustScore,
 ];
 
-//determines whether article is to be edited or written 
+//determines whether article is to be edited or written
 page_head($isEdit ? 'Edit Article' : 'Write Article');
 ?>
 <div class="dashboard-layout user-dashboard-shell">
@@ -315,9 +319,9 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         <?php endif; ?>
 
         <div class="page-content write-layout write-editor-shell">
-            <form method="POST" action="/pages/write.php<?= $isEdit ? '?id=' . (int)$editId : '' ?>" target="_self" id="write-form" enctype="multipart/form-data" class="write-editor-form">
+            <form method="POST" action="/pages/write.php<?= $isEdit ? '?id=' . (int) $editId : '' ?>" target="_self" id="write-form" enctype="multipart/form-data" class="write-editor-form">
                 <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
-                <input type="hidden" name="trust_score" id="trustScoreInput" value="<?= (int)$val['trust_score'] ?>">
+                <input type="hidden" name="trust_score" id="trustScoreInput" value="<?= (int) $val['trust_score'] ?>">
 
                 <?php if ($canUploadImage): ?>
                 <div class="image-upload-container">
@@ -347,7 +351,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                     <div class="write-field-head">
                         <label for="excerpt">Brief description</label>
                         <div class="profile-bio-counter">
-                            <span id="excerptCounter"><?= strlen((string)$val['excerpt']) ?> / 200</span>
+                            <span id="excerptCounter"><?= strlen((string) $val['excerpt']) ?> / 200</span>
                         </div>
                     </div>
                     <input
@@ -364,7 +368,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                     <select name="category_id" required>
                         <option value="">Select category</option>
                         <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat->id ?>" <?= (int)$val['category_id'] === $cat->id ? 'selected' : '' ?>>
+                            <option value="<?= $cat->id ?>" <?= (int) $val['category_id'] === $cat->id ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($cat->name) ?>
                             </option>
                         <?php endforeach; ?>
@@ -409,8 +413,8 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         >
                             <?php
                             $isDraft = !$isEdit || ($article->status === 'draft');
-                            echo $isDraft ? 'Publish Article' : 'Save Changes';
-                            ?>
+echo $isDraft ? 'Publish Article' : 'Save Changes';
+?>
                         </button>
                     </div>
                     <p class="publish-status text-muted" id="publishStatus">
@@ -426,7 +430,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         } else {
                             echo 'Run AI Fact Check. Results from 60% to 80% go to category admin review, and 81% or above publishes directly.';
                         }
-                        ?>
+?>
                     </p>
                 </div>
             </form>
@@ -459,9 +463,9 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                         <section class="ai-overview-card">
                             <div class="ai-overview-grid">
                                 <div class="ai-score-wrap">
-                                    <div class="ai-score-ring" id="aiScoreRing" style="--score: <?= max(0, min(100, (int)$initialTrustScore)) ?>;">
+                                    <div class="ai-score-ring" id="aiScoreRing" style="--score: <?= max(0, min(100, (int) $initialTrustScore)) ?>;">
                                         <div class="ai-score-ring-inner">
-                                            <span id="aiTrustScore"><?= (int)$initialTrustScore ?>%</span>
+                                            <span id="aiTrustScore"><?= (int) $initialTrustScore ?>%</span>
                                             <span>Trust Score</span>
                                         </div>
                                     </div>
@@ -470,14 +474,14 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                 <div class="ai-overview-copy">
                                     <span class="ai-overview-kicker">Verification Summary</span>
                                     <h4 id="aiVerdictHeadline"><?=
-                                        htmlspecialchars(
-                                            $initialDecision === 'auto_publish'
-                                                ? 'Reliable'
-                                                : ($initialDecision === 'needs_review'
-                                                    ? 'Needs Review'
-                                                    : ($initialDecision === 'unreliable' ? 'Unreliable' : 'Waiting for verification'))
-                                        )
-                                    ?></h4>
+                htmlspecialchars(
+                    $initialDecision === 'auto_publish'
+                        ? 'Reliable'
+                        : ($initialDecision === 'needs_review'
+                            ? 'Needs Review'
+                            : ($initialDecision === 'unreliable' ? 'Unreliable' : 'Waiting for verification'))
+                )
+?></h4>
                                     <p id="aiSummary"><?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?></p>
                                     <p id="aiSourceLabel" class="ai-source-label" style="display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
                                 </div>
@@ -500,14 +504,14 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                 </div>
                                 <div class="ai-meta-card">
                                     <span class="ai-meta-label">Claims Checked</span>
-                                    <strong id="aiTotalClaimsInline"><?= (int)($initialClaimSummary['total'] ?? 0) ?></strong>
+                                    <strong id="aiTotalClaimsInline"><?= (int) ($initialClaimSummary['total'] ?? 0) ?></strong>
                                 </div>
                             </div>
 
                             <div id="aiClaimSummaryBox" class="ai-pill-row" style="display:<?= $initialClaimSummary['total'] > 0 ? 'flex' : 'none' ?>;">
-                                <span id="aiClaimSupportedBadge" class="ai-pill ai-pill-supported"><?= (int)($initialClaimSummary['supported'] ?? 0) ?> Supported</span>
-                                <span id="aiClaimContradictedBadge" class="ai-pill ai-pill-contradicted"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?> Contradicted</span>
-                                <span id="aiClaimWeakBadge" class="ai-pill ai-pill-weak"><?= (int)($initialClaimSummary['weak'] ?? 0) ?> Needs Support</span>
+                                <span id="aiClaimSupportedBadge" class="ai-pill ai-pill-supported"><?= (int) ($initialClaimSummary['supported'] ?? 0) ?> Supported</span>
+                                <span id="aiClaimContradictedBadge" class="ai-pill ai-pill-contradicted"><?= (int) ($initialClaimSummary['contradicted'] ?? 0) ?> Contradicted</span>
+                                <span id="aiClaimWeakBadge" class="ai-pill ai-pill-weak"><?= (int) ($initialClaimSummary['weak'] ?? 0) ?> Needs Support</span>
                             </div>
                         </section>
 
@@ -517,22 +521,22 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </div>
                             <div class="ai-breakdown-grid">
                                 <div class="ai-stat-card ai-stat-supported">
-                                    <strong id="aiSupportedCount"><?= (int)($initialClaimSummary['supported'] ?? 0) ?></strong>
+                                    <strong id="aiSupportedCount"><?= (int) ($initialClaimSummary['supported'] ?? 0) ?></strong>
                                     <span>Supported</span>
                                     <p>Claims backed by reliable sources</p>
                                 </div>
                                 <div class="ai-stat-card ai-stat-contradicted">
-                                    <strong id="aiContradictedCount"><?= (int)($initialClaimSummary['contradicted'] ?? 0) ?></strong>
+                                    <strong id="aiContradictedCount"><?= (int) ($initialClaimSummary['contradicted'] ?? 0) ?></strong>
                                     <span>Contradicted</span>
                                     <p>Claims contradicted by credible sources</p>
                                 </div>
                                 <div class="ai-stat-card ai-stat-weak">
-                                    <strong id="aiWeakCount"><?= (int)($initialClaimSummary['weak'] ?? 0) ?></strong>
+                                    <strong id="aiWeakCount"><?= (int) ($initialClaimSummary['weak'] ?? 0) ?></strong>
                                     <span>Needs Support</span>
                                     <p>Claims need more evidence or context</p>
                                 </div>
                                 <div class="ai-stat-card ai-stat-total">
-                                    <strong id="aiTotalClaimsCount"><?= (int)($initialClaimSummary['total'] ?? 0) ?></strong>
+                                    <strong id="aiTotalClaimsCount"><?= (int) ($initialClaimSummary['total'] ?? 0) ?></strong>
                                     <span>Total Claims</span>
                                     <p>AI identified factual claims in this article</p>
                                 </div>
@@ -570,21 +574,21 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                 <?php foreach ($initialMatchedSources as $source): ?>
                                     <div class="ai-source-card">
                                         <div class="ai-source-topline">
-                                            <span class="ai-source-name"><?= htmlspecialchars((string)($source['name'] ?? 'Trusted source')) ?></span>
-                                            <span class="ai-source-match"><?= htmlspecialchars((string)($source['match_type'] ?? 'related')) ?></span>
+                                            <span class="ai-source-name"><?= htmlspecialchars((string) ($source['name'] ?? 'Trusted source')) ?></span>
+                                            <span class="ai-source-match"><?= htmlspecialchars((string) ($source['match_type'] ?? 'related')) ?></span>
                                         </div>
-                                        <strong><?= htmlspecialchars((string)($source['title'] ?? $source['name'] ?? '')) ?></strong>
+                                        <strong><?= htmlspecialchars((string) ($source['title'] ?? $source['name'] ?? '')) ?></strong>
                                         <p class="text-muted" style="font-size:12px; margin:0 0 6px; line-height:1.5;">
-                                            <?= htmlspecialchars((string)($source['name'] ?? '')) ?>
+                                            <?= htmlspecialchars((string) ($source['name'] ?? '')) ?>
                                             <?php if (!empty($source['source_type'])): ?>
-                                                · <?= htmlspecialchars((string)$source['source_type']) ?>
+                                                · <?= htmlspecialchars((string) $source['source_type']) ?>
                                             <?php endif; ?>
                                         </p>
                                         <?php if (!empty($source['source_type'])): ?>
-                                            <p class="ai-source-type"><?= htmlspecialchars((string)$source['source_type']) ?></p>
+                                            <p class="ai-source-type"><?= htmlspecialchars((string) $source['source_type']) ?></p>
                                         <?php endif; ?>
                                         <?php if (!empty($source['url'])): ?>
-                                            <a href="<?= htmlspecialchars((string)$source['url']) ?>" target="_blank" rel="noopener noreferrer" style="font-size:12px; word-break:break-all;">View source</a>
+                                            <a href="<?= htmlspecialchars((string) $source['url']) ?>" target="_blank" rel="noopener noreferrer" style="font-size:12px; word-break:break-all;">View source</a>
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
@@ -596,34 +600,34 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                 <summary class="ai-sources-summary">
                                     <span class="ai-sources-summary-text">
                                         <strong>Supported</strong>
-                                        <small id="aiClaimsCountLabel"><?= count(array_filter($initialClaims, static fn($claim): bool => (string)($claim['status'] ?? '') === 'supported')) ?> claims</small>
+                                        <small id="aiClaimsCountLabel"><?= count(array_filter($initialClaims, static fn ($claim): bool => (string) ($claim['status'] ?? '') === 'supported')) ?> claims</small>
                                     </span>
                                     <span class="ai-sources-summary-icon" aria-hidden="true"></span>
                                 </summary>
                                 <div id="aiClaimsList" class="ai-issues-list">
                                 <?php foreach ($initialClaims as $claim): ?>
                                     <?php
-                                    $status = trim((string)($claim['status'] ?? 'supported'));
+                                    $status = trim((string) ($claim['status'] ?? 'supported'));
                                     if ($status !== 'supported') {
                                         continue;
                                     }
                                     $label = $status === 'contradicted' ? 'Contradicted' : ($status === 'weak' ? 'Needs Support' : 'Supported');
                                     $statusClass = $status === 'contradicted' ? 'is-contradicted' : ($status === 'weak' ? 'is-weak' : 'is-supported');
-                                    $claimKey = (string)($claim['claim_key'] ?? substr(sha1((string)($claim['text'] ?? '') . '|' . (string)($claim['status'] ?? 'supported')), 0, 12));
+                                    $claimKey = (string) ($claim['claim_key'] ?? substr(sha1((string) ($claim['text'] ?? '') . '|' . (string) ($claim['status'] ?? 'supported')), 0, 12));
                                     ?>
                                     <button
                                         type="button"
                                         class="ai-issue-card <?= $statusClass ?>"
                                         data-claim-key="<?= htmlspecialchars($claimKey) ?>"
-                                        data-highlight-key="<?= htmlspecialchars((string)($claim['sentence_key'] ?? trim(preg_replace('/\s+/', ' ', (string)($claim['draft_sentence'] ?? ''))))) ?>"
+                                        data-highlight-key="<?= htmlspecialchars((string) ($claim['sentence_key'] ?? trim(preg_replace('/\s+/', ' ', (string) ($claim['draft_sentence'] ?? ''))))) ?>"
                                     >
                                         <span class="ai-issue-badge"><?= $label ?></span>
-                                        <span class="ai-issue-text"><?= htmlspecialchars((string)($claim['text'] ?? '')) ?></span>
+                                        <span class="ai-issue-text"><?= htmlspecialchars((string) ($claim['text'] ?? '')) ?></span>
                                         <span class="ai-issue-meta">
                                             <?php if (!empty($claim['reason'])): ?>
-                                                <?= htmlspecialchars((string)$claim['reason']) ?>
+                                                <?= htmlspecialchars((string) $claim['reason']) ?>
                                             <?php else: ?>
-                                                Match Score: <?= htmlspecialchars((string)round((float)($claim['match_score'] ?? 0), 2)) ?>
+                                                Match Score: <?= htmlspecialchars((string) round((float) ($claim['match_score'] ?? 0), 2)) ?>
                                             <?php endif; ?>
                                         </span>
                                         <span class="ai-issue-action">Jump to sentence</span>
@@ -639,7 +643,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </div>
                             <ul id="aiImproveList" class="ai-guidance-list">
                                 <?php foreach ($initialSuggestions as $item): ?>
-                                    <li><?= htmlspecialchars((string)$item) ?></li>
+                                    <li><?= htmlspecialchars((string) $item) ?></li>
                                 <?php endforeach; ?>
                             </ul>
                         </section>
@@ -652,11 +656,11 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                 <?php foreach ($initialHighlights as $item): ?>
                                     <li>
                                         <?php if (!empty($item['line'])): ?>
-                                            <strong><?= htmlspecialchars((string)$item['line']) ?></strong><br>
+                                            <strong><?= htmlspecialchars((string) $item['line']) ?></strong><br>
                                         <?php endif; ?>
-                                        <?= htmlspecialchars((string)($item['reason'] ?? 'Unsupported or contradicted by trusted CNA/ST evidence.')) ?>
+                                        <?= htmlspecialchars((string) ($item['reason'] ?? 'Unsupported or contradicted by trusted CNA/ST evidence.')) ?>
                                         <?php if (!empty($item['source'])): ?>
-                                            <span class="text-muted">(<?= htmlspecialchars((string)$item['source']) ?>)</span>
+                                            <span class="text-muted">(<?= htmlspecialchars((string) $item['source']) ?>)</span>
                                         <?php endif; ?>
                                     </li>
                                 <?php endforeach; ?>
@@ -670,24 +674,24 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                             </div>
                             <div class="ai-metric-list">
                                 <div class="ai-metric-row">
-                                    <div class="ai-metric-label-line"><span>Factual Accuracy</span><span id="metricFactualAccuracyPoints" class="text-muted"><?= (int)($initialRubricMetrics['factual_accuracy'] ?? 0) ?>/45</span></div>
-                                    <div class="progress-bar"><div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int)($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div></div>
+                                    <div class="ai-metric-label-line"><span>Factual Accuracy</span><span id="metricFactualAccuracyPoints" class="text-muted"><?= (int) ($initialRubricMetrics['factual_accuracy'] ?? 0) ?>/45</span></div>
+                                    <div class="progress-bar"><div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int) ($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div></div>
                                 </div>
                                 <div class="ai-metric-row">
-                                    <div class="ai-metric-label-line"><span>Source Quality</span><span id="metricSourceQualityPoints" class="text-muted"><?= (int)($initialRubricMetrics['source_quality'] ?? 0) ?>/25</span></div>
-                                    <div class="progress-bar"><div id="metricSourceQuality" style="width:<?= max(0, min(100, (int)($initialMetrics['source_quality'] ?? 0))) ?>%"></div></div>
+                                    <div class="ai-metric-label-line"><span>Source Quality</span><span id="metricSourceQualityPoints" class="text-muted"><?= (int) ($initialRubricMetrics['source_quality'] ?? 0) ?>/25</span></div>
+                                    <div class="progress-bar"><div id="metricSourceQuality" style="width:<?= max(0, min(100, (int) ($initialMetrics['source_quality'] ?? 0))) ?>%"></div></div>
                                 </div>
                                 <div class="ai-metric-row">
-                                    <div class="ai-metric-label-line"><span>Bias Detection</span><span id="metricBiasDetectionPoints" class="text-muted"><?= (int)($initialRubricMetrics['bias_detection'] ?? 0) ?>/10</span></div>
-                                    <div class="progress-bar"><div id="metricBiasDetection" style="width:<?= max(0, min(100, (int)($initialMetrics['bias_detection'] ?? 0))) ?>%"></div></div>
+                                    <div class="ai-metric-label-line"><span>Bias Detection</span><span id="metricBiasDetectionPoints" class="text-muted"><?= (int) ($initialRubricMetrics['bias_detection'] ?? 0) ?>/10</span></div>
+                                    <div class="progress-bar"><div id="metricBiasDetection" style="width:<?= max(0, min(100, (int) ($initialMetrics['bias_detection'] ?? 0))) ?>%"></div></div>
                                 </div>
                                 <div class="ai-metric-row">
-                                    <div class="ai-metric-label-line"><span>Logical Consistency</span><span id="metricLogicalConsistencyPoints" class="text-muted"><?= (int)($initialRubricMetrics['logical_consistency'] ?? 0) ?>/10</span></div>
-                                    <div class="progress-bar"><div id="metricLogicalConsistency" style="width:<?= max(0, min(100, (int)($initialMetrics['logical_consistency'] ?? 0))) ?>%"></div></div>
+                                    <div class="ai-metric-label-line"><span>Logical Consistency</span><span id="metricLogicalConsistencyPoints" class="text-muted"><?= (int) ($initialRubricMetrics['logical_consistency'] ?? 0) ?>/10</span></div>
+                                    <div class="progress-bar"><div id="metricLogicalConsistency" style="width:<?= max(0, min(100, (int) ($initialMetrics['logical_consistency'] ?? 0))) ?>%"></div></div>
                                 </div>
                                 <div class="ai-metric-row">
-                                    <div class="ai-metric-label-line"><span>Completeness</span><span id="metricCompletenessPoints" class="text-muted"><?= (int)($initialRubricMetrics['completeness'] ?? 0) ?>/10</span></div>
-                                    <div class="progress-bar"><div id="metricCompleteness" style="width:<?= max(0, min(100, (int)($initialMetrics['completeness'] ?? 0))) ?>%"></div></div>
+                                    <div class="ai-metric-label-line"><span>Completeness</span><span id="metricCompletenessPoints" class="text-muted"><?= (int) ($initialRubricMetrics['completeness'] ?? 0) ?>/10</span></div>
+                                    <div class="progress-bar"><div id="metricCompleteness" style="width:<?= max(0, min(100, (int) ($initialMetrics['completeness'] ?? 0))) ?>%"></div></div>
                                 </div>
                             </div>
                         </section>
@@ -701,13 +705,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                 <?php foreach ($initialWhyNotPerfectDetails as $item): ?>
                                     <?php $examples = is_array($item['examples'] ?? null) ? $item['examples'] : []; ?>
                                     <li class="ai-why-item">
-                                        <span class="ai-why-message"><?= htmlspecialchars((string)($item['message'] ?? '')) ?></span>
+                                        <span class="ai-why-message"><?= htmlspecialchars((string) ($item['message'] ?? '')) ?></span>
                                         <?php if (!empty($examples)): ?>
                                             <div class="ai-why-examples">
                                                 <?php foreach ($examples as $example): ?>
                                                     <?php
-                                                    $highlightKey = trim((string)($example['highlight_key'] ?? ''));
-                                                    $url = trim((string)($example['url'] ?? ''));
+                                                    $highlightKey = trim((string) ($example['highlight_key'] ?? ''));
+                                                    $url = trim((string) ($example['url'] ?? ''));
                                                     $tag = $highlightKey !== '' ? 'button' : ($url !== '' ? 'a' : 'div');
                                                     ?>
                                                     <<?= $tag ?>
@@ -721,10 +725,10 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                                             rel="noopener noreferrer"
                                                         <?php endif; ?>
                                                     >
-                                                        <span class="ai-why-example-label"><?= htmlspecialchars((string)($example['label'] ?? 'Example')) ?></span>
-                                                        <strong><?= htmlspecialchars((string)($example['text'] ?? '')) ?></strong>
+                                                        <span class="ai-why-example-label"><?= htmlspecialchars((string) ($example['label'] ?? 'Example')) ?></span>
+                                                        <strong><?= htmlspecialchars((string) ($example['text'] ?? '')) ?></strong>
                                                         <?php if (!empty($example['reason'])): ?>
-                                                            <span class="ai-why-example-reason"><?= htmlspecialchars((string)$example['reason']) ?></span>
+                                                            <span class="ai-why-example-reason"><?= htmlspecialchars((string) $example['reason']) ?></span>
                                                         <?php endif; ?>
                                                     </<?= $tag ?>>
                                                 <?php endforeach; ?>
@@ -734,7 +738,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                 <?php endforeach; ?>
                                 <?php if (empty($initialWhyNotPerfectDetails)): ?>
                                     <?php foreach ($initialWhyNotPerfect as $item): ?>
-                                        <li class="ai-why-item"><span class="ai-why-message"><?= htmlspecialchars((string)$item) ?></span></li>
+                                        <li class="ai-why-item"><span class="ai-why-message"><?= htmlspecialchars((string) $item) ?></span></li>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </ul>
@@ -880,14 +884,14 @@ function applyVerdictState(decision, text) {
     verdictBox.style.borderColor = 'rgba(46,223,154,0.24)';
 }
 
-const autoPublishThreshold = <?= (int)$autoPublishTrustScore ?>;
-const needsReviewThreshold = <?= (int)$needsReviewTrustScore ?>;
+const autoPublishThreshold = <?= (int) $autoPublishTrustScore ?>;
+const needsReviewThreshold = <?= (int) $needsReviewTrustScore ?>;
 const publishButton = document.getElementById('publishButton');
 const publishStatus = document.getElementById('publishStatus');
 const trustScoreInput = document.getElementById('trustScoreInput');
 const initialPublishUnlocked = <?= $verificationPassed ? 'true' : 'false' ?>;
 const initialDecision = <?= json_encode($initialDecision) ?>;
-const initialContentText = <?= json_encode((string)$val['content']) ?>;
+const initialContentText = <?= json_encode((string) $val['content']) ?>;
 const aiLastChecked = document.getElementById('aiLastChecked');
 const aiScoreRing = document.getElementById('aiScoreRing');
 const aiVerdictHeadline = document.getElementById('aiVerdictHeadline');
@@ -1836,7 +1840,7 @@ async function runAICheck() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                article_id: <?= $isEdit ? (int)$editId : 0 ?>,
+                article_id: <?= $isEdit ? (int) $editId : 0 ?>,
                 title,
                 excerpt,
                 content,
@@ -1949,16 +1953,16 @@ setPublishLockState(
     initialPublishUnlocked,
     initialPublishUnlocked ? messageForDecision(initialDecision || 'auto_publish') : messageForDecision(initialDecision)
 );
-setScoreRing(<?= (int)$initialTrustScore ?>);
-aiVerdictHeadline.textContent = headlineForDecision(initialDecision, <?= (int)$initialTrustScore ?>);
+setScoreRing(<?= (int) $initialTrustScore ?>);
+aiVerdictHeadline.textContent = headlineForDecision(initialDecision, <?= (int) $initialTrustScore ?>);
 if (aiDecisionSummary) {
-    aiDecisionSummary.textContent = summaryForDecision(initialDecision, <?= (int)$initialTrustScore ?>);
+    aiDecisionSummary.textContent = summaryForDecision(initialDecision, <?= (int) $initialTrustScore ?>);
 }
 setLastCheckedLabel(<?= json_encode($hasCurrentVerification ? 'Last checked: Just now' : 'Waiting for fact check') ?>);
 applyVerdictState(initialDecision, <?= json_encode($initialVerdict !== '' ? $initialVerdict : 'Waiting for verification.') ?>);
 renderClaimSummary(<?= json_encode($initialClaimSummary) ?>);
 renderAreasToImprove({
-    trustScore: <?= (int)$initialTrustScore ?>,
+    trustScore: <?= (int) $initialTrustScore ?>,
     claims: <?= json_encode($initialClaims) ?>,
     whyItems: <?= json_encode(!empty($initialWhyNotPerfectDetails) ? $initialWhyNotPerfectDetails : $initialWhyNotPerfect) ?>,
     suggestions: <?= json_encode($initialSuggestions) ?>,

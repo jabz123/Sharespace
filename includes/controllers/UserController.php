@@ -3,11 +3,12 @@
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../entities/User.php';
 
-class UserController {
-
+class UserController
+{
     // top contributors by published article count
     // for the top contributor shit
-    public function getTopContributors(int $limit = 3): array {
+    public function getTopContributors(int $limit = 3): array
+    {
         $limit = max(1, min(20, $limit));
 
         return DB::query(
@@ -27,7 +28,8 @@ class UserController {
     }
 
     // search users
-    public function searchUsers(?string $keyword, int $limit, int $offset, int $currentUserId): array {
+    public function searchUsers(?string $keyword, int $limit, int $offset, int $currentUserId): array
+    {
 
         $params = [];
         $sql = "
@@ -48,15 +50,15 @@ class UserController {
         $params[] = $currentUserId;
 
         if (!empty($keyword)) {
-            $sql .= " AND u.full_name LIKE ?";
+            $sql .= ' AND u.full_name LIKE ?';
             $params[] = '%' . $keyword . '%';
         }
 
-        $sql .= "
+        $sql .= '
             GROUP BY u.id
             ORDER BY article_count DESC, u.full_name ASC
             LIMIT ? OFFSET ?
-        ";
+        ';
 
         $params[] = $limit;
         $params[] = $offset;
@@ -65,7 +67,8 @@ class UserController {
     }
 
     // count total users for pagination use
-    public function countUsers(?string $keyword, int $currentUserId): int {
+    public function countUsers(?string $keyword, int $currentUserId): int
+    {
 
         $params = [];
         $sql = "
@@ -79,17 +82,18 @@ class UserController {
         $params[] = $currentUserId;
 
         if (!empty($keyword)) {
-            $sql .= " AND full_name LIKE ?";
+            $sql .= ' AND full_name LIKE ?';
             $params[] = '%' . $keyword . '%';
         }
 
         $result = DB::first($sql, $params);
 
-        return (int)($result['total'] ?? 0);
+        return (int) ($result['total'] ?? 0);
     }
 
     // get selected user details
-    public function getUserById(int $id): ?array {
+    public function getUserById(int $id): ?array
+    {
 
         $sql = "
             SELECT 
@@ -108,10 +112,5 @@ class UserController {
 
         return DB::first($sql, [$id]);
     }
-
-
-
-
-
 
 }

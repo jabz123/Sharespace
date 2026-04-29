@@ -1,4 +1,5 @@
 <?php
+
 // handles password change form submission
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';

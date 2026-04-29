@@ -2,12 +2,13 @@
 
 <?php
 
-function limit_words($text, $limit) {
+function limit_words($text, $limit)
+{
 
-    $words = explode(" ", trim($text));
+    $words = explode(' ', trim($text));
 
     if (count($words) > $limit) {
-        $text = implode(" ", array_slice($words, 0, $limit)) . "...";
+        $text = implode(' ', array_slice($words, 0, $limit)) . '...';
     }
 
     return $text;

@@ -1,4 +1,5 @@
 <?php
+
 // handles database connection for the system using pdo
 // provides helper functions to run sql queries and interact with the database
 // used by controllers to retrieve, insert, update and delete data
@@ -6,52 +7,62 @@
 
 require_once __DIR__ . '/../config.php';
 
-class DB {
+class DB
+{
     private static ?PDO $pdo = null;
     private static bool $categoryExpertsReady = false;
     private static bool $articleReviewWorkflowReady = false;
     private static bool $siteFeedbackSentimentReady = false;
 
-    public static function get(): PDO { //returns db connection using PDO
-        if (self::$pdo === null) {
-            $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
-                DB_HOST, DB_PORT, DB_NAME);
-            self::$pdo = new PDO($dsn, DB_USER, DB_PASS, [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-            ]);
-        }
+    public static function get(): PDO //returns db connection using PDO
+    {if (self::$pdo === null) {
+        $dsn = sprintf(
+            'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+            DB_HOST,
+            DB_PORT,
+            DB_NAME
+        );
+        self::$pdo = new PDO($dsn, DB_USER, DB_PASS, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
+    }
         return self::$pdo;
     }
 
     //return all rows as array of associative arrays.
-    //use sql prepared statements with ? placeholders 
-    public static function query(string $sql, array $params = []): array {
+    //use sql prepared statements with ? placeholders
+    public static function query(string $sql, array $params = []): array
+    {
         $stmt = self::get()->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
     //return first row only
-    public static function first(string $sql, array $params = []): ?array {
+    public static function first(string $sql, array $params = []): ?array
+    {
         $rows = self::query($sql, $params);
         return $rows[0] ?? null;
     }
 
     //return no of affected rows
-    public static function execute(string $sql, array $params = []): int {
+    public static function execute(string $sql, array $params = []): int
+    {
         $stmt = self::get()->prepare($sql);
         $stmt->execute($params);
         return $stmt->rowCount();
     }
 
     //return last inserted row
-    public static function lastId(): int {
-        return (int)self::get()->lastInsertId();
+    public static function lastId(): int
+    {
+        return (int) self::get()->lastInsertId();
     }
 
-    private static function columnExists(string $table, string $column): bool {
+    private static function columnExists(string $table, string $column): bool
+    {
         $row = self::first(
             'SELECT 1
              FROM information_schema.COLUMNS
@@ -65,7 +76,8 @@ class DB {
         return $row !== null;
     }
 
-    public static function ensureCategoryExpertsTable(): void {
+    public static function ensureCategoryExpertsTable(): void
+    {
         if (self::$categoryExpertsReady) {
             return;
         }
@@ -95,7 +107,8 @@ class DB {
         self::$categoryExpertsReady = true;
     }
 
-    public static function ensureArticleReviewWorkflow(): void {
+    public static function ensureArticleReviewWorkflow(): void
+    {
         if (self::$articleReviewWorkflowReady) {
             return;
         }
@@ -160,7 +173,8 @@ class DB {
         self::$articleReviewWorkflowReady = true;
     }
 
-    public static function ensureSiteFeedbackSentimentColumns(): void {
+    public static function ensureSiteFeedbackSentimentColumns(): void
+    {
         if (self::$siteFeedbackSentimentReady) {
             return;
         }
