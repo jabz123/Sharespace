@@ -64,7 +64,7 @@ page_head('My Articles');
                 <?php
                 $statusTimeLabel = $article->status === 'published' ? 'Published' : 'Updated';
                 $statusTimeValue = $article->status === 'published' ? $article->publishedAt : $article->updatedAt;
-                $articleClickUrl = $article->status === 'draft'
+                $articleClickUrl = in_array($article->status, ['draft', 'pending'], true)
                     ? '/pages/write.php?id=' . (int) $article->id
                     : '/pages/article.php?id=' . (int) $article->id . '&return=' . urlencode($_SERVER['REQUEST_URI']);
                 ?>

@@ -212,14 +212,14 @@ page_head($article->title, $isSystemAdmin);
                                 <span>Unlock the full story</span>
                             </div>
                             <p>
-                                Get complete access to this article and all premium content.
+                                Upgrade to Premium to get complete access to this article and all premium content.
                                 Stay informed with deeper insights and trusted reporting.
                             </p>
                             <div class="paywall-price">
                                 <span class="price-main"><?= $premiumPlan['price'] ?></span>
                                 <span class="price-suffix"><?= $premiumPlan['price_suffix'] ?></span>
                             </div>
-                            <a href="/subscribe.php" class="btn btn-primary">Upgrade to Premium</a>
+                            <a href="/pages/subscription.php" class="btn btn-primary">Upgrade to Premium</a>
                         </div>
                     <?php endif; ?>
                 </div>
