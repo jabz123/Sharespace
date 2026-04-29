@@ -1,5 +1,6 @@
 <?php
-
+//stripe will call this endpoint in the event of new subscription, cancellation, or update.
+//user role is updated here.
 // Correct path to logs directory
 $logDir = __DIR__ . '/../logs';
 if (!is_dir($logDir)) {
@@ -16,6 +17,7 @@ file_put_contents(
     FILE_APPEND
 );
 
+//set longer execution time for webhook processing. 
 set_time_limit(30);
 
 require_once __DIR__ . '/../config.php';
@@ -35,14 +37,16 @@ function wh_log(string $msg): void
         );
         DB::execute('INSERT INTO webhook_log (message) VALUES (?)', [$msg]);
     } catch (\Exception $e) {
+        // log error or handle as needed
     }
 }
-
+//read raw body and header from stripe to verify signature
 $payload = file_get_contents('php://input');
 $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
 
 wh_log('HIT sig=' . ($sigHeader ? 'present' : 'MISSING') . ' bytes=' . strlen($payload));
 
+//verify signature from stripe. if fail return 400
 try {
     $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, STRIPE_WEBHOOK_SECRET);
 } catch (\Stripe\Exception\SignatureVerificationException $e) {
@@ -131,6 +135,7 @@ if ($event->type === 'customer.subscription.deleted') {
     $subId = $sub->id;
     wh_log("sub.deleted sub=$subId — downgrading user");
 
+    //set user back to free
     $rows = DB::execute(
         "UPDATE users
          SET role='free', is_premium=0,

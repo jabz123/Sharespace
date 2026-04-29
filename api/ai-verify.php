@@ -1,10 +1,10 @@
 <?php
-
+//endpoint for ai fact check verification
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 
 header('Content-Type: application/json');
-
+//create fingerprint of article and user id to check stored verification results
 function buildArticleVerificationFingerprint(array $input, int $userId): string
 {
     $normalize = static function ($value): string {
@@ -22,7 +22,7 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string
 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
-
+//check for stored verification for article and whether fingerprint matches
 function decodeStoredVerificationPayload(?string $rawPayload): ?array
 {
     if (!is_string($rawPayload) || trim($rawPayload) === '') {
@@ -51,7 +51,7 @@ function buildImprovementSuggestions(array $decoded, string $sourceUrl, array $m
     $flags = is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [];
     $claims = is_array($decoded['claims'] ?? null) ? $decoded['claims'] : [];
     $referenceValid = !empty($decoded['reference_valid']);
-
+//these are all based on rubric thresholds and flags
     if ($sourceUrl === '') {
         $push('Add an exact CNA or ST article URL in the Reference Link field so the checker has a strong evidence anchor.');
     } elseif (!$referenceValid) {
@@ -128,7 +128,7 @@ function tokenizeForSentenceMatch(string $value): array
         return $token !== '' && strlen($token) > 2 && !isset($stopMap[$token]);
     }));
 }
-
+//break the draft into sentences so ai claims can be matched to sentences
 function extractDraftSentences(string $content): array
 {
     $paragraphs = array_values(array_filter(
@@ -162,7 +162,7 @@ function extractDraftSentences(string $content): array
 
     return $sentences;
 }
-
+//find best matching sentence for each claim
 function matchClaimToSentence(array $claim, array $sentences): array
 {
     $claimText = trim((string) ($claim['text'] ?? ''));
@@ -215,7 +215,7 @@ function matchClaimToSentence(array $claim, array $sentences): array
         $bestSentence['sentence_index'] ?? null,
     ];
 }
-
+//match ai identified claims to sentences in the draft so they can be highlighted and linked to specific feedback
 function normalizeClaims(array $decoded, string $content = ''): array
 {
     $claims = is_array($decoded['claims'] ?? null) ? $decoded['claims'] : [];
@@ -312,7 +312,7 @@ function normalizeMatchedSources(array $decoded): array
 
     return array_slice($normalized, 0, 6);
 }
-
+//interpret and normalise ai response
 function buildClaimSummary(array $claims): array
 {
     $summary = [

@@ -1,5 +1,5 @@
 <?php
-
+//for category admins to decide whether articles get verified or not
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
@@ -29,7 +29,7 @@ $articleId = (int) ($_POST['article_id'] ?? 0);
 if (!in_array($action, ['verify_article', 'unverify_article'], true) || $articleId <= 0) {
     actionRedirect('/pages/unverified-articles.php', 'Unable to review article.');
 }
-
+//decision based on which button clicked
 $decision = $action === 'verify_article' ? 'verified' : 'unverified';
 try {
     $result = $adminCtrl->reviewPendingArticle($articleId, (int) $user->id, $decision);
@@ -37,7 +37,7 @@ try {
     error_log('Expert article review failed: ' . $error->getMessage());
     actionRedirect('/pages/unverified-articles.php', 'Unable to review article. Please try again.');
 }
-
+//redirect back to unverified articles page with success msg if verified
 if (isset($result['ok'])) {
     $message = $decision === 'verified'
         ? 'Article verified. One category expert approval is enough, so it has been published.'

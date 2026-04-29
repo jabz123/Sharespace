@@ -1,5 +1,6 @@
 <?php
-
+// this was supposed to be for ai model trainer functionality
+//currently used by admin dashboard to show ai analysis results for articles and overall stats.
 require_once __DIR__ . '/../db.php';
 
 class AIVerificationController

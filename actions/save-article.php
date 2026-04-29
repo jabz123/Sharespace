@@ -1,5 +1,5 @@
 <?php
-
+//for saving article as draft or publishing.
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';
@@ -13,10 +13,10 @@ function actionRedirect(string $url, ?string $error = null, ?string $success = n
         $_SESSION['flash_success'] = $success;
     }
 
-    header('Location: ' . $url, true, 303);
+    header('Location: ' . $url, true, 303);//303 to prevent form resubmission 
     exit;
 }
-
+//build unique fingerprint for article based on user input and id. so that users cannot change content after getting verified
 function buildArticleVerificationFingerprint(array $input, int $userId): string
 {
     $normalize = static function ($value): string {
@@ -34,7 +34,7 @@ function buildArticleVerificationFingerprint(array $input, int $userId): string
 
     return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
-
+//check if there is stored verification result for article and check if fingerprint matches
 function resolveStoredArticleVerification(?Article $article, string $fingerprint): ?array
 {
     if (!$article) {
@@ -53,7 +53,7 @@ function resolveStoredArticleVerification(?Article $article, string $fingerprint
     $decoded = json_decode($rawPayload, true);
     return is_array($decoded) ? $decoded : null;
 }
-
+//store verification result in db so it can be reused if user edits article with no changes
 function persistArticleVerification(int $articleId, int $authorId, array $verification): void
 {
     if ($articleId <= 0 || empty($verification['fingerprint'])) {
@@ -79,7 +79,7 @@ $autoPublishTrustScore = 81;
 
 $auth->requireAuth();
 $user = $auth->currentUser();
-
+//send to write if not post request 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     actionRedirect('/pages/write.php');
 }
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $editId = (int) ($_GET['id'] ?? 0);
 $article = null;
 $isEdit = false;
-
+//check if article belongs to user if edit id provided. if not redirect back to my articles 
 if ($editId > 0) {
     $article = $articleCtrl->getByIdForAuthor($editId, $user->id);
     if (!$article || $article->authorId !== $user->id) {
@@ -113,7 +113,7 @@ if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1') {
     }
     $imagePath = null;
 }
-
+//handle image upload logic. If image uploaded, save to server.
 if ($canUploadImage && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
     $uploadDir = __DIR__ . '/../public/uploads/articles/';
     if (!is_dir($uploadDir)) {
@@ -129,7 +129,7 @@ if ($canUploadImage && isset($_FILES['article_image']) && $_FILES['article_image
 }
 
 $_POST['image_path'] = $imagePath;
-
+//save as draft logic. 
 if ($action === 'draft') {
     $_POST['status'] = 'draft';
 
@@ -150,6 +150,7 @@ if ($action === 'draft') {
     actionRedirect($isEdit ? '/pages/write.php?id=' . $editId : '/pages/write.php', $result['error'] ?? 'Unable to save draft.');
 }
 
+//article publish logic. must pass ai verification. if no changes, use back prev verification results
 $fingerprint = buildArticleVerificationFingerprint($_POST, (int) $user->id);
 $verification = $_SESSION['article_ai_verification'] ?? null;
 $storedVerification = $isEdit ? resolveStoredArticleVerification($article, $fingerprint) : null;
@@ -157,16 +158,18 @@ if (is_array($storedVerification) && (($verification['fingerprint'] ?? '') !== $
     $verification = $storedVerification;
     $_SESSION['article_ai_verification'] = $storedVerification;
 }
+//check if there is valid verification results from current request
 $isVerificationCurrent = is_array($verification)
     && ($verification['fingerprint'] ?? '') === $fingerprint;
 $verifiedTrustScore = $isVerificationCurrent ? (int) ($verification['trust_score'] ?? 0) : 0;
 $verifiedDecision = $isVerificationCurrent ? trim((string) ($verification['publish_decision'] ?? '')) : '';
+
 $hasPassingVerification = $isVerificationCurrent
     && !empty($verification['passed'])
     && $verifiedTrustScore >= $autoPublishTrustScore
     && $verifiedDecision === 'auto_publish';
 
-if (!$hasPassingVerification) {
+if (!$hasPassingVerification) { //redirect back to write if no valid verification
     actionRedirect($isEdit ? '/pages/write.php?id=' . $editId : '/pages/write.php', 'Run AI Fact Check and get an Auto Publish result at 81% or above before publishing this article.');
 }
 
@@ -178,7 +181,7 @@ if ($isEdit) {
 } else {
     $result = $articleCtrl->publish($user->id, $_POST);
 }
-
+//store verification result if published successfully. If article edited without changes, reuse prev results.
 if (isset($result['ok'])) {
     unset($_SESSION['article_ai_verification']);
     actionRedirect('/pages/my-articles.php', null, 'Article published successfully.');

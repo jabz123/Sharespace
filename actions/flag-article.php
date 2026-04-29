@@ -1,5 +1,5 @@
 <?php
-
+//endpoint for flagging article when user clicks on flag
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/article_flag_rules.php';
 require_once __DIR__ . '/../includes/AuditLogger.php';

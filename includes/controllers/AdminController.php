@@ -13,7 +13,7 @@ require_once __DIR__ . '/../entities/Category.php';
 require_once __DIR__ . '/../entities/User.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../AuditLogger.php';
-
+//admincontroller, for all admin related db operations.
 class AdminController
 {
     private function ensureCategoryExpertTable(): void

@@ -1,12 +1,8 @@
 <?php
+//this is for the ai article overview.
+//accepts article_id via POST JSON and calls openrouter to get ai summary key points and return as json
 
-/*
-  BOUNDARY for AI Article Overview endpoint (api/ai-overview.php)
-  accessible to any logged-in user.
 
-  accepts article_id via POST JSON, calls OpenRouter, returns structured overview.
-  some of the logic here is to reduce that 429 shit
- */
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/db.php';
@@ -22,7 +18,7 @@ if (!$user) {
     echo json_encode(['error' => 'You must be logged in.']);
     exit;
 }
-
+//only allow post with json body
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed.']);
@@ -56,7 +52,7 @@ if (!$article) {
     echo json_encode(['error' => 'Article not found.']);
     exit;
 }
-
+//check for api kry
 $apiKey = defined('SUMMARY_API_KEY') ? SUMMARY_API_KEY : '';
 if (!$apiKey) {
     http_response_code(500);
@@ -64,9 +60,9 @@ if (!$apiKey) {
     exit;
 }
 
-/*
-file cache. reduces token usage and redundant calls.
- */
+
+//file cache. reduces token usage and redundant calls.
+
 $cacheDir = dirname(__DIR__) . '/tmp';
 if (!is_dir($cacheDir)) {
     @mkdir($cacheDir, 0775, true);
@@ -153,7 +149,7 @@ foreach ($models as $model) {
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 30,
         ]);
-
+//execute and capture response and errors
         $response = curl_exec($ch);
         $curlErr = curl_error($ch);
         $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
