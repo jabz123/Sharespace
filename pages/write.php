@@ -592,7 +592,8 @@ echo $isDraft ? 'Publish Article' : 'Save Changes';
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
-                            </div>
+                                </div>
+                            </details>
                         </section>
 
                         <section id="aiClaimsBox" class="ai-section" style="display:none;">
