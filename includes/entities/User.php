@@ -19,6 +19,7 @@ class User
     public string $bio;
     public string $avatarUrl;
 
+    //stripe shit
     public $stripe_customer_id;
     public $stripe_subscription_id;
     public $subscribed_at;

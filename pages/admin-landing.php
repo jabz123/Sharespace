@@ -1,5 +1,5 @@
 <?php
-
+// for admin to edit/ manage landing page content.
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/LandingPageController.php';

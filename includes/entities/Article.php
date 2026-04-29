@@ -81,6 +81,8 @@ class Article
         return 'low';
     }
 
+
+    
     //converts ## to <h2>
     //converts ### to <h3>
 
