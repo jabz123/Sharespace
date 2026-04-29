@@ -73,6 +73,48 @@ function persistArticleVerification(int $articleId, int $authorId, array $verifi
     );
 }
 
+function validateArticleImageUpload(array $file): ?string
+{
+    $maxBytes = 5 * 1024 * 1024; // 5MB
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
+    $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+
+    $errorCode = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+    if ($errorCode === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if ($errorCode !== UPLOAD_ERR_OK) {
+        return 'Image upload failed. Please try another file.';
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $originalName = (string) ($file['name'] ?? '');
+    $size = (int) ($file['size'] ?? 0);
+
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        return 'Invalid upload detected. Please try again.';
+    }
+    if ($size <= 0 || $size > $maxBytes) {
+        return 'Image must be between 1 byte and 5MB.';
+    }
+
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    if (!in_array($extension, $allowedExtensions, true)) {
+        return 'Unsupported image format. Use JPG, PNG, WEBP, GIF, or AVIF.';
+    }
+
+    $mimeType = mime_content_type($tmpName) ?: '';
+    if (!in_array($mimeType, $allowedMimeTypes, true)) {
+        return 'Invalid image file type. Please upload a real image.';
+    }
+
+    if (@getimagesize($tmpName) === false) {
+        return 'Uploaded file is not a valid image.';
+    }
+
+    return null;
+}
+
 $auth = new AuthController();
 $articleCtrl = new ArticleController();
 $autoPublishTrustScore = 81;
@@ -114,7 +156,13 @@ if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1') {
     $imagePath = null;
 }
 //handle image upload logic. If image uploaded, save to server.
-if ($canUploadImage && isset($_FILES['article_image']) && $_FILES['article_image']['error'] === 0) {
+if ($canUploadImage && isset($_FILES['article_image'])) {
+    $uploadValidationError = validateArticleImageUpload($_FILES['article_image']);
+    if ($uploadValidationError !== null) {
+        actionRedirect($isEdit ? '/pages/write.php?id=' . (int) $editId : '/pages/write.php', $uploadValidationError);
+    }
+
+    if ($_FILES['article_image']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = __DIR__ . '/../public/uploads/articles/';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0777, true);
@@ -125,6 +173,9 @@ if ($canUploadImage && isset($_FILES['article_image']) && $_FILES['article_image
 
     if (move_uploaded_file($_FILES['article_image']['tmp_name'], $targetPath)) {
         $imagePath = 'uploads/articles/' . $fileName;
+    } else {
+        actionRedirect($isEdit ? '/pages/write.php?id=' . (int) $editId : '/pages/write.php', 'Unable to store uploaded image. Please try again.');
+    }
     }
 }
 
