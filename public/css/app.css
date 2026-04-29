@@ -467,6 +467,36 @@ textarea {
     transform: translateY(-50%);
     color: var(--muted);
 }
+.password-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.password-toggle:hover {
+    color: #0b1628;
+    background: rgba(15, 23, 42, 0.05);
+}
+.password-toggle svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
 
 /* =========================================================
    CARDS / CONTENT

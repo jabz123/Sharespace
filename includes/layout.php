@@ -236,7 +236,10 @@ function category_theme_class(string $name): string
         'health' => 'category-health',
         'economy', 'business', 'finance' => 'category-economy',
         'sports' => 'category-sports',
-        'games', 'gaming', 'technology', 'tech' => 'category-games',
+        'games', 'gaming' => 'category-games',
+        'technology', 'tech' => 'category-technology',
+        'education' => 'category-education',
+        'science' => 'category-science',
         default => 'category-default',
     };
 }

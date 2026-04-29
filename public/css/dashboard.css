@@ -997,6 +997,21 @@ body:has(.user-dashboard-shell) {
     border-color: rgba(139, 92, 246, 0.22) !important;
     color: #c4b5fd !important;
 }
+.category-technology {
+    background: rgba(139, 92, 246, 0.1) !important;
+    border-color: rgba(139, 92, 246, 0.22) !important;
+    color: #c4b5fd !important;
+}
+.category-education {
+    background: rgba(100, 116, 139, 0.12) !important;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+    color: #cbd5e1 !important;
+}
+.category-science {
+    background: rgba(14, 165, 233, 0.1) !important;
+    border-color: rgba(14, 165, 233, 0.22) !important;
+    color: #7dd3fc !important;
+}
 .category-default {
     background: rgba(100, 116, 139, 0.1) !important;
     border-color: rgba(100, 116, 139, 0.22) !important;

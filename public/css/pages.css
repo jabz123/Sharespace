@@ -664,14 +664,28 @@ body:has(.sub-page-shell) {
     border-color: var(--border-mid);
     color: var(--text-primary);
 }
+.icon-btn.active {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-subtle);
+    color: #f5a623;
+}
+.icon-btn.active:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-mid);
+}
+.icon-btn.active img {
+    filter: brightness(0) saturate(100%) invert(72%) sepia(88%) saturate(1058%) hue-rotate(347deg) brightness(99%) contrast(94%);
+}
 .icon-btn img {
     width: 16px;
     height: 16px;
     filter: invert(0.7);
 }
 .icon-btn.flagged {
-    border-color: rgba(255, 107, 138, 0.3);
-    background: rgba(255, 107, 138, 0.08);
+    opacity: 0.5;
+    cursor: not-allowed;
+    border: none;
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .article-banner {

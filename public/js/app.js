@@ -5,6 +5,17 @@ document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
         const target = document.getElementById(btn.dataset.togglePassword);
         if (!target) return;
         target.type = target.type === 'password' ? 'text' : 'password';
+
+        if (btn.dataset.iconToggle === 'true') {
+            const isHidden = target.type === 'password';
+            btn.setAttribute('aria-label', isHidden ? 'Show password' : 'Hide password');
+            btn.setAttribute('title', isHidden ? 'Show password' : 'Hide password');
+            btn.innerHTML = isHidden
+                ? '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="3.25"/></svg>'
+                : '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-6 0-9.5-6-9.5-6a17.66 17.66 0 0 1 4.13-4.61M9.88 6.24A9.68 9.68 0 0 1 12 6c6 0 9.5 6 9.5 6a17.76 17.76 0 0 1-2.37 3.04M14.12 14.12a3.25 3.25 0 0 1-4.24-4.24"/><line x1="3" y1="3" x2="21" y2="21"/></svg>';
+            return;
+        }
+
         btn.textContent = target.type === 'password' ? 'Show' : 'Hide';
     });
 });

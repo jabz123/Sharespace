@@ -24,6 +24,15 @@ if (!$profile) {
     redirect('/pages/users.php', 'User not found.');
 }
 
+$interests = DB::query(
+    'SELECT c.name
+     FROM user_interests ui
+     JOIN categories c ON c.id = ui.category_id
+     WHERE ui.user_id = ?
+     ORDER BY c.name',
+    [$userId]
+);
+
 // pagination
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 10;
@@ -77,7 +86,21 @@ page_head($profile['full_name']);
                     <?= nl2br(htmlspecialchars($profile['bio'])) ?>
                 </p>
             <?php endif; ?>
+
         </div>
+
+        <?php if (!empty($interests)): ?>
+            <div class="profile-interests">
+                <span class="profile-interests-label">Interests:</span>
+                <div class="profile-interest-tags">
+                    <?php foreach ($interests as $interest): ?>
+                        <span class="category-tag <?= category_theme_class($interest['name']) ?>">
+                            <?= htmlspecialchars($interest['name']) ?>
+                        </span>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
 
     </div>
 

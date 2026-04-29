@@ -6,6 +6,7 @@
     gap: 20px;
     padding: 20px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-wrap: wrap;
 }
 
 /* Avatar */
@@ -51,6 +52,31 @@
     margin-top: 6px;
     font-size: 14px;
     color: #8fa3c7;
+}
+
+.profile-interests {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex-basis: 100%;
+    margin-top: 16px;
+    padding-left: 0;
+}
+
+.profile-interests-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #f5a623;
+}
+
+.profile-interest-tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 /* ===== ROLE BADGES ===== */

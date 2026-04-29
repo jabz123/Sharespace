@@ -969,10 +969,21 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     border-color: #c4d8f7 !important;
 }
 .browse-admin-shell .category-games,
-.browse-admin-shell .category-default {
+.browse-admin-shell .category-technology {
     background: #f3efff !important;
     color: #6d3fd1 !important;
     border-color: #d6c6f7 !important;
+}
+.browse-admin-shell .category-education,
+.browse-admin-shell .category-default {
+    background: #f5f7fb !important;
+    color: #475569 !important;
+    border-color: #d8e0ec !important;
+}
+.browse-admin-shell .category-science {
+    background: #eef9ff !important;
+    color: #0369a1 !important;
+    border-color: #bae6fd !important;
 }
 
 .browse-admin-shell .browse-empty-state {
