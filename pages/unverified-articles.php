@@ -28,6 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $adminCtrl->reviewPendingArticle($articleId, (int) $user->id, $decision);
         } catch (Throwable $error) {
             error_log('Expert article review failed: ' . $error->getMessage());
+            $latestArticle = $adminCtrl->getArticleById($articleId);
+            $reviewApplied = $latestArticle
+                && (
+                    ($decision === 'verified' && $latestArticle->status === 'published')
+                    || ($decision === 'unverified' && $latestArticle->status === 'draft')
+                );
+            if ($reviewApplied) {
+                $message = $decision === 'verified'
+                    ? 'Article verified. One category expert approval is enough, so it has been published.'
+                    : 'Article rejected. It has been moved back to draft for the author.';
+                pageRedirect('/pages/unverified-articles.php', null, $message);
+            }
             pageRedirect('/pages/unverified-articles.php', 'Unable to review article. Please try again.');
         }
 

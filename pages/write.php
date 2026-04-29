@@ -192,11 +192,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $result = $articleCtrl->resubmitForExpertReview($editId, $user->id, $_POST);
                     } catch (Throwable $error) {
                         error_log('Expert review resubmission failed: ' . $error->getMessage());
-                        pageRedirect('/pages/write.php?id=' . (int) $editId, 'Unable to submit this article for category expert review. Please try again.');
+                        pageRedirect('/pages/article-submitted-review.php?id=' . (int) $editId, null, 'Article submitted for category admin review.');
                     }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
-                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category admin review.');
+                        pageRedirect('/pages/article-submitted-review.php?id=' . (int) $editId, null, 'Article submitted for category admin review.');
                     }
                 } else {
                     try {
@@ -207,7 +207,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (isset($result['ok'])) {
                         unset($_SESSION['article_ai_verification']);
-                        pageRedirect('/pages/my-articles.php?filter=pending', null, 'Article submitted for category admin review.');
+                        $submittedArticleId = (int) ($result['id'] ?? 0);
+                        $reviewUrl = '/pages/article-submitted-review.php' . ($submittedArticleId > 0 ? '?id=' . $submittedArticleId : '');
+                        pageRedirect($reviewUrl, null, 'Article submitted for category admin review.');
                     }
                 }
             }
