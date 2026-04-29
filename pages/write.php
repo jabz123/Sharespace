@@ -813,20 +813,26 @@ echo $isDraft ? 'Publish Article' : 'Save Changes';
 
 <script>
 function selectImage() {
-    document.getElementById('articleImageInput').click();
+    const imageInput = document.getElementById('articleImageInput');
+    if (imageInput) {
+        imageInput.click();
+    }
 }
 
-document.getElementById('articleImageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const preview = document.getElementById('imagePreview');
-    if (!file) return;
+const articleImageInput = document.getElementById('articleImageInput');
+if (articleImageInput) {
+    articleImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('imagePreview');
+        if (!file || !preview) return;
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        preview.innerHTML = `<img src="${event.target.result}" alt="">`;
-    };
-    reader.readAsDataURL(file);
-});
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            preview.innerHTML = `<img src="${event.target.result}" alt="">`;
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
 function removeImage() {
     document.getElementById('articleImageInput').value = '';
@@ -905,7 +911,10 @@ function summaryForDecision(decision, trustScore) {
 }
 
 function setLastCheckedLabel(message) {
-    aiLastChecked.textContent = message;
+    const label = document.getElementById('aiLastChecked');
+    if (label) {
+        label.textContent = message;
+    }
 }
 
 function applyVerdictState(decision, text) {
