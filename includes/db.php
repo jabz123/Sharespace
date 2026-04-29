@@ -27,6 +27,8 @@ class DB
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
         ]);
+        // Keep MySQL session timestamps aligned with Singapore time for NOW()/CURRENT_TIMESTAMP writes.
+        self::$pdo->exec("SET time_zone = '+08:00'");
     }
         return self::$pdo;
     }
