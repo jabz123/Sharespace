@@ -1,5 +1,7 @@
 <?php
 
+//mostly for article flag system and its rules and logic
+
 function article_flag_reason_options(): array
 {
     return [

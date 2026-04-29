@@ -1,5 +1,7 @@
 <?php
 
+//this is a shared rendering layer for all/ most pages.
+
 //css styles are all loaded here in the layout file
 //this file also has common functions for rendering the layout and other shared utilities
 //css will be called through page_head function. it is at the top of every page.
@@ -61,42 +63,14 @@ function page_head(string $title, bool $useSystemAdminCss = false): void
         <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="/public/css/app.css?v=<?= filemtime(__DIR__ . '/../public/css/app.css') ?>" />
 
-        <!-- load admin css, or user dark theme css -->
+        <!-- check user type then load admin css, or user dark theme css -->
         <?php if ($useSystemAdminCss): ?>
             <link rel="stylesheet" href="/public/css/system-admin.css?v=<?= filemtime(__DIR__ . '/../public/css/system-admin.css') ?>" />
         <?php else: ?>
             <link rel="stylesheet" href="/public/css/dashboard.css?v=<?= filemtime(__DIR__ . '/../public/css/dashboard.css') ?>" />
             <link rel="stylesheet" href="/public/css/pages.css?v=<?= filemtime(__DIR__ . '/../public/css/pages.css') ?>" />
         <?php endif; ?>
-        <style>
-            body.page-ai-trainer-dashboard .alert-success,
-            body.page-ai-trainer-datasets .alert-success,
-            body.page-ai-trainer-accuracy-metrics .alert-success,
-            body.page-ai-trainer-home .alert-success {
-                background: #f0fff6 !important;
-                border: 1px solid #a3e6c0 !important;
-                color: #1a6040 !important;
-                font-weight: 700 !important;
-            }
-
-            body.page-ai-trainer-dashboard .alert-error,
-            body.page-ai-trainer-datasets .alert-error,
-            body.page-ai-trainer-accuracy-metrics .alert-error,
-            body.page-ai-trainer-home .alert-error {
-                background: #fff0f2 !important;
-                border: 1px solid #fcc !important;
-                color: #8b1a2a !important;
-                font-weight: 700 !important;
-            }
-
-            body.page-ai-trainer-dashboard .alert,
-            body.page-ai-trainer-datasets .alert,
-            body.page-ai-trainer-accuracy-metrics .alert,
-            body.page-ai-trainer-home .alert {
-                opacity: 1 !important;
-                text-shadow: none !important;
-            }
-        </style>
+        <!-- removed ai trainer in line style here -->
     </head>
 
     <body class="page-<?= htmlspecialchars($slug) ?>">
@@ -114,7 +88,7 @@ function page_foot(): void
 
     </html>
 <?php }
-
+//for logo component
 function sharedspace_brand(string $href = '/', string $variant = 'dark', string $class = ''): void
 { ?>
     <a href="<?= htmlspecialchars($href) ?>" class="sharedspace-brand <?= htmlspecialchars(trim($class)) ?>">
@@ -124,7 +98,7 @@ function sharedspace_brand(string $href = '/', string $variant = 'dark', string 
             class="sharedspace-brand-image">
     </a>
 <?php }
-
+//sidebar component. shows diff info based on user type
 function sidebar(User $user): void
 {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -165,7 +139,9 @@ function sidebar(User $user): void
         ];
     }
     ?>
+    <!-- sidebar overlay for mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
             <?php sharedspace_brand(
@@ -229,9 +205,10 @@ function sidebar(User $user): void
     </aside>
 <?php }
 
+//header component for dashboard and admin pages
 function dash_header(string $title, string $subtitle = ''): void
 { ?>
-    <header class="dash-header">
+    <header class="dash-header">  <!-- hamburger btn for mobile -->
         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
             <span></span><span></span><span></span>
         </button>
@@ -251,7 +228,7 @@ function flash_messages(): void
     if ($err): ?><div class="alert alert-error"><?= htmlspecialchars($err) ?></div><?php endif;
     if ($ok): ?><div class="alert alert-success"><?= htmlspecialchars($ok) ?></div><?php endif;
 }
-
+//maps category names to css classes so can apply category specific stylinh
 function category_theme_class(string $name): string
 {
     return match (strtolower(trim($name))) {

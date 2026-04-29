@@ -9,6 +9,7 @@ require_once __DIR__ . '/../entities/Article.php';
 require_once __DIR__ . '/../entities/Category.php';
 require_once __DIR__ . '/../AuditLogger.php';
 
+//for all article realted db operations
 class ArticleController
 {
     private function ensureReviewWorkflow(): void
@@ -21,7 +22,7 @@ class ArticleController
         $score = (int) ($input['trust_score'] ?? 80);
         return max(0, min(100, $score));
     }
-
+//return array of expert id for each category
     private function assignedExpertIdsForCategory(int $categoryId): array
     {
         $this->ensureReviewWorkflow();
@@ -69,7 +70,6 @@ class ArticleController
     }
 
     //returns n most recently published articles
-    //maybe change this to recommended or some shit in future ig
     //returns Article[] array of objects
     public function getRecent(int $limit = 6): array
     {
@@ -176,7 +176,7 @@ class ArticleController
         );
         return array_map(fn ($r) => new Article($r), $rows);
     }
-
+//fetch all pending articles by user
     public function getPendingByAuthor(int $authorId): array
     {
         $this->ensureReviewWorkflow();
@@ -296,7 +296,7 @@ class ArticleController
 
         return ['ok' => true, 'id' => $articleId];
     }
-
+//this will be called if trust score too low
     public function submitForExpertReview(int $authorId, array $input): array
     {
         $this->ensureReviewWorkflow();

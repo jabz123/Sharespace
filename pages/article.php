@@ -1,4 +1,5 @@
 <?php
+//article page. shows everything about article.
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/article_flag_rules.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
@@ -178,6 +179,7 @@ page_head($article->title, $isSystemAdmin);
                             <div class="ai-overview-title">
                                 <h3>AI Overview</h3>
                             </div>
+                            <!-- calls ai-overview in the script below -->
                             <button id="aiOverviewBtn" class="btn btn-secondary btn-sm" data-article-id="<?= $article->id ?>">
                                 Generate
                             </button>
@@ -195,9 +197,10 @@ page_head($article->title, $isSystemAdmin);
                 <div class="article-body">
                     <?php
                     $isPremiumUser = in_array($user->role, ['premium', 'system_admin', 'category_admin'], true);
-$isPremiumArticle = !empty($article->imagePath);
-?>
-
+                    $isPremiumArticle = !empty($article->imagePath);
+                    ?>
+                    <!-- premium content access control logic. if article has image, then consider it as premium content, 
+                    only show preview for free users. -->
                     <?php if ($isPremiumUser || !$isPremiumArticle): ?>
                         <?= $article->renderContent() ?>
                     <?php else: ?>
@@ -209,14 +212,14 @@ $isPremiumArticle = !empty($article->imagePath);
                                 <span>Unlock the full story</span>
                             </div>
                             <p>
-                                Get complete access to this article and all premium content.
+                                Upgrade to Premium to get complete access to this article and all premium content.
                                 Stay informed with deeper insights and trusted reporting.
                             </p>
                             <div class="paywall-price">
                                 <span class="price-main"><?= $premiumPlan['price'] ?></span>
                                 <span class="price-suffix"><?= $premiumPlan['price_suffix'] ?></span>
                             </div>
-                            <a href="/subscribe.php" class="btn btn-primary">Upgrade to Premium</a>
+                            <a href="/pages/subscription.php" class="btn btn-primary">Upgrade to Premium</a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -250,7 +253,7 @@ $isPremiumArticle = !empty($article->imagePath);
                         <div style="display:flex;flex-direction:column;gap:16px">
                             <?php foreach ($comments as $comment):
                                 $canDelete = $comment->userId === $user->id;
-                                ?>
+                            ?>
                                 <div class="card" style="padding:16px 20px">
                                     <div class="flex items-center gap-3" style="margin-bottom:10px">
                                         <div class="author-avatar" style="width:34px;height:34px;font-size:13px;flex-shrink:0"><?= htmlspecialchars($comment->initial()) ?></div>

@@ -1,6 +1,6 @@
 <?php
 
-// handles category-related logic for the admin system
+// handles category-related logic for the admin system and main system
 // allows system_admin to create, read, update and delete categories
 // returns only data arrays, no html output
 
@@ -16,7 +16,7 @@ class CategoryController
         return $rows;
     }
 
-    // this is fot the trending topic shit
+    // this is fot the trending topic shit on user dashboard
     // get category with newest articles
     // returns only categories that currently have published articles
     public function getByLatestPublishedArticle(int $limit = 6): array

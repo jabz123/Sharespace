@@ -5,6 +5,10 @@
 // used by controllers to retrieve, insert, update and delete data
 // returns query results as arrays which controllers can convert into entity objects
 
+//called by controllers to get db connection and run queries. 
+//also has helper functions to ensure certain tables and columns exist for new features without 
+//needing manual migrations.
+
 require_once __DIR__ . '/../config.php';
 
 class DB

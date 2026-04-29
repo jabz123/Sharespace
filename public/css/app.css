@@ -846,6 +846,12 @@ textarea {
     margin-bottom: 18px;
     color: hsl(265 4% 20% / 0.85);
 }
+.highlight-reading {
+    background: rgba(245, 166, 35, 0.25);
+    border-left: 4px solid #f59e0b;
+    padding-left: 10px;
+    transition: all 0.3s ease;
+}
 .article-body ul,
 .article-body ol {
     margin: 16px 0 16px 24px;

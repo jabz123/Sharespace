@@ -9,9 +9,9 @@ define('DB_USER', 'shareduser');
 define('DB_PASS', 'password123'); 
 date_default_timezone_set('Asia/Singapore');
 
-define('APP_BASE_URL', 'https://sharedspace.srv1502312.hstgr.cloud');
+define('APP_BASE_URL', 'https://sharedspace.tech');
 define('N8N_FEEDBACK_SENTIMENT_WEBHOOK_URL', 'https://n8n.srv1502312.hstgr.cloud/webhook/sharedspace-feedback-sentiment');
-define('N8N_VERIFY_WEBHOOK_URL', getenv('N8N_VERIFY_WEBHOOK_URL') ?: '');
+define('N8N_VERIFY_WEBHOOK_URL', getenv('N8N_VERIFY_WEBHOOK_URL') ?: 'https://n8n.srv1502312.hstgr.cloud/webhook/sharedspace-ai-verify');
 define('FEEDBACK_SENTIMENT_CALLBACK_SECRET', 'ss_feedback_cb_2026_4uH9mQ2pL7xKc8Rv');
 
 //dylan's api key, for article shit, changed from gemini cos i am a jew and this is free. 

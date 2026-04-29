@@ -1,5 +1,5 @@
 <?php
-
+//for admin audit log. Logs actions to be displayed on system admin audit log.
 require_once __DIR__ . '/db.php';
 
 class AuditLogger
@@ -162,7 +162,7 @@ class AuditLogger
             array_merge($params, [$limit, $offset])
         );
     }
-
+//count entries for pagination
     public static function count(?string $filterAction = null, ?string $filterRole = null): int
     {
         self::ensureSchema();

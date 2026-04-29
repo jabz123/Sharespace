@@ -1,9 +1,10 @@
 <?php
-
+//landing page management for admin side 
 require_once __DIR__ . '/../db.php';
 
 class LandingPageController
 {
+    //fetch and update hero section
     public function getHero(): ?array
     {
         return DB::first("SELECT * FROM landing_sections WHERE section_key = 'hero'");
@@ -139,6 +140,7 @@ class LandingPageController
         return DB::execute('DELETE FROM landing_steps WHERE id = ?', [$id]);
     }
 
+    //pricing plan logic
     public function getPlans(): array
     {
         return DB::query('SELECT * FROM landing_pricing_plans ORDER BY display_order ASC, id ASC');

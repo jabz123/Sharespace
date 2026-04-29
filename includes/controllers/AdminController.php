@@ -533,6 +533,8 @@ class AdminController
 
         $pdo = DB::get();
         $pdo->beginTransaction();
+        $auditAction = null;
+        $auditDetails = null;
 
         try {
             DB::execute(
@@ -549,7 +551,8 @@ class AdminController
                      WHERE id = ?',
                     ['draft', 'A category expert rejected this article during final verification. Please revise it and submit it again.', $articleId]
                 );
-                AuditLogger::log($expertId, 'reject_content', 'Article', $articleId, 'Rejected article during expert verification: ' . ($review['title'] ?? ('ID ' . $articleId)));
+                $auditAction = 'reject_content';
+                $auditDetails = 'Rejected article during expert verification: ' . ($review['title'] ?? ('ID ' . $articleId));
             } else {
                 $summary = DB::first(
                     'SELECT
@@ -572,13 +575,18 @@ class AdminController
                          WHERE id = ?',
                         ['published', $articleId]
                     );
-                    AuditLogger::log($expertId, 'approve_content', 'Article', $articleId, 'Completed expert verification and published article: ' . ($review['title'] ?? ('ID ' . $articleId)));
+                    $auditAction = 'approve_content';
+                    $auditDetails = 'Completed expert verification and published article: ' . ($review['title'] ?? ('ID ' . $articleId));
                 } else {
-                    AuditLogger::log($expertId, 'approve_content', 'Article', $articleId, 'Verified article during expert review: ' . ($review['title'] ?? ('ID ' . $articleId)));
+                    $auditAction = 'approve_content';
+                    $auditDetails = 'Verified article during expert review: ' . ($review['title'] ?? ('ID ' . $articleId));
                 }
             }
 
             $pdo->commit();
+            if ($auditAction && $auditDetails) {
+                AuditLogger::log($expertId, $auditAction, 'Article', $articleId, $auditDetails);
+            }
             return ['ok' => true, 'title' => $review['title'] ?? 'Article'];
         } catch (\Throwable $error) {
             if ($pdo->inTransaction()) {

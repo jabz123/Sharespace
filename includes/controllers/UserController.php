@@ -1,5 +1,5 @@
 <?php
-
+//for user related logic like top contributor shit
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../entities/User.php';
 
@@ -9,7 +9,7 @@ class UserController
     // for the top contributor shit
     public function getTopContributors(int $limit = 3): array
     {
-        $limit = max(1, min(20, $limit));
+        $limit = max(1, min(20, $limit)); //maek 20 max
 
         return DB::query(
             "SELECT

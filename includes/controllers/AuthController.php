@@ -167,10 +167,6 @@ class AuthController
         // when user clicks it, verify_email.php will verify the account
         $verify_link = $protocol . $host . '/verify_email.php?token=' . $token;
 
-        //temporary for testing
-        //  echo $verify_link;
-        //  exit();
-
         // email subject
         $subject = 'Verify Your Email';
 
@@ -261,9 +257,6 @@ class AuthController
         $host = $_SERVER['HTTP_HOST'];
 
         $verify_link = $protocol . $host . '/verify_email.php?token=' . $token;
-        //temporary for testing
-        //  echo $verify_link;
-        //  exit();
 
         // send email
         $subject = 'Verify Your Email';
