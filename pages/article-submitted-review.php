@@ -28,7 +28,7 @@ page_head('Article Submitted for Review');
             Your article passed the AI check and has been sent to a category expert for final review.
             It will appear under Pending in My Articles until an expert verifies or rejects it.
         </p>
-        <div class="flex items-center justify-center gap-3" style="flex-wrap:wrap">
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;width:100%;margin:0 auto">
             <a href="<?= htmlspecialchars($homeUrl) ?>" class="btn btn-ghost">Back to Home</a>
             <a href="/pages/my-articles.php?filter=pending" class="btn btn-primary">View Pending Articles</a>
             <?php if ($articleId > 0): ?>
