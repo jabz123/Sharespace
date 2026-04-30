@@ -1,12 +1,10 @@
 /* ================================================================
-   SYSTEM ADMIN PAGES – Light Theme
+   SYSTEM ADMIN PAGES - Light Theme
+   Shared colors and shell overrides for system-admin-only pages.
    ================================================================ */
 
 /* --- Base page backgrounds --- */
-body.page-admin-dashboard,
-body.page-audit-log,
-body.page-manage-landing-page,
-body.page-edit-password {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) {
     background: #f0f5fc !important;
     color: #16233f !important;
     --fg: #16233f;
@@ -25,27 +23,6 @@ body.page-edit-password {
     --secondary-text: #5a7090;
 }
 
-body.page-admin-dashboard .dashboard-layout main,
-body.page-audit-log .dashboard-layout main,
-body.page-manage-landing-page .dashboard-layout main,
-body.page-edit-password .dashboard-layout main {
-    background: #f0f5fc !important;
-}
-
-body.page-admin-dashboard .logo-text,
-body.page-audit-log .logo-text,
-body.page-manage-landing-page .logo-text {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-}
-
-body.page-admin-dashboard .logo-link,
-body.page-audit-log .logo-link,
-body.page-manage-landing-page .logo-link,
-body.page-edit-password .logo-link {
-    color: #ffffff !important;
-}
-
 .sidebar-user {
     background: rgba(255, 255, 255, 0.07) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -60,19 +37,13 @@ body.page-edit-password .logo-link {
     background: rgba(255, 255, 255, 0.1) !important;
 }
 
-body.page-admin-dashboard .user-name,
-body.page-audit-log .user-name,
-body.page-manage-landing-page .user-name,
-body.page-edit-password .user-name {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .user-name {
     color: #ffffff !important;
     font-size: 14px !important;
     font-weight: 600 !important;
 }
 
-body.page-admin-dashboard .role-badge,
-body.page-audit-log .role-badge,
-body.page-manage-landing-page .role-badge,
-body.page-edit-password .role-badge {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .role-badge {
     background: rgba(255, 255, 255, 0.12) !important;
     color: #c8d8f8 !important;
     font-size: 10px !important;
@@ -89,64 +60,40 @@ body.page-edit-password .role-badge {
 }
 
 /* --- Nav links --- */
-body.page-admin-dashboard .nav-link,
-body.page-audit-log .nav-link,
-body.page-manage-landing-page .nav-link,
-body.page-edit-password .nav-link {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .nav-link {
     color: #a8bdd8 !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
 }
 
-body.page-admin-dashboard .nav-link:hover,
-body.page-audit-log .nav-link:hover,
-body.page-manage-landing-page .nav-link:hover,
-body.page-edit-password .nav-link:hover {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .nav-link:hover {
     background: rgba(255, 255, 255, 0.09) !important;
     color: #ffffff !important;
 }
 
-body.page-admin-dashboard .nav-link.active,
-body.page-audit-log .nav-link.active,
-body.page-manage-landing-page .nav-link.active,
-body.page-edit-password .nav-link.active {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .nav-link.active {
     background: rgba(255, 255, 255, 0.14) !important;
     color: #ffffff !important;
 }
 
-body.page-admin-dashboard .nav-link.active::before,
-body.page-audit-log .nav-link.active::before,
-body.page-manage-landing-page .nav-link.active::before,
-body.page-edit-password .nav-link.active::before {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .nav-link.active::before {
     background: #f5a623 !important;
 }
 
-body.page-admin-dashboard .nav-link.logout,
-body.page-audit-log .nav-link.logout,
-body.page-manage-landing-page .nav-link.logout,
-body.page-edit-password .nav-link.logout {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .nav-link.logout {
     color: #7a8ea8 !important;
 }
 
-body.page-admin-dashboard .nav-link.logout:hover,
-body.page-audit-log .nav-link.logout:hover,
-body.page-manage-landing-page .nav-link.logout:hover,
-body.page-edit-password .nav-link.logout:hover {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .nav-link.logout:hover {
     color: #ff8fa3 !important;
     background: rgba(255, 107, 138, 0.12) !important;
 }
 
-body.page-admin-dashboard .sidebar-footer,
-body.page-audit-log .sidebar-footer,
-body.page-manage-landing-page .sidebar-footer,
-body.page-edit-password .sidebar-footer {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .sidebar-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-body.page-admin-dashboard .nav-icon,
-body.page-audit-log .nav-icon,
-body.page-manage-landing-page .nav-icon,
-body.page-edit-password .nav-icon {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .nav-icon {
     opacity: 0.7 !important;
 }
 
@@ -174,6 +121,7 @@ body.page-edit-password .nav-icon {
     mask-size: contain;
 }
 
+/* Icon classes are generated from includes/layout.php link keys. */
 .sidebar .nav-icon-home::before {
     -webkit-mask-image: url('/public/icons/home-svgrepo-com.svg');
     mask-image: url('/public/icons/home-svgrepo-com.svg');
@@ -215,207 +163,116 @@ body.page-edit-password .nav-icon {
 }
 
 /* --- Header --- */
-body.page-admin-dashboard .dash-header,
-body.page-audit-log .dash-header,
-body.page-manage-landing-page .dash-header,
-body.page-edit-password .dash-header {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .dash-header {
     background: #ffffff !important;
     border-bottom: 1px solid #dde6f5 !important;
     backdrop-filter: none !important;
 }
 
-body.page-admin-dashboard .dash-title,
-body.page-audit-log .dash-title,
-body.page-manage-landing-page .dash-title {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard) .dash-title {
     color: #16233f !important;
     font-size: 22px !important;
     font-weight: 700 !important;
 }
 
-body.page-admin-dashboard .dash-subtitle,
-body.page-audit-log .dash-subtitle,
-body.page-manage-landing-page .dash-subtitle {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard) .dash-subtitle {
     color: #5a7090 !important;
 }
 
 /* --- Cards / typography --- */
-body.page-admin-dashboard .card,
-body.page-audit-log .card,
-body.page-manage-landing-page .card {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .card {
     background: #ffffff !important;
     border: 1px solid #dce8f4 !important;
     box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
     color: #16233f !important;
 }
 
-body.page-admin-dashboard .card h2,
-body.page-admin-dashboard .card h3,
-body.page-audit-log .card h2,
-body.page-audit-log .card h3,
-body.page-manage-landing-page .card h2,
-body.page-manage-landing-page .card h3,
-body.page-admin-dashboard h1,
-body.page-admin-dashboard h2,
-body.page-admin-dashboard h3,
-body.page-admin-dashboard h4,
-body.page-audit-log h1,
-body.page-audit-log h2,
-body.page-audit-log h3,
-body.page-audit-log h4,
-body.page-manage-landing-page h1,
-body.page-manage-landing-page h2,
-body.page-manage-landing-page h3,
-body.page-manage-landing-page h4,
-body.page-admin-dashboard strong,
-body.page-audit-log strong,
-body.page-manage-landing-page strong {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) :is(.card h2, .card h3, h1, h2, h3, h4, strong) {
     color: #16233f !important;
 }
 
-body.page-admin-dashboard .card p,
-body.page-audit-log .card p,
-body.page-manage-landing-page .card p,
-body.page-admin-dashboard p,
-body.page-audit-log p,
-body.page-manage-landing-page p,
-body.page-admin-dashboard .text-muted,
-body.page-audit-log .text-muted,
-body.page-manage-landing-page .text-muted {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) :is(.card p, p, .text-muted) {
     color: #5a7090 !important;
 }
 
 /* --- Buttons --- */
-body.page-admin-dashboard .btn-ghost,
-body.page-audit-log .btn-ghost,
-body.page-manage-landing-page .btn-ghost {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .btn-ghost {
     background: #ffffff !important;
     color: #314766 !important;
     border: 1px solid #c4d4e8 !important;
 }
 
-body.page-admin-dashboard .btn-ghost:hover,
-body.page-audit-log .btn-ghost:hover,
-body.page-manage-landing-page .btn-ghost:hover {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .btn-ghost:hover {
     background: #edf3fb !important;
     color: #16233f !important;
     border-color: #4a6ba8 !important;
 }
 
-body.page-admin-dashboard .btn-primary,
-body.page-audit-log .btn-primary,
-body.page-manage-landing-page .btn-primary {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .btn-primary {
     background: #1c2d4f !important;
     color: #ffffff !important;
     border: none !important;
     font-weight: 600 !important;
 }
 
-body.page-manage-landing-page .card .btn-primary {
-    color: #ffffff !important;
-}
-
-body.page-manage-landing-page .card .btn-primary:hover {
-    color: #ffffff !important;
-}
-
-body.page-admin-dashboard .btn-primary:hover,
-body.page-audit-log .btn-primary:hover,
-body.page-manage-landing-page .btn-primary:hover {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .btn-primary:hover {
     background: #253c68 !important;
     color: #ffffff !important;
     opacity: 1 !important;
 }
 
 /* --- Tables --- */
-body.page-admin-dashboard table,
-body.page-audit-log table,
-body.page-manage-landing-page table {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) table {
     color: #16233f !important;
 }
 
-body.page-admin-dashboard thead th,
-body.page-audit-log thead th,
-body.page-manage-landing-page thead th {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) thead th {
     color: #5a7090 !important;
     border-bottom-color: #dce8f4 !important;
 }
 
-body.page-admin-dashboard tbody td,
-body.page-audit-log tbody td,
-body.page-manage-landing-page tbody td {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) tbody td {
     color: #16233f !important;
     border-bottom-color: #edf3fb !important;
 }
 
 /* --- Forms --- */
-body.page-admin-dashboard input[type='text'],
-body.page-admin-dashboard input[type='email'],
-body.page-admin-dashboard input[type='password'],
-body.page-admin-dashboard select,
-body.page-admin-dashboard textarea,
-body.page-audit-log input[type='text'],
-body.page-audit-log input[type='email'],
-body.page-audit-log select,
-body.page-audit-log textarea,
-body.page-manage-landing-page input[type='text'],
-body.page-manage-landing-page input[type='email'],
-body.page-manage-landing-page input[type='password'],
-body.page-manage-landing-page select,
-body.page-manage-landing-page textarea {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) :is(input[type='text'], input[type='email'], input[type='password'], select, textarea) {
     background: #f7faff !important;
     border: 1px solid #c8d8ee !important;
     color: #16233f !important;
 }
 
-body.page-admin-dashboard input::placeholder,
-body.page-admin-dashboard textarea::placeholder,
-body.page-audit-log input::placeholder,
-body.page-audit-log textarea::placeholder,
-body.page-manage-landing-page input::placeholder,
-body.page-manage-landing-page textarea::placeholder {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) :is(input, textarea)::placeholder {
     color: #7a9ab8 !important;
     opacity: 1 !important;
 }
 
-body.page-admin-dashboard label,
-body.page-audit-log label,
-body.page-manage-landing-page label,
-body.page-admin-dashboard .form-label,
-body.page-audit-log .form-label,
-body.page-manage-landing-page .form-label {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) :is(label, .form-label) {
     color: #314766 !important;
     font-weight: 600 !important;
 }
 
-body.page-audit-log select,
-body.page-admin-dashboard select,
-body.page-audit-log select option,
-body.page-admin-dashboard select option {
+:is(body.page-audit-log, body.page-admin-dashboard) :is(select, select option) {
     background: #ffffff !important;
     color: #16233f !important;
     border: 1px solid #c8d8ee !important;
 }
 
 /* --- Alerts --- */
-body.page-admin-dashboard .alert,
-body.page-audit-log .alert,
-body.page-manage-landing-page .alert {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .alert {
     background: #f7faff !important;
     border-color: #c8d8ee !important;
     color: #16233f !important;
 }
 
-body.page-admin-dashboard .alert-error,
-body.page-audit-log .alert-error,
-body.page-manage-landing-page .alert-error {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .alert-error {
     background: #fff0f2 !important;
     border-color: #fcc !important;
     color: #8b1a2a !important;
 }
 
-body.page-admin-dashboard .alert-success,
-body.page-audit-log .alert-success,
-body.page-manage-landing-page .alert-success {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .alert-success {
     background: #f0fff6 !important;
     border-color: #a3e6c0 !important;
     color: #1a6040 !important;
@@ -427,15 +284,11 @@ body.page-admin-dashboard [style*='background: var(--primary)'] {
     background: #1c2d4f !important;
 }
 
-body.page-admin-dashboard [style*='color:#1a1a1a'],
-body.page-audit-log [style*='color:#1a1a1a'],
-body.page-manage-landing-page [style*='color:#1a1a1a'] {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) [style*='color:#1a1a1a'] {
     color: #ffffff !important;
 }
 
-body.page-admin-dashboard [style*='color:#3d2e00'],
-body.page-audit-log [style*='color:#3d2e00'],
-body.page-manage-landing-page [style*='color:#3d2e00'] {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) [style*='color:#3d2e00'] {
     color: #93b4d8 !important;
 }
 
@@ -444,9 +297,7 @@ body.page-admin-dashboard [style*='border-right: 1px solid rgba(0,0,0,0.12)'] {
     border-right-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-body.page-admin-dashboard [style*='color:var(--muted)'],
-body.page-audit-log [style*='color:var(--muted)'],
-body.page-manage-landing-page [style*='color:var(--muted)'],
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) [style*='color:var(--muted)'],
 body.page-audit-log [style*='color: var(--muted)'] {
     color: #5a7090 !important;
 }
@@ -456,15 +307,11 @@ body.page-audit-log [style*='color: var(--fg)'] {
     color: #16233f !important;
 }
 
-body.page-admin-dashboard [style*='border-bottom:1px solid var(--border)'],
-body.page-audit-log [style*='border-bottom:1px solid var(--border)'],
-body.page-manage-landing-page [style*='border-bottom:1px solid var(--border)'] {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) [style*='border-bottom:1px solid var(--border)'] {
     border-bottom-color: #e8f0f8 !important;
 }
 
-body.page-admin-dashboard [style*='border-bottom:2px solid var(--border)'],
-body.page-audit-log [style*='border-bottom:2px solid var(--border)'],
-body.page-manage-landing-page [style*='border-bottom:2px solid var(--border)'] {
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) [style*='border-bottom:2px solid var(--border)'] {
     border-bottom-color: #c8d8ee !important;
 }
 
@@ -566,19 +413,6 @@ body.page-audit-log [style*='background:var(--surface-alt'],
 body.page-audit-log [style*='background: var(--surface'] {
     background: #f7faff !important;
 }
-body.page-audit-log .card {
-    background: #ffffff !important;
-    border: 1px solid #dce8f4 !important;
-}
-body.page-audit-log .btn-ghost {
-    background: #ffffff !important;
-    color: #314766 !important;
-    border: 1px solid #c4d4e8 !important;
-}
-body.page-audit-log .btn-primary {
-    background: #1c2d4f !important;
-    color: #ffffff !important;
-}
 
 /* Modal helper */
 body.page-admin-dashboard .card[style*='max-width:500px'],
@@ -670,78 +504,37 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 
 /* Cards */
 .browse-admin-shell .card,
-.browse-admin-shell .article-card {
+body .browse-admin-shell .article-card {
     background: #ffffff !important;
     border: 1px solid #dce8f4 !important;
     box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
     color: #16233f !important;
 }
 
-/* Browse blocks */
-.browse-admin-shell .browse-overview-card,
-.browse-admin-shell .browse-controls-card,
+/* Featured story container on the admin browse page. */
 .browse-admin-shell .browse-featured-card {
+    background: #ffffff !important;
+    border: 1px solid #dce8f4 !important;
+    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
+    color: #16233f !important;
     padding: 24px !important;
     border-radius: 16px !important;
     margin-bottom: 24px;
-}
-.browse-admin-shell .browse-featured-card {
     display: block !important;
 }
-.browse-admin-shell .browse-overview-card {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-    gap: 24px;
-    align-items: start;
-}
 
-/* Kicker + headings */
-.browse-admin-shell .browse-overview-kicker,
-.browse-admin-shell .browse-section-kicker {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: #edf3fb;
-    border: 1px solid #d6e3f2;
-    color: #314766 !important;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-.browse-admin-shell .browse-overview-title,
+/* Headings and muted copy inside the live admin browse markup. */
 .browse-admin-shell .browse-featured-title,
-.browse-admin-shell .browse-results-head h3,
-.browse-admin-shell .browse-controls-head h3,
-.browse-admin-shell .browse-empty-state h3,
-.browse-admin-shell .browse-featured-head h3 {
+.browse-admin-shell .browse-empty-state h3 {
     color: #16233f !important;
 }
-.browse-admin-shell .browse-overview-title {
-    margin: 14px 0 10px;
-    font-size: 34px;
-    line-height: 1.08;
-}
-.browse-admin-shell .browse-overview-text,
-.browse-admin-shell .browse-controls-head p,
-.browse-admin-shell .browse-results-head p,
 .browse-admin-shell .browse-empty-state p,
-.browse-admin-shell .browse-featured-head p,
 .browse-admin-shell .browse-featured-excerpt,
 .browse-admin-shell .card-excerpt {
     color: #4a6080 !important;
 }
 
-/* Search form */
-.browse-admin-shell .browse-search-form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-.browse-admin-shell .browse-search-form .search-input-wrapper {
-    flex: 1;
-}
+/* Shared form controls inside the admin browse shell. */
 .browse-admin-shell input[type='text'],
 .browse-admin-shell input[type='email'],
 .browse-admin-shell input[type='password'],
@@ -779,36 +572,7 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     color: #ffffff !important;
 }
 
-/* Stats tiles */
-.browse-admin-shell .browse-overview-stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 16px;
-}
-.browse-admin-shell .browse-overview-stat {
-    padding: 16px;
-    border: 1px solid #dce8f4;
-    border-radius: 12px;
-    background: #f7faff;
-}
-.browse-admin-shell .browse-overview-stat strong {
-    display: block;
-    color: #16233f !important;
-    font-size: 18px;
-    line-height: 1.3;
-}
-.browse-admin-shell .browse-overview-stat span {
-    display: block;
-    color: #5a7090 !important;
-    font-size: 12px;
-    margin-top: 4px;
-}
-
-/* Filters */
-.browse-admin-shell .browse-controls-head {
-    margin-bottom: 18px;
-}
+/* Category and sort filters. */
 .browse-admin-shell .browse-filter-row {
     margin-bottom: 18px;
 }
@@ -842,28 +606,7 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     color: #5a7090 !important;
 }
 
-/* Featured/results heads */
-.browse-admin-shell .browse-featured-head,
-.browse-admin-shell .browse-results-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    align-items: flex-end;
-    margin-bottom: 18px;
-}
-.browse-admin-shell .browse-results-section {
-    margin-bottom: 24px;
-}
-
-/* Featured story */
-.browse-admin-shell .browse-featured-story {
-    display: grid;
-    grid-template-columns: minmax(280px, 1fr) minmax(0, 1fr);
-    overflow: hidden;
-    border-radius: 16px;
-    border: 1px solid #dce8f4;
-    background: #f7faff;
-}
+/* Featured story image and credibility styling. */
 .browse-admin-shell .browse-featured-media {
     position: relative !important;
     min-height: 360px;
@@ -922,10 +665,15 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     color: #5a7090 !important;
 }
 
-/* Article cards in browse-admin (base layout, overridden below for full restoration) */
+/* Article cards rendered by includes/layout.php for the admin browse page. */
 .browse-admin-shell .browse-article-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
+}
+body .browse-admin-shell .article-card {
+    height: 100% !important;
+    padding: 14px !important;
+    overflow: hidden !important;
 }
 .browse-admin-shell .card-top {
     border-bottom: 1px solid #e8f0f8 !important;
@@ -944,6 +692,15 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 }
 .browse-admin-shell .card-image {
     background: #edf3fb !important;
+    height: 148px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    margin: 8px !important;
+}
+.browse-admin-shell .card-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
 }
 .browse-admin-shell .author-avatar {
     background: #edf3fb !important;
@@ -1183,45 +940,6 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     color: #c4d9f8 !important;
 }
 
-.browse-admin-shell .browse-hero-search {
-    background: rgba(255, 255, 255, 0.12) !important;
-    border: 1px solid rgba(184, 209, 248, 0.32) !important;
-    border-radius: 999px !important;
-    padding: 4px !important;
-}
-
-.browse-admin-shell .browse-hero-search .search-btn {
-    background: rgba(18, 38, 74, 0.9) !important;
-    border: 1px solid rgba(172, 199, 236, 0.28) !important;
-    color: #d9e8ff !important;
-}
-
-.browse-admin-shell .browse-hero-search .search-btn svg {
-    width: 16px !important;
-    height: 16px !important;
-    display: block !important;
-    stroke: currentColor !important;
-}
-
-.browse-admin-shell .browse-hero-search .search-input-wrapper {
-    background: rgba(255, 255, 255, 0.96) !important;
-    border: none !important;
-    border-radius: 999px !important;
-    min-height: 34px !important;
-    padding: 0 8px 0 12px !important;
-}
-
-.browse-admin-shell .browse-hero-search .search-input-wrapper input {
-    background: transparent !important;
-    border: none !important;
-    color: #203559 !important;
-}
-
-.browse-admin-shell .browse-hero-search .clear-btn img {
-    filter: none !important;
-    opacity: 0.75 !important;
-}
-
 .article-admin-shell .article-body a {
     color: #1d4ed8 !important;
     text-decoration-color: rgba(29, 78, 216, 0.35) !important;
@@ -1286,7 +1004,8 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 }
 
 /* ================================================================
-   ADMIN PROFILE – Full user-style layout (light theme)
+   ADMIN PROFILE - Full user-style layout (light theme)
+   Applies only when the logged-in user is a system admin.
    ================================================================ */
 
 /* --- Layout (mirror user profile grid) --- */
@@ -1538,7 +1257,7 @@ body.page-profile .profile-avatar {
     font-weight: 800 !important;
 }
 
-/* --- Avatar upload area --- */
+/* Avatar upload area for the system-admin profile form. */
 .profile-admin-shell .image-upload-container {
     display: flex;
     align-items: center;
@@ -1573,7 +1292,7 @@ body.page-profile .profile-avatar {
     gap: 8px;
 }
 
-/* Already have .btn-dark and .btn-light in the admin shell – ensure they look right */
+/* Local profile buttons override the darker user-dashboard button styles. */
 .profile-admin-shell .btn-dark {
     background: #1c2d4f !important;
     color: #ffffff !important;
@@ -1594,7 +1313,7 @@ body.page-profile .profile-avatar {
     padding: 8px 16px;
 }
 
-/* --- Actions row (Save Changes / Edit Password) --- */
+/* Profile form actions. */
 .profile-admin-shell .profile-actions {
     display: flex;
     gap: 10px;
@@ -1616,7 +1335,7 @@ body.page-profile .profile-avatar {
     color: #16233f;
 }
 
-/* --- Interests section --- */
+/* Editable interest chips on the system-admin profile page. */
 .profile-admin-shell .interests-section {
     margin-top: 28px;
     padding-top: 24px;
@@ -1685,43 +1404,22 @@ body.page-profile .profile-avatar {
     background: #253c68 !important;
 }
 
-/* --- Hide checkboxes inside interest chips (already done, but reinforce) --- */
+/* Keep the real checkboxes accessible to JS while the chip labels carry the UI. */
 .profile-admin-shell .interest-checkbox-profile {
     position: absolute !important;
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-/* --- Responsive adjustments for admin profile --- */
+/* Collapse the profile side column on narrower admin screens. */
 @media (max-width: 1200px) {
     .profile-admin-shell .profile-layout {
         grid-template-columns: 1fr;
     }
 }
 /* ================================================================
-   SYSTEM ADMIN AI PAGES
+   SYSTEM ADMIN AI DASHBOARD
    ================================================================ */
-body.page-ai-dashboard .nav-link {
-    color: #a8bdd8 !important;
-}
-body.page-ai-dashboard .nav-link:hover,
-body.page-ai-dashboard .nav-link.active {
-    background: rgba(255, 255, 255, 0.14) !important;
-    color: #ffffff !important;
-}
-
-body.page-ai-dashboard .dash-header {
-    background: #ffffff !important;
-    border-bottom: 1px solid #dde6f5 !important;
-}
-body.page-ai-dashboard .dash-title {
-    color: #16233f !important;
-    font-size: 22px !important;
-    font-weight: 700 !important;
-}
-body.page-ai-dashboard .dash-subtitle {
-    color: #5a7090 !important;
-}
 
 .admin-ai-content {
     width: 100%;
@@ -1825,20 +1523,6 @@ body.page-ai-dashboard .btn-primary {
     border: 0 !important;
 }
 
-/* nav icon helpers */
-.nav-icon-ai {
-    background: transparent !important;
-    box-shadow: none !important;
-}
-.nav-icon-metrics {
-    background: #22c55e;
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
-}
-.nav-icon-settings {
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
 /* ================================================================
    Global surface consistency for admin shells
    ================================================================ */
@@ -1853,22 +1537,14 @@ body.page-browse-articles .browse-admin-shell {
 body.page-admin-dashboard .dashboard-layout main,
 body.page-manage-landing-page .dashboard-layout main,
 body.page-audit-log .dashboard-layout main,
-body.page-ai-dashboard .dashboard-layout main {
+body.page-ai-dashboard .dashboard-layout main,
+body.page-edit-password .dashboard-layout main {
     min-height: 100vh !important;
     background: #f0f5fc !important;
 }
 
 /* responsive */
 @media (max-width: 1100px) {
-    .browse-admin-shell .browse-overview-card,
-    .browse-admin-shell .browse-featured-story {
-        grid-template-columns: 1fr;
-    }
-
-    .browse-admin-shell .browse-overview-stats {
-        grid-template-columns: 1fr;
-    }
-
     .browse-admin-shell .browse-article-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1885,19 +1561,9 @@ body.page-ai-dashboard .dashboard-layout main {
         flex-direction: column;
     }
 
-    .admin-ai-weight-row {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
 }
 
 @media (max-width: 760px) {
-    .browse-admin-shell .browse-featured-head,
-    .browse-admin-shell .browse-results-head {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
     .browse-admin-shell .browse-article-grid {
         grid-template-columns: 1fr;
     }
@@ -1907,96 +1573,14 @@ body.page-ai-dashboard .dashboard-layout main {
     }
 }
 
-/* ================================================================
-   ADMIN BROWSE – FINAL LIGHT THEME OVERRIDES (high specificity)
-   Includes clear button fix and full article card restoration
-   ================================================================ */
-body.page-admin-dashboard .browse-admin-shell .article-card {
-    background: #ffffff !important;
-    border: 1px solid #dce8f4 !important;
-    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
-    color: #16233f !important;
-    padding: 14px !important;
-    overflow: visible !important;
-}
-
-body.page-admin-dashboard .browse-admin-shell .article-card .card-image {
-    background: #edf3fb !important;
-}
-
-body.page-admin-dashboard .browse-admin-shell .article-card .card-title,
-body.page-admin-dashboard .browse-admin-shell .article-card .card-title a,
-body.page-admin-dashboard .browse-admin-shell .article-card .author-name {
-    color: #16233f !important;
-}
-
-body.page-admin-dashboard .browse-admin-shell .article-card .card-excerpt,
-body.page-admin-dashboard .browse-admin-shell .article-card .card-time,
-body.page-admin-dashboard .browse-admin-shell .article-card .card-footer,
-body.page-admin-dashboard .browse-admin-shell .article-card .card-footer * {
-    color: #5a7090 !important;
-}
-
-body.page-admin-dashboard .browse-admin-shell .article-card .author-avatar {
-    background: #edf3fb !important;
-    border: 2px solid #c8d8ee !important;
-    color: #1c2d4f !important;
-}
-
-body.page-admin-dashboard .browse-admin-shell .article-card .category-tag {
-    border-radius: 999px;
-}
-
-body.page-admin-dashboard .browse-admin-shell .article-card .trust-badge {
-    background: #eaf9f0 !important;
-    border: 1px solid #bfe5cf !important;
-    color: #166534 !important;
-}
-
-body.page-admin-dashboard .browse-admin-shell .browse-overview-card,
-body.page-admin-dashboard .browse-admin-shell .browse-controls-card,
-body.page-admin-dashboard .browse-admin-shell .browse-featured-card {
-    background: #ffffff !important;
-    border: 1px solid #dce8f4 !important;
-    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
-    color: #16233f !important;
-}
-
-body.page-admin-dashboard .browse-admin-shell .clear-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: auto;
-    height: auto;
-    padding: 4px;
-    opacity: 0.65;
-    transition: opacity 0.15s;
-}
-
-body.page-admin-dashboard .browse-admin-shell .clear-btn img {
-    width: 16px;
-    height: 16px;
-    filter: none !important;
-    opacity: 1;
-}
-
-body.page-admin-dashboard .browse-admin-shell .clear-btn:hover {
-    opacity: 1;
-}
-
-body.page-admin-dashboard .browse-admin-shell {
-    background: #f0f5fc !important;
-    color: #16233f !important;
-}
-
-/* Hover effect for article cards on admin browse */
+/* Admin browse article cards should still feel clickable in the light theme. */
 .browse-admin-shell .article-card:hover {
     border-color: #8fa9ca !important;
     box-shadow: 0 8px 22px rgba(28, 45, 79, 0.08) !important;
     transform: translateY(-2px);
 }
 
-/* Keep admin browse hero search aligned with user browse styling */
+/* Hero search uses a compact pill layout in the admin browse header. */
 body .browse-admin-shell .browse-hero-search {
     display: flex;
     align-items: center;
@@ -2098,73 +1682,7 @@ body .browse-admin-shell .browse-hero-search .clear-btn img {
     opacity: 0.75 !important;
 }
 
-/* ================================================================
-   ADMIN BROWSE – FINAL LIGHT THEME OVERRIDES
-   (uses body prefix for weight, but NOT page-admin-dashboard)
-   ================================================================ */
-body .browse-admin-shell .article-card {
-    background: #ffffff !important;
-    border: 1px solid #dce8f4 !important;
-    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
-    color: #16233f !important;
-    padding: 14px !important;
-    overflow: hidden !important;
-    height: 100% !important;
-}
-
-body .browse-admin-shell .article-card .card-image {
-    background: #edf3fb !important;
-    height: 148px !important; /* keep the same height as the dark theme */
-    overflow: hidden !important;
-    border-radius: 12px !important; /* optional: gives rounded corners */
-    margin: 8px !important; /* space around the image container */
-}
-
-body .browse-admin-shell .article-card .card-image img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important; /* crops the image nicely */
-}
-
-body .browse-admin-shell .article-card .card-title,
-body .browse-admin-shell .article-card .card-title a,
-body .browse-admin-shell .article-card .author-name {
-    color: #16233f !important;
-}
-
-body .browse-admin-shell .article-card .card-excerpt,
-body .browse-admin-shell .article-card .card-time,
-body .browse-admin-shell .article-card .card-footer,
-body .browse-admin-shell .article-card .card-footer * {
-    color: #5a7090 !important;
-}
-
-body .browse-admin-shell .article-card .author-avatar {
-    background: #edf3fb !important;
-    border: 2px solid #c8d8ee !important;
-    color: #1c2d4f !important;
-}
-
-body .browse-admin-shell .article-card .category-tag {
-    border-radius: 999px;
-}
-
-body .browse-admin-shell .article-card .trust-badge {
-    background: #eaf9f0 !important;
-    border: 1px solid #bfe5cf !important;
-    color: #166534 !important;
-}
-
-body .browse-admin-shell .browse-overview-card,
-body .browse-admin-shell .browse-controls-card,
-body .browse-admin-shell .browse-featured-card {
-    background: #ffffff !important;
-    border: 1px solid #dce8f4 !important;
-    box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
-    color: #16233f !important;
-}
-
-/* Clear button fix – no body class dependency */
+/* Clear button fix, no body class dependency. */
 body .browse-admin-shell .clear-btn {
     display: inline-flex !important;
     align-items: center !important;
@@ -2194,13 +1712,8 @@ body .browse-admin-shell .clear-btn:hover {
     opacity: 1;
 }
 
-body .browse-admin-shell {
-    background: #f0f5fc !important;
-    color: #16233f !important;
-}
-
 /* ================================================================
-   FLAG MODAL – Force it above the sidebar on admin pages
+   FLAG MODAL - Keep moderation dialogs above the admin sidebar.
    ================================================================ */
 .modal {
     position: fixed !important;
@@ -2235,13 +1748,13 @@ body .browse-admin-shell {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Ensure sidebar doesn’t overlap */
+/* Keep the sidebar below modal overlays. */
 .sidebar {
     z-index: 100 !important;
 }
 
 /* ================================================================
-   MOBILE – Admin specific
+   MOBILE - Admin-specific navigation behavior.
    ================================================================ */
 @media (max-width: 768px) {
     .hamburger span {
@@ -2280,12 +1793,11 @@ body.page-edit-password .hamburger-btn,
     body.page-edit-password .hamburger-btn,
     .browse-admin-shell .hamburger-btn {
         display: flex !important;
-        /* always start as hamburger (3 lines), never X */
-        aria-expanded: false;
+        /* Keep the control visible when the sidebar moves off canvas. */
     }
 }
 
-/* ADD this new rule — force the spans to never show as X on admin pages */
+/* Force the mobile menu button to stay as three lines on admin pages. */
 body.page-admin-dashboard .hamburger-btn[aria-expanded='true'] span:nth-child(1),
 body.page-audit-log .hamburger-btn[aria-expanded='true'] span:nth-child(1),
 body.page-manage-landing-page .hamburger-btn[aria-expanded='true'] span:nth-child(1),
@@ -2309,7 +1821,7 @@ body.page-ai-dashboard .hamburger-btn[aria-expanded='true'] span:nth-child(3),
     transform: none !important;
 }
 
-/* ── Mobile admin: ensure sidebar starts off-canvas ── */
+/* Mobile admin sidebar starts off canvas until the menu button opens it. */
 @media (max-width: 768px) {
     body.page-admin-dashboard .sidebar,
     body.page-audit-log .sidebar,
