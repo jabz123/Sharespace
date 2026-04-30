@@ -150,7 +150,6 @@ if ($successMsg): ?>
 
     <div class="left-footer">
         <p class="signup-cta">Don't have an account? <a href="/register.php">Sign up free</a></p>
-        <div class="status-pill"><span class="status-dot"></span>All systems normal</div>
     </div>
 </div>
 
@@ -161,63 +160,39 @@ if ($successMsg): ?>
     <div class="bg-glow-teal"></div>
     <div class="bg-glow-amber"></div>
 
-    <div class="r-topbar">
-        <div class="live-badge"><span class="live-dot"></span><span class="live-text">Live feed</span></div>
-        <div class="r-stats">
-            <div class="r-stat"><div class="r-stat-val">1,284</div><div class="r-stat-lbl">Articles today</div></div>
-            <div class="r-divider"></div>
-            <div class="r-stat"><div class="r-stat-val">94.2%</div><div class="r-stat-lbl">Avg trust score</div></div>
-            <div class="r-divider"></div>
-            <div class="r-stat"><div class="r-stat-val">3.4K</div><div class="r-stat-lbl">Active writers</div></div>
-        </div>
-    </div>
+    <div class="login-brand-panel">
+        <div class="login-brand-content">
+            <span class="login-brand-kicker">Dashboard access</span>
+            <h2>Pick up where your newsroom left off.</h2>
+            <p>Sign in to return to your saved articles, publishing tools, comments, and credibility dashboard.</p>
 
-    <div class="r-feed">
-        <div class="feed-hdr">
-            <span class="feed-lbl">Trending Now</span>
-            <div class="feed-chips">
-                <span class="chip active">All</span>
-                <span class="chip">World</span>
-                <span class="chip">Tech</span>
+            <div class="login-return-card">
+                <div class="login-return-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3 4 7v6c0 5 3.4 7.7 8 8 4.6-.3 8-3 8-8V7l-8-4Z"/>
+                        <path d="m9 12 2 2 4-5"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3>Your workspace is ready</h3>
+                    <p>Continue reading, writing, and reviewing trusted stories from one calm dashboard.</p>
+                </div>
             </div>
-        </div>
-        <div class="a-card"><span class="a-dot d-world"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-world">World</span><span class="a-sep">/</span><span class="a-time">2 min ago</span></div><div class="a-title">Global Leaders Reach Historic Climate Agreement at Summit in Geneva</div><div class="a-src">Reuters / International Affairs</div></div><div class="a-right"><div class="trust hi">94%</div></div></div>
-        <div class="a-card"><span class="a-dot d-tech"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-tech">Technology</span><span class="a-sep">/</span><span class="a-time">14 min ago</span></div><div class="a-title">AI Breakthrough Enables Real-Time Medical Diagnosis at Hospital Scale</div><div class="a-src">Tech Review / Health & AI</div></div><div class="a-right"><div class="trust hi">89%</div></div></div>
-        <div class="a-card"><span class="a-dot d-econ"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-econ">Economics</span><span class="a-sep">/</span><span class="a-time">1 hr ago</span></div><div class="a-title">Central Banks Signal Coordinated Rate Cuts as Inflation Eases</div><div class="a-src">Financial Times / Monetary Policy</div></div><div class="a-right"><div class="trust hi">91%</div></div></div>
-        <div class="a-card"><span class="a-dot d-sci"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-sci">Science</span><span class="a-sep">/</span><span class="a-time">3 hr ago</span></div><div class="a-title">NASA Confirms Substantial Water Ice Deposits on Lunar South Pole</div><div class="a-src">NASA / Space Exploration</div></div><div class="a-right"><div class="trust hi">97%</div></div></div>
-        <div class="a-card"><span class="a-dot d-geo"></span><div class="a-body"><div class="a-meta"><span class="a-cat c-geo">Geopolitics</span><span class="a-sep">/</span><span class="a-time">5 hr ago</span></div><div class="a-title">Infrastructure Bill Passes Senate With Bipartisan Support</div><div class="a-src">AP News / US Politics</div></div><div class="a-right"><div class="trust mid">86%</div></div></div>
-    </div>
 
-    <div class="r-hero">
-        <div class="hero-copy">
-            <div class="hero-eyebrow"><div class="hero-line"></div><span class="hero-eyebrow-lbl">Trusted Journalism</span></div>
-            <h2>Truth in <em>every</em><br>headline.</h2>
-            <p>Join thousands of journalists and readers who trust SharedSpace for AI-verified, fact-checked news.</p>
-        </div>
-        <div class="hero-stats">
-            <div class="hs"><div class="hs-n">12<sup>K+</sup></div><div class="hs-l">Verified Articles</div></div>
-            <div class="hs"><div class="hs-n">94<sup>%</sup></div><div class="hs-l">Trust Score</div></div>
-            <div class="hs"><div class="hs-n">3.4<sup>K</sup></div><div class="hs-l">Active Writers</div></div>
-        </div>
-    </div>
-
-    <div class="r-ticker">
-        <span class="ticker-badge">Breaking</span>
-        <div class="ticker-track">
-            <span class="ticker-item">Climate Summit Agreement Signed</span>
-            <span class="ticker-item">AI Medical Breakthrough</span>
-            <span class="ticker-item">Fed Rate Cut Signals</span>
-            <span class="ticker-item">Lunar Water Ice Confirmed</span>
-            <span class="ticker-item">Infrastructure Bill Passed</span>
-            <span class="ticker-item">OPEC+ Output Decision Due</span>
-            <span class="ticker-item">Tech Antitrust Ruling Today</span>
-            <span class="ticker-item">Climate Summit Agreement Signed</span>
-            <span class="ticker-item">AI Medical Breakthrough</span>
-            <span class="ticker-item">Fed Rate Cut Signals</span>
-            <span class="ticker-item">Lunar Water Ice Confirmed</span>
-            <span class="ticker-item">Infrastructure Bill Passed</span>
-            <span class="ticker-item">OPEC+ Output Decision Due</span>
-            <span class="ticker-item">Tech Antitrust Ruling Today</span>
+            <div class="login-panel-grid">
+                <div>
+                    <span>Saved</span>
+                    <strong>Articles</strong>
+                </div>
+                <div>
+                    <span>Drafts</span>
+                    <strong>Ready</strong>
+                </div>
+                <div>
+                    <span>Signals</span>
+                    <strong>Verified</strong>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -235,12 +210,6 @@ function togglePw() {
         icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
     }
 }
-document.querySelectorAll('.chip').forEach(c => {
-    c.addEventListener('click', () => {
-        document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
-        c.classList.add('active');
-    });
-});
 </script>
 </body>
 </html>

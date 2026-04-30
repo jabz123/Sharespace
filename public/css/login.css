@@ -455,6 +455,115 @@ body {
     pointer-events: none;
 }
 
+.login-brand-panel {
+    position: relative;
+    z-index: 5;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 56px;
+}
+.login-brand-content {
+    width: min(100%, 560px);
+}
+.login-brand-kicker {
+    display: inline-flex;
+    width: max-content;
+    margin-bottom: 18px;
+    padding: 5px 11px;
+    border: 1px solid rgba(245, 158, 11, 0.32);
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.09);
+    color: var(--amber);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+.login-brand-content h2 {
+    max-width: 12ch;
+    color: #fff;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+}
+.login-brand-content > p {
+    max-width: 56ch;
+    color: rgba(219, 231, 248, 0.72);
+    font-size: 15px;
+    line-height: 1.75;
+    margin-bottom: 30px;
+}
+.login-return-card {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+        rgba(6, 14, 29, 0.34);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18);
+}
+.login-return-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.24);
+    color: var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.login-return-card h3 {
+    color: rgba(255, 255, 255, 0.92);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+.login-return-card p {
+    color: rgba(219, 231, 248, 0.62);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.login-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+}
+.login-panel-grid div {
+    min-height: 96px;
+    padding: 18px;
+    border: 1px solid rgba(245, 158, 11, 0.16);
+    border-radius: 16px;
+    background: rgba(8, 16, 31, 0.46);
+}
+.login-panel-grid span {
+    display: block;
+    color: rgba(147, 169, 204, 0.85);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.login-panel-grid strong {
+    color: #f8c15c;
+    font-size: 18px;
+    line-height: 1.1;
+}
+
 /* Topbar */
 .r-topbar {
     position: relative;
