@@ -21,6 +21,7 @@ if (!$user || $user->role !== 'free') {
 
 \Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
 //create new stripe checkout session for new subscription 
+//will redirect user to stripe checkout page
 try {
     $session = \Stripe\Checkout\Session::create([
         'mode' => 'subscription',
@@ -31,8 +32,8 @@ try {
         ]],
         'customer_email' => $user->email,
         'metadata' => ['user_id' => $user->id],
-        'success_url' => 'https://sharedspace.tech/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}', 
-        'cancel_url' => 'https://sharedspace.tech/subscribe-cancel.php', 
+        'success_url' => 'https://sharedspace.tech/subscribe-success.php?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url' => 'https://sharedspace.tech/subscribe-cancel.php',
     ]);
 
     header('Location: ' . $session->url);

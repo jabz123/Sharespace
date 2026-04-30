@@ -80,7 +80,7 @@ class AdminController
              GROUP BY a.id
              ORDER BY a.published_at DESC'
         );
-        return array_map(fn ($r) => new Article($r), $rows);
+        return array_map(fn($r) => new Article($r), $rows);
     }
 
     // get single article by id (no author restriction)
@@ -134,7 +134,7 @@ class AdminController
     public function getAllCategories(): array
     {
         $rows = DB::query('SELECT * FROM categories ORDER BY name');
-        return array_map(fn ($r) => new Category($r), $rows);
+        return array_map(fn($r) => new Category($r), $rows);
     }
 
     // ─────────────────────────────────────────────
@@ -145,7 +145,7 @@ class AdminController
     public function getAllUsers(): array
     {
         $rows = DB::query('SELECT * FROM users ORDER BY created_at DESC');
-        return array_map(fn ($r) => new User($r), $rows);
+        return array_map(fn($r) => new User($r), $rows);
     }
 
     // get single user by id
@@ -449,6 +449,7 @@ class AdminController
         }
     }
 
+    // fetches all unverified articles (between 60-80)for expert to review
     public function getUnverifiedArticlesForExpert(int $userId): array
     {
         DB::ensureArticleReviewWorkflow();
@@ -479,6 +480,7 @@ class AdminController
         );
     }
 
+    //fetch specific unverified article for expert to review nased on article and user id
     public function getUnverifiedArticleForExpert(int $userId, int $articleId): ?array
     {
         DB::ensureArticleReviewWorkflow();
@@ -497,6 +499,7 @@ class AdminController
         );
     }
 
+    //fetch review progress of article and cat expert that reviewed it
     public function getExpertReviewProgress(int $articleId): array
     {
         DB::ensureArticleReviewWorkflow();
@@ -511,6 +514,9 @@ class AdminController
         );
     }
 
+    //for expert to decide verify or unverify
+    //will update review status in article_expert_reviews
+    //if unverify, article will go back to pending and send back to draft
     public function reviewPendingArticle(int $articleId, int $expertId, string $decision): array
     {
         DB::ensureArticleReviewWorkflow();
@@ -618,7 +624,7 @@ class AdminController
              ORDER BY flag_count DESC, a.published_at DESC",
             [$categoryId]
         );
-        return array_map(fn ($r) => new Article($r), $rows);
+        return array_map(fn($r) => new Article($r), $rows);
     }
 
     // get all individual flag reports for a specific article

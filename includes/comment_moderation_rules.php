@@ -1,5 +1,8 @@
 <?php
+
 //comment logic. for comment submission and moderation
+//will be called from submit-feedback
+
 require_once __DIR__ . '/article_flag_rules.php';
 
 function comment_moderation_reject(string $comment, string $label = 'Comment'): ?string
@@ -42,9 +45,28 @@ function comment_moderation_reject(string $comment, string $label = 'Comment'): 
         : strtolower($trimmed);
 
     $junkExact = [
-        'test', 'testing', 'asdf', 'asdasd', 'qwer', 'qwerty', 'lol', 'lmao',
-        'idk', 'no', 'none', 'n/a', 'na', '?', '??', '???', '????',
-        '!', '!!', '!!!', '....', '...',
+        'test',
+        'testing',
+        'asdf',
+        'asdasd',
+        'qwer',
+        'qwerty',
+        'lol',
+        'lmao',
+        'idk',
+        'no',
+        'none',
+        'n/a',
+        'na',
+        '?',
+        '??',
+        '???',
+        '????',
+        '!',
+        '!!',
+        '!!!',
+        '....',
+        '...',
     ];
 
     if (in_array($lower, $junkExact, true)) {

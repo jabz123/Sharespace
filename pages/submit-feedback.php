@@ -1,5 +1,10 @@
 <?php
 
+//receive post feednack form from profile page
+//will validate form input and insert into site_feedback as pending
+//will call comment_moderation_reject in comment_moderation_rules to validate feedback
+//also will call sentiment analysis webhook to get sentiment score and label
+
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/comment_moderation_rules.php';
@@ -11,7 +16,7 @@ function feedback_word_count(string $content): int
     $normalized = preg_replace("/[^\p{L}\p{N}']+/u", ' ', $content) ?? '';
     $words = preg_split('/\s+/u', trim($normalized), -1, PREG_SPLIT_NO_EMPTY);
 
-    return count(array_filter($words ?: [], static fn ($word) => preg_match('/[\p{L}\p{N}]/u', $word)));
+    return count(array_filter($words ?: [], static fn($word) => preg_match('/[\p{L}\p{N}]/u', $word)));
 }
 
 $auth = new AuthController();

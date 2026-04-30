@@ -1,6 +1,6 @@
 <?php
 
-//this page is useless apparently, its not being used at all. Maybe remove this.
+//this is success page after user submits article (60-80) to cat expert for review
 
 
 require_once __DIR__ . '/../includes/layout.php';

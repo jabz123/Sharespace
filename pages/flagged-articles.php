@@ -1,4 +1,8 @@
 <?php
+
+//categor admin page to review flagged articles in own category
+//shows list of flagged articles and why
+
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
@@ -16,7 +20,7 @@ if ($user->role !== 'category_admin') {
 }
 
 $assignedCategory = assigned_category_for_expert((int) $user->id);
-
+//handle actions for flag review if form submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
     $action = $_POST['action'] ?? '';
     $articleId = (int) ($_POST['article_id'] ?? 0);
@@ -57,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $assignedCategory) {
         redirect('/pages/flagged-articles.php', $result['error']);
     }
 }
-
+//set default empty variables for article flag details 
 $detailId = (int) ($_GET['id'] ?? 0);
 $detailArticle = null;
 $flagReports = [];
@@ -71,7 +75,7 @@ if ($detailId && $assignedCategory) {
         $flagReports = $adminCtrl->getFlagsByArticle($detailId);
     }
 }
-
+//fetch flagged articles for category admins assigned category 
 $flaggedArticles = $assignedCategory
     ? $adminCtrl->getFlaggedArticlesByCategory((int) $assignedCategory['id'])
     : [];

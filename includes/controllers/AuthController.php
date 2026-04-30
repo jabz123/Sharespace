@@ -117,11 +117,9 @@ class AuthController
             $mail->Subject = $subject;
             $mail->Body = $message;
             $mail->send();
-
         } catch (Exception $e) {
 
             error_log("Mailer Error: {$mail->ErrorInfo}");
-
         }
     }
 
@@ -353,6 +351,10 @@ class AuthController
     // update the logged in user's profile (name, email, bio, avatar)
     // $avatarFile should be $_FILES['avatar'] or an empty array if no upload
     // returns ['ok' => true] or ['error' => '...']
+
+    //update profile logic, called from update-profile.php when user submit profile edit
+    //form in profile page. 
+
     public function updateProfile(int $userId, array $input, array $avatarFile = []): array
     {
         $name = trim($input['fullName'] ?? '');
@@ -443,6 +445,7 @@ class AuthController
         return ['ok' => true];
     }
 
+    //will be called from process-password-update when form in edit-password submitted
     // change the logged-in user's password
     // requires current password to be correct first
     // returns ['ok' => true] or ['error' => '...']
@@ -477,6 +480,7 @@ class AuthController
         return ['ok' => true];
     }
 
+    //password reset function, will be called form forgot-password.php
     public function requestPasswordReset(string $email): array
     {
 
@@ -514,5 +518,4 @@ class AuthController
 
         return ['ok' => true];
     }
-
 }

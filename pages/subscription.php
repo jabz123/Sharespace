@@ -1,4 +1,10 @@
 <?php
+
+//subscribe page, for free user will show upgrade
+//for rpemium will show subscription details and manage subscription
+//form post will go to create-checkout for free user
+//form
+
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/db.php';
@@ -7,11 +13,14 @@ $auth = new AuthController();
 $auth->requireAuth();
 $user = $auth->currentUser();
 
+//will check for user role first
+//if not either will send back to dashboard
 if (!in_array($user->role, ['free', 'premium'])) {
     header('Location: /dashboard.php');
     exit;
 }
-
+//fetch premium plan details 
+//
 $plan = DB::first(
     "SELECT * FROM landing_pricing_plans WHERE name = 'Premium' LIMIT 1"
 );
@@ -31,16 +40,19 @@ page_head('Subscription');
         <?php flash_messages(); ?>
 
         <div class="page-content sub-page-content">
-            <?php if ($user->role === 'premium'): ?>
+            <?php if ($user->role === 'premium'): ?> <!-- if user is premium, show subscription details -->
+                <!-- this whole if chunk is for premium user -->
                 <?php $cancelAt = $user->subscription_cancel_at; ?>
                 <div class="sub-status-card">
                     <div class="sub-status-left">
                         <div class="sub-status-icon"><?= $cancelAt ? 'Pending' : 'Live' ?></div>
                         <div>
                             <h3>Premium Subscription</h3>
+                            <!-- if user has alr cancelled but havent reach the date yet show this -->
                             <?php if ($cancelAt): ?>
                                 <p>Your plan is active but cancels on <strong><?= htmlspecialchars(date('d M Y', strtotime($cancelAt))) ?></strong></p>
                             <?php else: ?>
+                                <!-- otherwise if never cancel show this -->
                                 <p>Your subscription is active</p>
                             <?php endif; ?>
                         </div>
@@ -49,15 +61,15 @@ page_head('Subscription');
                         <?= $cancelAt ? 'Cancelling' : 'Active' ?>
                     </span>
                 </div>
-
+                <!-- cancellation details card -->
                 <?php if ($cancelAt): ?>
-                <div class="sub-status-card" style="background:var(--warning-bg,#fff8e1);border-color:var(--warning-border,#ffe082);margin-top:0">
-                    <div class="sub-status-left">
-                        <div>
-                            <p style="margin:0">You still have full premium access until <strong><?= htmlspecialchars(date('d M Y', strtotime($cancelAt))) ?></strong>. You can reactivate anytime through the billing portal.</p>
+                    <div class="sub-status-card" style="background:var(--warning-bg,#fff8e1);border-color:var(--warning-border,#ffe082);margin-top:0">
+                        <div class="sub-status-left">
+                            <div>
+                                <p style="margin:0">You still have full premium access until <strong><?= htmlspecialchars(date('d M Y', strtotime($cancelAt))) ?></strong>. You can reactivate anytime through the billing portal.</p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <?php endif; ?>
 
                 <div class="sub-details-card">
@@ -74,7 +86,7 @@ page_head('Subscription');
                                 / <?= htmlspecialchars($plan['price_suffix'] ?? 'Monthly') ?>
                             </p>
                         </div>
-                    </div>
+                    </div> <!-- show manage subscription to go to stripe poratl  -->
                     <a href="/actions/create-portal-session.php" class="btn btn-primary btn-manage">
                         <?= $cancelAt ? 'Reactivate / Manage Subscription' : 'Manage Subscription' ?>
                     </a>
@@ -93,6 +105,8 @@ page_head('Subscription');
                     </div>
                 </div>
 
+                <!-- if user is free, show upgrade card -->
+                <!-- post will go to create-checkout for stripe shit -->
             <?php else: ?>
 
                 <div class="sub-upgrade-card">

@@ -24,14 +24,14 @@ if (!$article) {
 
     redirect('/dashboard.php', 'Article not found.');
 }
-
+//get premium plan price for paywall display
 $premiumPlan = DB::first(
     "SELECT price, price_suffix
      FROM landing_pricing_plans
      WHERE name = 'Premium'
      LIMIT 1"
 );
-
+//check if the article is already saved by the user
 $isSaved = DB::first(
     'SELECT id FROM saved_articles WHERE user_id = ? AND article_id = ?',
     [$user->id, $article->id]
@@ -41,13 +41,13 @@ $alreadyFlagged = DB::first(
     'SELECT id FROM article_flags WHERE user_id = ? AND article_id = ?',
     [$user->id, $article->id]
 ) !== null;
-
+//record article view for analytics, but ignore if user is author or a system admin
 DB::execute(
     'INSERT IGNORE INTO article_views (user_id, article_id)
      VALUES (?, ?)',
     [$user->id, $article->id]
 );
-
+//handle comment form submission and comment deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $return = $_GET['return'] ?? '';
@@ -345,6 +345,7 @@ page_head($article->title, $isSystemAdmin);
 <?php endif; ?>
 
 <script>
+    //save article script
     const saveBtn = document.getElementById('saveBtn');
     const saveIcon = document.getElementById('saveIcon');
 
@@ -367,7 +368,7 @@ page_head($article->title, $isSystemAdmin);
 </script>
 
 <script>
-    (function() {
+    (function() { //ai overview script
         const btn = document.getElementById('aiOverviewBtn');
         const content = document.getElementById('aiOverviewContent');
         if (!btn) return;

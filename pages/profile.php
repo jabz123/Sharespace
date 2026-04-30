@@ -1,4 +1,8 @@
 <?php
+
+//user profile page, will show profile info
+//can edit profile and interests
+
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/OnboardingController.php';
@@ -36,6 +40,7 @@ page_head('Profile', $user->role === 'system_admin');
                         </div>
 
                         <!-- profile details form here -->
+                        <!-- form will post to update-profile.php -->
                         <form action="/pages/update-profile.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
 
@@ -125,6 +130,7 @@ page_head('Profile', $user->role === 'system_admin');
                         </form>
 
                         <!-- edit interests shit here -->
+                        <!-- form will post to update-profile also -->
                         <div class="interests-section">
                             <h3>Your Interests</h3>
                             <p class="interests-hint">Pick exactly 3 topics. Your homepage recommendations update automatically.</p>
@@ -220,6 +226,7 @@ page_head('Profile', $user->role === 'system_admin');
 
 <script>
     // avatar upload preview and remove logic
+    // when user selects a new file, show preview and show remove button
     document.getElementById('avatarInput').addEventListener('change', function() {
         const file = this.files[0];
         if (!file) return;
@@ -246,6 +253,7 @@ page_head('Profile', $user->role === 'system_admin');
     const feedbackInput = document.getElementById('feedbackContent');
     const feedbackCharCount = document.getElementById('feedbackCharCount');
     const feedbackForm = document.querySelector('.feedback-form');
+
     function countFeedbackWords(value) {
         return (value.match(/[\p{L}\p{N}']+/gu) || []).length;
     }

@@ -1,5 +1,9 @@
 <?php
 
+//form for forgot password page
+//will post to itself and call requestPasswordReset from AuthController.
+//will send reset link to email if exist in system.
+
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 

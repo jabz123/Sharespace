@@ -38,10 +38,10 @@ page_head('Category Articles');
     <main>
         <?php flash_messages(); ?>
 
-        <?php
+        <?php //display category name in header if assigned, otherwise show generic header
         $subtitle = $assignedCategory ? htmlspecialchars($assignedCategory['name']) . ' – all articles in your category' : '';
-dash_header('Category Articles', $subtitle);
-?>
+        dash_header('Category Articles', $subtitle);
+        ?>
 
         <div class="page-content">
 

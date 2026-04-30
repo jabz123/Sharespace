@@ -1,6 +1,10 @@
 <?php
 
 // handles profile update form submission including avatar upload and interests
+//will receive post from profile page
+//calls updateProfile from AuthController to update shit
+//calls updateInterests from OnboardingController to update interests if that form submitted
+
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/OnboardingController.php';
@@ -27,6 +31,7 @@ if (isset($_POST['update_interests'])) {
 }
 
 // handle regular profile update (name, email, bio, avatar)
+//calls updateProfile from AuthController to handle avatar also
 $avatarFile = $_FILES['avatar'] ?? [];
 $result = $auth->updateProfile($user->id, $_POST, $avatarFile);
 

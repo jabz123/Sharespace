@@ -2,6 +2,7 @@
 // UI page for the onboarding form.
 // Communicates with controllers to load categories and save user preferences.
 // connects to onboarding.js for js functions like select only 3 articles and update the number of words _/150
+//will immediately come here after first login
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/OnboardingController.php';
@@ -155,4 +156,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="/public/js/onboarding.js"></script>
 
 </body>
+
 </html>
