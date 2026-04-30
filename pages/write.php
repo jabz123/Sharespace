@@ -65,6 +65,35 @@ function persistArticleVerification(int $articleId, int $authorId, array $verifi
     );
 }
 
+function findRecentPendingArticleIdForAuthor(int $authorId, array $input): int
+{
+    $title = trim((string) ($input['title'] ?? ''));
+    $excerpt = trim((string) ($input['excerpt'] ?? ''));
+    $content = trim((string) ($input['content'] ?? ''));
+    $categoryId = (int) ($input['category_id'] ?? 0);
+
+    if ($authorId <= 0 || $categoryId <= 0 || $title === '' || $excerpt === '' || $content === '') {
+        return 0;
+    }
+
+    $row = DB::first(
+        "SELECT id
+         FROM articles
+         WHERE author_id = ?
+           AND status = 'pending'
+           AND category_id = ?
+           AND title = ?
+           AND excerpt = ?
+           AND content = ?
+           AND created_at >= DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+         ORDER BY id DESC
+         LIMIT 1",
+        [$authorId, $categoryId, $title, $excerpt, $content]
+    );
+
+    return (int) ($row['id'] ?? 0);
+}
+
 function validateArticleImageUpload(array $file): ?string
 {
     $maxBytes = 5 * 1024 * 1024; // 5MB
@@ -254,6 +283,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $result = $articleCtrl->submitForExpertReview($user->id, $_POST);
                     } catch (Throwable $error) {
                         error_log('Expert review submission failed: ' . $error->getMessage());
+                        $submittedArticleId = findRecentPendingArticleIdForAuthor((int) $user->id, $_POST);
+                        if ($submittedArticleId > 0) {
+                            unset($_SESSION['article_ai_verification']);
+                            pageRedirect('/pages/article-submitted-review.php?id=' . $submittedArticleId, null, 'Article submitted for category admin review.');
+                        }
                         pageRedirect('/pages/write.php', 'Unable to submit this article for category expert review. Please try again.');
                     }
                     if (isset($result['ok'])) {
