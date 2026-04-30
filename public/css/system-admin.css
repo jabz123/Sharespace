@@ -221,6 +221,15 @@
     opacity: 1 !important;
 }
 
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) .btn-primary:disabled {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+    box-shadow: 0 10px 20px -16px rgba(28, 45, 79, 0.7) !important;
+    cursor: not-allowed !important;
+}
+
 /* --- Tables --- */
 :is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page) table {
     color: #16233f !important;
