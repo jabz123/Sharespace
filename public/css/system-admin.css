@@ -83,7 +83,7 @@ body.page-edit-password .role-badge {
     background: #24345e !important;
     color: #ffffff !important;
     border-color: rgba(247, 169, 27, 0.45) !important;
-    border-radius: 10px !important;
+    border-radius: 50% !important;
     overflow: hidden !important;
     padding: 0 !important;
 }
@@ -1476,8 +1476,23 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 }
 
 /* Keep user-profile layout, but recolor for system-admin theme */
-.admin-profile-theme main {
+body.page-profile main {
     background: #f0f5fc !important;
+}
+
+body.page-profile .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+}
+
+body.page-profile .dash-title {
+    color: #16233f !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+}
+
+body.page-profile .dash-subtitle {
+    color: #5a7090 !important;
 }
 
 .admin-profile-theme .dash-header {
@@ -1485,32 +1500,45 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     border-bottom: 1px solid #dde6f5 !important;
 }
 
-.admin-profile-theme .dash-title,
-.admin-profile-theme .dash-subtitle {
+.admin-profile-theme .dash-title {
     color: #16233f !important;
     font-size: 22px !important;
     font-weight: 700 !important;
 }
 
-.admin-profile-theme .profile-header,
-.admin-profile-theme .profile-articles {
+.admin-profile-theme .dash-subtitle {
+    color: #5a7090 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+body.page-profile .profile-header,
+body.page-profile .profile-articles {
     border-color: #dce8f4 !important;
 }
 
-.admin-profile-theme .profile-info h2,
-.admin-profile-theme .profile-articles h3 {
+body.page-profile .profile-info h2,
+body.page-profile .profile-articles h3 {
     color: #16233f !important;
 }
 
-.admin-profile-theme .profile-bio,
-.admin-profile-theme .profile-stats,
-.admin-profile-theme .no-articles {
+body.page-profile .profile-bio,
+body.page-profile .profile-stats,
+body.page-profile .no-articles {
     color: #4f6586 !important;
 }
 
-.admin-profile-theme .profile-avatar {
+body.page-profile .profile-avatar {
     background: #203a67 !important;
     color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+    font-weight: 800 !important;
+}
+
+.admin-profile-theme .profile-avatar {
+    border-radius: 50% !important;
+    background: #203a67 !important;
+    color: #eef5ff !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
     font-weight: 800 !important;
 }

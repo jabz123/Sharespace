@@ -22,7 +22,7 @@ page_head('Profile', $user->role === 'system_admin');
     <?php sidebar($user); ?>
 
     <main>
-        <?php dash_header('Profile Page'); ?>
+        <?php dash_header('Profile Page', 'Edit Your Profile'); ?>
         <?php flash_messages(); ?>
 
         <div class="page-content">
