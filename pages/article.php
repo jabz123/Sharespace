@@ -78,6 +78,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $comments = $commentCtrl->getForArticle($article->id);
 $isAuthor = $user->id === $article->authorId;
 $flagReasonOptions = article_flag_reason_options();
+$authorAvatarPath = '';
+if (!empty($article->authorAvatarUrl)) {
+    $candidateAvatarPath = __DIR__ . '/../public/' . ltrim((string) $article->authorAvatarUrl, '/');
+    if (is_file($candidateAvatarPath)) {
+        $authorAvatarPath = '/public/' . ltrim((string) $article->authorAvatarUrl, '/');
+    }
+}
+
+$articleImagePath = '';
+if (!empty($article->imagePath)) {
+    $candidateImagePath = __DIR__ . '/../public/' . ltrim((string) $article->imagePath, '/');
+    if (is_file($candidateImagePath)) {
+        $articleImagePath = '/public/' . ltrim((string) $article->imagePath, '/');
+    }
+}
 
 $returnUrl = $_GET['return'] ?? '';
 if ($returnUrl && !str_starts_with($returnUrl, '/')) {
@@ -149,8 +164,8 @@ page_head($article->title, $isSystemAdmin);
 
                 <div class="article-meta">
                     <div class="author-avatar" style="width:42px;height:42px;font-size:16px">
-                        <?php if (!empty($article->authorAvatarUrl)): ?>
-                            <img src="/public/<?= htmlspecialchars($article->authorAvatarUrl) ?>" alt="<?= htmlspecialchars($article->authorName) ?>">
+                        <?php if ($authorAvatarPath !== ''): ?>
+                            <img src="<?= htmlspecialchars($authorAvatarPath) ?>" alt="<?= htmlspecialchars($article->authorName) ?>">
                         <?php else: ?>
                             <?= htmlspecialchars($article->authorInitial()) ?>
                         <?php endif; ?>
@@ -162,9 +177,9 @@ page_head($article->title, $isSystemAdmin);
                     </div>
                 </div>
 
-                <?php if (!empty($article->imagePath)): ?>
+                <?php if ($articleImagePath !== ''): ?>
                     <div class="article-banner">
-                        <img src="/public/<?= htmlspecialchars($article->imagePath) ?>" alt="Article image">
+                        <img src="<?= htmlspecialchars($articleImagePath) ?>" alt="Article image">
                     </div>
                 <?php endif; ?>
 

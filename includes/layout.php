@@ -65,6 +65,7 @@ function page_head(string $title, bool $useSystemAdminCss = false): void
 
         <!-- check user type then load admin css, or user dark theme css -->
         <?php if ($useSystemAdminCss): ?>
+            <link rel="stylesheet" href="/public/css/pages.css?v=<?= filemtime(__DIR__ . '/../public/css/pages.css') ?>" />
             <link rel="stylesheet" href="/public/css/system-admin.css?v=<?= filemtime(__DIR__ . '/../public/css/system-admin.css') ?>" />
         <?php else: ?>
             <link rel="stylesheet" href="/public/css/dashboard.css?v=<?= filemtime(__DIR__ . '/../public/css/dashboard.css') ?>" />

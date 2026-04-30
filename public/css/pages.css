@@ -103,11 +103,11 @@ body:has(.sub-page-shell) {
 .browse-hero-search {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.04);
+    gap: 0;
+    background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--border-mid);
     border-radius: 999px; /* pill shape */
-    padding: 0 18px;
+    padding: 4px;
     height: 42px; /* same height as dashboard */
     width: 100%;
     max-width: 480px; /* slightly wider on browse, but still a pill */
@@ -120,7 +120,7 @@ body:has(.sub-page-shell) {
 
 .browse-hero-search:focus-within {
     border-color: var(--border-amber);
-    background: rgba(245, 166, 35, 0.04);
+    background: rgba(255, 255, 255, 0.16);
     box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12);
 }
 
@@ -144,64 +144,127 @@ body:has(.sub-page-shell) {
 
 /* Browse search icon – amber, matching dashboard */
 .browse-hero-search .search-btn {
-    color: var(--text-amber);
-    opacity: 0.9;
+    color: #d9e8ff;
+    opacity: 1;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: rgba(18, 38, 74, 0.9);
+    border: 1px solid rgba(172, 199, 236, 0.28);
     transition:
-        opacity 0.15s,
+        background 0.15s,
+        border-color 0.15s,
         color 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .browse-hero-search .search-btn:hover {
-    color: var(--amber-bright);
-    opacity: 1;
+    color: #ffffff;
+    background: rgba(29, 55, 99, 0.96);
+    border-color: rgba(196, 218, 248, 0.48);
 }
 
 .browse-hero-search:focus-within .search-btn {
-    color: var(--amber-bright);
-    opacity: 1;
+    color: #ffffff;
+    background: rgba(29, 55, 99, 0.96);
+    border-color: rgba(245, 166, 35, 0.52);
 }
 
-.search-input-wrapper {
+.browse-hero-search .search-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+    stroke: currentColor;
+    stroke-width: 2.25;
+}
+
+.browse-hero-search .search-input-wrapper {
     display: flex;
     align-items: center;
     gap: 8px;
     flex: 1;
+    min-height: 34px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 999px;
+    padding: 0 10px 0 14px;
 }
-.search-input-wrapper input {
-    background: none;
+.browse-hero-search .search-input-wrapper input {
+    background: transparent;
     border: none;
     outline: none;
-    color: var(--text-primary);
+    color: #203559;
     font-size: 13px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     flex: 1;
     width: 100%;
 }
-.search-input-wrapper input::placeholder {
-    color: var(--text-muted);
+.browse-hero-search .search-input-wrapper input::placeholder {
+    color: #6f86aa;
 }
 
-.clear-btn {
+.browse-hero-search .clear-btn {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 2px;
-    opacity: 0.5;
+    padding: 4px;
+    opacity: 0.75;
     transition: opacity 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
-.clear-btn:hover {
+.browse-hero-search .clear-btn:hover {
     opacity: 1;
+    background: rgba(15, 34, 64, 0.08);
+    border-radius: 999px;
 }
-.clear-btn img {
-    width: 14px;
-    height: 14px;
+.browse-hero-search .clear-btn img {
+    width: 12px;
+    height: 12px;
+    filter: none;
+    opacity: 0.75;
+}
+
+/* User browse keeps a darker, cleaner search treatment */
+.user-dashboard-shell .browse-hero-search {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.user-dashboard-shell .browse-hero-search:focus-within {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(245, 166, 35, 0.6);
+    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.14);
+}
+
+.user-dashboard-shell .browse-hero-search .search-input-wrapper {
+    background: transparent;
+    border-radius: 999px;
+    padding: 0 8px 0 12px;
+}
+
+.user-dashboard-shell .browse-hero-search .search-input-wrapper input {
+    color: var(--text-primary);
+}
+
+.user-dashboard-shell .browse-hero-search .search-input-wrapper input::placeholder {
+    color: var(--text-muted);
+}
+
+.user-dashboard-shell .browse-hero-search .clear-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.user-dashboard-shell .browse-hero-search .clear-btn img {
+    opacity: 0.65;
     filter: invert(1);
 }
 
-.search-btn {
+.browse-hero-search .search-btn {
     background: none;
     border: none;
     cursor: pointer;
@@ -210,29 +273,14 @@ body:has(.sub-page-shell) {
     display: flex;
     align-items: center;
 }
-.search-btn img {
+.browse-hero-search .search-btn img {
     width: 18px;
     height: 18px;
     filter: invert(1);
 }
 
-/* Dashboard header search icon (the inline SVG) */
-.dash-search svg,
-.dash-search .search-icon {
-    color: var(--text-amber) !important; /* warm amber */
-    opacity: 0.9 !important;
-    flex-shrink: 0;
-    transition: opacity 0.15s;
-}
-
-.dash-search:focus-within svg,
-.dash-search:focus-within .search-icon {
-    color: var(--amber-bright) !important;
-    opacity: 1 !important;
-}
-
 /* Browse page search button image (the magnifying glass) */
-.search-btn img {
+.browse-hero-search .search-btn img {
     filter: none !important; /* remove any invert filter that dims it */
     opacity: 1 !important;
     width: 18px;
@@ -240,7 +288,7 @@ body:has(.sub-page-shell) {
     transition: opacity 0.15s;
 }
 
-.search-btn:hover img {
+.browse-hero-search .search-btn:hover img {
     opacity: 0.85;
 }
 
