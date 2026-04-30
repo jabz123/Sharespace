@@ -108,15 +108,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="auth-brand-side">
         <div class="auth-brand-shell">
-            <img src="/public/icons/sharedspace-logo-light.svg" alt="SharedSpace" class="sharedspace-brand-image" style="width:240px;margin-bottom:32px">
-            <div class="brand-rule"></div>
-            <h2>Join a trusted news community.</h2>
-            <p>Publish with confidence, read with clarity, and build credibility around stories that feel informed rather than noisy.</p>
+            <div class="auth-brand-card">
+                <span class="auth-brand-kicker">Start with credibility</span>
+                <h2>Build your trusted news identity.</h2>
+                <p>Create an account to publish verified stories, save articles that matter, and join a reading space built around clarity.</p>
+            </div>
 
             <div class="auth-feature-list">
-                <div class="auth-feature-item"><span class="auth-feature-dot"></span><span>Verification-focused publishing flow</span></div>
-                <div class="auth-feature-item"><span class="auth-feature-dot"></span><span>Thoughtful community reading experience</span></div>
-                <div class="auth-feature-item"><span class="auth-feature-dot"></span><span>Premium visual trust across every article</span></div>
+                <div class="auth-feature-item">
+                    <span class="auth-feature-dot"></span>
+                    <span>AI-assisted credibility checks before publishing</span>
+                </div>
+                <div class="auth-feature-item">
+                    <span class="auth-feature-dot"></span>
+                    <span>Personalized recommendations from your interests</span>
+                </div>
+                <div class="auth-feature-item">
+                    <span class="auth-feature-dot"></span>
+                    <span>Join a clearer space for reading, writing, and discussion.</span>
+                </div>
+            </div>
+
+            <div class="auth-brand-stats">
+                <div>
+                    <strong>Create</strong>
+                    <span>your writer profile</span>
+                </div>
+                <div>
+                    <strong>Choose</strong>
+                    <span>your interests</span>
+                </div>
+                <div>
+                    <strong>Publish</strong>
+                    <span>with confidence</span>
+                </div>
             </div>
         </div>
     </div>

@@ -767,7 +767,102 @@ textarea {
     align-items: center;
     justify-content: center;
     padding: 48px;
-    background: var(--gradient-hero);
+    background:
+        radial-gradient(circle at 78% 18%, rgba(245, 166, 35, 0.12), transparent 28%),
+        linear-gradient(135deg, #0b1628 0%, #14233e 58%, #20345f 100%);
+    color: #f8fafc;
+    overflow: hidden;
+}
+.auth-brand-shell {
+    width: min(100%, 520px);
+}
+.auth-brand-logo {
+    width: 240px;
+    margin-bottom: 34px;
+}
+.auth-brand-card {
+    padding: 30px 0 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.auth-brand-kicker {
+    display: inline-flex;
+    width: max-content;
+    margin-bottom: 16px;
+    padding: 5px 10px;
+    border: 1px solid rgba(245, 166, 35, 0.36);
+    border-radius: 999px;
+    background: rgba(245, 166, 35, 0.1);
+    color: #f8c15c;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.auth-brand-card h2 {
+    max-width: 12ch;
+    margin-bottom: 16px;
+    font-family: Georgia, serif;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.02;
+    color: #ffffff;
+}
+.auth-brand-card p {
+    max-width: 54ch;
+    color: #b9c8df;
+    font-size: 15px;
+    line-height: 1.75;
+}
+.auth-feature-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 28px;
+}
+.auth-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.045);
+    color: #dce6f4;
+    font-size: 14px;
+}
+.auth-feature-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #f5a623;
+    box-shadow: 0 0 0 5px rgba(245, 166, 35, 0.12);
+    flex-shrink: 0;
+}
+.auth-brand-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 28px;
+}
+.auth-brand-stats div {
+    padding: 16px;
+    border: 1px solid rgba(245, 166, 35, 0.16);
+    border-radius: 14px;
+    background: rgba(8, 16, 31, 0.35);
+}
+.auth-brand-stats strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #f8c15c;
+    font-size: 22px;
+    line-height: 1;
+}
+.auth-brand-stats span {
+    color: #8fa3c7;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 .brand-center {
     text-align: center;
