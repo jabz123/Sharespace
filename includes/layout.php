@@ -124,7 +124,9 @@ function sidebar(User $user): void
             ['href' => '/pages/my-articles.php', 'key' => 'articles', 'label' => 'My Articles'],
             ['href' => '/pages/write.php', 'key' => 'compose', 'label' => 'Write Article'],
             ['href' => '/pages/profile.php', 'key' => 'profile', 'label' => 'Profile'],
+            ['href' => '/pages/savedarticles.php', 'key' => 'saved', 'label' => 'Saved Articles'],
             ['href' => '/pages/users.php', 'key' => 'users', 'label' => 'Discover Users'],
+            
         ];
     } else {
         $links = [

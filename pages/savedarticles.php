@@ -9,16 +9,14 @@ $articleCtrl = new ArticleController();
 $auth->requireAuth();
 $user = $auth->currentUser();
 
-$isPremium = ($user->role === 'premium');
-
-// ⭐ LIMIT = 4 for free users
-if ($isPremium) {
-    $savedArticles = $articleCtrl->getSavedArticles($user->id);
-} else {
-    $savedArticles = $articleCtrl->getSavedArticles($user->id, 3);
-}
-
+$canViewSavedArticles = in_array($user->role, ['premium', 'system_admin', 'category_admin'], true);
 $totalSaved = $articleCtrl->countSavedArticles($user->id);
+$savedArticles = [];
+
+
+if ($canViewSavedArticles) {
+    $savedArticles = $articleCtrl->getSavedArticles($user->id);
+}
 
 page_head('Saved Articles');
 ?>
@@ -31,7 +29,34 @@ page_head('Saved Articles');
 
 <div class="page-content saved-page-content">
 
-    <?php if (empty($savedArticles)): ?>
+    <?php if (!$canViewSavedArticles): ?>
+
+        <section class="saved-feature-paywall">
+            <div class="saved-feature-lock">
+                <img src="/public/icons/premiumlockicon2.png" alt="">
+            </div>
+
+            <span class="saved-feature-kicker">Premium feature</span>
+
+            <h2>Unlock your saved article library</h2>
+
+            <p>
+                Saved Articles is a premium workspace for keeping trusted stories in one place,
+                returning to them anytime, and building your personal reading list.
+            </p>
+
+            <?php if ($totalSaved > 0): ?>
+                <p class="saved-feature-count">
+                    You already have <span><?= (int) $totalSaved ?></span> saved <?= $totalSaved === 1 ? 'article' : 'articles' ?> waiting.
+                </p>
+            <?php endif; ?>
+
+            <a href="/pages/subscription.php" class="btn btn-primary saved-feature-btn">
+                Upgrade to Premium
+            </a>
+        </section>
+
+    <?php elseif (empty($savedArticles)): ?>
         <p class="text-muted saved-empty-state">You have not saved any articles yet.</p>
 
     <?php else: ?>
@@ -44,31 +69,6 @@ page_head('Saved Articles');
         <?php endforeach; ?>
 
         <!-- 🔒 PAYWALL CARD INSIDE GRID -->
-        <?php if (!$isPremium && $totalSaved > 3): ?>
-
-            <div class="article-card paywall-card">
-
-                <div class="paywall-inner">
-
-                    <img src="/public/icons/premiumlockicon2.png" class="paywall-icon">
-
-                    <h3>Unlock all your saved articles</h3>
-
-                    <p>
-                        You have <span class="highlight-number"><?= $totalSaved ?></span> saved articles.<br>
-                        Upgrade to access everything.
-                    </p>
-
-                    <a href="/pages/subscription.php" class="btn btn-primary">
-                        Upgrade to Premium
-                    </a>
-
-                </div>
-
-            </div>
-
-        <?php endif; ?>
-
     </div>
 
     <?php endif; ?>
