@@ -364,12 +364,13 @@ page_head('Manage Landing Page', true);
                                 >
                             </div>
 
-                            <div style="margin-top: 16px;">
+                            <div class="landing-form-actions" style="margin-top: 16px;">
                                 <?php if ($editFeature): ?>
                                     <button type="submit" name="update_feature" class="btn btn-primary">Update Feature Card</button>
                                     <a href="/pages/admin-landing.php#features-section" class="btn btn-ghost" style="margin-left: 8px;">Cancel</a>
                                 <?php else: ?>
                                     <button type="submit" name="add_feature" class="btn btn-primary">Add Feature Card</button>
+                                    <a href="/pages/admin-landing.php#features-section" class="btn btn-ghost" style="margin-left: 8px;">Cancel</a>
                                 <?php endif; ?>
 
                                 <?php if (isset($_GET['feature_updated']) && $_GET['feature_updated'] == '1'): ?>
@@ -528,12 +529,13 @@ page_head('Manage Landing Page', true);
                                 >
                             </div>
 
-                            <div style="margin-top: 16px;">
+                            <div class="landing-form-actions" style="margin-top: 16px;">
                                 <?php if ($editStep): ?>
                                     <button type="submit" name="update_step" class="btn btn-primary">Update Step</button>
                                     <a href="/pages/admin-landing.php#steps-section" class="btn btn-ghost" style="margin-left: 8px;">Cancel</a>
                                 <?php else: ?>
                                     <button type="submit" name="add_step" class="btn btn-primary">Add Step</button>
+                                    <a href="/pages/admin-landing.php#steps-section" class="btn btn-ghost" style="margin-left: 8px;">Cancel</a>
                                 <?php endif; ?>
 
                                 <?php if (isset($_GET['step_updated']) && $_GET['step_updated'] == '1'): ?>

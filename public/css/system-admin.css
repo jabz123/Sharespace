@@ -336,6 +336,34 @@ body.page-manage-landing-page [style*='background:#f9fafb'] * {
     color: #16233f !important;
 }
 
+body.page-manage-landing-page .landing-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+body.page-manage-landing-page .landing-form-actions .btn {
+    margin-left: 0 !important;
+}
+
+body.page-manage-landing-page .landing-form-actions .btn-primary,
+body.page-manage-landing-page .landing-form-actions .btn-primary:disabled {
+    background: #1c2d4f !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+    border: none !important;
+    box-shadow: 0 10px 20px -16px rgba(28, 45, 79, 0.7) !important;
+}
+
+body.page-manage-landing-page .landing-form-actions .btn-ghost {
+    background: #ffffff !important;
+    color: #314766 !important;
+    -webkit-text-fill-color: #314766 !important;
+    border: 1px solid #c4d4e8 !important;
+}
+
 body.page-manage-landing-page table[style*='background: #fff'],
 body.page-manage-landing-page table[style*='background:#fff'] {
     background: #ffffff !important;
