@@ -127,6 +127,17 @@ body:has(.user-dashboard-shell) {
     gap: 10px;
     flex-shrink: 0;
 }
+.user-dashboard-shell .sidebar-user-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background 0.15s,
+        border-color 0.15s;
+}
+.user-dashboard-shell .sidebar-user-link:hover {
+    background: rgba(255, 255, 255, 0.055);
+    border-color: var(--border-mid);
+}
 
 .user-dashboard-shell .user-avatar {
     width: 34px;

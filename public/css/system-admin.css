@@ -52,6 +52,13 @@ body.page-edit-password .logo-link {
     border-radius: 10px !important;
     margin: 12px 12px 0 !important;
 }
+.sidebar-user-link {
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.sidebar-user-link:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
 
 body.page-admin-dashboard .user-name,
 body.page-audit-log .user-name,

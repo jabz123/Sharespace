@@ -151,7 +151,7 @@ function sidebar(User $user): void
             ); ?>
         </div>
 
-        <div class="sidebar-user">
+        <a class="sidebar-user sidebar-user-link" href="/pages/user-profile.php?id=<?= (int) $user->id ?>">
             <?php if (!empty($user->avatarUrl)): ?>
                 <div class="user-avatar" style="background:none;padding:0;overflow:hidden">
                     <img src="/public/<?= htmlspecialchars($user->avatarUrl) ?>"
@@ -181,7 +181,7 @@ function sidebar(User $user): void
                     <span class="role-badge free">Free</span>
                 <?php endif; ?>
             </div>
-        </div>
+        </a>
 
         <nav class="sidebar-nav">
             <ul>
