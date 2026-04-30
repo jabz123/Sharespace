@@ -56,9 +56,10 @@ if (!$article) {
 $apiKey = defined('SUMMARY_API_KEY') ? SUMMARY_API_KEY : '';
 if (!$apiKey) {
     http_response_code(500);
-    echo json_encode(['error' => 'OpenRouter API key not configured.']);
+    echo json_encode(['error' => 'API key not configured.']);
     exit;
 }
+
 
 
 //file cache. reduces token usage and redundant calls.
@@ -110,12 +111,12 @@ Respond ONLY with valid JSON, no markdown, no code fences:
 }
 PROMPT;
 
-$url = 'https://openrouter.ai/api/v1/chat/completions';
+$url = 'https://api.groq.com/openai/v1/chat/completions';
 
 // model fallback chain
 $models = [
-    'google/gemma-3-12b-it:free',
-    'meta-llama/llama-3.1-8b-instruct:free',
+    'llama-3.3-70b-versatile',
+    'llama-3.1-8b-instant',
 ];
 
 $finalResponse = null;
@@ -143,13 +144,11 @@ foreach ($models as $model) {
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $apiKey,
-                'HTTP-Referer: https://sharedspace.srv1502312.hstgr.cloud',
-                'X-Title: SharedSpace',
             ],
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 30,
         ]);
-//execute and capture response and errors
+        //execute and capture response and errors
         $response = curl_exec($ch);
         $curlErr = curl_error($ch);
         $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -160,7 +159,7 @@ foreach ($models as $model) {
         $lastErrorBody = json_decode((string) $response, true);
 
         if ($curlErr) {
-            error_log("OpenRouter cURL error [{$model} attempt {$attempt}]: {$curlErr}");
+            error_log("Groq cURL error [{$model} attempt {$attempt}]: {$curlErr}");
             continue;
         }
 
@@ -189,8 +188,8 @@ if (!$finalResponse || $finalHttpCode !== 200) {
         exit;
     }
 
-    error_log('OpenRouter API HTTP code: ' . $finalHttpCode);
-    error_log('OpenRouter API response: ' . (string) $finalResponse);
+    error_log('Groq API HTTP code: ' . $finalHttpCode);
+    error_log('Groq API response: ' . (string) $finalResponse);
 
     http_response_code(502);
     echo json_encode([
