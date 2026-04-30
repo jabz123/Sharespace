@@ -307,6 +307,15 @@ body.page-manage-landing-page .btn-primary {
     background: #1c2d4f !important;
     color: #ffffff !important;
     border: none !important;
+    font-weight: 600 !important;
+}
+
+body.page-manage-landing-page .card .btn-primary {
+    color: #ffffff !important;
+}
+
+body.page-manage-landing-page .card .btn-primary:hover {
+    color: #ffffff !important;
 }
 
 body.page-admin-dashboard .btn-primary:hover,
@@ -887,6 +896,7 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 }
 .browse-admin-shell .browse-featured-body {
     padding: 24px;
+    color: #4a6080 !important;
 }
 .browse-admin-shell .browse-verified-pill,
 .browse-admin-shell .card-verified-pill {
@@ -1036,8 +1046,7 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 }
 .browse-admin-shell .browse-featured-excerpt,
 .browse-admin-shell .browse-featured-footer,
-.browse-admin-shell .browse-featured-footer *,
-.browse-admin-shell .browse-featured-body {
+.browse-admin-shell .browse-featured-footer * {
     color: #4a6080 !important;
 }
 .browse-admin-shell .browse-featured-cred-head,
@@ -1298,20 +1307,6 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     box-shadow: 0 2px 12px rgba(28, 45, 79, 0.06) !important;
     border-radius: 14px !important;
     padding: 28px !important;
-}
-
-.profile-admin-shell .profile-header {
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #dce8f4;
-}
-
-.profile-admin-shell .profile-header h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 24px;
-    font-weight: 400;
-    color: #16233f;
-    margin-bottom: 4px;
 }
 
 /* --- User profile page (admin view) --- */
@@ -2202,13 +2197,6 @@ body .browse-admin-shell .clear-btn:hover {
 body .browse-admin-shell {
     background: #f0f5fc !important;
     color: #16233f !important;
-}
-
-/* Hover effect for article cards on admin browse */
-.browse-admin-shell .article-card:hover {
-    border-color: #8fa9ca !important;
-    box-shadow: 0 8px 22px rgba(28, 45, 79, 0.08) !important;
-    transform: translateY(-2px);
 }
 
 /* ================================================================
