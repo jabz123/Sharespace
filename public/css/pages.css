@@ -749,6 +749,18 @@ body:has(.sub-page-shell) {
     display: block;
 }
 
+.article-body img {
+    position: static !important;
+    inset: auto !important;
+    float: none !important;
+    clear: both !important;
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 18px auto !important;
+    border-radius: 12px;
+}
+
 .article-meta {
     display: flex;
     align-items: center;

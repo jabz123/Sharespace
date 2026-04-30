@@ -864,8 +864,21 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     background: #f7faff;
 }
 .browse-admin-shell .browse-featured-media {
+    position: relative !important;
     min-height: 360px;
+    height: 360px;
     background: linear-gradient(135deg, #dfe9f7, #eef3fb);
+    overflow: hidden !important;
+    border-radius: 12px !important;
+}
+
+.browse-admin-shell .browse-featured-media > img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
 }
 .browse-admin-shell .browse-featured-overlay {
     background: linear-gradient(180deg, rgba(28, 45, 79, 0.06), rgba(28, 45, 79, 0.28));
@@ -1215,6 +1228,23 @@ body.page-browse-articles .browse-admin-shell .dash-header {
 
 .article-admin-shell .article-banner img {
     border: 1px solid #dce8f4;
+    position: static !important;
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+}
+
+.article-admin-shell .article-body img {
+    position: static !important;
+    inset: auto !important;
+    float: none !important;
+    clear: both !important;
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 18px auto !important;
+    border-radius: 12px !important;
 }
 
 .article-admin-shell textarea,
