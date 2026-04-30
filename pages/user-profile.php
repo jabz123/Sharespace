@@ -8,6 +8,7 @@ require_once __DIR__ . '/../includes/controllers/ArticleController.php';
 $auth = new AuthController();
 $auth->requireAuth();
 $currentUser = $auth->currentUser();
+$isSystemAdminView = $currentUser->role === 'system_admin';
 
 $userCtrl = new UserController();
 $articleCtrl = new ArticleController();
@@ -45,11 +46,11 @@ $totalPages = (int) ceil($totalArticles / $perPage);
 // paginated articles
 $articles = $articleCtrl->getByAuthorPaginated($userId, $perPage, $offset);
 
-//uses profile nmame as page title
-page_head($profile['full_name']);
+// uses profile name as page title
+page_head($profile['full_name'], $isSystemAdminView);
 ?>
 <link rel="stylesheet" href="/public/css/user-profile.css">
-<div class="dashboard-layout user-dashboard-shell">
+<div class="dashboard-layout user-dashboard-shell<?= $isSystemAdminView ? ' admin-profile-theme' : '' ?>">
 <?php sidebar($currentUser); ?>
 
 <main>

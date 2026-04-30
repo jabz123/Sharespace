@@ -81,19 +81,11 @@ body.page-edit-password .role-badge {
 
 .user-avatar {
     background: #24345e !important;
-    background-image: url('/public/icons/sharedspace-badge.svg') !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-    color: transparent !important;
+    color: #ffffff !important;
     border-color: rgba(247, 169, 27, 0.45) !important;
     border-radius: 10px !important;
     overflow: hidden !important;
     padding: 0 !important;
-}
-
-.sidebar-user .user-avatar img {
-    display: none !important;
 }
 
 /* --- Nav links --- */
@@ -1322,6 +1314,207 @@ body.page-browse-articles .browse-admin-shell .dash-header {
     margin-bottom: 4px;
 }
 
+/* --- User profile page (admin view) --- */
+.profile-admin-shell .page-content {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 22px 28px 36px;
+}
+
+.profile-admin-shell .profile-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 20px;
+    row-gap: 14px;
+    align-items: start;
+    margin-bottom: 24px;
+    padding: 8px 0 18px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    border-bottom: 1px solid #dce8f4;
+}
+
+.profile-admin-shell .profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #2a4e82, #1d3863);
+    border: 2px solid #c6dbf3;
+    color: #eef5ff;
+    font-size: 30px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.profile-admin-shell .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-admin-shell .profile-info h2 {
+    margin: 0 0 6px;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(38px, 3.2vw, 52px);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    color: #16233f;
+}
+
+.profile-admin-shell .profile-info .role-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-admin-shell .profile-stats {
+    color: #284569;
+    font-size: 31px;
+    line-height: 1.1;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.profile-admin-shell .profile-bio {
+    margin: 0;
+    color: #5a7090;
+    max-width: 78ch;
+    line-height: 1.65;
+}
+
+.profile-admin-shell .profile-interests {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2px;
+    padding-top: 14px;
+    border-top: 1px solid #e2ecf8;
+}
+
+.profile-admin-shell .profile-interests-label {
+    font-size: 12px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #1f3c65;
+}
+
+.profile-admin-shell .profile-interest-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-admin-shell .profile-articles {
+    padding-top: 4px;
+}
+
+.profile-admin-shell .profile-articles h3 {
+    margin: 0 0 16px;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(34px, 2.8vw, 46px);
+    font-weight: 400;
+    line-height: 1.04;
+    color: #16233f;
+}
+
+.profile-admin-shell .article-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.profile-admin-shell .article-card-link {
+    display: block;
+    min-width: 0;
+}
+
+.profile-admin-shell .article-card {
+    height: 100%;
+}
+
+.profile-admin-shell .pagination {
+    margin-top: 16px;
+}
+
+@media (max-width: 1400px) {
+    .profile-admin-shell .article-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 980px) {
+    .profile-admin-shell .article-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .profile-admin-shell .profile-header {
+        grid-template-columns: 1fr;
+    }
+    .profile-admin-shell .article-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.profile-admin-shell .no-articles {
+    border: 1px solid #dce8f4;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #5a7090;
+    padding: 18px;
+}
+
+/* Keep user-profile layout, but recolor for system-admin theme */
+.admin-profile-theme main {
+    background: #f0f5fc !important;
+}
+
+.admin-profile-theme .dash-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dde6f5 !important;
+}
+
+.admin-profile-theme .dash-title,
+.admin-profile-theme .dash-subtitle {
+    color: #16233f !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+}
+
+.admin-profile-theme .profile-header,
+.admin-profile-theme .profile-articles {
+    border-color: #dce8f4 !important;
+}
+
+.admin-profile-theme .profile-info h2,
+.admin-profile-theme .profile-articles h3 {
+    color: #16233f !important;
+}
+
+.admin-profile-theme .profile-bio,
+.admin-profile-theme .profile-stats,
+.admin-profile-theme .no-articles {
+    color: #4f6586 !important;
+}
+
+.admin-profile-theme .profile-avatar {
+    background: #203a67 !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+    font-weight: 800 !important;
+}
+
 /* --- Avatar upload area --- */
 .profile-admin-shell .image-upload-container {
     display: flex;
@@ -1497,6 +1690,11 @@ body.page-ai-dashboard .nav-link.active {
 body.page-ai-dashboard .dash-header {
     background: #ffffff !important;
     border-bottom: 1px solid #dde6f5 !important;
+}
+body.page-ai-dashboard .dash-title {
+    color: #16233f !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
 }
 body.page-ai-dashboard .dash-subtitle {
     color: #5a7090 !important;
