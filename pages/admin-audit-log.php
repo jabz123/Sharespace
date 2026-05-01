@@ -93,8 +93,11 @@ function audit_page_href(int $page, string $filterAction, string $filterRole): s
 function audit_format_sgt(string $timestamp): string
 {
     try {
-        return (new DateTimeImmutable($timestamp, new DateTimeZone('UTC')))
-            ->setTimezone(new DateTimeZone('Asia/Singapore'))
+        $displayTimezone = new DateTimeZone('Asia/Singapore');
+        $storedTimezone = new DateTimeZone(getenv('AUDIT_DB_TIMEZONE') ?: 'Asia/Singapore');
+
+        return (new DateTimeImmutable($timestamp, $storedTimezone))
+            ->setTimezone($displayTimezone)
             ->format('M j, Y g:i A');
     } catch (Throwable $e) {
         return date('M j, Y g:i A', strtotime($timestamp));
