@@ -1,4 +1,8 @@
 <?php
+
+//for handling email verification when user clicks the link in their email. the link contains a token that is used to identify the user and validate the request.
+//after successful verification, update the user's email_verified status in the database and show a confirmation page
+
 require_once __DIR__ . '/includes/db.php';
 
 if (!isset($_GET['token'])) {

@@ -1,5 +1,6 @@
 <?php
 //endpoint for flagging article when user clicks on flag
+//post will be sent here from article page with article id, reason and details of flag
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/article_flag_rules.php';
 require_once __DIR__ . '/../includes/AuditLogger.php';

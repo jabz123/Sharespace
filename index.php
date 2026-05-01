@@ -1,5 +1,7 @@
 <?php
 
+//main landing page. will show hero section, featured articles, how it works all that shit
+
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 require_once __DIR__ . '/includes/controllers/ArticleController.php';
@@ -15,7 +17,7 @@ if ($auth->currentUser()) {
     header('Location: /dashboard.php');
     exit;
 }
-
+//fetch all the necessary shit from db
 $previewArticles = $articleCtrl->getPreview(3);
 $hero = DB::first("SELECT * FROM landing_sections WHERE section_key = 'hero'");
 $demoVideo = DB::first("SELECT * FROM landing_sections WHERE section_key = 'demo_video'");

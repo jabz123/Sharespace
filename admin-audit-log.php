@@ -1,6 +1,8 @@
 <?php
 // Standalone Audit Log page — accessible from the sidebar
 // Only accessible to users with role = 'system_admin'
+//will call AdminController to fetch paginated log entries, 
+//with optional filtering by action type like suspend article
 
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';

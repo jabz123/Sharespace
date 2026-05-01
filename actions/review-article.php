@@ -1,5 +1,6 @@
 <?php
 //for category admins to decide whether articles get verified or not
+//post will be sent here fropm unverified articles page with article id and action (verify or unverify)
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/AdminController.php';
