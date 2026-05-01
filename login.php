@@ -6,6 +6,8 @@
 // If not completed, redirect the user to onboarding.php to set their preferences.
 // when check for user details during login will also check if they completed onboarding form
 
+//calls AuthController to use login() to handle
+
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 require_once __DIR__ . '/includes/controllers/OnboardingController.php';
@@ -117,7 +119,7 @@ if ($successMsg): ?>
                             autocomplete="email" required/>
                     </div>
                 </div>
-
+                <!-- forogt password will send to forgot-password.php, logic is handled there. -->
                 <div class="form-group">
                     <div class="form-row-between">
                         <label for="password">Password</label>

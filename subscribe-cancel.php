@@ -1,4 +1,7 @@
 <?php
+
+//display page for when user cancels subscription upgrade
+
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 

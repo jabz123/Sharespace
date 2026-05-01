@@ -1,5 +1,6 @@
 <?php
 //for saving article as draft or publishing.
+//post will be sent here from create article page with article id (if editing), title, content, category and action (save or publish)
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';
 require_once __DIR__ . '/../includes/controllers/ArticleController.php';

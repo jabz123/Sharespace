@@ -1,6 +1,8 @@
 <?php
 // tabs: articles | users | categories | category experts
 // only accessible to users with role = 'system_admin'
+//will call AdminController for all data fetching and actions like suspend/restore article, 
+//suspend/unsuspend user, create/update/delete category, assign/unassign category experts
 
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/controllers/AuthController.php';

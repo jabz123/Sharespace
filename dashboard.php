@@ -1,5 +1,11 @@
 <?php
 
+//dashboard page for free and premium users. shows recommended articles, latest articles, 
+//and some stats. also has a sidebar with trending topics and top contributors. 
+//accessible from the main navbar after login. 
+
+//sysadmin and cat expert have their own dashboards
+
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 require_once __DIR__ . '/includes/controllers/ArticleController.php';
@@ -18,6 +24,11 @@ $user = $auth->currentUser();
 
 if ($user->role === 'category_admin') {
     header('Location: /pages/category-admin-dashboard.php');
+    exit;
+}
+
+if ($user->role === 'system_admin') {
+    header('Location: /pages/admin-dashboard.php');
     exit;
 }
 

@@ -1,5 +1,8 @@
 <?php
 
+//this page handles the password reset form when user clicks the link in their email.
+//the link contains a token that is used to identify the user and validate the request.
+
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 

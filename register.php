@@ -1,5 +1,8 @@
 <?php
 
+//registration page. will check if user is already logged in. if logged in redirect to dashboard
+//calls register() from AuthController to handle registration logic
+
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/controllers/AuthController.php';
 
