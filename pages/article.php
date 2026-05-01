@@ -213,11 +213,14 @@ page_head($article->title, $isSystemAdmin);
                     <?php
                     $isPremiumUser = in_array($user->role, ['premium', 'system_admin', 'category_admin'], true);
                     $isPremiumArticle = !empty($article->imagePath);
+                    $isAuthor = $user->id === $article->authorId;
                     ?>
-                    <!-- premium content access control logic. if article has image, then consider it as premium content, 
-                    only show preview for free users. -->
-                    <?php if ($isPremiumUser || !$isPremiumArticle): ?>
+                    <!-- If article has image, means premium.
+                     But make it so that user can view their own article irregardless of premium status -->
+
+                    <?php if ($isPremiumUser || !$isPremiumArticle || $isAuthor): ?>
                         <?= $article->renderContent() ?>
+
                     <?php else: ?>
                         <?= $article->renderContentPreview(2) ?>
 
@@ -298,6 +301,7 @@ page_head($article->title, $isSystemAdmin);
 </div>
 
 <?php if (!$isSystemAdmin): ?>
+<!-- hides the flag modal for non-admin users -->
     <div id="flagModal" class="modal hidden">
         <div class="modal-overlay"></div>
 
