@@ -487,7 +487,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 </div>
 
                 <div class="form-group">
-                    <label>Reference Link (Optional)</label>
+                    <label>Reference Link (Optional) (Only accepts links from CNA and The Straits Times)</label>
                     <input
                         type="url"
                         name="source_url"

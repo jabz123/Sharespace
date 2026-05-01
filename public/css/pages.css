@@ -937,9 +937,9 @@ body:has(.sub-page-shell) {
 .paywall-title {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 12px;
+    gap: 4px;
+    width: fit-content;
+    margin: 0 auto 12px auto;
 }
 .paywall-title img {
     width: 24px;
