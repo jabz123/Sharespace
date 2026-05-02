@@ -43,6 +43,12 @@
     font-weight: 600 !important;
 }
 
+/* Keep sidebar identity text readable across admin routes regardless of link states. */
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .sidebar-user-link,
+:is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .sidebar-user-link .user-name {
+    color: #ffffff !important;
+}
+
 :is(body.page-admin-dashboard, body.page-audit-log, body.page-manage-landing-page, body.page-ai-dashboard, body.page-edit-password) .role-badge {
     background: rgba(255, 255, 255, 0.12) !important;
     color: #c8d8f8 !important;

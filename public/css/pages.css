@@ -293,23 +293,28 @@ body:has(.sub-page-shell) {
 }
 
 .browse-hero-stats {
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 14px;
     margin-top: 16px;
 }
 .browse-hero-stat {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
 }
 .browse-hero-stat strong {
-    font-size: 18px;
+    font-size: clamp(14px, 1.2vw, 18px);
     font-weight: 700;
     color: var(--text-amber);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 .browse-hero-stat span {
     font-size: 11px;
     color: var(--text-muted);
+    line-height: 1.35;
 }
 
 .filter-row {
