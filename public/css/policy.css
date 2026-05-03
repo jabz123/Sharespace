@@ -1,0 +1,87 @@
+/* Background */
+.policy-container {
+    min-height: 100vh;
+    padding: 60px 20px;
+    background:
+        radial-gradient(circle at top left, rgba(100,149,237,0.08), transparent 25%),
+        linear-gradient(180deg, #060b14 0%, #09111d 100%);
+    display: flex;
+    justify-content: center;
+}
+
+/* Card */
+.policy-card {
+    max-width: 900px;
+    width: 100%;
+    padding: 40px 48px;
+    border-radius: 24px;
+    background:
+        linear-gradient(180deg, rgba(11,17,31,0.98) 0%, rgba(9,14,25,1) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    color: #e6edf7;
+}
+
+/* Title */
+.policy-title {
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+/* Updated text */
+.policy-updated {
+    color: #8fa3c1;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+/* Sections */
+.policy-section {
+    margin-bottom: 28px;
+}
+
+.policy-section h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.policy-section p {
+    color: #b7c6df;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+.policy-section ul {
+    padding-left: 18px;
+    color: #b7c6df;
+}
+
+.policy-section li {
+    margin-bottom: 6px;
+}
+
+/* Footer */
+.policy-footer {
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* Back button */
+.btn-back {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #e6edf7;
+    transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+    background: rgba(100,149,237,0.25);
+    border-color: rgba(100,149,237,0.5);
+    color: #ffffff;
+}

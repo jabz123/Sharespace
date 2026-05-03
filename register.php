@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:20px;font-size:13px;color:var(--muted)">
                     <input type="checkbox" id="terms" required style="margin-top:3px;flex-shrink:0" />
-                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                    <label for="terms">I agree to the <a href="/terms.php">Terms of Service</a> and <a href="/privacy.php">Privacy Policy</a></label>
                 </div>
 
                 <button type="submit" class="btn btn-hero btn-full">

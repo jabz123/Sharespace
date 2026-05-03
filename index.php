@@ -476,8 +476,8 @@ $demoEmbedUrl = youtubeEmbedUrl($demoVideo['video_url'] ?? '');
 
         <div class="footer-col">
             <h4>Legal</h4>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <a href="/privacy.php">Privacy Policy</a>
+            <a href="/terms.php">Terms of Service</a>
         </div>
     </div>
 </footer>
