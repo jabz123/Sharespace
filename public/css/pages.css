@@ -2296,6 +2296,13 @@ mark.highlight-contradicted {
     gap: 6px;
     margin-bottom: 6px;
 }
+.user-dashboard-shell .ai-issue-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 .user-dashboard-shell .ai-issue-card:hover {
     border-color: var(--border-amber);
     background: rgba(255, 255, 255, 0.05);
@@ -2308,6 +2315,19 @@ mark.highlight-contradicted {
     border-radius: 999px;
     padding: 2px 8px;
     border: 1px solid;
+    width: fit-content;
+}
+.user-dashboard-shell .ai-issue-score,
+.user-dashboard-shell .ai-area-item-score {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    padding: 4px 8px;
     width: fit-content;
 }
 .user-dashboard-shell .ai-issue-card.is-supported .ai-issue-badge {
@@ -2458,6 +2478,11 @@ mark.highlight-contradicted {
     margin: 0 0 6px;
     font-size: 15px;
     color: var(--text-primary);
+}
+.user-dashboard-shell .ai-area-item-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 .user-dashboard-shell .ai-area-item-copy p {
     margin: 0;
@@ -2690,6 +2715,31 @@ mark.highlight-contradicted {
 .user-dashboard-shell .ai-metric-row {
     display: grid;
     gap: 8px;
+}
+.user-dashboard-shell .ai-metric-breakdown {
+    display: grid;
+    gap: 8px;
+}
+.user-dashboard-shell .ai-metric-breakdown-headline {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+.user-dashboard-shell .ai-metric-breakdown-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.user-dashboard-shell .ai-metric-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    padding: 5px 9px;
 }
 .user-dashboard-shell .ai-metric-label-line {
     display: flex;

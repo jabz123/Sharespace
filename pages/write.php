@@ -396,6 +396,15 @@ $initialClaimSummary = $hasCurrentVerification && is_array($verification['claim_
 $initialMatchedSources = $hasCurrentVerification && is_array($verification['matched_sources'] ?? null)
     ? $verification['matched_sources']
     : [];
+$initialFlags = $hasCurrentVerification && is_array($verification['flags'] ?? null)
+    ? $verification['flags']
+    : [];
+$initialSourceValidation = $hasCurrentVerification && is_array($verification['source_validation'] ?? null)
+    ? $verification['source_validation']
+    : ['cna_match' => false, 'st_match' => false];
+$initialReferenceValid = $hasCurrentVerification
+    ? !empty($verification['reference_valid'])
+    : false;
 $initialWhyNotPerfect = $hasCurrentVerification && is_array($verification['why_not_perfect'] ?? null)
     ? $verification['why_not_perfect']
     : [];
@@ -787,30 +796,35 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                     <div class="progress-bar">
                                         <div id="metricFactualAccuracy" style="width:<?= max(0, min(100, (int) ($initialMetrics['factual_accuracy'] ?? 0))) ?>%"></div>
                                     </div>
+                                    <div id="metricFactualAccuracyBreakdown" class="ai-metric-breakdown"></div>
                                 </div>
                                 <div class="ai-metric-row">
                                     <div class="ai-metric-label-line"><span>Source Quality</span><span id="metricSourceQualityPoints" class="text-muted"><?= (int) ($initialRubricMetrics['source_quality'] ?? 0) ?>/25</span></div>
                                     <div class="progress-bar">
                                         <div id="metricSourceQuality" style="width:<?= max(0, min(100, (int) ($initialMetrics['source_quality'] ?? 0))) ?>%"></div>
                                     </div>
+                                    <div id="metricSourceQualityBreakdown" class="ai-metric-breakdown"></div>
                                 </div>
                                 <div class="ai-metric-row">
                                     <div class="ai-metric-label-line"><span>Bias Detection</span><span id="metricBiasDetectionPoints" class="text-muted"><?= (int) ($initialRubricMetrics['bias_detection'] ?? 0) ?>/10</span></div>
                                     <div class="progress-bar">
                                         <div id="metricBiasDetection" style="width:<?= max(0, min(100, (int) ($initialMetrics['bias_detection'] ?? 0))) ?>%"></div>
                                     </div>
+                                    <div id="metricBiasDetectionBreakdown" class="ai-metric-breakdown"></div>
                                 </div>
                                 <div class="ai-metric-row">
                                     <div class="ai-metric-label-line"><span>Logical Consistency</span><span id="metricLogicalConsistencyPoints" class="text-muted"><?= (int) ($initialRubricMetrics['logical_consistency'] ?? 0) ?>/10</span></div>
                                     <div class="progress-bar">
                                         <div id="metricLogicalConsistency" style="width:<?= max(0, min(100, (int) ($initialMetrics['logical_consistency'] ?? 0))) ?>%"></div>
                                     </div>
+                                    <div id="metricLogicalConsistencyBreakdown" class="ai-metric-breakdown"></div>
                                 </div>
                                 <div class="ai-metric-row">
                                     <div class="ai-metric-label-line"><span>Completeness</span><span id="metricCompletenessPoints" class="text-muted"><?= (int) ($initialRubricMetrics['completeness'] ?? 0) ?>/10</span></div>
                                     <div class="progress-bar">
                                         <div id="metricCompleteness" style="width:<?= max(0, min(100, (int) ($initialMetrics['completeness'] ?? 0))) ?>%"></div>
                                     </div>
+                                    <div id="metricCompletenessBreakdown" class="ai-metric-breakdown"></div>
                                 </div>
                             </div>
                         </section>
@@ -944,6 +958,118 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         document.getElementById(id).textContent = `${safeValue}/${max}`;
     }
 
+    function renderMetricDetail(target, headline, notes = []) {
+        if (!target) {
+            return;
+        }
+
+        const cleanNotes = Array.isArray(notes)
+            ? notes.map((item) => String(item || '').trim()).filter(Boolean)
+            : [];
+
+        if (!headline && cleanNotes.length === 0) {
+            target.innerHTML = '';
+            target.style.display = 'none';
+            return;
+        }
+
+        target.innerHTML = `
+            ${headline ? `<p class="ai-metric-breakdown-headline">${escapeHtml(headline)}</p>` : ''}
+            ${cleanNotes.length ? `<div class="ai-metric-breakdown-tags">${cleanNotes.map((item) => `<span class="ai-metric-tag">${escapeHtml(item)}</span>`).join('')}</div>` : ''}
+        `;
+        target.style.display = 'grid';
+    }
+
+    function renderMetricBreakdown({
+        metrics = {},
+        rubricMetrics = {},
+        claimSummary = {},
+        claims = [],
+        flags = [],
+        sourceValidation = {},
+        matchedSources = [],
+        referenceValid = false,
+        content = ''
+    } = {}) {
+        const supported = Math.max(0, Number(claimSummary && claimSummary.supported) || 0);
+        const weak = Math.max(0, Number(claimSummary && claimSummary.weak) || 0);
+        const contradicted = Math.max(0, Number(claimSummary && claimSummary.contradicted) || 0);
+        const total = Math.max(0, Number(claimSummary && claimSummary.total) || (Array.isArray(claims) ? claims.length : 0));
+        const safeFlags = Array.isArray(flags) ? flags.map((flag) => String(flag || '')) : [];
+        const safeContent = String(content || '').trim();
+        const contentLength = safeContent.length;
+        const cnaMatch = Boolean(sourceValidation && sourceValidation.cna_match);
+        const stMatch = Boolean(sourceValidation && sourceValidation.st_match);
+        const matchedCount = Array.isArray(matchedSources) ? matchedSources.length : 0;
+
+        const factualPoints = Math.max(0, Math.min(45, Number(rubricMetrics && rubricMetrics.factual_accuracy) || 0));
+        const sourcePoints = Math.max(0, Math.min(25, Number(rubricMetrics && rubricMetrics.source_quality) || 0));
+        const biasPoints = Math.max(0, Math.min(10, Number(rubricMetrics && rubricMetrics.bias_detection) || 0));
+        const logicPoints = Math.max(0, Math.min(10, Number(rubricMetrics && rubricMetrics.logical_consistency) || 0));
+        const completenessPoints = Math.max(0, Math.min(10, Number(rubricMetrics && rubricMetrics.completeness) || 0));
+
+        const factualHeadline = contradicted > 0
+            ? `${contradicted} claim${contradicted === 1 ? '' : 's'} lowered factual accuracy.`
+            : (weak > 0
+                ? `${supported} supported claim${supported === 1 ? '' : 's'}, ${weak} still need stronger proof.`
+                : `${supported} supported claim${supported === 1 ? '' : 's'} helped keep this high.`);
+        const factualNotes = [
+            `${supported}/${Math.max(total, 1)} supported`,
+            weak > 0 ? `${weak} weak claim${weak === 1 ? '' : 's'}` : 'No weak claims',
+            contradicted > 0 ? `${contradicted} contradicted` : 'No contradictions'
+        ];
+        if (safeFlags.includes('low_information')) factualNotes.push('Low-information cap applied');
+        if (safeFlags.includes('core_claim_contradicted')) factualNotes.push('Core-claim contradiction cap');
+        if (safeFlags.includes('multiple_core_claims_contradicted')) factualNotes.push('Multiple core contradictions');
+
+        const sourceHeadline = !cnaMatch && !stMatch
+            ? 'No trusted CNA/ST match supported the source-quality score.'
+            : (cnaMatch && stMatch
+                ? 'Both CNA and ST contributed to source quality.'
+                : 'Only one trusted outlet strongly supported the story.');
+        const sourceNotes = [
+            referenceValid ? 'Exact CNA/ST reference URL' : 'Reference URL not exact/valid',
+            cnaMatch ? 'CNA match' : 'No CNA match',
+            stMatch ? 'ST match' : 'No ST match',
+            `${matchedCount} matched source${matchedCount === 1 ? '' : 's'} found`
+        ];
+        if (sourcePoints === 25) sourceNotes.push('Maximum source-quality points');
+
+        const biasHeadline = safeFlags.includes('high_bias')
+            ? 'Bias score was reduced by emotional or slanted wording.'
+            : (biasPoints >= 8
+                ? 'Tone stayed mostly neutral and balanced.'
+                : 'Some wording or framing lowered the neutrality score.');
+        const biasNotes = [
+            safeFlags.includes('high_bias') ? 'High-bias penalty applied' : 'No high-bias flag',
+            biasPoints >= 8 ? 'Neutral tone' : 'Tone can be more neutral'
+        ];
+
+        const logicHeadline = logicPoints >= 8
+            ? 'The draft reads coherently and the evidence mostly fits the conclusions.'
+            : 'The reasoning or flow still needs tightening.';
+        const logicNotes = [
+            contradicted > 0 ? 'Conflicting claims affect logic' : 'No internal conflict flagged',
+            safeFlags.includes('low_information') ? 'Thin draft limits logic score' : 'Enough material to assess logic'
+        ];
+
+        const completenessHeadline = completenessPoints >= 8
+            ? 'The draft has enough detail and context for a solid summary.'
+            : 'Missing context or thin coverage limited completeness.';
+        const completenessNotes = [
+            contentLength < 150 ? 'Very short draft' : `${contentLength} characters of content`,
+            safeFlags.includes('missing_context') ? 'Missing context flagged' : 'No missing-context flag',
+            total > 0 ? `${total} claim${total === 1 ? '' : 's'} extracted` : 'No claims extracted'
+        ];
+        if (safeFlags.includes('low_information')) completenessNotes.push('Low-information cap applied');
+
+        renderMetricDetail(metricFactualAccuracyBreakdown, factualHeadline, factualNotes);
+        renderMetricDetail(metricSourceQualityBreakdown, sourceHeadline, sourceNotes);
+        renderMetricDetail(metricBiasDetectionBreakdown, biasHeadline, biasNotes);
+        renderMetricDetail(metricLogicalConsistencyBreakdown, logicHeadline, logicNotes);
+        renderMetricDetail(metricCompletenessBreakdown, completenessHeadline, completenessNotes);
+    }
+
     function setScoreRing(value) {
         const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
         aiScoreRing.style.setProperty('--score', safeValue);
@@ -1026,6 +1152,11 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
     const aiDecisionSummary = document.getElementById('aiDecisionSummary');
     const aiMatchedSourceCount = document.getElementById('aiMatchedSourceCount');
     const aiTotalClaimsInline = document.getElementById('aiTotalClaimsInline');
+    const metricFactualAccuracyBreakdown = document.getElementById('metricFactualAccuracyBreakdown');
+    const metricSourceQualityBreakdown = document.getElementById('metricSourceQualityBreakdown');
+    const metricBiasDetectionBreakdown = document.getElementById('metricBiasDetectionBreakdown');
+    const metricLogicalConsistencyBreakdown = document.getElementById('metricLogicalConsistencyBreakdown');
+    const metricCompletenessBreakdown = document.getElementById('metricCompletenessBreakdown');
     const claimSummaryBox = document.getElementById('aiClaimSummaryBox');
     const claimSupportedBadge = document.getElementById('aiClaimSupportedBadge');
     const claimWeakBadge = document.getElementById('aiClaimWeakBadge');
@@ -1228,6 +1359,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
     function buildClaimIssueItem(claim, matchedSources) {
         const status = String(claim && claim.status ? claim.status : 'supported');
         const matchedSource = findMatchedSourceForClaim(claim, matchedSources);
+        const matchScore = Math.max(0, Math.min(1, Number(claim && claim.match_score ? claim.match_score : 0)));
         const highlightKey = claim && claim.sentence_key ?
             String(claim.sentence_key) :
             normalizeForSentenceMatch(claim && claim.draft_sentence ? claim.draft_sentence : '');
@@ -1266,6 +1398,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             title: status === 'contradicted' ? 'Contradicting claim(s) lower the score.' : 'This claim needs stronger support.',
             description,
             status,
+            match_score: matchScore,
             examples
         };
     }
@@ -1307,49 +1440,38 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         }
 
         return `<div class="ai-area-examples">${examples.map((example) => {
-        const label = escapeHtml(example && example.label ? example.label : 'Example');
-        const text = escapeHtml(truncateIssuePreview(example && example.text ? example.text : '', 140));
-        const reason = example && example.reason ? `<span class="ai-area-example-reason">${escapeHtml(example.reason)}</span>` : '';
-        const highlightKey = example && example.highlight_key ? escapeHtml(example.highlight_key) : '';
-        const sentenceNumber = example && Number.isFinite(Number(example.sentence_number)) ? Number(example.sentence_number) : null;
-        const sentenceBadge = sentenceNumber ? `<span class="ai-area-example-sentence">Sentence ${sentenceNumber}</span>` : '';
-        const url = example && example.url ? escapeHtml(example.url) : '';
+            const label = escapeHtml(example && example.label ? example.label : 'Example');
+            const text = escapeHtml(truncateIssuePreview(example && example.text ? example.text : '', 140));
+            const reason = example && example.reason ? `<span class="ai-area-example-reason">${escapeHtml(example.reason)}</span>` : '';
+            const highlightKey = example && example.highlight_key ? escapeHtml(example.highlight_key) : '';
+            const sentenceNumber = example && Number.isFinite(Number(example.sentence_number)) ? Number(example.sentence_number) : null;
+            const sentenceBadge = sentenceNumber ? `<span class="ai-area-example-sentence">Sentence ${sentenceNumber}</span>` : '';
+            const url = example && example.url ? escapeHtml(example.url) : '';
 
-        if (highlightKey) {
-            return `<button type="button" class="ai-area-example is-clickable" data-highlight-key="${highlightKey}">
+            if (highlightKey) {
+                return `<button type="button" class="ai-area-example is-clickable" data-highlight-key="${highlightKey}">
+                    <span class="ai-area-example-topline"><span class="ai-area-example-label">${label}</span>${sentenceBadge}</span>
+                    <strong>${text}</strong>
+                    ${reason}
+                    <span class="ai-area-example-action">Jump to sentence</span>
+                </button>`;
+            }
+
+            if (url) {
+                return `<a class="ai-area-example" href="${url}" target="_blank" rel="noopener noreferrer">
+                    <span class="ai-area-example-topline"><span class="ai-area-example-label">${label}</span>${sentenceBadge}</span>
+                    <strong>${text}</strong>
+                    ${reason}
+                    <span class="ai-area-example-action">View source</span>
+                </a>`;
+            }
+
+            return `<div class="ai-area-example">
                 <span class="ai-area-example-topline"><span class="ai-area-example-label">${label}</span>${sentenceBadge}</span>
                 <strong>${text}</strong>
                 ${reason}
-                <span class="ai-area-example-action">Jump to sentence</span>
-            </button>`;
-        }
-
-        if (url) {
-            return ` < a class = "ai-area-example"
-        href = "${url}"
-        target = "_blank"
-        rel = "noopener noreferrer" >
-            <
-            span class = "ai-area-example-label" > $ {
-                label
-            } < /span> <
-            strong > $ {
-                text
-            } < /strong>
-        $ {
-            reason
-        } <
-        span class = "ai-area-example-action" > View source < /span> <
-            /a>`;
-    }
-
-        return `<div class="ai-area-example">
-            <span class="ai-area-example-topline"><span class="ai-area-example-label">${label}</span>${sentenceBadge}</span>
-            <strong>${text}</strong>
-            ${reason}
-        </div>`;
-    }).join('')
-    } < /div>`;
+            </div>`;
+        }).join('')}</div>`;
     }
 
     function renderAreaGroup(title, count, status, impactLabel, items, openByDefault = false) {
@@ -1370,10 +1492,15 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 const jumpAction = primaryJumpExample
                     ? `<button type="button" class="ai-area-item-jump" data-highlight-key="${escapeHtml(String(primaryJumpExample.highlight_key))}">${primaryJumpExample.sentence_number ? `Jump to sentence ${Number(primaryJumpExample.sentence_number)}` : 'Jump to sentence'}</button>`
                     : '';
+                const itemScore = Number.isFinite(Number(item.match_score)) ? Math.max(0, Math.min(1, Number(item.match_score))) : null;
+                const scoreChip = itemScore !== null
+                    ? `<span class="ai-area-item-score">Claim score ${itemScore.toFixed(2)}</span>`
+                    : '';
 
                 return `<article class="ai-area-item is-${status}">
                 <div class="ai-area-item-head">
                     <div class="ai-area-item-copy">
+                        ${scoreChip}
                         <h5>${escapeHtml(item.title || '')}</h5>
                         <p>${escapeHtml(item.description || '')}</p>
                     </div>
@@ -1714,7 +1841,8 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             const label = status === 'contradicted' ? 'Contradicted' : (status === 'weak' ? 'Needs Support' : 'Supported');
             const statusClass = status === 'contradicted' ? 'is-contradicted' : (status === 'weak' ? 'is-weak' : 'is-supported');
             const text = escapeHtml(claim && claim.text ? claim.text : '');
-            const reason = claim && claim.reason ? escapeHtml(claim.reason) : `Match Score: ${(Number(claim && claim.match_score ? claim.match_score : 0)).toFixed(2)}`;
+            const score = Math.max(0, Math.min(1, Number(claim && claim.match_score ? claim.match_score : 0)));
+            const reason = claim && claim.reason ? escapeHtml(claim.reason) : `Match Score: ${score.toFixed(2)}`;
             const source = claim && claim.source ? ` Source: ${escapeHtml(claim.source)}` : '';
             const claimKey = claim && claim.claim_key ? escapeHtml(claim.claim_key) : '';
             const highlightKey = claim && claim.sentence_key ?
@@ -1722,7 +1850,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 escapeHtml(normalizeForSentenceMatch(claim && claim.draft_sentence ? claim.draft_sentence : ''));
 
             return `<button type="button" class="ai-issue-card ${statusClass}" data-claim-key="${claimKey}" data-highlight-key="${highlightKey}">
-            <span class="ai-issue-badge">${label}</span>
+            <span class="ai-issue-topline"><span class="ai-issue-badge">${label}</span><span class="ai-issue-score">Claim score ${score.toFixed(2)}</span></span>
             <span class="ai-issue-text">${text}</span>
             <span class="ai-issue-meta">${reason}${source}</span>
             <span class="ai-issue-action">Jump to sentence</span>
@@ -2076,6 +2204,17 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             renderWhyNotPerfect(data.why_not_perfect_details || data.why_not_perfect || []);
             renderMatchedSources(data.matched_sources || []);
             renderClaims(data.claims || []);
+            renderMetricBreakdown({
+                metrics,
+                rubricMetrics,
+                claimSummary,
+                claims: data.claims || [],
+                flags: data.flags || [],
+                sourceValidation: data.source_validation || {},
+                matchedSources: data.matched_sources || [],
+                referenceValid: Boolean(data.reference_valid),
+                content
+            });
             renderContentHighlights(content, data.claims || [], data.why_not_perfect_details || data.why_not_perfect || []);
             renderImprovementSuggestions(data.improvement_suggestions || []);
             renderMisinformationHighlights(data.misinformation_highlights || []);
@@ -2121,6 +2260,17 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
     setLastCheckedLabel(<?= json_encode($hasCurrentVerification ? 'Last checked: Just now' : 'Waiting for fact check') ?>);
     applyVerdictState(initialDecision, <?= json_encode($initialVerdict !== '' ? $initialVerdict : 'Waiting for verification.') ?>);
     renderClaimSummary(<?= json_encode($initialClaimSummary) ?>);
+    renderMetricBreakdown({
+        metrics: <?= json_encode($initialMetrics) ?>,
+        rubricMetrics: <?= json_encode($initialRubricMetrics) ?>,
+        claimSummary: <?= json_encode($initialClaimSummary) ?>,
+        claims: <?= json_encode($initialClaims) ?>,
+        flags: <?= json_encode($initialFlags) ?>,
+        sourceValidation: <?= json_encode($initialSourceValidation) ?>,
+        matchedSources: <?= json_encode($initialMatchedSources) ?>,
+        referenceValid: <?= json_encode($initialReferenceValid) ?>,
+        content: initialContentText
+    });
     renderAreasToImprove({
         trustScore: <?= (int) $initialTrustScore ?>,
         claims: <?= json_encode($initialClaims) ?>,
