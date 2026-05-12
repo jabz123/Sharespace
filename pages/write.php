@@ -958,7 +958,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         document.getElementById(id).textContent = `${safeValue}/${max}`;
     }
 
-    function renderMetricDetail(target, headline, notes = []) {
+    function renderMetricDetail(target, headline, notes = [], lacking = []) {
         if (!target) {
             return;
         }
@@ -966,8 +966,11 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         const cleanNotes = Array.isArray(notes)
             ? notes.map((item) => String(item || '').trim()).filter(Boolean)
             : [];
+        const cleanLacking = Array.isArray(lacking)
+            ? lacking.map((item) => String(item || '').trim()).filter(Boolean)
+            : [];
 
-        if (!headline && cleanNotes.length === 0) {
+        if (!headline && cleanNotes.length === 0 && cleanLacking.length === 0) {
             target.innerHTML = '';
             target.style.display = 'none';
             return;
@@ -976,6 +979,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         target.innerHTML = `
             ${headline ? `<p class="ai-metric-breakdown-headline">${escapeHtml(headline)}</p>` : ''}
             ${cleanNotes.length ? `<div class="ai-metric-breakdown-tags">${cleanNotes.map((item) => `<span class="ai-metric-tag">${escapeHtml(item)}</span>`).join('')}</div>` : ''}
+            ${cleanLacking.length ? `<div class="ai-metric-lacking"><span class="ai-metric-lacking-label">What’s lacking</span><div class="ai-metric-lacking-pills">${cleanLacking.map((item) => `<span class="ai-metric-lacking-pill">${escapeHtml(item)}</span>`).join('')}</div></div>` : ''}
         `;
         target.style.display = 'grid';
     }
@@ -1018,9 +1022,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             weak > 0 ? `${weak} weak claim${weak === 1 ? '' : 's'}` : 'No weak claims',
             contradicted > 0 ? `${contradicted} contradicted` : 'No contradictions'
         ];
+        const factualLacking = [];
         if (safeFlags.includes('low_information')) factualNotes.push('Low-information cap applied');
         if (safeFlags.includes('core_claim_contradicted')) factualNotes.push('Core-claim contradiction cap');
         if (safeFlags.includes('multiple_core_claims_contradicted')) factualNotes.push('Multiple core contradictions');
+        if (factualPoints < 45) factualLacking.push('Not every important claim is fully or exactly confirmed.');
+        if (weak > 0) factualLacking.push('Some claims still need stronger direct support.');
+        if (contradicted > 0) factualLacking.push('Contradicted claims are lowering this metric.');
 
         const sourceHeadline = !cnaMatch && !stMatch
             ? 'No trusted CNA/ST match supported the source-quality score.'
@@ -1033,7 +1041,11 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             stMatch ? 'ST match' : 'No ST match',
             `${matchedCount} matched source${matchedCount === 1 ? '' : 's'} found`
         ];
+        const sourceLacking = [];
         if (sourcePoints === 25) sourceNotes.push('Maximum source-quality points');
+        if (sourcePoints < 25) sourceLacking.push('Source corroboration is strong but not at the maximum level.');
+        if (!referenceValid) sourceLacking.push('Use an exact CNA/ST article URL rather than a broad page.');
+        if (!(cnaMatch && stMatch)) sourceLacking.push('Two strong trusted confirmations would strengthen this further.');
 
         const biasHeadline = safeFlags.includes('high_bias')
             ? 'Bias score was reduced by emotional or slanted wording.'
@@ -1044,6 +1056,9 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             safeFlags.includes('high_bias') ? 'High-bias penalty applied' : 'No high-bias flag',
             biasPoints >= 8 ? 'Neutral tone' : 'Tone can be more neutral'
         ];
+        const biasLacking = [];
+        if (biasPoints < 10) biasLacking.push('Some phrasing is still slightly interpretive or less neutral than ideal.');
+        if (safeFlags.includes('high_bias')) biasLacking.push('Emotionally loaded or slanted language triggered a penalty.');
 
         const logicHeadline = logicPoints >= 8
             ? 'The draft reads coherently and the evidence mostly fits the conclusions.'
@@ -1052,6 +1067,9 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             contradicted > 0 ? 'Conflicting claims affect logic' : 'No internal conflict flagged',
             safeFlags.includes('low_information') ? 'Thin draft limits logic score' : 'Enough material to assess logic'
         ];
+        const logicLacking = [];
+        if (logicPoints < 10) logicLacking.push('The link between evidence and conclusion can still be clearer.');
+        if (contradicted > 0) logicLacking.push('Conflicting claims are weakening the article’s internal logic.');
 
         const completenessHeadline = completenessPoints >= 8
             ? 'The draft has enough detail and context for a solid summary.'
@@ -1061,13 +1079,16 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             safeFlags.includes('missing_context') ? 'Missing context flagged' : 'No missing-context flag',
             total > 0 ? `${total} claim${total === 1 ? '' : 's'} extracted` : 'No claims extracted'
         ];
+        const completenessLacking = [];
         if (safeFlags.includes('low_information')) completenessNotes.push('Low-information cap applied');
+        if (completenessPoints < 10) completenessLacking.push('The draft still needs more context, reporting detail, or depth.');
+        if (safeFlags.includes('missing_context')) completenessLacking.push('Important context is missing from the current draft.');
 
-        renderMetricDetail(metricFactualAccuracyBreakdown, factualHeadline, factualNotes);
-        renderMetricDetail(metricSourceQualityBreakdown, sourceHeadline, sourceNotes);
-        renderMetricDetail(metricBiasDetectionBreakdown, biasHeadline, biasNotes);
-        renderMetricDetail(metricLogicalConsistencyBreakdown, logicHeadline, logicNotes);
-        renderMetricDetail(metricCompletenessBreakdown, completenessHeadline, completenessNotes);
+        renderMetricDetail(metricFactualAccuracyBreakdown, factualHeadline, factualNotes, factualLacking);
+        renderMetricDetail(metricSourceQualityBreakdown, sourceHeadline, sourceNotes, sourceLacking);
+        renderMetricDetail(metricBiasDetectionBreakdown, biasHeadline, biasNotes, biasLacking);
+        renderMetricDetail(metricLogicalConsistencyBreakdown, logicHeadline, logicNotes, logicLacking);
+        renderMetricDetail(metricCompletenessBreakdown, completenessHeadline, completenessNotes, completenessLacking);
     }
 
     function setScoreRing(value) {
