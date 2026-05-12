@@ -601,7 +601,6 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                                                 )
                                                                 ?></h4>
                                     <p id="aiSummary"><?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?></p>
-                                    <p id="aiScoreFormula" class="ai-score-formula" style="display:none;"></p>
                                     <p id="aiSourceLabel" class="ai-source-label" style="display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
                                 </div>
                             </div>
@@ -788,8 +787,11 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
 
                         <section id="aiMetricsBox" class="ai-section">
                             <div class="ai-section-head">
-                                <h4>Metric Breakdown</h4>
-                                <p>See how the overall score is distributed across the verification rubric.</p>
+                                <div>
+                                    <h4>Metric Breakdown</h4>
+                                    <p>See how the overall score is distributed across the verification rubric.</p>
+                                    <p id="aiScoreFormula" class="ai-score-formula" style="display:none;"></p>
+                                </div>
                             </div>
                             <div class="ai-metric-list">
                                 <div class="ai-metric-row">

@@ -2059,7 +2059,7 @@ mark.highlight-contradicted {
     color: var(--text-amber);
 }
 .user-dashboard-shell .ai-score-formula {
-    margin: 6px 0 0;
+    margin: 8px 0 0;
     font-size: 12px;
     line-height: 1.5;
     color: var(--text-secondary);
