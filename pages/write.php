@@ -1247,6 +1247,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 text: draftSentence,
                 reason: status === 'contradicted' ? 'Review and correct this sentence.' : 'Review and strengthen this sentence.',
                 highlight_key: highlightKey || null,
+                sentence_number: claim && Number.isInteger(Number(claim.sentence_index)) ? Number(claim.sentence_index) + 1 : null,
                 url: null
             });
         }
@@ -1310,11 +1311,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         const text = escapeHtml(truncateIssuePreview(example && example.text ? example.text : '', 140));
         const reason = example && example.reason ? `<span class="ai-area-example-reason">${escapeHtml(example.reason)}</span>` : '';
         const highlightKey = example && example.highlight_key ? escapeHtml(example.highlight_key) : '';
+        const sentenceNumber = example && Number.isFinite(Number(example.sentence_number)) ? Number(example.sentence_number) : null;
+        const sentenceBadge = sentenceNumber ? `<span class="ai-area-example-sentence">Sentence ${sentenceNumber}</span>` : '';
         const url = example && example.url ? escapeHtml(example.url) : '';
 
         if (highlightKey) {
             return `<button type="button" class="ai-area-example is-clickable" data-highlight-key="${highlightKey}">
-                <span class="ai-area-example-label">${label}</span>
+                <span class="ai-area-example-topline"><span class="ai-area-example-label">${label}</span>${sentenceBadge}</span>
                 <strong>${text}</strong>
                 ${reason}
                 <span class="ai-area-example-action">Jump to sentence</span>
@@ -1340,8 +1343,8 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             /a>`;
     }
 
-    return `<div class="ai-area-example">
-            <span class="ai-area-example-label">${label}</span>
+        return `<div class="ai-area-example">
+            <span class="ai-area-example-topline"><span class="ai-area-example-label">${label}</span>${sentenceBadge}</span>
             <strong>${text}</strong>
             ${reason}
         </div>`;
@@ -1365,7 +1368,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                     ? item.examples.find((example) => example && example.highlight_key)
                     : null;
                 const jumpAction = primaryJumpExample
-                    ? `<button type="button" class="ai-area-item-jump" data-highlight-key="${escapeHtml(String(primaryJumpExample.highlight_key))}">Jump to sentence</button>`
+                    ? `<button type="button" class="ai-area-item-jump" data-highlight-key="${escapeHtml(String(primaryJumpExample.highlight_key))}">${primaryJumpExample.sentence_number ? `Jump to sentence ${Number(primaryJumpExample.sentence_number)}` : 'Jump to sentence'}</button>`
                     : '';
 
                 return `<article class="ai-area-item is-${status}">
@@ -1490,6 +1493,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 text: sentenceText,
                 reason: String(claim.reason || fallbackReason || '').trim(),
                 highlight_key: claim.sentence_key ? String(claim.sentence_key) : normalizeForSentenceMatch(sentenceText),
+                sentence_number: claim && Number.isInteger(Number(claim.sentence_index)) ? Number(claim.sentence_index) + 1 : null,
                 url: null
             };
         };
