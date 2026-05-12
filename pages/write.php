@@ -601,6 +601,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                                                                 )
                                                                 ?></h4>
                                     <p id="aiSummary"><?= $initialSummary !== '' ? htmlspecialchars($initialSummary) : 'Run AI Fact Check to see a real verification summary from n8n.' ?></p>
+                                    <p id="aiScoreFormula" class="ai-score-formula" style="display:none;"></p>
                                     <p id="aiSourceLabel" class="ai-source-label" style="display:<?= $initialSourceLabel !== '' ? 'block' : 'none' ?>;"><?= htmlspecialchars($initialSourceLabel) ?></p>
                                 </div>
                             </div>
@@ -1129,6 +1130,71 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         }
     }
 
+    function renderScoreFormula({
+        trustScore = 0,
+        rubricMetrics = {},
+        flags = [],
+        sourceValidation = {},
+        referenceValid = false
+    } = {}) {
+        if (!aiScoreFormula) {
+            return;
+        }
+
+        const safeFlags = Array.isArray(flags) ? flags.map((flag) => String(flag || '')) : [];
+        const A = Math.max(0, Math.min(45, Number(rubricMetrics && rubricMetrics.factual_accuracy) || 0));
+        const S = Math.max(0, Math.min(25, Number(rubricMetrics && rubricMetrics.source_quality) || 0));
+        const B = Math.max(0, Math.min(10, Number(rubricMetrics && rubricMetrics.bias_detection) || 0));
+        const L = Math.max(0, Math.min(10, Number(rubricMetrics && rubricMetrics.logical_consistency) || 0));
+        const C = Math.max(0, Math.min(10, Number(rubricMetrics && rubricMetrics.completeness) || 0));
+        const cnaMatch = Boolean(sourceValidation && sourceValidation.cna_match);
+        const stMatch = Boolean(sourceValidation && sourceValidation.st_match);
+        const bothStrong = cnaMatch && stMatch
+            && !safeFlags.includes('core_claim_contradicted')
+            && !safeFlags.includes('multiple_core_claims_contradicted')
+            && !safeFlags.includes('contradicted_by_cna_and_st');
+
+        const steps = [`${A} + ${S} + ${B} + ${L} + ${C}`];
+        let runningTotal = A + S + B + L + C;
+
+        if (safeFlags.includes('no_trusted_match') && runningTotal > 50) {
+            runningTotal = 50;
+            steps.push('cap 50 no trusted match');
+        }
+        if (safeFlags.includes('core_claim_contradicted') && runningTotal > 49) {
+            runningTotal = 49;
+            steps.push('cap 49 core contradiction');
+        }
+        if (safeFlags.includes('multiple_core_claims_contradicted') && runningTotal > 49) {
+            runningTotal = 49;
+            steps.push('cap 49 multiple contradictions');
+        }
+        if (safeFlags.includes('contradicted_by_cna_and_st') && runningTotal > 30) {
+            runningTotal = 30;
+            steps.push('cap 30 contradicted by both');
+        }
+        if (safeFlags.includes('low_information') && runningTotal > 35) {
+            runningTotal = 35;
+            steps.push('cap 35 low information');
+        }
+        if (safeFlags.includes('high_bias')) {
+            runningTotal = Math.round(runningTotal * 0.85);
+            steps.push('x 0.85 bias penalty');
+        }
+        if (bothStrong) {
+            runningTotal += 2;
+            steps.push('+ 2 both outlets');
+        }
+        if (referenceValid) {
+            runningTotal += 3;
+            steps.push('+ 3 exact URL');
+        }
+
+        runningTotal = Math.max(0, Math.min(100, Math.round(runningTotal)));
+        aiScoreFormula.textContent = `${steps.join(' ')} = ${Math.max(0, Math.min(100, Number(trustScore) || runningTotal))}`;
+        aiScoreFormula.style.display = 'block';
+    }
+
     function applyVerdictState(decision, text) {
         const verdictBox = document.getElementById('aiVerdictBox');
         verdictBox.textContent = text || 'Verification completed.';
@@ -1170,6 +1236,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
     const aiLastChecked = document.getElementById('aiLastChecked');
     const aiScoreRing = document.getElementById('aiScoreRing');
     const aiVerdictHeadline = document.getElementById('aiVerdictHeadline');
+    const aiScoreFormula = document.getElementById('aiScoreFormula');
     const aiDecisionSummary = document.getElementById('aiDecisionSummary');
     const aiMatchedSourceCount = document.getElementById('aiMatchedSourceCount');
     const aiTotalClaimsInline = document.getElementById('aiTotalClaimsInline');
@@ -2249,6 +2316,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 referenceValid: Boolean(data.reference_valid),
                 content
             });
+            renderScoreFormula({
+                trustScore,
+                rubricMetrics,
+                flags: data.flags || [],
+                sourceValidation: data.source_validation || {},
+                referenceValid: Boolean(data.reference_valid)
+            });
             renderContentHighlights(content, data.claims || [], data.why_not_perfect_details || data.why_not_perfect || []);
             renderImprovementSuggestions(data.improvement_suggestions || []);
             renderMisinformationHighlights(data.misinformation_highlights || []);
@@ -2304,6 +2378,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         matchedSources: <?= json_encode($initialMatchedSources) ?>,
         referenceValid: <?= json_encode($initialReferenceValid) ?>,
         content: initialContentText
+    });
+    renderScoreFormula({
+        trustScore: <?= (int) $initialTrustScore ?>,
+        rubricMetrics: <?= json_encode($initialRubricMetrics) ?>,
+        flags: <?= json_encode($initialFlags) ?>,
+        sourceValidation: <?= json_encode($initialSourceValidation) ?>,
+        referenceValid: <?= json_encode($initialReferenceValid) ?>
     });
     renderAreasToImprove({
         trustScore: <?= (int) $initialTrustScore ?>,

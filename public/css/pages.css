@@ -2058,6 +2058,14 @@ mark.highlight-contradicted {
     letter-spacing: 0.12em;
     color: var(--text-amber);
 }
+.user-dashboard-shell .ai-score-formula {
+    margin: 6px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    font-family: 'IBM Plex Mono', monospace;
+    word-break: break-word;
+}
 .user-dashboard-shell .ai-overview-copy h4 {
     font-family: 'DM Serif Display', serif;
     font-size: 34px;
