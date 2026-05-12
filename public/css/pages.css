@@ -2304,6 +2304,29 @@ mark.highlight-contradicted {
     gap: 6px;
     margin-bottom: 6px;
 }
+.user-dashboard-shell .ai-claims-group + .ai-claims-group {
+    margin-top: 14px;
+}
+.user-dashboard-shell .ai-claims-group-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.user-dashboard-shell .ai-claims-group-title span {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--success);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+.user-dashboard-shell .ai-claims-group-title.is-weak span {
+    color: var(--warning);
+}
 .user-dashboard-shell .ai-issue-topline {
     display: flex;
     align-items: center;

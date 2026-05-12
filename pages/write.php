@@ -1918,8 +1918,12 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         const supportedItems = Array.isArray(items) ?
             items.filter((claim) => String(claim && claim.status ? claim.status : 'supported') === 'supported') :
             [];
+        const weakItems = Array.isArray(items) ?
+            items.filter((claim) => String(claim && claim.status ? claim.status : 'supported') === 'weak') :
+            [];
+        const visibleItems = [...supportedItems, ...weakItems];
 
-        if (supportedItems.length === 0) {
+        if (visibleItems.length === 0) {
             claimsList.innerHTML = '';
             claimsBox.style.display = 'none';
             if (claimsCountLabel) {
@@ -1929,13 +1933,13 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
         }
 
         if (claimsCountLabel) {
-            claimsCountLabel.textContent = `${supportedItems.length} claim${supportedItems.length === 1 ? '' : 's'}`;
+            claimsCountLabel.textContent = `${visibleItems.length} claim${visibleItems.length === 1 ? '' : 's'}`;
         }
         if (claimsDisclosure) {
             claimsDisclosure.open = false;
         }
 
-        claimsList.innerHTML = supportedItems.map((claim) => {
+        const renderClaimCard = (claim) => {
             const status = claim && claim.status ? String(claim.status) : 'supported';
             const label = status === 'contradicted' ? 'Contradicted' : (status === 'weak' ? 'Needs Support' : 'Supported');
             const statusClass = status === 'contradicted' ? 'is-contradicted' : (status === 'weak' ? 'is-weak' : 'is-supported');
@@ -1954,7 +1958,29 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             <span class="ai-issue-meta">${reason}${source}</span>
             <span class="ai-issue-action">Jump to sentence</span>
         </button>`;
-        }).join('');
+        };
+
+        const sections = [];
+        if (supportedItems.length > 0) {
+            sections.push(`
+            <section class="ai-claims-group">
+                <h5 class="ai-claims-group-title">Supported <span>${supportedItems.length} claim${supportedItems.length === 1 ? '' : 's'}</span></h5>
+                <div class="ai-claims-group-list">
+                    ${supportedItems.map(renderClaimCard).join('')}
+                </div>
+            </section>`);
+        }
+        if (weakItems.length > 0) {
+            sections.push(`
+            <section class="ai-claims-group">
+                <h5 class="ai-claims-group-title is-weak">Needs Support <span>${weakItems.length} claim${weakItems.length === 1 ? '' : 's'}</span></h5>
+                <div class="ai-claims-group-list">
+                    ${weakItems.map(renderClaimCard).join('')}
+                </div>
+            </section>`);
+        }
+
+        claimsList.innerHTML = sections.join('');
         claimsBox.style.display = 'block';
         bindClaimCardClicks();
     }
