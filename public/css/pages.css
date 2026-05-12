@@ -1497,6 +1497,132 @@ body:has(.sub-page-shell) {
 .write-editor-shell .write-field-head label {
     margin-bottom: 6px;
 }
+.write-content-shell {
+    position: relative;
+    border-radius: var(--r-md);
+    overflow: hidden;
+}
+.write-content-mirror,
+.write-content-input {
+    width: 100%;
+    min-height: 250px;
+    padding: 14px 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.write-content-mirror {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    color: rgba(226, 232, 240, 0.96);
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(12, 18, 31, 0.98));
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r-md);
+}
+.write-content-input {
+    position: relative;
+    z-index: 2;
+    resize: vertical;
+    background: transparent;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r-md);
+    color: rgba(226, 232, 240, 0.14);
+    caret-color: #f8fafc;
+    text-shadow: 0 0 0 rgba(226, 232, 240, 0.96);
+    outline: none;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease;
+}
+.write-content-input::selection {
+    background: rgba(125, 211, 252, 0.38);
+    color: #f8fafc;
+    text-shadow: none;
+}
+.write-content-input:focus {
+    background: rgba(255, 255, 255, 0.015);
+    border-color: var(--border-amber);
+    box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.12);
+}
+.write-content-input::-webkit-scrollbar,
+.write-content-mirror::-webkit-scrollbar {
+    width: 10px;
+}
+.write-content-input::-webkit-scrollbar-thumb,
+.write-content-mirror::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.32);
+    border-radius: 999px;
+}
+.write-content-input::-webkit-scrollbar-track,
+.write-content-mirror::-webkit-scrollbar-track {
+    background: transparent;
+}
+.user-dashboard-shell .ai-inline-highlight {
+    display: inline;
+    padding: 0.08em 0.12em;
+    border-radius: 0.38em;
+    color: #f8fafc;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+.user-dashboard-shell .ai-inline-highlight.is-supported {
+    background: rgba(34, 197, 94, 0.28);
+    box-shadow:
+        inset 0 0 0 1px rgba(74, 222, 128, 0.42),
+        inset 0 -0.14em 0 rgba(21, 128, 61, 0.22);
+}
+.user-dashboard-shell .ai-inline-highlight.is-weak {
+    background: rgba(245, 158, 11, 0.34);
+    box-shadow:
+        inset 0 0 0 1px rgba(251, 191, 36, 0.42),
+        inset 0 -0.14em 0 rgba(180, 83, 9, 0.24);
+}
+.user-dashboard-shell .ai-inline-highlight.is-clarity {
+    background: rgba(59, 130, 246, 0.30);
+    box-shadow:
+        inset 0 0 0 1px rgba(96, 165, 250, 0.45),
+        inset 0 -0.14em 0 rgba(37, 99, 235, 0.24);
+}
+.user-dashboard-shell .ai-inline-highlight.is-contradicted {
+    background: rgba(239, 68, 68, 0.34);
+    box-shadow:
+        inset 0 0 0 1px rgba(248, 113, 113, 0.46),
+        inset 0 -0.14em 0 rgba(185, 28, 28, 0.26);
+}
+.user-dashboard-shell .ai-highlight-focus {
+    filter: brightness(1.08);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.72),
+        0 0 0 2px rgba(255, 255, 255, 0.18),
+        0 0 18px rgba(255, 255, 255, 0.12);
+}
+.user-dashboard-shell .write-content-input.ai-content-focus-supported {
+    border-color: rgba(74, 222, 128, 0.9);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+}
+.user-dashboard-shell .write-content-input.ai-content-focus-weak {
+    border-color: rgba(251, 191, 36, 0.92);
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
+}
+.user-dashboard-shell .write-content-input.ai-content-focus-clarity {
+    border-color: rgba(96, 165, 250, 0.92);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.16);
+}
+.user-dashboard-shell .write-content-input.ai-content-focus-contradicted {
+    border-color: rgba(248, 113, 113, 0.92);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.16);
+}
 .write-form-panel {
     background: var(--surface-card);
     border: 1px solid var(--border-subtle);
