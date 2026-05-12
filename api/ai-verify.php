@@ -356,6 +356,8 @@ function buildWhyExampleFromClaim(?array $claim, string $label): ?array
         'text' => $text,
         'reason' => trim((string) ($claim['reason'] ?? '')),
         'highlight_key' => ($claim['sentence_key'] ?? null) !== null ? trim((string) $claim['sentence_key']) : null,
+        'sentence_index' => isset($claim['sentence_index']) && $claim['sentence_index'] !== null ? (int) $claim['sentence_index'] : null,
+        'sentence_number' => isset($claim['sentence_index']) && $claim['sentence_index'] !== null ? ((int) $claim['sentence_index']) + 1 : null,
         'source' => ($claim['source'] ?? null) !== null ? trim((string) $claim['source']) : null,
     ];
 }

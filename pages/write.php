@@ -1311,7 +1311,15 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             if (item && typeof item === 'object' && !Array.isArray(item)) {
                 return {
                     message: String(item.message || '').trim(),
-                    examples: Array.isArray(item.examples) ? item.examples : []
+                    examples: Array.isArray(item.examples)
+                        ? item.examples.map((example) => ({
+                            ...example,
+                            sentence_index: example && Number.isInteger(Number(example.sentence_index)) ? Number(example.sentence_index) : null,
+                            sentence_number: example && Number.isInteger(Number(example.sentence_number))
+                                ? Number(example.sentence_number)
+                                : (example && Number.isInteger(Number(example.sentence_index)) ? Number(example.sentence_index) + 1 : null)
+                        }))
+                        : []
                 };
             }
 
@@ -1620,6 +1628,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 text: sentenceText,
                 reason: String(claim.reason || fallbackReason || '').trim(),
                 highlight_key: claim.sentence_key ? String(claim.sentence_key) : normalizeForSentenceMatch(sentenceText),
+                sentence_index: claim && Number.isInteger(Number(claim.sentence_index)) ? Number(claim.sentence_index) : null,
                 sentence_number: claim && Number.isInteger(Number(claim.sentence_index)) ? Number(claim.sentence_index) + 1 : null,
                 url: null
             };
@@ -1925,14 +1934,18 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             const issueStatus = categorizeWhyMessage(item.message);
             (Array.isArray(item.examples) ? item.examples : []).forEach((example) => {
                 const sentenceKey = example && example.highlight_key ? String(example.highlight_key) : '';
+                const sentenceIndex = example && Number.isInteger(Number(example.sentence_index))
+                    ? `index:${Number(example.sentence_index)}`
+                    : '';
                 const draftSentence = example && example.text ? normalizeForSentenceMatch(example.text) : '';
-                if (!sentenceKey && !draftSentence) {
+                if (!sentenceKey && !sentenceIndex && !draftSentence) {
                     return;
                 }
 
-                registerSentenceMatch([sentenceKey, draftSentence], {
+                registerSentenceMatch([sentenceKey, sentenceIndex, draftSentence], {
                     status: issueStatus,
                     sentence_key: sentenceKey || null,
+                    sentence_index: sentenceIndex !== '' ? Number(example.sentence_index) : null,
                     draft_sentence: example && example.text ? String(example.text) : '',
                     reason: item.message
                 });
