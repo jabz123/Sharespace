@@ -687,6 +687,13 @@ if ($hasCachedVerification) {
         'matched_sources' => is_array($existingVerification['matched_sources'] ?? null)
             ? $existingVerification['matched_sources']
             : [],
+        'source_validation' => is_array($existingVerification['source_validation'] ?? null)
+            ? $existingVerification['source_validation']
+            : ['cna_match' => false, 'st_match' => false],
+        'reference_valid' => !empty($existingVerification['reference_valid']),
+        'flags' => is_array($existingVerification['flags'] ?? null)
+            ? $existingVerification['flags']
+            : [],
         'why_not_perfect' => is_array($existingVerification['why_not_perfect'] ?? null)
             ? $existingVerification['why_not_perfect']
             : [],
@@ -813,6 +820,14 @@ $summary = trim((string) ($decoded['summary'] ?? ''));
 if ($summary === '') {
     $summary = 'AI verification completed successfully.';
 }
+$flags = is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [];
+$sourceValidation = is_array($decoded['source_validation'] ?? null)
+    ? [
+        'cna_match' => !empty($decoded['source_validation']['cna_match']),
+        'st_match' => !empty($decoded['source_validation']['st_match']),
+    ]
+    : ['cna_match' => false, 'st_match' => false];
+$referenceValid = !empty($decoded['reference_valid']);
 
 $misinformationHighlights = [];
 if (is_array($decoded['misinformation_highlights'] ?? null)) {
@@ -850,14 +865,14 @@ $matchedSources = normalizeMatchedSources($decoded);
 $whyNotPerfect = buildWhyNotPerfect(
     $normalizedRubricMetrics,
     $normalizedMetrics,
-    is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [],
+    $flags,
     $claims,
     $matchedSources
 );
 $whyNotPerfectDetails = buildWhyNotPerfectDetails(
     $normalizedRubricMetrics,
     $normalizedMetrics,
-    is_array($decoded['flags'] ?? null) ? $decoded['flags'] : [],
+    $flags,
     $claims,
     $matchedSources
 );
@@ -878,6 +893,9 @@ $_SESSION['article_ai_verification'] = [
     'claims' => $claims,
     'claim_summary' => $claimSummary,
     'matched_sources' => $matchedSources,
+    'source_validation' => $sourceValidation,
+    'reference_valid' => $referenceValid,
+    'flags' => $flags,
     'why_not_perfect' => $whyNotPerfect,
     'why_not_perfect_details' => $whyNotPerfectDetails,
 ];
@@ -910,6 +928,9 @@ echo json_encode([
     'claims' => $claims,
     'claim_summary' => $claimSummary,
     'matched_sources' => $matchedSources,
+    'source_validation' => $sourceValidation,
+    'reference_valid' => $referenceValid,
+    'flags' => $flags,
     'why_not_perfect' => $whyNotPerfect,
     'why_not_perfect_details' => $whyNotPerfectDetails,
     'cached_result' => false,
