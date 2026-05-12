@@ -1832,13 +1832,15 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
                 const selectionMeta = {
                     start,
                     end,
-                    status: String(matchedClaim.status || 'supported')
+                    status: String(matchedClaim.status || 'supported'),
+                    sentenceNumber: currentSentenceIndex + 1
                 };
                 highlightRanges.push({
                     start,
                     end,
                     status: selectionMeta.status,
-                    highlightKey
+                    highlightKey,
+                    sentenceNumber: selectionMeta.sentenceNumber
                 });
 
                 [highlightKey, normalizedSentence].filter(Boolean).forEach((key) => {
@@ -1870,7 +1872,7 @@ page_head($isEdit ? 'Edit Article' : 'Write Article');
             const segment = rawContent.slice(range.start, range.end);
             const statusClass = String(range.status || 'supported');
             htmlParts.push(
-                `<mark class="ai-inline-highlight is-${statusClass}" data-highlight-key="${escapeHtml(range.highlightKey)}">${escapeHtml(segment)}</mark>`
+                `<mark class="ai-inline-highlight is-${statusClass}" data-highlight-key="${escapeHtml(range.highlightKey)}" data-sentence-number="${Number(range.sentenceNumber) || ''}">${escapeHtml(segment)}</mark>`
             );
             cursor = range.end;
         });
