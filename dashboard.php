@@ -128,7 +128,7 @@ page_head('Dashboard');
                             </div>
                             <div class="dashboard-stat-card">
                                 <strong><?= (int) count($latestArticles) ?></strong>
-                                <span>Fresh reports today</span>
+                                <span>Latest Articles</span>
                             </div>
                             <div class="dashboard-stat-card">
                                 <strong><?= $averageTrust ?>%</strong>
